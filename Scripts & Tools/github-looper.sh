@@ -18,7 +18,7 @@ COUNTER=1
 while [ $NUMBER_OF_COMMITS -gt 0 ]
 do
 	COMMIT_ID2=$(git rev-parse --verify HEAD)
-	./pinotscript.sh | sudo tee ~/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/$1/$COUNTER-ID:$COMMIT_ID2.txt
+	./pinotscript.sh 2>&1 | tee ~/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/ant/$COUNTER-ID:$COMMIT_ID2.txt
 	git reset --hard HEAD~1 
 	NUMBER_OF_COMMITS2=$(git rev-list --count $COMMIT_ID2)
 	COUNTER=$((COUNTER+1))
