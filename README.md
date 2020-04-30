@@ -8,3 +8,5 @@ There is a Structure101 project file, which was used to analyze the Archie tool'
 
 A working demo is possible to be seen if the command ./github-looper.sh is ran inside the Analyzed_Projects/ant/ folder.
 Note: The path of the file needs to be absolute, so the file pinotscript.sh needs to be changed accordingly (the 2nd line of the file).
+
+Link to the report: https://www.overleaf.com/read/rgsckktszptp
