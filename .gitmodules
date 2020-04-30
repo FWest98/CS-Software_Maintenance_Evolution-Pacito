@@ -1,0 +1,3 @@
+[submodule "Analyzed_Projects/hadoop-hdfs"]
+	path = Analyzed_Projects/hadoop-hdfs
+	url = ../../apache/hadoop-hdfs.git
