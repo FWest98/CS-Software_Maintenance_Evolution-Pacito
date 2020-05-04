@@ -18,7 +18,7 @@ for line in $file_lines ;
 do
 	git reset --hard $line
     	CURRENT_COMMIT=$(git log -n1 --format=format:"%H")
-	./pinotscript.sh 2>&1 | tee outputs/$COUNTER-ID:$CURRENT_COMMIT.txt
+	./pinotscript.sh 2>&1 | tee outputs/$COUNTER-ID-$CURRENT_COMMIT.txt
 	COUNTER=$((COUNTER+1))
 	git log -1 --pretty=format:"%h - %an, %ar"
 	echo $(git log $CURRENT_COMMIT..$FINAL_COMMIT --pretty=oneline | wc -l) " - Number of commits left"

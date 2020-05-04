@@ -5,7 +5,9 @@ COUNTER=1
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
 
-git rev-list --reverse trunk > commitOrder.txt
+#depending on the project, the main branch can either be master or trunk
+git rev-list --reverse master > commitOrder.txt
+#git rev-list --reverse trunk > commitOrder.txt
 
 filename=commitOrder.txt
 file_lines=`cat $filename`
