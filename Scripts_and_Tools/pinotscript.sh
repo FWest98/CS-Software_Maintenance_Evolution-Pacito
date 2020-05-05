@@ -25,9 +25,9 @@ echo "Project path is NOT set"
 return
 fi
 if [[ $CLASSPATH != *"rt.jar"* ]] ; then
-export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/jdk1.8.0_251/jre/lib/\
-:/usr/lib/jvm/jdk1.8.0_251/jre/lib/rt.jar\
-:/usr/lib/jvm/jdk1.8.0_251/jre/bin/\
+export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/\
+:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar\
+:/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/\
 :/home/filipe/Desktop/Internship_RuG_2020/Scripts_and_Tools/pinot-src/lib/rt.jar
 fi
 

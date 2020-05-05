@@ -1,0 +1,87 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+JVector is a Decorator class
+getSignature is a decorate operation
+mElement of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+Decorator Pattern
+JMap is a Decorator class
+getSignature is a decorate operation
+mKey of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+
+ JType
+Strategy Pattern.
+JField is the Context class.
+JType is the Strategy interface.
+Concrete Strategy classes:  JByte JInt JFloat JCompType JBoolean JDouble JLong JString JVector JBuffer JMap
+Delegation through mType of type JType
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JField.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JType.java
+
+Flyweight Pattern.
+Quotas is a flyweight factory.
+procZookeeper is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/Quotas.java
+
+Flyweight Pattern.
+CommonNames is a flyweight factory.
+DOMAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/jmx/CommonNames.java
+
+Mediator Pattern.
+Mediator: JVector
+Colleagues:  JField JBuffer JMap
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+Mediator Pattern.
+Mediator: JMap
+Colleagues:  JField JVector JBuffer
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      0
+Flyweight                   2
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    2
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 39
+Number of files processed: 472
+Size of DelegationTable: 350
+Size of concrete class nodes: 19
+Size of undirected invocation edges: 5
+
+
+nMediatorFacadeDual/nMediator = 0/2
+nImmutable/nFlyweight = 0/2
+nFlyweightGoFVersion = 0
