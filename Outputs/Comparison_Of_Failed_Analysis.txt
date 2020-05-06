@@ -4,4 +4,9 @@ MINA -        833 vs 1923
 ZOOKEEPER -     5 vs 1325
 HADOOP-HDFS - 283 vs 558
 
+ADDITIONAL ANALYSIS
+
+		PROCESSED FILES 
+JHotDraw60B1 - 286 VS 156
+
 Command used: egrep -l pinot {foldername}/*.txt

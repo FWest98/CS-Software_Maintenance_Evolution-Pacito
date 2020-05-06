@@ -3,3 +3,5 @@
 MINA -        833 vs 1923
 ZOOKEEPER -     5 vs 1325
 HADOOP-HDFS - 283 vs 558
+
+Command used: egrep -l pinot {foldername}/*.txt
