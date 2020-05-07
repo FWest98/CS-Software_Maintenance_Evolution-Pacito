@@ -1,0 +1,198 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+JVector is a Decorator class
+getSignature is a decorate operation
+mElement of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JVector.java
+
+Decorator Pattern
+JMap is a Decorator class
+getSignature is a decorate operation
+mKey of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JMap.java
+
+
+ JType
+Strategy Pattern.
+RecordWriter is the Context class.
+OutputArchive is the Strategy interface.
+Concrete Strategy classes:  BinaryOutputArchive CsvOutputArchive XmlOutputArchive
+Delegation through archive of type OutputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/RecordWriter.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/OutputArchive.java
+
+Strategy Pattern.
+JField is the Context class.
+JType is the Strategy interface.
+Concrete Strategy classes:  JByte JInt JFloat JCompType JBoolean JDouble JLong JString JVector JBuffer JMap
+Delegation through mType of type JType
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JField.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JType.java
+
+Strategy Pattern.
+RecordReader is the Context class.
+InputArchive is the Strategy interface.
+Concrete Strategy classes:  BinaryInputArchive XmlInputArchive CsvInputArchive
+Delegation through archive of type InputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/RecordReader.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/InputArchive.java
+
+Flyweight Pattern.
+Version is a flyweight factory.
+sccs is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/zookeeper/Version.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+BinaryInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  BinaryIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/BinaryInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+XmlInputArchive is a concrete Factory Method class.
+startVector is a factory method returns  XmlIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/XmlInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+XmlInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  XmlIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/XmlInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startVector is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/CsvInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/CsvInputArchive.java
+
+Visitor pattern found.
+Record is an abstract Visitor class.
+RecordWriter is a Vistee class.
+write is the accept method.
+serialize is the visit method.
+archive is exposed to visitor Record
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/RecordWriter.java
+
+Mediator Pattern.
+Mediator: CGenerator
+Colleagues:  JFile JRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/CGenerator.java
+
+Mediator Pattern.
+Mediator: CppGenerator
+Colleagues:  JFile JRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/CppGenerator.java
+
+Mediator Pattern.
+Mediator: JavaGenerator
+Colleagues:  JFile JRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JavaGenerator.java
+
+Mediator Pattern.
+Mediator: JVector
+Colleagues:  JField JBuffer JMap
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JVector.java
+
+Mediator Pattern.
+Mediator: JMap
+Colleagues:  JField JVector JBuffer
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JMap.java
+
+Facade Pattern.
+CsvOutputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: CsvOutputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/CsvOutputArchive.java
+
+Facade Pattern.
+XmlOutputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: XmlOutputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/XmlOutputArchive.java
+
+Facade Pattern.
+CGenerator is a facade class.
+Hidden types: JFile JRecord
+Facade access types: JFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/CGenerator.java
+
+Facade Pattern.
+JFile is a facade class.
+Hidden types: CppGenerator JavaGenerator CGenerator
+Facade access types: CppGenerator CGenerator
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/JFile.java
+
+Facade Pattern.
+CppGenerator is a facade class.
+Hidden types: JFile JRecord
+Facade access types: JFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/compiler/CppGenerator.java
+
+Facade Pattern.
+XmlInputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: XmlInputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/XmlInputArchive.java
+
+Facade Pattern.
+CsvInputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: CsvInputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/zookeeper/java/src/com/yahoo/jute/CsvInputArchive.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      7
+Flyweight                   1
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    5
+Observer                    0
+State                       0
+Strategy                    3
+Template Method             0
+Visitor                     1
+------------------------------
+
+Number of classes processed: 50
+Number of files processed: 91
+Size of DelegationTable: 808
+Size of concrete class nodes: 34
+Size of undirected invocation edges: 26
+
+
+nMediatorFacadeDual/nMediator = 2/5
+nImmutable/nFlyweight = 0/1
+nFlyweightGoFVersion = 0

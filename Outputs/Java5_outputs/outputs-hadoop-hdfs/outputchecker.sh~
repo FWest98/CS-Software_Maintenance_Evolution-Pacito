@@ -1,0 +1,14 @@
+#!/bin/bash
+ 
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied. Usage ./outputchecker desiredFileName"
+fi
+
+touch $1.txt
+
+egrep -l -e pinot -e jikes *.txt >> $1.list
+
+egrep -L " " *.txt >> $1.list
+
+sort -n -o $1.list $1.list
