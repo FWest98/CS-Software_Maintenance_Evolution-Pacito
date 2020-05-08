@@ -1,0 +1,10 @@
+sudo gedit /etc/environment
+
+-change java version
+
+sudo gedit /etc/profile
+
+-change CLASSPATH and JAVA_HOME
+
+change pinotscript.sh java version
+
