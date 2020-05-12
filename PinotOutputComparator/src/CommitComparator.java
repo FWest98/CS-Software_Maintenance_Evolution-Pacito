@@ -6,14 +6,17 @@ import java.util.Comparator;
 public class CommitComparator {
     private static int counter = 1;
 
+    //Change according to the name of the folder where the pinot outputs are available
+    private static String analyzedProject = "outputs-hadoop-hdfs";
+
     public static void main(String[] args) throws IOException {
 
         //Create directory to store results if it does not exist already
-        File directory = new File(".\\results");
+        File directory = new File(".\\results-"+analyzedProject);
         directory.mkdir();
 
         //Store the files from pinot outputs to an array
-        File[] files = new File("./outputs-zookeeper").listFiles();
+        File[] files = new File(".\\" + analyzedProject).listFiles();
 
         //Sort files by numerical order, since by default they are sorted
         //Alphabetically
@@ -43,7 +46,7 @@ public class CommitComparator {
         boolean hasErrors = checkIfFileHasErrors(file1)||checkIfFileHasErrors(file2);
 
         if (hasErrors) {
-            File errorAnalysis = new File(".\\results\\" + "Error-" + counter + ".txt");
+            File errorAnalysis = new File(".\\results-" + analyzedProject + "\\" + "Error-" + counter + ".txt");
             errorAnalysis.createNewFile();
             counter++;
         }
@@ -55,7 +58,7 @@ public class CommitComparator {
 
     private static boolean checkIfAnyFileIsEmpty(File file1, File file2) throws IOException {
         if (file1.length() == 0 || file2.length() == 0){
-            File noAnalysis = new File(".\\results\\" + "Blank-" + counter + ".txt");
+            File noAnalysis = new File(".\\results-"+analyzedProject + "\\Blank-" + counter + ".txt");
             noAnalysis.createNewFile();
             counter++;
             return true;
@@ -131,9 +134,9 @@ public class CommitComparator {
         File resultFile;
 
         if (firstPatterns.equals(secondPatterns)){
-            resultFile = new File(".\\results\\" + "No_differences-" + counter + ".txt");
+            resultFile = new File(".\\results-" + analyzedProject + "\\" + "No_differences-" + counter + ".txt");
         }else{
-            resultFile = new File(".\\results\\" + "VALID-" + counter + ".txt");
+            resultFile = new File(".\\results-" + analyzedProject + "\\" + "VALID-" + counter + ".txt");
         }
         counter++;
 
