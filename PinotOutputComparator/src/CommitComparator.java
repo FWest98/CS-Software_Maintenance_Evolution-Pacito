@@ -8,13 +8,18 @@ public class CommitComparator {
 
     public static void main(String[] args) throws IOException {
 
+        //Create directory to store results if it does not exist already
         File directory = new File(".\\results");
         directory.mkdir();
 
+        //Store the files from pinot outputs to an array
         File[] files = new File("./outputs-zookeeper").listFiles();
 
+        //Sort files by numerical order, since by default they are sorted
+        //Alphabetically
         sortFilesByNumericalOrder(files);
 
+        //Where the comparison is made for all files
         patternComparator(files);
     }
 
@@ -26,7 +31,7 @@ public class CommitComparator {
                 ArrayList<String> firstPatterns = performAnalysis(files[i]);
                 ArrayList<String> secondPatterns = performAnalysis(files[i+1]);
 
-                pinotComparator(firstPatterns,secondPatterns);
+                pinotComparator(firstPatterns,secondPatterns, files[i+1]);
             }
         }
 
@@ -38,7 +43,7 @@ public class CommitComparator {
         boolean hasErrors = checkIfFileHasErrors(file1)||checkIfFileHasErrors(file2);
 
         if (hasErrors) {
-            File errorAnalysis = new File(".\\results\\" + counter + "-Error.txt");
+            File errorAnalysis = new File(".\\results\\" + "Error-" + counter + ".txt");
             errorAnalysis.createNewFile();
             counter++;
         }
@@ -50,7 +55,7 @@ public class CommitComparator {
 
     private static boolean checkIfAnyFileIsEmpty(File file1, File file2) throws IOException {
         if (file1.length() == 0 || file2.length() == 0){
-            File noAnalysis = new File(".\\results\\" + counter + "-Blank.txt");
+            File noAnalysis = new File(".\\results\\" + "Blank-" + counter + ".txt");
             noAnalysis.createNewFile();
             counter++;
             return true;
@@ -118,23 +123,28 @@ public class CommitComparator {
         return patterns;
     }
 
-    private static void pinotComparator(ArrayList<String> firstPatterns, ArrayList<String> secondPatterns) throws IOException {
+    private static void pinotComparator(ArrayList<String> firstPatterns, ArrayList<String> secondPatterns, File second) throws IOException {
+
+        //-4 since I need to remove the .txt extension
+        String commitHash = second.getName().substring(second.getName().lastIndexOf("-")+1, second.getName().length()-4);
 
         File resultFile;
 
         if (firstPatterns.equals(secondPatterns)){
-            resultFile = new File(".\\results\\" + counter + "-No_differences.txt");
+            resultFile = new File(".\\results\\" + "No_differences-" + counter + ".txt");
         }else{
-            resultFile = new File(".\\results\\" + counter + "-VALID.txt");
+            resultFile = new File(".\\results\\" + "VALID-" + counter + ".txt");
         }
         counter++;
 
         FileWriter writer = new FileWriter(resultFile);
         BufferedWriter buffer = new BufferedWriter(writer);
 
+        buffer.write("Pattern changes caused by commit: " +  commitHash + "\n\n");
+
         for (int i = 0; i < firstPatterns.size()-1; i++) {
             if (!(firstPatterns.get(i).equals(secondPatterns.get(i)))){
-                buffer.write(firstPatterns.get(i) + "!=" + secondPatterns.get(i) + "\n");
+                buffer.write("From: " + firstPatterns.get(i) + "\nTo:   " + secondPatterns.get(i) + "\n\n");
             }
         }
         buffer.close();
@@ -143,7 +153,6 @@ public class CommitComparator {
     ///////////////////////
     // AUXILIARY METHODS //
     ///////////////////////
-
 
     private static void sortFilesByNumericalOrder(File[] files) {
         Arrays.sort(files, new Comparator<File>() {
