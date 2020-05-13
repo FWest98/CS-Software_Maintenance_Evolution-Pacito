@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 08cc3e01fcd26ab9eced8eba0516e49c14cf27d3
+
+From: Facade-8
+To:   Facade-3
+
+From: Mediator-5
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-410.txt 
+
+commit 08cc3e01fcd26ab9eced8eba0516e49c14cf27d3
+Author: Benjamin Reed <breed@apache.org>
+
+    ZOOKEEPER-409. address all findbugs warnings in jute related classes

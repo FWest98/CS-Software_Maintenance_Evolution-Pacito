@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f1dd874ed7ddd42f006600319dd5e896ed8ac349
+
+From: Flyweight-0
+To:   Flyweight-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-157.txt 
+
+commit f1dd874ed7ddd42f006600319dd5e896ed8ac349
+Author: Benjamin Reed <breed@apache.org>
+
+    [ 1913998 ] JMX instrumentation

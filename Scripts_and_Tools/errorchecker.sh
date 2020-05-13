@@ -2,7 +2,7 @@
  
 if [ $# -eq 0 ]
   then
-    echo "No arguments supplied. Usage ./outputchecker desiredFileName"
+    echo "No arguments supplied. Usage ./errorchecker.sh desiredFileName"
 fi
 
 touch $1-errors.list

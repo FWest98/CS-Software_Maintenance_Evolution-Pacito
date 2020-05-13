@@ -1,0 +1,16 @@
+Pattern changes caused by commit: cef8ad10d66a54d9d5969cd8ea1682f58798c316
+
+From: Flyweight-1
+To:   Flyweight-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-98.txt 
+
+commit cef8ad10d66a54d9d5969cd8ea1682f58798c316
+Author: Andrew Kornev <akornev@apache.org>
+
+    Added support for server version info at runtime; added the "release" target to ant build file
