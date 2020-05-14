@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+#This script is supposed to be ran inside a folder containing outputs from the Java project, more specifically, folder inside the folder numbered with 2 inside the Outputs folder
+
 if [ $# -eq 0 ]
   then
     echo "No arguments supplied. Usage ./issueTagExtractor.sh gitHubFolderName\nThis gitHubFolderName needs to exactly match the one on your system"

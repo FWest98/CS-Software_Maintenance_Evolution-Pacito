@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 73cc4a1404c9e295c849f5c921c849d387dd0ae2
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1322.txt 
+
+commit 73cc4a1404c9e295c849f5c921c849d387dd0ae2
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-547 - Reduce unnecessary thread creation and destruction caused by IdleStatusChecker
+    * IdleStatusChecker is not a singleton anymore
+    * One AbstractIoService has one IdleStatusChecker thread
+    * An IdleStatusChecker thread starts automatically when a new service is created, and stops when the service is disposed.

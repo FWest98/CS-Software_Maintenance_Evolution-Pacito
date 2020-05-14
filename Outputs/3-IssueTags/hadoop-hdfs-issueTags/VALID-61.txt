@@ -1,0 +1,16 @@
+Pattern changes caused by commit: dc96e2286cee2501b4e8a8820a030f500bfeaa2f
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-61.txt 
+
+commit dc96e2286cee2501b4e8a8820a030f500bfeaa2f
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-462. loadFSImage should close edits file. Contributed by Jakob Homan.

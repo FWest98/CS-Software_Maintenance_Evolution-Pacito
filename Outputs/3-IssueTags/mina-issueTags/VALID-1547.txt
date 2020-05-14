@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 069cc574e4b92cf8d02e974ccf681e59f02289a5
+
+From: Facade-4
+To:   Facade-2
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1547.txt 
+
+commit 069cc574e4b92cf8d02e974ccf681e59f02289a5
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    annotating some classes with javadoc tags for xbean and adding some simple tests

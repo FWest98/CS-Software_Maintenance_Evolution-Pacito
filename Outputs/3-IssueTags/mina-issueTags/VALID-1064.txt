@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a03b417cfc2489afad930ecb03be03b9faccf99a
+
+From: Facade-2
+To:   Facade-1
+
+From: Strategy-5
+To:   Strategy-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1064.txt 
+
+commit a03b417cfc2489afad930ecb03be03b9faccf99a
+Author: Trustin Lee <trustin@apache.org>
+
+    Implemented an abstraction layer for polling connectors

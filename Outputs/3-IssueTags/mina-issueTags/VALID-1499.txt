@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 5392d8d363c3e4700f27845b4c4703ac2ccbf9ed
+
+From: Facade-3
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1499.txt 
+
+commit 5392d8d363c3e4700f27845b4c4703ac2ccbf9ed
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Forgot to commit the modification to the getStat method in core. Makes Hudson hunhappy ...

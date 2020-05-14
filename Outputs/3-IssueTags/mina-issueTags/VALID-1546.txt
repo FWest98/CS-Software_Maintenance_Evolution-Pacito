@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8eba1e964df9f4e7f58001ee127fd5d49fdbe31e
+
+From: Facade-3
+To:   Facade-4
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1546.txt 
+
+commit 8eba1e964df9f4e7f58001ee127fd5d49fdbe31e
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fixed name for surefire maven plugin compliance

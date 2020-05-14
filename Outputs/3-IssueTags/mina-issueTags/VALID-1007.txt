@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 6abf705621ef923b2bf49059700f59c03b80f06d
+
+From: Facade-2
+To:   Facade-4
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1007.txt 
+
+commit 6abf705621ef923b2bf49059700f59c03b80f06d
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed NPE in SimpleIoProcessorPool due to timing issue

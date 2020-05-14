@@ -1,0 +1,16 @@
+Pattern changes caused by commit: e9de80e5da2d3ab8d4f7771eb95bbc038baa145e
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-359.txt 
+
+commit e9de80e5da2d3ab8d4f7771eb95bbc038baa145e
+Author: Konstantin I Boudnik <cos@apache.org>
+
+    HDFS-880. TestNNLeaseRecovery fails on windows. Contributed by Konstantin Boudnik, Konstantin Shvachko.

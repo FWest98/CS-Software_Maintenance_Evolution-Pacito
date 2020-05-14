@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 554f8a60e00ed3da2ccbe55282d4d5e646e500a7
+
+From: Facade-4
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1598.txt 
+
+commit 554f8a60e00ed3da2ccbe55282d4d5e646e500a7
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    More cleaning :
+    - removed a useless check
+    - moved all the helper methods to the helper section
+    - added a method to get the ProtocolDecoderOutput from the session, if it exists, or create it and stores it into the session
+    - added some javadoc

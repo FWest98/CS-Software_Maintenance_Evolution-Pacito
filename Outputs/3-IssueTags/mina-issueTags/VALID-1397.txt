@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 58d114a15ce4dca264184af42dd83f3ea5e37d54
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-7
+To:   Facade-4
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1397.txt 
+
+commit 58d114a15ce4dca264184af42dd83f3ea5e37d54
+Author: Trustin Lee <trustin@apache.org>
+
+    Moved the duplicated code in (Un)OrderedThreadPoolExecutor to IoEventQueueHandler

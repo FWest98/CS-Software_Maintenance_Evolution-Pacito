@@ -1,0 +1,16 @@
+Pattern changes caused by commit: a154497e76ee2f394bd858bf9cc28745d4c17cee
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1706.txt 
+
+commit a154497e76ee2f394bd858bf9cc28745d4c17cee
+Author: Maarten Bosteels <maarten@apache.org>
+
+    FIX for DIRMINA-711 : made test for MdcInjectionFilter more robust

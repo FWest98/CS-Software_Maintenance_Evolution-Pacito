@@ -1,0 +1,18 @@
+Pattern changes caused by commit: f5e17cc15781e3f6ca413177587a03000d709950
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1560.txt 
+
+commit f5e17cc15781e3f6ca413177587a03000d709950
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Added comments and javadoc
+    o unfolded the constructors
+    o used explicit constants instead of magic numbers

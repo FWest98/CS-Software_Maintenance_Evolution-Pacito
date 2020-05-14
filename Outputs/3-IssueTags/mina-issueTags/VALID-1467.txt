@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 81f8b599bb86e859c26eabd77c3cdb8587bce8ec
+
+From: Facade-7
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1467.txt 
+
+commit 81f8b599bb86e859c26eabd77c3cdb8587bce8ec
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    AbstractPollingIoAcceptor javadoced finalized, TODO tag removed

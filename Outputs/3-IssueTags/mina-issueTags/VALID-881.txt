@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 695d77e15c13913f7a459c47a64a1a6f2633ab4b
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-881.txt 
+
+commit 695d77e15c13913f7a459c47a64a1a6f2633ab4b
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-302 (Unbounded nature of writeRequestQueue can cause OutOfMemoryException)
+    * More JavaDoc for WriteThrottlePolicy

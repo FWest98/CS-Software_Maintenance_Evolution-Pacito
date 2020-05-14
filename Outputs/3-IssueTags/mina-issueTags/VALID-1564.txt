@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 433ede9bd4e9c8c52f4d925367874ab62b66e6eb
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1564.txt 
+
+commit 433ede9bd4e9c8c52f4d925367874ab62b66e6eb
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Added sime javadoc
+    o Renamed the processSessions method to processConnection, as it's really what it does.
+    o Renamed the connectionRequest() method to getConnectionRequest() for clarity sake
+    o Removed useless Assert.
+    o Fixed the getSlice(int, int) method

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 5c5bd29ea8c75e0541b48571ed45bcae3a4d1ad6
+
+From: Facade-3
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1722.txt 
+
+commit 5c5bd29ea8c75e0541b48571ed45bcae3a4d1ad6
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Fixed the failing test by increasing the time needed to get a close session to 10 seconds (but checking every second).

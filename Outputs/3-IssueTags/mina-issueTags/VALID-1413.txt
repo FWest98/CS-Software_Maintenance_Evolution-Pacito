@@ -1,0 +1,16 @@
+Pattern changes caused by commit: a7d304efe9fcc10835f35b3e64630f27b89aa7d1
+
+From: Facade-2
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1413.txt 
+
+commit a7d304efe9fcc10835f35b3e64630f27b89aa7d1
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    fixing ASYNCWEB-11 & DIRMINA-579

@@ -1,0 +1,27 @@
+Pattern changes caused by commit: e15b5373186aaeaa5e3403e87e020ba5c4012467
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1336.txt 
+
+commit e15b5373186aaeaa5e3403e87e020ba5c4012467
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMiNA-551 - IoBuffer doesn't double up on auto-expansion.
+    * Fixed AbstractIoBuffer to double up on auto-expansion
+    * Fixing 1.x costs more than 2.x, so I ended up fixing documentation.

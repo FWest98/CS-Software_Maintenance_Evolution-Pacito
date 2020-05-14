@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 453174ad263252bec3d30e1280e5822ec61bcca8
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-385.txt 
+
+commit 453174ad263252bec3d30e1280e5822ec61bcca8
+Author: Konstantin I Boudnik <cos@apache.org>
+
+    HDFS-907. Add tests for getBlockLocations and totalLoad metrics. Contributed by Ravi Phulari.

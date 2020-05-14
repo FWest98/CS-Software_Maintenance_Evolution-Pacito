@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ca46afdf92d077119d671c4698abde38ce93dd8d
+
+From: Facade-5
+To:   Facade-4
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1723.txt 
+
+commit ca46afdf92d077119d671c4698abde38ce93dd8d
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Now uses random available port and uses lock to make the test more predictable

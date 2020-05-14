@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 0e4f0472c69422faef1b483cc6bf3bc6a8ea413a
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1018.txt 
+
+commit 0e4f0472c69422faef1b483cc6bf3bc6a8ea413a
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added IoConnector.defaultRemoteAddress
+    * Added IoConnector.connect() which uses defaultRemoteAddress as an endpoint.
+    ** This is very useful when a user want to initiate connection attempt from an IoC container, by setting defaultRemoteAddress property and setting connect() method as an initializer.

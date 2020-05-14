@@ -1,0 +1,25 @@
+Pattern changes caused by commit: ca9abdda4efa746f628f413ad2fc4d77739513fc
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-7
+To:   Facade-2
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1428.txt 
+
+commit ca9abdda4efa746f628f413ad2fc4d77739513fc
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Uniformizing the @author tag, to get them all the same

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f1bec36cea86903f46ff63b37f90636f2512162e
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1490.txt 
+
+commit f1bec36cea86903f46ff63b37f90636f2512162e
+Author: Niklas Gustavsson <ngn@apache.org>
+
+    Making sure the DefaultExceptionMonitor does not catch and swallow Errors, such as OOM

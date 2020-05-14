@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b1fd5b4a3d61aaf720603a56f9f258d452d069f0
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1300.txt 
+
+commit b1fd5b4a3d61aaf720603a56f9f258d452d069f0
+Author: Mike Heath <mheath@apache.org>
+
+    Modified enum getters and setters to use unsigned byte and unsigned short (so we can have enum with an ordinal value > 127 for bytes and ordinals > 32767 for shorts.)

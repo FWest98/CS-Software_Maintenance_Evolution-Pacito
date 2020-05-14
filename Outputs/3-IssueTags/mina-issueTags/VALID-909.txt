@@ -1,0 +1,24 @@
+Pattern changes caused by commit: 86fa73b781da3fc4240ca40351e0a6801f240a44
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-3
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-909.txt 
+
+commit 86fa73b781da3fc4240ca40351e0a6801f240a44
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-469 (Write throughput is horribly low)
+    * Improved the write operation loop more efficiently.
+    * Adjust the default write limit of AbstractIoProcessor to squeeze throughput.

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 97517336485cb80c322c6ed4cbedb481e8e7964e
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-389.txt 
+
+commit 97517336485cb80c322c6ed4cbedb481e8e7964e
+Author: Thomas White <tomwhite@apache.org>
+
+    HDFS-894. DatanodeID.ipcPort is not updated when existing node re-registers. Contributed by Todd Lipcon.

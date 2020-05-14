@@ -1,0 +1,23 @@
+Pattern changes caused by commit: db504284b55312a4245283d4a9c044f89081306c
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+From: Strategy-6
+To:   Strategy-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1057.txt 
+
+commit db504284b55312a4245283d4a9c044f89081306c
+Author: Trustin Lee <trustin@apache.org>
+
+    * Fixed a problem that parameters are not set when url-encoded form is posted
+    * More HttpHeaderConstants utilization

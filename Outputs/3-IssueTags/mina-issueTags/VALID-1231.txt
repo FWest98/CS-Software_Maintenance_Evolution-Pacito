@@ -1,0 +1,16 @@
+Pattern changes caused by commit: db3f28ebedb3fd4797369b8c729a1c6dc9ed2403
+
+From: Strategy-5
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1231.txt 
+
+commit db3f28ebedb3fd4797369b8c729a1c6dc9ed2403
+Author: Trustin Lee <trustin@apache.org>
+
+    Added more sanity check to advise misunderstanding user

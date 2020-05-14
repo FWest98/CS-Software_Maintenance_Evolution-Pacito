@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1498.txt 
+
+commit 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Applied patch for DIRMINA-608 provided by Barend

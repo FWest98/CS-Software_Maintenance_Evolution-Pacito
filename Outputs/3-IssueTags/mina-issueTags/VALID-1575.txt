@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 2a292daa8ddbd39143a08adcb9269356b50af36a
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1575.txt 
+
+commit 2a292daa8ddbd39143a08adcb9269356b50af36a
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the useless inner Invokedtask interface, and renamed the InvokedTaskImpl to InvokedTask.

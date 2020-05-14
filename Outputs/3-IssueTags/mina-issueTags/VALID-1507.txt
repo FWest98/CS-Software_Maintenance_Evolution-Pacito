@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1764aaffc322b5286e0e4b4b12eaa4565d0a1341
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1507.txt 
+
+commit 1764aaffc322b5286e0e4b4b12eaa4565d0a1341
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix for DIRMINA-587

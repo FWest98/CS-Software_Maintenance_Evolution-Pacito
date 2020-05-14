@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 2d08863e3b656c4346c44fbac50f7d563567d713
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-5
+To:   Facade-6
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-826.txt 
+
+commit 2d08863e3b656c4346c44fbac50f7d563567d713
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed possible FD leak in SocketConnector (I think it won't happen at most cases though...)

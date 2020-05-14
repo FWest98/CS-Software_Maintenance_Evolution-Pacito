@@ -1,0 +1,25 @@
+Pattern changes caused by commit: f958f147621f3a7d60ec5b8017884877af8873c1
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1401.txt 
+
+commit f958f147621f3a7d60ec5b8017884877af8873c1
+Author: Trustin Lee <trustin@apache.org>
+
+    More documentation

@@ -1,0 +1,32 @@
+Pattern changes caused by commit: 7bdc0e26883825ba54337620ae631a276f1b70ba
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-5
+To:   Facade-4
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-880.txt 
+
+commit 7bdc0e26883825ba54337620ae631a276f1b70ba
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-249 (exceptionCaught() should provide more information)
+    * Added WriteException which contains the list of the failed WriteRequests
+    * All write-related exceptions extend WriteException now.
+    * Added NothingWrittenException
+    * Added WriteToClosedSessionException
+    * WriteFuture also provides 'exception' property to tell the cause of the write failure; all failed WriteFutures must provide a related exception now.
+    * All queued write requests which couldn't be written out due to sudden disconnection are notified as an exceptionCaught event with WriteToClosedSessionException now.
+    * Improved SslFilter to filter out WriteToClosedSessionException which contains a failed close_notify request.

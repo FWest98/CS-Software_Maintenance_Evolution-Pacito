@@ -1,0 +1,17 @@
+Pattern changes caused by commit: cef7a536e43f361afdca8dd2b659c2edeb240f4f
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1333.txt 
+
+commit cef7a536e43f361afdca8dd2b659c2edeb240f4f
+Author: Trustin Lee <trustin@apache.org>
+
+    * Minimized the number of interestOps(int) calls
+    * Tiny optimization: AbstractPollingIoProcessor.flush() now flushes write request queue immediately if the operation is called from the worker thread itself.

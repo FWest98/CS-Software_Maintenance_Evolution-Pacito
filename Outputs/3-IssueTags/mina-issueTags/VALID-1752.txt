@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 45bddd553781af114ea97021d3e937c9e15c1a26
+
+From: Facade-4
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1752.txt 
+
+commit 45bddd553781af114ea97021d3e937c9e15c1a26
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed ^M from those files

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 58cf512a030e95d69dee238964b1871b3fbd3647
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-454.txt 
+
+commit 58cf512a030e95d69dee238964b1871b3fbd3647
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-1031. Enhance the webUi to list a few of the corrupted files in HDFS.
+    (AndrÃ© Orian via dhruba)

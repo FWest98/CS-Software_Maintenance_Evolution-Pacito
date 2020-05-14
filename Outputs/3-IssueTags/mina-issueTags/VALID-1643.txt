@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 99edf58932ba34b528d1d157fa00184a07c561a2
+
+From: Facade-3
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1643.txt 
+
+commit 99edf58932ba34b528d1d157fa00184a07c561a2
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Added a test in the ConnectionRequest.cancel() method : if the connection is already closed, no need to cancel it again.

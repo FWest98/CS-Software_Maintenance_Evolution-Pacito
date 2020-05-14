@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 292365568b54dd4f4f8005ed1ad77ff32ca986bb
+
+From: Facade-4
+To:   Facade-7
+
+From: Flyweight-5
+To:   Flyweight-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-797.txt 
+
+commit 292365568b54dd4f4f8005ed1ad77ff32ca986bb
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-448 (Allow Object keys for session attributes)
+    * Trivial changes in session attribute access methods

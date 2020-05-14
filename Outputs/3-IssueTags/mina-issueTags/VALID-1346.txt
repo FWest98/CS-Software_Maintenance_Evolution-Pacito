@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 7552914ee19534ce18409bca581723551f6d008e
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Strategy-7
+To:   Strategy-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1346.txt 
+
+commit 7552914ee19534ce18409bca581723551f6d008e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-548 - subclass of CumulativeDecoder throws an UnsupportedOperationException if IoBuffer.slice() is used
+    * Modified CumulativeProtocolDecoder to reallocate its internal buffer if it detects auto-expansion has been disabled.
+    * Added the related test case, and it passed
+    * Removed unnecessary class - UnderivableBuffer

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: b7db8d1030d27cf33236f9c127af0ecb53ba4139
+
+From: Facade-5
+To:   Facade-4
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1735.txt 
+
+commit b7db8d1030d27cf33236f9c127af0ecb53ba4139
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix to do less reflection ops whilie initialising the pool

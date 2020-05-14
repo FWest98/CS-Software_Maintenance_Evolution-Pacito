@@ -1,0 +1,26 @@
+Pattern changes caused by commit: dc5113f84adb899be393ef71f2de00570153a182
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1404.txt 
+
+commit dc5113f84adb899be393ef71f2de00570153a182
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-570 - NullPointerException in NioProcessor.transferFile
+    * Made sure to ignore a null exception message

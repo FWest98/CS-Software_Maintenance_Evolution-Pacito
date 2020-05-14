@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a78b8a27989dcf67d30ff0f4e0477ca720098edf
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-990.txt 
+
+commit a78b8a27989dcf67d30ff0f4e0477ca720098edf
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a problem that acceptor threads don't exit on partial bind failure in datagram and socket.

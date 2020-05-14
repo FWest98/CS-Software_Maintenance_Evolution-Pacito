@@ -1,0 +1,27 @@
+Pattern changes caused by commit: b2fd0ae3b78e5c7d4c1a24642b12325b33873c2d
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1405.txt 
+
+commit b2fd0ae3b78e5c7d4c1a24642b12325b33873c2d
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved DIMINA-582 (IoService.getManagedSession() should return a Map instead of a Set.)
+    * Replaced ConcurrentHashSet<IoSession> in IoServiceListenerSupport with ConcurrentHashMap<Long, IoSession>
+    * Fixed related compilation errors in various modules and abstract classes

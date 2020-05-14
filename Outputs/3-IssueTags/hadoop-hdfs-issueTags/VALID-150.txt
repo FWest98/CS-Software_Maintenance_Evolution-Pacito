@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 637a38a43dac2cc246a3e002b27bcc72f99a321a
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-150.txt 
+
+commit 637a38a43dac2cc246a3e002b27bcc72f99a321a
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-576. Merge -r 810334:811493 from trunk to the append branch.

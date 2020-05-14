@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 8469f705cb68d50c34a9b151c8d3dbbd6a945027
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-811.txt 
+
+commit 8469f705cb68d50c34a9b151c8d3dbbd6a945027
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added sanity check to some filters that cannot be added more than once to the same chain

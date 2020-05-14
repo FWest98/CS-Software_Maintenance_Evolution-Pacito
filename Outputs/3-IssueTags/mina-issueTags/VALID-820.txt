@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7ab63535e0aee74edc3da1aaf62ec58763b657d0
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-820.txt 
+
+commit 7ab63535e0aee74edc3da1aaf62ec58763b657d0
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-454 (Trivial denial of service in TextLineDecoder)
+    * Made sure remaining data is decoded after exception is thrown

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: d5eff833a12293313919e1be8e7ff997c5166cee
+
+From: Facade-7
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1469.txt 
+
+commit d5eff833a12293313919e1be8e7ff997c5166cee
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed a useless import

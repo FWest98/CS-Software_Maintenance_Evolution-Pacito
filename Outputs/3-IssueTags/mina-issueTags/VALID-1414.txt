@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 137d4ff24c2c337d7aa629c4e29140af8c372cb2
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1414.txt 
+
+commit 137d4ff24c2c337d7aa629c4e29140af8c372cb2
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a tiny problem that scheduledWriteBytes is not decreased immediately.

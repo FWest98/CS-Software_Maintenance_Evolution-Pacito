@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 1430f97adc23a2e69f4d9698ea432652ae0fcc81
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-6
+
+From: Flyweight-3
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-812.txt 
+
+commit 1430f97adc23a2e69f4d9698ea432652ae0fcc81
+Author: Mark Webb <mwebb@apache.org>
+
+    Added javadoc information

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 28a8c22fea37be56180492a52edbb6f643780b6b
+
+From: Facade-3
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1585.txt 
+
+commit 28a8c22fea37be56180492a52edbb6f643780b6b
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Switched to Junit 4 construct, adding @Test, @Before, @After and static asserts elements in the test

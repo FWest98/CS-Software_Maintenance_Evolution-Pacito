@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f474e2c1f587896f821170bc5b659a5677d8738f
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-879.txt 
+
+commit f474e2c1f587896f821170bc5b659a5677d8738f
+Author: Trustin Lee <trustin@apache.org>
+
+    Oops, I found out extending an IOException is more correct for WriteTimeoutException...

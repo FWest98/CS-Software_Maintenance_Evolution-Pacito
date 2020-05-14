@@ -1,0 +1,25 @@
+Pattern changes caused by commit: b536f02696539cf24665c7f573fd6c5d7c92c416
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-947.txt 
+
+commit b536f02696539cf24665c7f573fd6c5d7c92c416
+Author: Trustin Lee <trustin@apache.org>
+
+    Applied Generics to IoProcessor

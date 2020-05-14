@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b72abcf9644ce2e3e62e5093d35d61414de1340c
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-476.txt 
+
+commit b72abcf9644ce2e3e62e5093d35d61414de1340c
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS=1079. Throw exceptions as specified by the AbstractFileSystem in HDFS implemenation and protocols. (suresh)

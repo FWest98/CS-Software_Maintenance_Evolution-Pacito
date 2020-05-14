@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 57bae55c4d8a78d4022216a6e5b522935bf7f577
+
+From: Facade-3
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1478.txt 
+
+commit 57bae55c4d8a78d4022216a6e5b522935bf7f577
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    more javadoc on AbstractPollingIoConnector and NioSocketConnector

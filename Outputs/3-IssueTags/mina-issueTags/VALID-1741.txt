@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 1bd8ba1a4094aba8b29b615d8c5dd01eca81a6f3
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1741.txt 
+
+commit 1bd8ba1a4094aba8b29b615d8c5dd01eca81a6f3
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Created a real Enum file for the sessionState
+    o Added some Javadoc and comments
+    o Changed the name of the state() method to getState() for clarity sake
+    o Renamed remove() to removeSessions() in the AbtractPollingIoProcessor class, for clarity sake

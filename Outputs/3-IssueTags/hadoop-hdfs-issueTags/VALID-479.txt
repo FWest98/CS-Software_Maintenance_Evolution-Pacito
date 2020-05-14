@@ -1,0 +1,16 @@
+Pattern changes caused by commit: bbcfef4aa1885e054cb60eb0053d9cf9f9d1db32
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-479.txt 
+
+commit bbcfef4aa1885e054cb60eb0053d9cf9f9d1db32
+Author: Boris Shkolnik <boryas@apache.org>
+
+    HDFS-1163. normalize property names for JT/NN kerberos principal names in configuration (from HADOOP 6633)

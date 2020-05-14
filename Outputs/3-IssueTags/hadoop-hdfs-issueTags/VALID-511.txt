@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 8e4290091bbf9d4dfb01406d08987b5bffc15ad7
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-511.txt 
+
+commit 8e4290091bbf9d4dfb01406d08987b5bffc15ad7
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-1114. Implement LightWeightGSet for BlocksMap in order to reduce NameNode memory footprint.

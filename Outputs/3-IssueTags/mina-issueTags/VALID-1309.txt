@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 6ac1e8b309fe3044f71197c58a0f09e07079fb01
+
+From: Facade-4
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1309.txt 
+
+commit 6ac1e8b309fe3044f71197c58a0f09e07079fb01
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed DIRMINA-542 (ArrayIndexOutOfBoundsException in CircularQueue.shrinkIfNeeded())
+    * Added related test case
+    * Made sure shrinkIfNeeded doesn't copy anything if empty

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1d08317b263144e7cbd6097dc3ea99ee926683a3
+
+From: Facade-2
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1445.txt 
+
+commit 1d08317b263144e7cbd6097dc3ea99ee926683a3
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the reference to the deprecated MockControl class.

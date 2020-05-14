@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 310d6faa8c8e4c34667e615b6558a1b0fc194af0
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1549.txt 
+
+commit 310d6faa8c8e4c34667e615b6558a1b0fc194af0
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    Java doc annotating more classes for use with XBean

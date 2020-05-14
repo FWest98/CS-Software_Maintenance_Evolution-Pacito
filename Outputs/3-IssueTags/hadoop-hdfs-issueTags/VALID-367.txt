@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 87c4ba830a93a782377e4c0ead9c5eca3984a41d
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-367.txt 
+
+commit 87c4ba830a93a782377e4c0ead9c5eca3984a41d
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-897. Fix a bug related to generation stamp comparison in ReplicasMap. Contributed by Suresh Srinivas.

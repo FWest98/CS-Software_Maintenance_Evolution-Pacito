@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 3cb51f5eb229f066117cdaee4ed69d2f1f16663d
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-944.txt 
+
+commit 3cb51f5eb229f066117cdaee4ed69d2f1f16663d
+Author: Trustin Lee <trustin@apache.org>
+
+    Made IoEvent implement Runnable

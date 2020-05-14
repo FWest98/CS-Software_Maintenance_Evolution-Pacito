@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9f38e6ddcf5b07ebb184fc634969ff384bf864ca
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1675.txt 
+
+commit 9f38e6ddcf5b07ebb184fc634969ff384bf864ca
+Author: Ashish Paliwal <apaliwal@apache.org>
+
+    Removed PMD unused import error
+    Submitted By: Ashish (apaliwal.at.apache.org)

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b7db116fc53eb2c45bd4dba7703ac848f786ecc8
+
+From: Facade-4
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1672.txt 
+
+commit b7db116fc53eb2c45bd4dba7703ac848f786ecc8
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Minor refactoring and Javadoc addition

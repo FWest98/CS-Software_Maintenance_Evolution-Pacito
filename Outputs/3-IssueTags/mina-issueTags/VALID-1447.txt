@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 69546e2ef82c90f45c7db3e30b9148f0e434a4d8
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-7
+To:   Facade-2
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1447.txt 
+
+commit 69546e2ef82c90f45c7db3e30b9148f0e434a4d8
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Minor refactoring and comment addition

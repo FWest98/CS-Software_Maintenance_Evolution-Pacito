@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 03ee9cfc2fb44bacd09c968de00794b237776e68
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1371.txt 
+
+commit 03ee9cfc2fb44bacd09c968de00794b237776e68
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed a unnecessary parameter in KeepAliveFilter

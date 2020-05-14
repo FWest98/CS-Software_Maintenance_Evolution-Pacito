@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 60dd25d2e18dde02c284fe644dc41b40fd250135
+
+From: Facade-7
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1382.txt 
+
+commit 60dd25d2e18dde02c284fe644dc41b40fd250135
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    fixing the SM proxyt builder setClassLoader method for returning "this" for method chaining

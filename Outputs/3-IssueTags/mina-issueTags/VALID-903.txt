@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 30a0b5dee0b00b4037b1c95d116f7b45f4af624d
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-4
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-903.txt 
+
+commit 30a0b5dee0b00b4037b1c95d116f7b45f4af624d
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-144 (Traffic shaping filter)
+    * More precise traffic control by adjusting MaxReadBufferSize as soon as possible.

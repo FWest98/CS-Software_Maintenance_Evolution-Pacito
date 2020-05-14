@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 27938e735946482f56e834c9f63503adc132da38
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1458.txt 
+
+commit 27938e735946482f56e834c9f63503adc132da38
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    more IoService Javadoc, mainly on constructors.

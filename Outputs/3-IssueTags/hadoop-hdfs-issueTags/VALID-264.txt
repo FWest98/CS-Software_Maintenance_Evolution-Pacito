@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 335ca495bde6976cc0fe6f48727128dd964e0730
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-264.txt 
+
+commit 335ca495bde6976cc0fe6f48727128dd964e0730
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-690. TestAppend2#testComplexAppend failed on "Too many open files". Contributed by Hairong Kuang.

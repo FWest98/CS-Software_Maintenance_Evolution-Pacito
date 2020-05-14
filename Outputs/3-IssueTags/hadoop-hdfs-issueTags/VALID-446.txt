@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 349420a89584f46c4c84b47b5d9407e81e129310
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-446.txt 
+
+commit 349420a89584f46c4c84b47b5d9407e81e129310
+Author: Konstantin Shvachko <shv@apache.org>
+
+    git-svn-id: https://svn.apache.org/repos/asf/hadoop/hdfs/trunk@936132 13f79535-47bb-0310-9956-ffa450edef68

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f2039b34dc7adaf974132707a160b2e9896c0a38
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-999.txt 
+
+commit f2039b34dc7adaf974132707a160b2e9896c0a38
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-473 (ReadThrottleFilter throws IllegalStateException)
+    * Reverted the previous change partially - the counter is reset when it goes negative.

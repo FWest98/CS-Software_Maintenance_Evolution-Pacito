@@ -1,0 +1,16 @@
+Pattern changes caused by commit: d7543d063ffd49c17da646dd63e7d78873e896fe
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1437.txt 
+
+commit d7543d063ffd49c17da646dd63e7d78873e896fe
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Added some missing Javadoc, and some @inheritedDoc temporarilly

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: fbdc815bd6bf009441329319c6f9df994c5029cf
+
+From: Facade-5
+To:   Facade-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1418.txt 
+
+commit fbdc815bd6bf009441329319c6f9df994c5029cf
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Added a lot of missing @{inheritDoc}

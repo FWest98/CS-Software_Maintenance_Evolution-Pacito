@@ -1,0 +1,22 @@
+Pattern changes caused by commit: eed49dac33ef6979e37d998c974863fc7e85bdf2
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-7
+To:   Facade-4
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1461.txt 
+
+commit eed49dac33ef6979e37d998c974863fc7e85bdf2
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the useless DatagramSession and SocketSession interfaces

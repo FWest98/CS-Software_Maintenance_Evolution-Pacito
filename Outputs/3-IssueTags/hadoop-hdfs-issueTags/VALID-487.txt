@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 02f08ba7079e2e418482ddd4504c096cc453ace4
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-487.txt 
+
+commit 02f08ba7079e2e418482ddd4504c096cc453ace4
+Author: Boris Shkolnik <boryas@apache.org>
+
+    HDFS-1038. Fix. Added missing test

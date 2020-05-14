@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 67f4f8e48092da0317f1e436b445728ec76a64b4
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Flyweight-3
+To:   Flyweight-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-941.txt 
+
+commit 67f4f8e48092da0317f1e436b445728ec76a64b4
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced Queue<WriteRequest> with WriteRequestQueue which provides dispose() method which is needed for a certain queue implementation like JMS queue.
+    * Optimized CircularQueue.clear() a little bit.

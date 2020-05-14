@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 3e821776f34bdb62cd00a62f4b3b8a335fae5212
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1267.txt 
+
+commit 3e821776f34bdb62cd00a62f4b3b8a335fae5212
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a bug reported by Eric Gaumer
+    * Allowed an empty reason phrase

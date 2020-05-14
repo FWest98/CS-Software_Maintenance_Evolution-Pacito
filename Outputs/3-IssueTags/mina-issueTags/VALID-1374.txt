@@ -1,0 +1,24 @@
+Pattern changes caused by commit: 52f5af6d1b4e1ce1b6cb4f6d6d43c2624192dea9
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1374.txt 
+
+commit 52f5af6d1b4e1ce1b6cb4f6d6d43c2624192dea9
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-564 Make KeepAliveFilter to work with other IdleStatuses then READER_IDLE
+    * Added KeepAliveFilter.interestedIdleStatus
+    * Added more constructors to KeepAliveFilter

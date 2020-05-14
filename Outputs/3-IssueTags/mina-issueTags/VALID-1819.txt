@@ -1,0 +1,38 @@
+Pattern changes caused by commit: 15b8b1a2b8db90d60932addc0b9625ab89180888
+
+From: Adapter-4
+To:   Adapter-6
+
+From: Bridge-1
+To:   Bridge-2
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-4
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-1
+To:   Strategy-8
+
+From: Template Method-0
+To:   Template Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1819.txt 
+
+commit 15b8b1a2b8db90d60932addc0b9625ab89180888
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    - Replaced the HashMap by ConcurrentHashmap
+    - Removed a useless IoProcessor counter, used the session counter instead to loop over the IoProcessor pool.

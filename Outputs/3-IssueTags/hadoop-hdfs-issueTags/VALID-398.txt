@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 12bbab73fa246efd22a316845743094023b23b30
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-398.txt 
+
+commit 12bbab73fa246efd22a316845743094023b23b30
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-984. Persistent delegation tokens. Contributed by Jitendra Pandey.

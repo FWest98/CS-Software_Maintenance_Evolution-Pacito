@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9b7c93bb3eb47b316903dcadc7c6b81dadc1197c
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-471.txt 
+
+commit 9b7c93bb3eb47b316903dcadc7c6b81dadc1197c
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-853. The HDFS webUI displays the balanced-ness of the cluster.
+    (Dmytro Molkov via dhruba)

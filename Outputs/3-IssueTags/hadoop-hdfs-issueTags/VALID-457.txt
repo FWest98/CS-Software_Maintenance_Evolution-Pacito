@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4214400d2f6bdbf306397fc6bb4aefb44abca3c1
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-457.txt 
+
+commit 4214400d2f6bdbf306397fc6bb4aefb44abca3c1
+Author: Jakob Glen Homan <jghoman@apache.org>
+
+    HDFS-666. Unit test for FsShell -text. (cdouglas via jghoman)
