@@ -1,0 +1,88 @@
+Pattern changes caused by commit: edeb5f70cfe77c3c4464de16ec9997edfc4cc91a
+
+From: Facade-5
+To:   Facade-4
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1654.txt 
+
+commit edeb5f70cfe77c3c4464de16ec9997edfc4cc91a
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Added a fix for DIRMINA-677. If the session is closed, or is closing, we just print a warning. That will spare the user an exception.
+
+
+
+==================================
+ Issue DIRMINA-677 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-677] AbstractIoSession sometimes throws java.lang.Error in toString()
+-----------------
+
+-----------------
+Summary: AbstractIoSession sometimes throws java.lang.Error in toString()
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 18 Mar 2009 20:37:55 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 19 Mar 2009 23:52:00 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+Sometimes, like just after a session
+has been closed, e.g. due to an
+IOException of some kind, the toString()
+often throws the given error due to some
+nio internal error.<br/>This should
+probably be caught by
+AbstractIoSession.toString() to avoid
+external user error?
+
+java.lang.Error:
+java.net.SocketException: Socket
+operation on nonsocket: getsockname
+<br/> at
+sun.nio.ch.Net.localAddress(Net.java:125)
+<br/> at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:430)
+<br/> at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)
+<br/> at
+java.net.Socket.getLocalSocketAddress(Socket.java:697)
+<br/> at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:132)
+<br/> at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:47)
+<br/> at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1125)
+
+ 

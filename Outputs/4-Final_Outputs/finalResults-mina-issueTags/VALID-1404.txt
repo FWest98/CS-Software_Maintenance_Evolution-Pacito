@@ -1,0 +1,103 @@
+Pattern changes caused by commit: dc5113f84adb899be393ef71f2de00570153a182
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1404.txt 
+
+commit dc5113f84adb899be393ef71f2de00570153a182
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-570 - NullPointerException in NioProcessor.transferFile
+    * Made sure to ignore a null exception message
+
+
+
+==================================
+ Issue DIRMINA-570 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-570] NullPointerException in NioProcessor.transferFile
+-----------------
+
+-----------------
+Summary: NullPointerException in NioProcessor.transferFile
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 16 Apr 2008 18:03:05 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 20 Apr 2008 05:14:51 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+A NullPointerException exception is
+thrown from NioProcessor.transferFile
+when an IOException thrown from
+transferTo and for some reason
+Exception.getMessage() returns null so
+when attempting
+e.getMessage().contains("Resource
+temporarily unavailable") a
+NullPointerException is thrown.  Patch
+is below:
+
+Index:
+NioProcessor.java<br/>===================================================================<br/>&#8212;
+NioProcessor.java   (revision
+648768)<br/>+++ NioProcessor.java  
+(working copy)<br/>@@ -192,7 +192,7
+@@<br/>             return (int)
+region.getFileChannel().transferTo(region.getPosition(),
+length, session.getChannel());<br/>     
+   } catch (IOException e) {<br/>       
+     // Check to see if the IOException
+is being thrown due to <a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5103988"
+class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5103988</a>
+<ul
+class="alternate" type="square">	<li>if
+(e.getMessage().contains("Resource
+temporarily unavailable")) {<br/>+      
+    if ("Resource temporarily
+unavailable".equals(e.getMessage())) {  
+              return 0;             }
+
+else {<br/>                 throw
+e;
+</li></ul> 

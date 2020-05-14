@@ -1,0 +1,69 @@
+Pattern changes caused by commit: 6d67f2f6d011b24a9d10d599a5a7c9ff31364b54
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1384.txt 
+
+commit 6d67f2f6d011b24a9d10d599a5a7c9ff31364b54
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-568 - Improve KeepAliveFilter to provide customizable timeout handler.
+    * Added KeepAliveRequestTimeoutHandler
+
+
+
+==================================
+ Issue DIRMINA-568 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-568] Improve KeepAliveFilter to provide customizable timeout handler.
+-----------------
+
+-----------------
+Summary: Improve KeepAliveFilter to provide customizable timeout handler.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 9 Apr 2008 11:26:05 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 9 Apr 2008 11:33:01 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+A user can specify a KeepAlivePolicy
+for a KeepAliveFilter to tell
+KeepAliveFilter what to do when ping
+timeout occurs.  However, what the user
+can choose is limited to very simple
+operations because KeepAlivePolicy is
+not extendable but an enum.  We need to
+replace it with
+KeepAliveRequestTimeoutHandler interface
+which is much more flexible.
+ 

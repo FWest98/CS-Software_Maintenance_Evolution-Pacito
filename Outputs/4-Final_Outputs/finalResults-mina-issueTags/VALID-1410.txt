@@ -1,0 +1,110 @@
+Pattern changes caused by commit: 749a222b4fa9cbf0783eb084a9de8c36e71dac84
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1410.txt 
+
+commit 749a222b4fa9cbf0783eb084a9de8c36e71dac84
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-580 (Session Idle times out when SSL is enabled)
+    * Applied the best patch suggested by Janardhanan
+
+
+
+==================================
+ Issue DIRMINA-580 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-580] Session Idle times out when SSL is enabled
+-----------------
+
+-----------------
+Summary: Session Idle times out when SSL is enabled
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 6 May 2008 05:46:17 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 14 May 2008 04:50:59 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+I have developed an HTTP Routing server
+using Mina 1.0.9 and I am using
+SSLFilter for handling SSL
+Connections.
+
+1. Using Jmeter as the
+client I am sending HTTPS requests to
+this server with 5 threads.<br/>2. For
+some of the requests(10%) the
+sessionCreated method on the Handler is
+getting called and the data from the
+client is not read by the server.<br/>3.
+sessionIdle() gets triggered and we
+close the connection. 
+
+This happens for
+the ssl connections only and when the
+server is trying to resume the cached
+session.
+
+I enabled ssl debug using
+-Djavax.net.debug=all on the server and
+I got the following logs for the failed
+sessions
+
+0240: EB 3E 28 AD 97 20 36 B7 
+ C0 35 4E 3E 80 71 88 99  %% Created: 
+<span class="error">&#91;Session-17,
+SSL_RSA_WITH_RC4_128_MD5&#93;</span><br/>
+9uTWV0aG961 58 4Dk%% Cached server
+session: <span
+class="error">&#91;Session-17,
+SSL_RSA_WITH_RC4_128_MD5&#93;</span><br/>
+10   7A 0F 37 59C   66 D3 18 2A  2B 3144
+1F 5 D9 16A EB 1 1F%% Resuming <span
+class="error">&#91;Session-17,
+SSL_RSA_WITH_RC4_128_MD5&#93;</span><br/>org.apache.mina.filter.SSLFilter.SSLSession=<span
+class="error">&#91;Session-17,
+SSL_RSA_WITH_RC4_128_MD5&#93;</span><br/>%%
+Invalidated:  <span
+class="error">&#91;Session-17,
+SSL_RSA_WITH_RC4_128_MD5&#93;</span>
+
+Any
+ideas why this could happen?
+ 

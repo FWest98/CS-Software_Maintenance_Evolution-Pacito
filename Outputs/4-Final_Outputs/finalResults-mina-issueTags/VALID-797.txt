@@ -1,0 +1,70 @@
+Pattern changes caused by commit: 292365568b54dd4f4f8005ed1ad77ff32ca986bb
+
+From: Facade-4
+To:   Facade-7
+
+From: Flyweight-5
+To:   Flyweight-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-797.txt 
+
+commit 292365568b54dd4f4f8005ed1ad77ff32ca986bb
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-448 (Allow Object keys for session attributes)
+    * Trivial changes in session attribute access methods
+
+
+
+==================================
+ Issue DIRMINA-448 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-448] Allow Object keys for session attributes.
+-----------------
+
+-----------------
+Summary: Allow Object keys for session attributes.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 28 Sep 2007 20:02:15 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 29 Sep 2007 21:50:36 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Allowing Object keys for session
+attributes makes sense in
+that:
+<ul>	<li>It can perform much
+faster.  (String takes time for matching
+as the key length gets long)</li>	<li><a
+href="http://www.nabble.com/setEnumAttribute--tf3795432s16868.html#a10735078"
+class="external-link"
+rel="nofollow">http://www.nabble.com/setEnumAttribute--tf3795432s16868.html#a10735078</a></li></ul> 

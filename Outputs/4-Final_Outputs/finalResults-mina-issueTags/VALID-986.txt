@@ -1,0 +1,67 @@
+Pattern changes caused by commit: 332a365bcad17198d148f1e95e3d1998b6e7f14f
+
+From: Facade-5
+To:   Facade-3
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-986.txt 
+
+commit 332a365bcad17198d148f1e95e3d1998b6e7f14f
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-341 (Allow binding multiple SocketAddresses per IoAcceptor.)
+    * All three acceptor implementations now binds to multiple addresses.
+
+
+
+==================================
+ Issue DIRMINA-341 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-341] Allow binding multiple SocketAddresses per IoAcceptor.
+-----------------
+
+-----------------
+Summary: Allow binding multiple SocketAddresses per IoAcceptor.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 28 Jan 2007 04:06:54 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 9 Nov 2007 11:37:00 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+2.0-M1-SNAPSHOT allows only one
+SocketAddress to be bound per
+IoAcceptor.  People want to bind the
+same protocol handler into more than one
+NICs with different port.
+ 

@@ -1,0 +1,69 @@
+Pattern changes caused by commit: 7ab63535e0aee74edc3da1aaf62ec58763b657d0
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-820.txt 
+
+commit 7ab63535e0aee74edc3da1aaf62ec58763b657d0
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-454 (Trivial denial of service in TextLineDecoder)
+    * Made sure remaining data is decoded after exception is thrown
+
+
+
+==================================
+ Issue DIRMINA-454 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-454] Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Summary: Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 6 Oct 2007 04:52:25 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Oct 2007 08:16:53 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+In both of TextLineDecoder's decoding
+methods, the decoder only checks the
+size of input after it's found at least
+one line ending character.  Infinitely
+long streams of, say, 'y's will cause
+the decoder to try to buffer up data
+until the JVM falls over.
+ 

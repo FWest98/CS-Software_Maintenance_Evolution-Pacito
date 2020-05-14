@@ -1,0 +1,68 @@
+Pattern changes caused by commit: b6ee1cbd1442d0fefa6db23e5723d51680322964
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1848.txt 
+
+commit b6ee1cbd1442d0fefa6db23e5723d51680322964
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Applied DIRMINA-794
+
+
+
+==================================
+ Issue DIRMINA-794 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-794] Log4jXmlFormatter is unnecessarily tied to BasicMDCAdapter
+-----------------
+
+-----------------
+Summary: Log4jXmlFormatter is unnecessarily tied to BasicMDCAdapter
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 9 Sep 2010 23:50:14 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 10 Sep 2010 11:21:22 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+The class
+org.apache.mina.util.Log4jXmlFormatter
+will only output the contents of the
+SLF4J MDC if the MDCAdapter used is an
+instance of BasicMDCAdapter. This has
+two problems:<br/>1) It excludes Log4j
+and Logback, the MDCAdapters for which
+do not extend BasicMDCAdapter<br/>2) It
+creates a dependency on (what should be)
+an internal SLF4J class
+ 

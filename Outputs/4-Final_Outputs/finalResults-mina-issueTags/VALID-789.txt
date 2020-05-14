@@ -1,0 +1,129 @@
+Pattern changes caused by commit: 8164cbb110e9ce353e27feeeaa2c0ed4d3ce5859
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-3
+To:   Facade-4
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-789.txt 
+
+commit 8164cbb110e9ce353e27feeeaa2c0ed4d3ce5859
+Author: Maarten Bosteels <maarten@apache.org>
+
+    Resolved issue: DIRMINA-445 : IoSessionLogger methods now take an Object instead of String (avoiding log message composition when logging event is filtered out)
+
+
+
+==================================
+ Issue DIRMINA-445 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-445] SessionLog improvement
+-----------------
+
+-----------------
+Summary: SessionLog improvement
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 24 Sep 2007 14:01:15 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 28 Sep 2007 19:30:51 +0000
+-----------------
+
+-----------------
+Assigned to: Maarten Bosteels
+-----------------
+
+-----------------
+Description: 
+
+SessionLog.debug(IoSession,String),
+info(IoSession,String),
+warn(IoSession,String) and
+error(IoSession,String) should be
+changed to
+SessionLog.debug(IoSession,Object),
+info(IoSession,Object),
+warn(IoSession,Object) and
+error(IoSession,Object), as in
+log4j.
+
+The reason for this is that if
+passing Objects instead of String allow
+to delay the composition of the logging
+message (.toString() call) until really
+needed and that could greatly improve
+performance. This kind of feature is
+needed to build SW able to be turned in
+debug while in production using NDC/MDC
+filters (using log4j e.g.).
+
+Some code
+snippet the illustrate this:
+
+    public
+void messageReceived(IoSession session,
+Object o) throws Exception
+    {      
+MyProtocolRequest req =
+(MyProtocolRequest) o;      
+NDC.put(req.getUserId());      
+SessionLog.debug(session, new
+RequestDumper(req));       NDC.pop();   
+}
+    class RequestDumper()<br/>   
+{<br/>        public
+RequestDumper(MyProtocolRequest req)
+   
+    {            this.req = req;       
+}
+        public String toString()
+     
+  {            return req.toString();   
+    }
+        private MyProtocolRequest
+req;<br/>    }
+
+In that snippet, the
+cost of converting MyProtocolRequest to
+a String is not paied when
+SessionLog.debug() is called, but when
+the underlying logging framework needs
+the string for logging. The perf
+improvement could be massive if the
+underlying protocol uses some kind of
+filtering to filter-out most debug logs;
+in that example, the logging framework
+would be configured to filter-in only
+logs with a NDC set to a specific
+user.
+
+With this feature, we could
+enable debug in production for some few
+users only, without killing the overall
+performances.
+ 

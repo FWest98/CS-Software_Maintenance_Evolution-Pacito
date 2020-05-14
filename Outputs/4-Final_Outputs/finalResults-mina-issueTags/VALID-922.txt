@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 7bc5c06a7dbd873d80f3074a05b9fd99d9180c90
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-922.txt 
+
+commit 7bc5c06a7dbd873d80f3074a05b9fd99d9180c90
+Author: Niklas Therning <niklas@apache.org>
+
+    Resolved DIRMINA-463: Introduced IoHandler and IoFilter specific transition annotations and enums which enumerates the possible IoHandler and IoFilter events.
+
+
+
+==================================
+ Issue DIRMINA-463 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-463] Find the best way to specify both MINA and non-MINA events.
+-----------------
+
+-----------------
+Summary: Find the best way to specify both MINA and non-MINA events.
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 29 Oct 2007 03:27:45 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 5 Nov 2007 19:21:12 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+As discussed here: <a
+href="http://tinyurl.com/2omrl9"
+class="external-link"
+rel="nofollow">http://tinyurl.com/2omrl9</a>
+
+For
+now, we use String to identify event
+types, which is somewhat unsafe.  Using
+an enum might be useful, but there are a
+few disadvantages:
+<ul>	<li>Wildcard
+event type cannot be used, which could
+be extended further (e.g. "message*" or
+"session(Opened|Closed)")</li></ul>
+Probably
+sticking to String might be the best
+solution? <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle"
+alt="" border="0"/>
+ 

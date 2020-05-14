@@ -1,0 +1,95 @@
+Pattern changes caused by commit: 7961a51e78830fcbad9ff2572b7934899b41d2df
+
+From: Facade-7
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1325.txt 
+
+commit 7961a51e78830fcbad9ff2572b7934899b41d2df
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-539 - NioDatagramConnector doesn't takes the TrafficClass value set to his DatagramSessionConfig
+    * Made sure all datagram socket parameters are configured
+
+
+
+==================================
+ Issue DIRMINA-539 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-539] NioDatagramConnector doesn't takes the TrafficClass value set to his DatagramSessionConfig 
+-----------------
+
+-----------------
+Summary: NioDatagramConnector doesn't takes the TrafficClass value set to his DatagramSessionConfig 
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 6 Mar 2008 14:03:22 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 11 Sep 2014 05:48:07 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+client sending datagrams without taking
+care to the trafficClas set in the
+config, so the ToS byte is not set in
+the packet sent from client.
+
+client
+code:
+<div class="code panel"
+style="border-width: 1px;"><div
+class="codeContent panelContent"><pre
+class="code-java">  NioDatagramAcceptor
+acceptor = <span
+class="code-keyword">new</span>
+NioDatagramAcceptor(); 
+DatagramSessionConfig dcfg =
+((NioDatagramAcceptor)acceptor).getSessionConfig();
+ dcfg.setTrafficClass(tosByte); 
+InetSocketAddress bindAddrPort  = <span
+class="code-keyword">new</span>
+InetSocketAddress(originatingIP, port); 
+acceptor.bind(bindAddrPort);</pre></div></div>
+-&gt;
+connecting to another computer with
+NioDatagramConnector.
+
+for me it looks
+like in the newHandle method of
+NioDatagramConnector is not cared about
+TrafficClass (like it is done in
+NioDatagramAcceptor.open())
+
+The server
+part with the accceptor is OK and the
+correct ToS byte is set in the
+packet.<br/>(the same problem may be in
+the socket, i have to check it)
+ 

@@ -1,0 +1,72 @@
+Pattern changes caused by commit: 462979aeaad341e275badeb836b5059bb5309259
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-6
+To:   Facade-5
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-818.txt 
+
+commit 462979aeaad341e275badeb836b5059bb5309259
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-454 (Trivial denial of service in TextLineDecoder)
+    * Applied Owen Jacobson's patch
+
+
+
+==================================
+ Issue DIRMINA-454 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-454] Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Summary: Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 6 Oct 2007 04:52:25 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Oct 2007 08:16:53 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+In both of TextLineDecoder's decoding
+methods, the decoder only checks the
+size of input after it's found at least
+one line ending character.  Infinitely
+long streams of, say, 'y's will cause
+the decoder to try to buffer up data
+until the JVM falls over.
+ 

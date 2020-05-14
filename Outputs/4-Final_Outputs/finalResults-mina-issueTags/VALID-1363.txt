@@ -1,0 +1,70 @@
+Pattern changes caused by commit: 78db42194ebf4d8952671af1535baf1d31fc04ab
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-7
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1363.txt 
+
+commit 78db42194ebf4d8952671af1535baf1d31fc04ab
+Author: Niklas Therning <niklas@apache.org>
+
+    DIRMINA-558: The session attribute name used can now be configured in the constructor. By using a custom attribute name several state machines may now be running for the same session.
+
+
+
+==================================
+ Issue DIRMINA-558 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-558] Allow multiple state machines for the same session
+-----------------
+
+-----------------
+Summary: Allow multiple state machines for the same session
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 25 Mar 2008 22:09:09 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 25 Mar 2008 22:16:23 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+The IoSessionStateContextLookup
+currently only supports a single
+StateContext per IoSession. This makes
+it impossible to use several
+SateMachines for an IoFilter and an
+IoHandler at the same time.
+ 

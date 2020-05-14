@@ -1,0 +1,180 @@
+Pattern changes caused by commit: 40e1c38c4d772c62d0b73c26dfabe53a5b10b674
+
+From: Facade-5
+To:   Facade-4
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1759.txt 
+
+commit 40e1c38c4d772c62d0b73c26dfabe53a5b10b674
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    some fix for DIRMINA-651
+    idle stats are stored in AtomicInteger
+
+
+
+==================================
+ Issue DIRMINA-651 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-651] Data Race in org.apache.mina.core.session.AbstractIoSession
+-----------------
+
+-----------------
+Summary: Data Race in org.apache.mina.core.session.AbstractIoSession
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 19 Dec 2008 12:33:00 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 24 Aug 2009 14:56:00 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+We run ftpserver-1.0.0-M4 with our tool
+(<a
+href="http://www.alphaworks.ibm.com/tech/mtrat"
+class="external-link"
+rel="nofollow">http://www.alphaworks.ibm.com/tech/mtrat</a>)
+and one user logins to the server, then
+a data race is reported. The data race 
+happens in the field "readMessages" of
+class
+"org/apache/mina/transport/socket/nio/NioSocketSession".
+Thread "pool-3-thread-1" read this field
+while thread "pool-2-thread-1" write to
+it, which both threads don't share the
+same lock to protect the critical
+section.
+
+Data Race 4 : 1526 :
+org/apache/mina/transport/socket/nio/NioSocketSession
+: readMessages<br/>  Thread
+"pool-3-thread-1" : Tid 15 : Rid 1540 :
+READ<br/>        Lock Set : [ ]<br/>    
+   Vector Clock : 3<br/>      <span
+class="error">&#91;org/apache/mina/core/session/AbstractIoSession
+: updateThroughput :
+667&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker
+: updateThroughput :
+265&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker
+: notifyIdleSession :
+201&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker
+: notifyIdleness : 150&#93;</span><br/> 
+    <span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor
+: notifyIdleSessions :
+604&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor
+: access$700 : 58&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor$Worker
+: run : 863&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/util/NamePreservingRunnable
+: run : 51&#93;</span><br/>  Thread
+"pool-2-thread-1" : Tid 16 : Rid 1683 :
+WRITE<br/>        Lock Set : [ ]<br/>   
+    Vector Clock : 2<br/>      <span
+class="error">&#91;org/apache/mina/core/session/AbstractIoSession
+: increaseReadMessages :
+728&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$TailFilter
+: messageReceived : 746&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: callNextMessageReceived :
+414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: access$1200 : 49&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1
+: messageReceived : 832&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/ftpserver/listener/nio/FtpLoggingFilter
+: messageReceived : 83&#93;</span><br/> 
+    <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: callNextMessageReceived :
+414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: access$1200 : 49&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1
+: messageReceived : 832&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/mina/core/filterchain/IoFilterEvent
+: fire : 60&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/logging/MdcInjectionFilter
+: filter : 137&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/filter/util/CommonEventFilter
+: messageReceived : 70&#93;</span><br/> 
+    <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: callNextMessageReceived :
+414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: access$1200 : 49&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1
+: messageReceived : 832&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/mina/filter/codec/ProtocolCodecFilter$ProtocolDecoderOutputImpl
+: flush : 379&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/filter/codec/ProtocolCodecFilter
+: messageReceived : 173&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: callNextMessageReceived :
+414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain
+: access$1200 : 49&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1
+: messageReceived : 832&#93;</span><br/>
+     <span
+class="error">&#91;org/apache/mina/core/filterchain/IoFilterEvent
+: fire : 60&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IoEvent
+: run : 64&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker
+: runTask : 551&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker
+: runTasks : 543&#93;</span><br/>     
+<span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker
+: run : 487&#93;</span>
+ 

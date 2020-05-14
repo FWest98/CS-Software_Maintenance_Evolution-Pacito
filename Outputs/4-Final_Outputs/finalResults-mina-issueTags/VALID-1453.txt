@@ -1,0 +1,62 @@
+Pattern changes caused by commit: f365b75a7dd9abf3fd540d81fec44bec3628d924
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1453.txt 
+
+commit f365b75a7dd9abf3fd540d81fec44bec3628d924
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    adding more javadoc to APr base transports DIRMINA-594
+
+
+
+==================================
+ Issue DIRMINA-594 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-594] Javadoc & documentation for APR transport
+-----------------
+
+-----------------
+Summary: Javadoc & documentation for APR transport
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 May 2008 15:46:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 23 Mar 2009 10:41:43 +0000
+-----------------
+
+-----------------
+Assigned to: Ashish Paliwal
+-----------------
+
+-----------------
+Description: 
+
+The APR transport module is javadoc
+less and probably need a like
+documentation in the wiki (instalation
+of APR &amp; jni bindings)
+ 

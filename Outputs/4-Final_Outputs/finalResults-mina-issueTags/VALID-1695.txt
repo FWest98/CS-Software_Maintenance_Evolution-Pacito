@@ -1,0 +1,127 @@
+Pattern changes caused by commit: d021fc1ef7295af8a5b1a9afb3fc9f5328db53ae
+
+From: Facade-4
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1695.txt 
+
+commit d021fc1ef7295af8a5b1a9afb3fc9f5328db53ae
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Fix for DIRMINA-687
+    o Removed the @version tag
+    o Added a LOGGER, but commented it as it breaks the MDCFilterTest for some unknown reason ...
+    o Minor refactoring
+    o Javadoc addition
+
+
+
+==================================
+ Issue DIRMINA-687 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-687] 2.0.0-M5 REGRESSION: sessionClosed called before doDecode completes
+-----------------
+
+-----------------
+Summary: 2.0.0-M5 REGRESSION: sessionClosed called before doDecode completes
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 16 Apr 2009 20:48:40 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 May 2009 23:25:26 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+The problem is described in detail at
+<a
+href="http://markmail.org/message/3iqmkdcukhygxxva"
+class="external-link"
+rel="nofollow">http://markmail.org/message/3iqmkdcukhygxxva</a>
+.
+
+I did more tests by setting the
+CLOSED custom attribute inside
+sessionClosed and by checking for this
+attribute in the middle of doDecode.
+
+
+Under some networking conditions on
+the production server I can see the
+following in the logs:
+
+<span
+class="error">&#91;2009-04-16
+22:30:17,329&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:21,126&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:22,345&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:22,969&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:25,217&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:25,840&#93;</span> Session closed
+in the middle of decoding!<br/><span
+class="error">&#91;2009-04-16
+22:30:59,958&#93;</span> Session closed
+in the middle of
+decoding!
+
+Unfortunately, I didn't
+manage to prepare an isolated test case
+for this issue, must be some race
+condition which is tricky to
+catch.
+
+Most likely the problem is
+caused by this commit: <a
+href="http://svn.apache.org/viewvc?view=rev&amp;revision=762167"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?view=rev&amp;revision=762167</a>
+.
+
+As mentioned, this problem is new to
+2.0.0-M5, worked fine for many months
+with 2.0.0-M4 and previous builds.
+Rolling back to M4 builds fixes the
+problem instantly.<br/>OrderedThreadPool
+must guarantee the order of events,
+sessionClosed must not be called when
+doDecode is in progress.
+ 

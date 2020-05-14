@@ -1,0 +1,26 @@
+Pattern changes caused by commit: e0316ce98cd7313ca36140e0095d42496a3c469d
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1411.txt 
+
+commit e0316ce98cd7313ca36140e0095d42496a3c469d
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-578 in tennis example version 1.1.7 is fine but for version 2.0M1, there's a funny output order (all RCVD first and SENT last).
+    * The root cause of the problem is that VmPipeFilterChain purely relies on method invocation chaining for every messageReceived/Sent event emission.  I made messageSent event is queued first and flushed later so the event order is reversed.

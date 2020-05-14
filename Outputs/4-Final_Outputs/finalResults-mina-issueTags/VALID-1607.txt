@@ -1,0 +1,60 @@
+Pattern changes caused by commit: 9e0be7afe78aef59689e16521aa0481e8e6b68da
+
+From: Facade-4
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1607.txt 
+
+commit 9e0be7afe78aef59689e16521aa0481e8e6b68da
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix DIRMINA-630
+
+
+
+==================================
+ Issue DIRMINA-630 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-630] CRLF constants for LineDelimiter
+-----------------
+
+-----------------
+Summary: CRLF constants for LineDelimiter
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 16 Oct 2008 16:13:30 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 15 Nov 2008 01:31:08 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+Please add the CRLF LineDelimiter used
+amongst others in rfc2616.
+ 

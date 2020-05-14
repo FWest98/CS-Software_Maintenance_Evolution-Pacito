@@ -1,0 +1,79 @@
+Pattern changes caused by commit: 5a2ef13bb1830860d03b6dd802743c9ff395b5b7
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1727.txt 
+
+commit 5a2ef13bb1830860d03b6dd802743c9ff395b5b7
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix for DIRMINA-714: changes default event ordered to be all but the SESSION_CREATED event
+    This allow the filter to behave like it should for basic usage leaving the ability of fine grain control for advanced users
+
+
+
+==================================
+ Issue DIRMINA-714 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-714] Packet sequence is unordered in multi thread.
+-----------------
+
+-----------------
+Summary: Packet sequence is unordered in multi thread.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 27 May 2009 08:02:09 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 12 Oct 2009 10:01:20 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+Hi.
+
+Packet sequence is unordered.
+
+=
+Server &amp; Client =
+<br/>chain.addLast("codec", new
+ProtocolCodecFilter(rcf));<br/>chain.addLast("executor",
+getExecuteFilter());    =&gt;
+OrderedThreadPoolExecutor c = new
+OrderedThreadPoolExecutor(20,100);
+
+If
+server send 1,2,3,4,5,6 , client receive
+1,2,3,4,6  from server.
+
+Clients :
+100.
+
+where I am wrong? 
+ 

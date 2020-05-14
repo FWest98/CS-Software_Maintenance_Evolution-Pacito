@@ -1,0 +1,65 @@
+Pattern changes caused by commit: 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1498.txt 
+
+commit 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Applied patch for DIRMINA-608 provided by Barend
+
+
+
+==================================
+ Issue DIRMINA-608 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-608] Move stats out of the IoService API
+-----------------
+
+-----------------
+Summary: Move stats out of the IoService API
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 13 Jul 2008 13:02:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 10 Aug 2008 21:22:33 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+The statictic informations contained
+into the IoService API could be put in
+some specific class, and made available
+through a call to a dedicated getter
+:
+
+IoServiceStatistics getStatistics()
+ 

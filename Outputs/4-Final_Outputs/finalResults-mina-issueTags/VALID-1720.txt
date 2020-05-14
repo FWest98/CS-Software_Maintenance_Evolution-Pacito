@@ -1,0 +1,110 @@
+Pattern changes caused by commit: ddcbeadcc2693be05203e358d1d737a9ac61f5d0
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1720.txt 
+
+commit ddcbeadcc2693be05203e358d1d737a9ac61f5d0
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix for DIRMINA-709
+
+
+
+==================================
+ Issue DIRMINA-709 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-709] PENDING session is removed and added endlessly  -- garbage allocation and high CPU usage problem
+-----------------
+
+-----------------
+Summary: PENDING session is removed and added endlessly  -- garbage allocation and high CPU usage problem
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 5 May 2009 11:16:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 14 Jun 2009 20:42:22 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+(This problem was discussed in mail
+lists, I will copy it here).
+
+Seems I
+have found a bug with IoSession - I can
+see that a "PREPARING" session is not
+removed correctly from queue.
+
+When some
+session is in PREPARING state, it is
+removed from "removingSessions" queue
+but right after that it is added to this
+queue again! So this session is added to
+the queue and removed from it until
+forever.<br/>As a result, this give us
+significant garbage allocation, so CPU
+spends most of time in garbage collector
+(I can see this is JConsole).
+
+I see
+comments there in
+AbstractPollingIoProcessor
+class:
+
+private int remove()
+{<br/>...<br/>    case PREPARING:<br/>  
+             // Retry later if session
+is not yet fully initialized.<br/>      
+         // (In case that
+Session.close() is called before     
+addSession() is processed)<br/>         
+      scheduleRemove(session);<br/>     
+          return
+removedSessions;<br/>...<br/>}
+
+I have
+added logging to this code, and I can
+see that the SAME session is removed and
+added again and again.
+
+Can somebody
+explain this logic please? Why don't we
+remove the PENDING  session? Or maybe is
+there a workaround for this.
+
+Sorry, I
+can not provide a test for this issue,
+but it is reproduced almost every day at
+out production servers under some load.
+Maybe, you can reproduce it by adding a
+delay in addSession() and then closing
+the session during this delay.
+ 

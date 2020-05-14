@@ -1,0 +1,72 @@
+Pattern changes caused by commit: f58daada3640d0d8caa143fb516e4976e421f8a2
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1034.txt 
+
+commit f58daada3640d0d8caa143fb516e4976e421f8a2
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-449 (Improve current JMX integration code using new statistical properties.)
+    * Renamed IoSessionStat to IoStatistics because it can be used for IoService too.
+    * Renamed StatCollector to IoStatisticsCollector
+    * Renamed many methods for consistent naming aligned with IoSession and IoService
+    * Changed IoStatisticsCollector to use the performance counters that a service provides to calculate per-service throughput
+
+
+
+==================================
+ Issue DIRMINA-449 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-449] Improve current JMX integration code using new statistical properties.
+-----------------
+
+-----------------
+Summary: Improve current JMX integration code using new statistical properties.
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 30 Sep 2007 12:12:08 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 14 Nov 2007 06:47:09 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+<a
+href="https://issues.apache.org/jira/browse/DIRMINA-317"
+title="add supporting statistical
+methods to IoService" class="issue-link"
+data-issue-key="DIRMINA-317"><del>DIRMINA-317</del></a>
+has been resolved.  We can implement
+IoServiceManager in a much simpler way.
+ 

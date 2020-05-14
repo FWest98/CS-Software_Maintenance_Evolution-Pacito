@@ -1,0 +1,62 @@
+Pattern changes caused by commit: 6fea27c98213c50b9a8e379f3b6ecd400b29708f
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1509.txt 
+
+commit 6fea27c98213c50b9a8e379f3b6ecd400b29708f
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    DIRMINA-394 Port of haiku example to trunk
+
+
+
+==================================
+ Issue DIRMINA-394 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-394] Port the 'Haiku' example to 1.0 and trunk
+-----------------
+
+-----------------
+Summary: Port the 'Haiku' example to 1.0 and trunk
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 5 Jul 2007 07:49:21 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Jul 2008 20:21:12 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+The Haiku example exists only in
+branches/1.1 for now.  It would be great
+if it is ported to branches/1.0 and
+trunk, too.
+ 

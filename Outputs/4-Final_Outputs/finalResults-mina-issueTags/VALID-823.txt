@@ -1,0 +1,196 @@
+Pattern changes caused by commit: ad7024dfde946cca2df52691a84966e1b8582dc5
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-3
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-823.txt 
+
+commit ad7024dfde946cca2df52691a84966e1b8582dc5
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-452 (IdentittyHashMap Iterator has bug in it.)
+    * Replaced IdentityHashMap/Set with HashMap/Set in IdleStatusChecker.
+    * I couldn't find any other places that calls Iterator.remove() on IdentityHashMap/Set, so I retained the other code.
+
+
+
+==================================
+ Issue DIRMINA-452 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-452] IdentittyHashMap Iterator has bug in it.
+-----------------
+
+-----------------
+Summary: IdentittyHashMap Iterator has bug in it.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 2 Oct 2007 15:16:28 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Oct 2007 08:37:24 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+There is a bug in IdentityHashMap
+Iterator which causes an infinite loop.
+This can manifest itself anywhere that
+the iterator.remove() method is called,
+in conjunction with the put() method. In
+particular this has been observed in the
+VmPipeIdleStatus checker.
+
+Certain
+sequences of puts/iterator.removes cause
+the map to allow put() to be called with
+a full table. The code then loops round
+the table forever looking for a free
+slot to add the new entry to.
+
+A bug
+report has been submitted to Sun for
+this problem.
+
+Suggested work
+arounds:
+
+Use HashMap instead of
+IdentityHashMap.<br/>Do not use the
+remove() method on the iterator, find
+all elements to remove in one step, then
+remove in another.
+
+Here is some sample
+test code that exhibits the bug in
+isolation. Call it repeatedly with
+n=1000, until it locks up:
+
+    public
+void testRandomPutRemove(final int
+n)<br/>    {<br/>        final
+Map&lt;TestElement, TestElement&gt;
+idMap = new
+IdentityHashMap&lt;TestElement,
+TestElement&gt;();<br/>        final
+Random r = new Random();<br/>       
+final float removeProbability =
+r.nextFloat();<br/>        final float
+addProbability = r.nextFloat();
+
+       
+final Queue&lt;String&gt; opSequence =
+new LinkedList&lt;String&gt;();
+
+       
+Runnable tester =<br/>            new
+Runnable()<br/>            {<br/>       
+        public void run()<br/>          
+     {<br/>                    for (int
+i = 0; i &lt; n; i++)<br/>              
+     {<br/>                        if
+(r.nextFloat() &lt; addProbability)<br/>
+                       {<br/>           
+                synchronized (idMap)
+   
+                        {               
+                TestElement e = new
+TestElement();                          
+     idMap.put(e, e);                   
+            opSequence.offer("put");    
+                       }
+               
+        }<br/>                       
+else<br/>                        {<br/> 
+                          synchronized
+(idMap)<br/>                           
+{<br/>                               
+Iterator it =
+idMap.keySet().iterator();<br/>         
+                      for (int j = 0;
+it.hasNext(); j++)<br/>                 
+              {<br/>                    
+               it.next();
+
+             
+                      if (r.nextFloat()
+&lt; removeProbability)
+                
+                   {                    
+                   it.remove();         
+                             
+opSequence.offer("remove " + j);        
+                           }
+           
+                    }<br/>              
+             }<br/>                     
+  }<br/>                    }<br/>      
+         }<br/>            };
+
+       
+Thread testThread = new
+Thread(tester);<br/>       
+testThread.start();
+
+        try
+       
+{            testThread.join(5000);     
+  }
+        catch (InterruptedException
+e)
+        {            fail("Test
+interrupted.");        }
+        if
+(testThread.getState() ==
+Thread.State.RUNNABLE)<br/>       
+{<br/>           
+System.out.println("opSequence = " +
+opSequence);<br/>           
+System.out.println("removeProbability =
+" + removeProbability);<br/>           
+System.out.println("addProbability = " +
+addProbability);
+
+            // Wait
+forever here, to give an opportunity to
+take thread/heap dumps etc.<br/>        
+   try
+            {               
+testThread.join();            }
+        
+   catch (InterruptedException e)
+      
+     {                // Ignore.        
+   }
+        }<br/>    }
+ 

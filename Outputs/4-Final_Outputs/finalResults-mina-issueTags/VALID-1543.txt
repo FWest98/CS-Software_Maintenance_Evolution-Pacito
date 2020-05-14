@@ -1,0 +1,69 @@
+Pattern changes caused by commit: 303df69552b021c6cb7d6f3fb97070808da0be1d
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1543.txt 
+
+commit 303df69552b021c6cb7d6f3fb97070808da0be1d
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    DIRMINA-415 proxy examples
+
+
+
+==================================
+ Issue DIRMINA-415 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-415] Proxy support
+-----------------
+
+-----------------
+Summary: Proxy support
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 2 Aug 2007 10:18:20 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 5 Dec 2008 15:43:33 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+There has been enourmous demand for
+supporting proxy such as simple port
+forwarding and SOCKS.  We need to
+investigate what the best way is to
+provide an extension point for
+proxies.
+
+IoFilters are not adequate for
+proxies because proxies needs changes in
+the socket addresses (both local and
+remote) of IoSession.
+ 

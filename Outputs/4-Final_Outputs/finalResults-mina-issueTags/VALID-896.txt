@@ -1,0 +1,120 @@
+Pattern changes caused by commit: 76239b9fb6c7f3c6c991e8924aa557e705c6ea35
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-896.txt 
+
+commit 76239b9fb6c7f3c6c991e8924aa557e705c6ea35
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-467 (IoFilter has to filter a setTrafficMask call.)
+    * Added IoFilter.filterSetTrafficMask
+    * ReadThrottleFilter now overrides filterSetTrafficMask handler
+    * Fixed a bug where ReadThrottlePolicy is not enforced correctly
+
+
+
+==================================
+ Issue DIRMINA-467 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-467] IoFilter has to filter a setTrafficMask call.
+-----------------
+
+-----------------
+Summary: IoFilter has to filter a setTrafficMask call.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 4 Nov 2007 11:26:42 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 4 Nov 2007 12:23:17 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+So far, setTrafficMask operation (such
+as suspend/resume Read/Write) was
+treated differently from other session
+operations such as close and write.  It
+simply bypassed IoFilterChain, so no
+IoFilter implementation was able to
+override the operation.  An IoFilter can
+suspend and resume traffic by calling
+IoSession.setTrafficMask(), but it can
+be simply overridden by a user request,
+which subverts the filter
+implementation.
+
+For example,
+ReadThrottleFilter will not work as
+expected if a user changes the traffic
+mask randomly.
+
+Another reason for
+supporting setTrafficMask filtering is
+that it makes more than one
+traffic-controlling filters harmonize
+with each other instead of breaking each
+other.  For example,
+TrafficShapingFilter and
+ReadThrottleFilter could be added to one
+filter chain, and both filters will want
+to suspend incoming traffic if any
+condition doesn't meet and resume if all
+conditions meet.  Without setTrafficMask
+filtering, two filters will have to be
+tightly coupled to adjust the traffic
+mask carefully.  With proper
+setTrafficMasek filtering support, such
+a tight coupling is unnecessary because
+any filter can override the traffic mask
+in a filter chain.  An IoFilter which is
+placed in front of other filters will
+have precedence in traffic
+control.
+
+Adding this feature means that
+we have to add some facility like we did
+for write operations
+(IoFilter.filterWrite, WriteFuture and
+WriteRequest), which breaks backward
+compatibility of an IoFilter.  I think
+it's OK because we have broken the
+backward compatibility of IoFilter long
+time ago. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle"
+alt="" border="0"/>
+ 

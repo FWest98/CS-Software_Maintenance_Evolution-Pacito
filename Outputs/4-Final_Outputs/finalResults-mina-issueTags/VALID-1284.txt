@@ -1,0 +1,84 @@
+Pattern changes caused by commit: ec14b595de20c1e01adf627a15b5c14d7ae54fa2
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1284.txt 
+
+commit ec14b595de20c1e01adf627a15b5c14d7ae54fa2
+Author: Maarten Bosteels <maarten@apache.org>
+
+    resolve DIRMINA-513 : get rid of IoSessionLogger
+
+
+
+==================================
+ Issue DIRMINA-513 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-513] get rid of IoSessionLogger 
+-----------------
+
+-----------------
+Summary: get rid of IoSessionLogger 
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 15 Jan 2008 08:30:16 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 11 Feb 2008 21:39:20 +0000
+-----------------
+
+-----------------
+Assigned to: Maarten Bosteels
+-----------------
+
+-----------------
+Description: 
+
+It seems like the next version of SLF4J
+is going to support MDC for 
+java.util.logging <br/>The users who use
+java.util.logging as their logging
+framework will have access to MDC<br/>so
+that they can implement a formatter
+which prints out the MDC content.
+<br/>This means we can get rid of
+IoSessionLogger completely and rely on
+MdcInjectionFilter
+
+However, probably
+SLF4J won't provide a MDC-aware
+Formatter implementation for
+java.util.logging, so we might need to
+include it<br/>in org.apache.mina.util
+package as an alternative solution.
+ 

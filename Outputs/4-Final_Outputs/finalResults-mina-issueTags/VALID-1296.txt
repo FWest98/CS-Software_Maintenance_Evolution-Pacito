@@ -1,0 +1,104 @@
+Pattern changes caused by commit: f4078e0a76014564f3daa69c0b1a975942ed16a0
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1296.txt 
+
+commit f4078e0a76014564f3daa69c0b1a975942ed16a0
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-530 (Compression filter - trivial bug fix and fix for use with SSL)
+    * applied Justin's patch
+    ** Replaced inBuffer.limit() with inBuffer.remaining()
+    ** Changed CompressionFilter.messageReceived not to process non-IoBuffer messages
+
+
+
+==================================
+ Issue DIRMINA-530 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-530] Compression filter - trivial bug fix and fix for use with SSL
+-----------------
+
+-----------------
+Summary: Compression filter - trivial bug fix and fix for use with SSL
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Feb 2008 23:00:47 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Feb 2008 03:16:57 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The compression filter has a simple
+bug, where it uses limit() instead of
+remaining(). Where position != 0, this
+causes reads to exceed available
+data:
+<ul class="alternate"
+type="square">	<li>byte[] inBytes = new
+byte<span
+class="error">&#91;inBuffer.limit()&#93;</span>;<br/>+
+       byte[] inBytes = new byte<span
+class="error">&#91;inBuffer.remaining()&#93;</span>;<br/>
+       
+inBuffer.get(inBytes).flip();</li></ul>
+Also,
+when the compression filter is chained
+with the SSL filter, and SSL status
+notification is enabled, the SSL filter
+sends state messages through the chain. 
+These are not IoBuffers, but the
+compression filter treats them as if
+they were:
+
++    public void
+messageReceived(NextFilter nextFilter,
+IoSession session, Object message)
+throws Exception {<br/>+    	// Ignore
+control messages e.g. from SSL
+filter<br/>+    	boolean compress =
+compressInbound &amp;&amp; (message
+instanceof IoBuffer);<br/>+    	<br/>+  
+     if (!compress)  {
+
+Patch file will
+be attached...
+ 

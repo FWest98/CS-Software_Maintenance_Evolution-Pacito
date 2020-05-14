@@ -1,0 +1,77 @@
+Pattern changes caused by commit: cceb46d33f5def88a6ac80a98544d34ae781e943
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-6
+To:   Facade-7
+
+From: Flyweight-5
+To:   Flyweight-6
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-785.txt 
+
+commit cceb46d33f5def88a6ac80a98544d34ae781e943
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-443 (SocketConnection cannot be manually closed (for v2.X))
+    * Fixed a possible FD leak or unnotified ConnectFutures when close() is called
+
+
+
+==================================
+ Issue DIRMINA-443 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-443] SocketConnection cannot be manually closed (for v2.X)
+-----------------
+
+-----------------
+Summary: SocketConnection cannot be manually closed (for v2.X)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 20 Sep 2007 14:57:15 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 27 Sep 2007 14:37:18 +0000
+-----------------
+
+-----------------
+Assigned to: Maarten Bosteels
+-----------------
+
+-----------------
+Description: 
+
+The SocketConnection cannot be closed.
+Currently it will wait a certain amount
+of timeout as specified by the worker
+timeout to shut down the connection.
+This can result in OOM and hanging
+clients until the timeouts occur. Mina
+should allow the SocketConnection to be
+closed manually if the connection is
+known to be completed. 
+ 

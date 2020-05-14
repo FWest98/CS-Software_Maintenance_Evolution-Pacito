@@ -1,0 +1,60 @@
+Pattern changes caused by commit: 4ceb53d54f5b6c8b0bad594c0e34a89ae76fee2b
+
+From: Facade-5
+To:   Facade-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1450.txt 
+
+commit 4ceb53d54f5b6c8b0bad594c0e34a89ae76fee2b
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    added some {@inheritDoc} for DIRMINA-591
+
+
+
+==================================
+ Issue DIRMINA-591 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-591] Javadoc & documentation for org/apache/mina/filter/codec/statemachine/
+-----------------
+
+-----------------
+Summary: Javadoc & documentation for org/apache/mina/filter/codec/statemachine/
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 May 2008 15:02:21 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 9 Jun 2008 08:35:44 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The statemachine codec utilities (used
+in Asyncweb codec) isn't documented.
+ 
