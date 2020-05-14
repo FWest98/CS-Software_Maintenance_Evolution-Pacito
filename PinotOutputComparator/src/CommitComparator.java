@@ -7,7 +7,7 @@ public class CommitComparator {
     private static int counter = 1;
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "outputs-hadoop-hdfs";
+    private static String analyzedProject = "outputs-mina";
 
     public static void main(String[] args) throws IOException {
 
@@ -24,6 +24,8 @@ public class CommitComparator {
 
         //Where the comparison is made for all files
         patternComparator(files);
+
+        System.out.println("Processing finished!");
     }
 
     private static void patternComparator(File[] files) throws IOException {
