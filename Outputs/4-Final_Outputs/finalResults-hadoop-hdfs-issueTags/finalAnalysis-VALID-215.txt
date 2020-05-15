@@ -1,0 +1,286 @@
+Pattern changes caused by commit: cc07fe635f3ba5d7abf7c8f1953fc46ea2f19dc5
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-215.txt 
+
+commit cc07fe635f3ba5d7abf7c8f1953fc46ea2f19dc5
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-570. Get last block length from a data-node when opening a file being written to. Contributed by Tsz Wo (Nicholas), SZE.
+
+
+
+==================================
+ Issue HDFS-570 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-570] When opening a file for read, make the file length avaliable to client.
+-----------------
+
+-----------------
+Summary: When opening a file for read, make the file length avaliable to client.
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 26 Aug 2009 00:34:33 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 26 Sep 2009 23:44:56 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+In order to support read consistency, DFSClient needs the file length at the file opening
+time.  In the current implmentation, DFSClient obtains the file length at the file opening
+time but the length is inaccurate if the file is being written.
+
+For more details, see
+Section 4 in the <a
+href="https://issues.apache.org/jira/secure/attachment/12415768/appendDesign2.pdf"
+class="external-link" rel="nofollow">append design doc</a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Are we implementing algorithm 1 or algorithm 2 (as described in the append design doc)? 
+
+
+New Comment: 
+I suggest to implement Algorithm 1 because it is closer to the current implementation. 
+What do you think, Dhruba? 
+
+
+New Comment: 
+In order to support reading a file when it is being written.  I suggest to have the
+following changes:<ul class="alternate" type="square">	<li>DFSClient obtains all the block
+lengths from the namenode for the blocks is not under construction.  Note that only the
+last block is possibly under construction.  Other blocks must be finalized.</li>	<li>For
+the last block, if it is under construction, DFSClient obtains the block length from one
+of the datanode.</li></ul> 
+
+
+New Comment: 
+h570_20090828.patch: implemented the idea mentioned in my previous comment. 
+
+
+New Comment: 
+This approach sounds good to me. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.     [exec]     [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]     [exec]     +1 tests included.  The
+patch appears to include 3 new or modified tests.     [exec]     [exec]     +1 javadoc. 
+The javadoc tool did not generate any warning messages.     [exec]     [exec]     +1
+javac.  The applied patch does not increase the total number of javac compiler warnings.  
+  [exec]     [exec]     +1 findbugs.  The patch does not introduce any new Findbugs
+warnnings.     [exec]     [exec]     +1 release audit.  The applied patch does not
+increase the total number of release audit warnings.</pre></div></div>All tests pass
+except TestBackupNode (<a href="https://issues.apache.org/jira/browse/HDFS-192"
+title="TestBackupNode sometimes fails" class="issue-link"
+data-issue-key="HDFS-192"><del>HDFS-192</del></a>) and TestFiDataTransferProtocol.  I ran
+TestFiDataTransferProtocol over a clean append-branch.  It also failed. 
+
+
+New Comment: 
+1. I see a lot of changes that are pure refactoring: like adding "final" to class members
+and variables, or removing "public", or reshuffling imports. I am not against your
+changes, it is just that they make merging the branch with trunk even more difficult, and
+obscure the nature of the new functionality.ClientDatanodeProtocol<br/>2. JavaDoc for
+<tt>getReplicaVisibleLength()</tt> is confusing. Could you please also make it 3 lines
+rather than 1.LocatedBlock<br/>3. Does not need any of the changes.LocatedBlocks<br/>4.
+Here you do multiple field and method renames, combined with reformatting. I am
+lost.FSDatasetInterface<br/>5. Why do you need to abstract getReplicaInfo()? It does not
+seem that SimulatedFSDataset actually need it anywhere, at least not
+yet.BlockManager<br/>6. You factored out a part of the code into a new method. I cannot
+see what the new changes are.INode<br/>7. Please do not re-sort the
+importsINodeFile<br/>8. It is not necessary to remove public from method declaration and
+remove unused method.SimulatedFSDataset<br/>9. No need to remove the private
+constructor.Could you please revise your patch so that it only makes the essential
+changes.<br/>If you want to refactor please do it in a separate patch applied to trunk. 
+
+
+New Comment: 
+<blockquote>ClientDatanodeProtocol<br/>2. JavaDoc for getReplicaVisibleLength() is
+confusing. Could you please also make it 3 lines rather than 1.</blockquote>Why 3
+lines?<blockquote>LocatedBlock<br/>3. Does not need any of the changes.</blockquote>Could
+you explain more?<blockquote>LocatedBlocks<br/>4. Here you do multiple field and method
+renames, combined with reformatting. I am lost.</blockquote>How can I help
+you?<blockquote>FSDatasetInterface<br/>5. Why do you need to abstract getReplicaInfo()? It
+does not seem that SimulatedFSDataset actually need it anywhere, at least not
+yet.</blockquote>FSDatasetInterface is an <b>interface</b>.  By definition, all methods in
+an interface must be abstract.<blockquote>BlockManager<br/>6. You factored out a part of
+the code into a new method. I cannot see what the new changes are.</blockquote>The new
+method is involved in FSNamesystem.  Could you take a look
+again?<blockquote>INodeFile<br/>8. It is not necessary to remove public from method
+declaration and remove unused method.</blockquote>I remove the method because I see the
+following comment in the code.<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// SHV
+!!! <span class="code-keyword">this</span> is not used anywhere -
+remove</span></pre></div></div>The comment was introduced by you in <a
+href="https://issues.apache.org/jira/browse/HDFS-517" title="Introduce
+BlockInfoUnderConstruction to reflect block replica states while writing."
+class="issue-link" data-issue-key="HDFS-517"><del>HDFS-517</del></a>.  Could you explain
+what does it mean? 
+
+
+New Comment: 
+&gt; Could you explain more?As I said before, you mix in your patch changes related to the
+current jira with unrelated refactoring of the code.<br/>I listed most of the cases (1-8)
+that do not belong to the functionality you are implementing.<br/>And
+which<ol>	<li>Obscure understanding of the new functionality you actually
+introduce.</li>	<li>Make it hard to continue merging the trunk with the
+branch.</li></ol>My proposal is to separate the implementation of the visible length from
+the refactoring of the code into 2 separate patches.<br/>The refactoring should be applied
+then to the trunk and to the branch.<br/>My personal preference is to postpone the
+refactoring until append is merged to the trunk.&gt; 5. Why do you need to abstract
+getReplicaInfo()? It does not seem that SimulatedFSDataset actually need it anywhere, at
+least not yet.<br/>&gt; FSDatasetInterface is an interface. By definition, all methods in
+an interface must be abstract.getReplicaInfo() is currently a private method of FSDataset.
+You are adding it to FSDatasetInterface. Based on the usage of the method I don't see a
+need for that. 
+
+
+New Comment: 
+<blockquote>&gt; Could you explain more?As I said before, you mix in your patch changes
+related to the current jira with unrelated refactoring of the code.<br/>I listed most of
+the cases (1-8) that do not belong to the functionality you are implementing.<br/>And
+which   1. Obscure understanding of the new functionality you actually introduce.<br/>  
+2. Make it hard to continue merging the trunk with the branch.My proposal is to separate
+the implementation of the visible length from the refactoring of the code into 2 separate
+patches.<br/>The refactoring should be applied then to the trunk and to the branch.<br/>My
+personal preference is to postpone the refactoring until append is merged to the
+trunk.</blockquote>There is no code refactoring in LocatedBlock except for the imports. 
+What do you mean by "LocatedBlock 3. Does not need any of the
+changes."?<blockquote>getReplicaInfo() is currently a private method of FSDataset. You are
+adding it to FSDatasetInterface. Based on the usage of the method I don't see a need for
+that.</blockquote>If you look at the patch again, you will find that getReplicaInfo(..) is
+called in DataNode.  It cannot be invoked if it is a private method of FSDataset. 
+
+
+New Comment: 
+h570_20090922.patch: updated with trunk.  Will add new unit tests. 
+
+
+New Comment: 
+<ol>	<li>For the last block if it is under construction you should return
+<tt>BlockInfoUnderConstruction.getExpectedLocations()</tt> rather than those reported by
+data-nodes. The list of reported nodes may be empty, because the write has not finished
+yet, but the bytes should still be readable.<br/>I guess we don't have a test for this
+condition therefore this was not revealed during your testing.</li>	<li>Could you please
+replace the new member <tt>LocatedBlocks.isLastBlockUnderConstruction</tt> with
+<tt>isComplete</tt>.<br/>I am planning to replace
+<tt>BlockInfoUnderConstruction.isUnderConstruction()</tt> to <tt>isComplete()</tt>. Thisi
+is because in current implementation block under-construction means 2 things: that the
+state is UNDER_CONSTRUCTION and that the state is not COMPLETE, which is confusing. Sorry
+my fault.</li></ol>It would be really good to have this patch ready tomorrow. 
+
+
+New Comment: 
+h570_20090924.patch: incorporated Konstantin's comments.  Will see whether it is easy to
+add a unit test. 
+
+
+New Comment: 
+h570_20090925.patch: added a test. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+The test method is public thus some JavaDoc would be in order. Also, for the sake for
+future reader unfamiliar with particulars of append implementation, I'd suggest to add a
+minimal comments on the test assumptions expressed through <tt>assert</tt>
+invocations.There's some commented statement left - shall they be removed?+1 otherwise. 
+
+
+New Comment: 
+h570_20090925b.patch: fixed getBlockRange(..) to work with the new design and updated the
+tests.Thanks, Konstantin and Konstantin. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 3 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div>Running unit
+tests ... 
+
+
+New Comment: 
++1 Thanks Nicholas for the mods: the test is so much clearer now! 
+
+
+New Comment: 
+h570_20090925c.patch: changed getBlockAt(..) to use the last block stored in the
+locatedBlocks. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 3 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div>Passed all unit
+tests except for TestBackupNode and the ones in <a
+href="https://issues.apache.org/jira/browse/HDFS-647" title="Internal server errors"
+class="issue-link" data-issue-key="HDFS-647"><del>HDFS-647</del></a> 
+
+
+New Comment: 
+Merged the patch with trunk.In getBlockAt() you first throw exception if <tt>offset &gt;=
+getFileLength()</tt> and then check<br/><tt>else if (offset &gt;=
+locatedBlocks.getFileLength()) {</tt><br/>Is this <tt>esle if</tt> a dead branch? 
+
+
+New Comment: 
+OK. Never mind. getFileLength() includes the length of the last block, which is not known
+to the name-node yet, while locatedBlocks.getFileLength() does not. The naming is
+confusing, but the code is correct. I'll add a comment. 
+
+
+New Comment: 
+Added the comment. 
+
+

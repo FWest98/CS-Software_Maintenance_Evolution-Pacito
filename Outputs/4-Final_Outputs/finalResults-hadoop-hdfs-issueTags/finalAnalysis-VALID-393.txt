@@ -1,0 +1,171 @@
+Pattern changes caused by commit: e20b6aec2875990119dff911950265f32d0cce76
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-393.txt 
+
+commit e20b6aec2875990119dff911950265f32d0cce76
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-913. Rename fault injection test TestRename.java to TestFiRename.java to include it in tests run by ant target run-test-hdfs-fault-inject. Contributed by Suresh Srinivas.
+
+
+
+==================================
+ Issue HDFS-913 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-913] TestRename won't run automatically from 'run-test-hdfs-faul-inject' target
+-----------------
+
+-----------------
+Summary: TestRename won't run automatically from 'run-test-hdfs-faul-inject' target
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 22 Jan 2010 22:53:46 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 22 Feb 2010 21:51:27 +0000
+-----------------
+
+-----------------
+Assigned to: Suresh Srinivas
+-----------------
+
+-----------------
+Description: 
+
+Fault injection test classes suppose to have <tt>TestFi</tt> prefix. Otherwise, JUnit
+target won't pick them up as a part of the batch test run. Although, it's still possible
+to run test with different names with <tt>-Dtestcase=</tt> directive.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I want to use "svn move" command to make this change to preserve the history of the file.
+However the generated patch does not have details of new file. I would like to commit this
+change without generating patch. 
+
+
+New Comment: 
+Makes sense.+1 on the 'svn move' patch <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+I committed the change. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #194 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/194/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/194/</a>)<br/>
+   . Rename fault injection test TestRename.java to TestFiRename.java to include it in
+tests run by ant target run-test-hdfs-fault-inject. Contributed by Suresh Srinivas. 
+
+
+New Comment: 
+Simple 'svn move' breaks tests compilation:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>compile-fault-inject:     [echo] Start weaving aspects in place    
+[iajc] error at public class TestRename {     [iajc]              ^^^^^^^^^     [iajc]
+/Users/cos/work/H0.22/hdfs/src/test/aop/org/apache/hadoop/fs/TestFiRename.java:50:0::0 The
+public type TestRename must be defined in its own file     [iajc] MessageHolder:  (215
+info)  (1 error)      [iajc] [error   0]: error at public class TestRename {     [iajc]   
+          ^^^^^^^^^     [iajc]
+/Users/cos/work/H0.22/hdfs/src/test/aop/org/apache/hadoop/fs/TestFiRename.java:50:0::0 The
+public type TestRename must be defined in its own file</pre></div></div>class has to be
+renamed as well. 
+
+
+New Comment: 
+I have attached a new patch renaming the class to match the file name. Thanks Cos. 
+
+
+New Comment: 
+Have ran all fault-injection tests: the problem is gone.<br/>+1 on the patch. 
+
+
+New Comment: 
+Committed the new patch without waiting for Hudson. Hudson currently cannot run test-patch
+due to build issue introduced by the previous commit from this jira. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12436617/hdfs-913.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12436617/hdfs-913.patch</a><br/>
+ against trunk revision 911744.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 6 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/241/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #197 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/197/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/197/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #302 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/</a>) 
+
+

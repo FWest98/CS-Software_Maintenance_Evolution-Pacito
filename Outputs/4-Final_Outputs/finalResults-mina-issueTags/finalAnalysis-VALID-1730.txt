@@ -1,0 +1,88 @@
+Pattern changes caused by commit: cdd87921050da83acbeb2e3fe5ccd26119e72beb
+
+From: Facade-4
+To:   Facade-5
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-9
+To:   Strategy-8
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1730.txt 
+
+commit cdd87921050da83acbeb2e3fe5ccd26119e72beb
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix DIRMINA-612
+
+
+
+==================================
+ Issue DIRMINA-612 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-612] Add documentation on SingleSessionIohandler
+-----------------
+
+-----------------
+Summary: Add documentation on SingleSessionIohandler
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 21 Jul 2008 08:42:19 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 23 Jun 2009 19:56:55 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+A normal multi-session IoHandler can be added to the acceptor using the "addHandler"
+method. However, when writing a single-session IoHandler I can't find any information
+about how to register it with the acceptor. The "addHandler" method doesn't accept
+single-session IoHandlers.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Documentation will be fixed for 2.0-RC1 
+
+
+New Comment: 
+1 - These  classes are pretty well documented<br/>2 - They're badly named as the 'real
+handler' is in fact the SingleSessionIoHandlerDelegate and not the
+SingleSessionIoHandler.<br/>As we have freezed the API can we still rename these as it is
+the source of the confusion ?<br/>3 - Is it really a good idea to provide this package as
+it goes against scalability principles ? should we remove it completly ? for 2.0 ? 3.0 ?
+or just document the fact that it can suffer scalability problems (which would be
+compliant with api freeze) and maybe even mark these as deprecated ?WDYT ? 
+
+

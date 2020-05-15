@@ -1,0 +1,479 @@
+Pattern changes caused by commit: 72faeea4fc0da06c63bac815acc0ea9eda1bb36b
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-371.txt 
+
+commit 72faeea4fc0da06c63bac815acc0ea9eda1bb36b
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-877. Client-driven block verification not functioning. Contributed by Todd Lipcon.
+
+
+
+==================================
+ Issue HDFS-877 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-877] Client-driven block verification not functioning
+-----------------
+
+-----------------
+Summary: Client-driven block verification not functioning
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 7 Jan 2010 01:20:39 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 28 Apr 2010 07:55:32 +0000
+-----------------
+
+-----------------
+Assigned to: Todd Lipcon
+-----------------
+
+-----------------
+Description: 
+
+This is actually the reason for <a href="https://issues.apache.org/jira/browse/HDFS-734"
+title="TestDatanodeBlockScanner times out in branch 0.20" class="issue-link"
+data-issue-key="HDFS-734"><del>HDFS-734</del></a> (TestDatanodeBlockScanner timing out).
+The issue is that DFSInputStream relies on readChunk being called one last time at the end
+of the file in order to receive the lastPacketInBlock=true packet from the DN. However,
+DFSInputStream.read checks pos &lt; getFileLength() before issuing the read. Thus gotEOS
+never shifts to true and checksumOk() is never called.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This may turn out to be reasonably tricky to solve. The issue is that the packet with
+lastPacketInBlock=true comes in an empty packet after the data has been read. Consider the
+following scenario:<ol>	<li>Block is exactly N bytes</li>	<li>Client determines (or knows)
+the file length and thus reads exactly up to byte N, but not past. This is the case for
+MapReduce jobs when an inputsplit doesn't cross block boundaries (eg any input file
+&lt;1block)</li>	<li>In this case, the server will still send the empty
+"lastPacketInBlock" packet, but the client will never read it (since it doesn't read ahead
+in any way)</li></ol>Point 2 above is currently being enforced by DFSInputStream, since it
+calls getFileLength() before passing a read() call down into the BlockReader.A couple
+things to investigate:<ol>	<li>Is the check currently done by DFSInputStream important for
+limiting the length visible to a reader for an in-progress block? Or can that limit be
+satisfied by passing only the visible length to the OP_READ_BLOCK call? If the length
+limitation can be ignored in the DFSInputStream layer, I think that would solve the issue
+fairly trivially.</li>	<li>Alternatively, can we invert BlockReader.readChunk so that it
+reads ahead a packet? That is to say, if after a read, the internal buffer is emptied, can
+we read the <b>next</b> packet at this point? I don't really like this
+solution...</li></ol> 
+
+
+New Comment: 
+Upgrading this to blocker since it's a cause for a test failure.Worth noting that this bug
+only affects the proactive "checksum OK" marking that the client does after reading an
+entire block (thus avoiding the periodic scan on the DN). If the checksum is found to be
+invalid on the client, it still reports the bad block to the NN just fine. So, this isn't
+a dataloss bug, it's just a broken optimization and a failing test. 
+
+
+New Comment: 
+I took the following route to fixing this:<ul class="alternate"
+type="square">	<li>BlockReader now knows how many bytes it's expected to
+read.</li>	<li>After it has read this many bytes, it reads ahead one packet, expecting an
+empty "end of stream" packet from the DN. In the case that this doesn't come (or it's not
+the special end of stream packet) it throws IOE. If it does get it, it sets
+gotEOS.</li></ul>This current patch is a little ugly since it duplicates the
+packet-header-reading logic. I have another version that depends on <a
+href="https://issues.apache.org/jira/browse/HDFS-881" title="Refactor DataNode Packet
+header into DataTransferProtocol" class="issue-link"
+data-issue-key="HDFS-881"><del>HDFS-881</del></a> to clean that up, if 881 gets committed
+in the meantime. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12429705/hdfs-877.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12429705/hdfs-877.txt</a><br/>
+ against trunk revision 897068.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    -1 findbugs.  The patch appears to introduce 1 new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/174/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+New patch addresses findbugs warning (isLastPacket member is now unused) 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12429731/hdfs-877.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12429731/hdfs-877.txt</a><br/>
+ against trunk revision 897068.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/175/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+TestFsck also times out waiting for client to report a block as corrupt. This patch may
+also fix that issue. 
+
+
+New Comment: 
+Ignore my previous comments. The problem in TestFsck seems to be different. Will address
+it in a separate jira. 
+
+
+New Comment: 
+Good catch, Todd! Is it possible that pos + bytesToRead &gt; totalBytesToRead in case that
+the last byte to read does not align at the chunk boundary? 
+
+
+New Comment: 
+<blockquote>Is it possible that pos + bytesToRead &gt; totalBytesToRead in case that the
+last byte to read does not align at the chunk boundary?</blockquote>I was originally
+thinking that the DN sent a partial chunk (with computed checksum) in that case but you're
+absolutely right. This new patch changes the condition to &gt;=. I also realized that I
+was neglecting to account for the initial padding when computing this value. I fixed both
+problems and renamed totalBytesToRead to bytesNeededToFinish.Given that this behavior
+doesn't seem to be well covered by tests I think we should also open another JIRA to
+directly test BlockReader and ensure that CHECKSUM_OK gets sent in the various cases. 
+
+
+New Comment: 
+The change looks good to me. <br/>&gt; I think we should also open another JIRA to
+directly test BlockReader and ensure that CHECKSUM_OK gets sent in the various
+cases.<br/>Why don't we just add a few test cases to
+TestDatanodeblockScanner#testDatanodeBlocksacnner in the patch to this jira? Anyway we
+need unit tests to get this fix committed. 
+
+
+New Comment: 
+<blockquote>Anyway we need unit tests to get this fix committed</blockquote>I figured the
+fact that TestDatanodeBlockScanner was already failing meant that this is considered
+"tested". Just not "tested well" <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I'll try to add some tests early next week
+for this. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12429786/hdfs-877.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12429786/hdfs-877.txt</a><br/>
+ against trunk revision 897068.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    -1 findbugs.  The patch appears to introduce 1 new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/92/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+New patch includes a unit test and also has two bugs fixed:<ul class="alternate"
+type="square">	<li>gotEOSBefore needs to be set <b>before</b> the skip() call - reasons
+are included in a comment</li>	<li>I took out the IOException when read past end-of-stream
+happens twice, since this should not actually be an error, if you follow other InputStream
+implementations</li></ul>I verified that the new unit test catches the original bug from
+this issue (by reverting that fix) and also that it shows the problem that Hairong
+identified (by trying the test against the first patch) 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430214/hdfs-877.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430214/hdfs-877.txt</a><br/>
+ against trunk revision 898881.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/96/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+There's an accidental extra debug INFO line in readChunk here - sorry about that. Waiting
+for review before bothering to upload a new patch. 
+
+
+New Comment: 
++1. The unit tests are great! I will commit it after you upload a new patch fixing the log
+issue. Please also fix the unnecessary changes to blank lines. 
+
+
+New Comment: 
+Could you please upload a patch for 0.20 as well? Do you mind if I mark <a
+href="https://issues.apache.org/jira/browse/HDFS-734" title="TestDatanodeBlockScanner
+times out in branch 0.20" class="issue-link"
+data-issue-key="HDFS-734"><del>HDFS-734</del></a> as a duplicate of this so we have only
+one jira to track a change? 
+
+
+New Comment: 
+It actually seems like <a href="https://issues.apache.org/jira/browse/HDFS-734"
+title="TestDatanodeBlockScanner times out in branch 0.20" class="issue-link"
+data-issue-key="HDFS-734"><del>HDFS-734</del></a> is different. For me,
+TestDatanodeBlockScanner is passing on a fresh branch-0.20 checkout now that <a
+href="https://issues.apache.org/jira/browse/HDFS-127" title="DFSClient block read failures
+cause open DFSInputStream to become unusable" class="issue-link"
+data-issue-key="HDFS-127"><del>HDFS-127</del></a> has been reverted. Can you confirm? If
+so, we can mark that one as fixed.However, I backported the new unit test from this JIRA,
+and discovered that the gotEOSBefore bug is present in branch-0.20. However, this bug
+doesn't really cause a problem, since it only occurs when doing unaligned reads. If your
+read is unaligned, then reporting CHECKSUM_OK is a no-op anyway, and it doesn't really
+matter. Agree?Attaching new patch against trunk with fixed whitespace and logging. 
+
+
+New Comment: 
+Here's a patch for branch-20 that shows that checksum verification works after fixing the
+gotEOSBefore bug. It does pull in mockito and junit 4 (which should be entirely
+compatible). I don't think it's pressing to commit it if there's any concern, but the
+tests might be nice to have to make sure that no other patches break this behavior on the
+branch. 
+
+
+New Comment: 
+reuploading the same patch as before to put it top on the list, so I can toggle Hudson 
+
+
+New Comment: 
+If this is not the cause of <a href="https://issues.apache.org/jira/browse/HDFS-734"
+title="TestDatanodeBlockScanner times out in branch 0.20" class="issue-link"
+data-issue-key="HDFS-734"><del>HDFS-734</del></a>, does the fix need to get into 0.20?
+This seems to me not so critical. 
+
+
+New Comment: 
+Hairong: I agree, probably not worth putting it in 20. I'll probably apply it in our
+distro just for the sake of the unit test, since it does add yet an extra layer of
+verification on the tricky DFSClient code. Wanted to upload it here in case anyone else
+wanted to do the same. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430826/hdfs-877.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430826/hdfs-877.txt</a><br/>
+ against trunk revision 899747.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/100/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Is this good to be committed? 
+
+
+New Comment: 
+I've just committed this. Thanks Todd! 
+
+
+New Comment: 
+This bug fix should go in 0.21 as well, I think. The current patch doesn't apply, but I'll
+try to get to one tomorrow or early next week. I ran the new unit test against unpatched
+21 and three out of the four cases failed (which is a regression from unpatched 0.20 where
+only 1/4 fail). 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #175 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/175/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/175/</a>)<br/>
+   . Client-driven block verification not functioning. Contributed by Todd Lipcon. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #208 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/208/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/208/</a>)<br/> 
+  . Client-driven block verification not functioning. Contributed by Todd Lipcon. 
+
+
+New Comment: 
+Could you please explain why you need the fix to be in 0.21? Since TestDataBlockScanner
+passes, I would not worry that this is a critical bug because checksumOK is for block
+verification purpose. Since this is not a regression introduced by 0.21, by policy it
+should not be committed into 0.21. 
+
+
+New Comment: 
+I think it's a regression in that there now exists a unit test which fails 1 case in 0.20
+and 3 cases in 0.21. The fact that TestDataBlockScanner passes doesn't necessarily mean
+there's no bug, just that the bug isn't exposed by a test.I don't think it's absolutely
+critical, but it seems worth fixing. If you disagree, I'm happy to have this issue closed
+again. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #101 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/101/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/101/</a>)<br/>
+   . Client-driven block verification not functioning. Contributed by Todd Lipcon. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #205 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/205/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/205/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #179 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/179/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/179/</a>)<br/>
+   <a href="https://issues.apache.org/jira/browse/HDFS-922" title="Remove extra semicolon
+from HDFS-877 that really annoys Eclipse" class="issue-link"
+data-issue-key="HDFS-922"><del>HDFS-922</del></a>. Remove unnecessary semicolon added by 
+that causes<br/>problems for Eclipse compilation. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #208 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/208/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/208/</a>) 
+
+
+New Comment: 
+So, any verdict on this for 0.21? We should make a decision and close the JIRA either way.
+I'm +0 on commit but not critical. 
+
+
+New Comment: 
+I'm +1 on commit though non-critical.  It has comprehensive test and it seems silly not
+picking up fixes (yeah, there is a freeze but its going on too long). 
+
+

@@ -1,0 +1,170 @@
+Pattern changes caused by commit: c004d60944625df21a47cbaab027c3d730eb491f
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Flyweight-3
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-929.txt 
+
+commit c004d60944625df21a47cbaab027c3d730eb491f
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-428 (MessagePriorities)
+    * Renamed IoSessionAttributeMapFactory to IoSessionDataStructureFactory
+    ** IoSessionDataStructure has additional method 'getWriteRequestQueue' which allows a user to provide his or her own queue implementation, possibly prioritized queue.
+
+
+
+==================================
+ Issue DIRMINA-428 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-428] Message priorities
+-----------------
+
+-----------------
+Summary: Message priorities
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 29 Aug 2007 03:50:46 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 6 Nov 2007 06:26:36 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+I would like MINA to support sending messages with different priorities, so that
+higher-priority messages will get sent out first (in the order that they were added to the
+queue, if they have the same priority)
+
+Here's how I think this could be implemented:
+<ul
+class="alternate" type="square">	<li>define different priorities; I suggest using numeric
+constants, such as LOWEST=0, LOW=25, NORMAL=50, HIGH=75, HIGHEST=100, allowing any custom
+values from 0 to 100</li>	<li>add a priority field to WriteRequest, and implement
+Comparable using it</li>	<li>add a write(Object message, int priority) method to
+IoSession</li>	<li>make write(message) call write(message, NORMAL)</li>	<li>make the
+writeRequestQueue in the session implementations a priority queue, but one that preserves
+the original order of "equal" elements</li>	<li>ensure that a higher priority message
+won't interrupt sending out another message (if pending)</li>	<li>if desired, write an
+IoFilter that can manipulate the priority</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I'd prefer not to modify IoSession (i.e. adding write(Object, int)) because it will be
+effective only when the filter is inserted.  Providing some extension point on the filter
+side (e.g. using Comparator interface) or making the message classes to implement
+Comparable might be better solution. 
+
+
+New Comment: 
+Thanks for your comment. Obviously you have a very different opinion about how to
+implement this, and I'm not sure I really understand. For example, I didn't plan for any
+filter originally, but you say "it will be effective only when the filter is
+inserted".<br/>Could you please elaborate on:<ul class="alternate"
+type="square">	<li>where and how the priority will be attached to a message</li>	<li>where
+the messages will be sorted by priority</li>	<li>how the default priority will be
+handled</li>	<li>at what point the Comparator/Comparable interface will be used (I think
+anything before the writeRequestQueue will be useless)</li></ul>Thanks 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>where and how the priority will be attached to a
+message</li></ul>User will implement a Comparator or make the message Comparable so MINA
+can determine which message is more urgent.<ul class="alternate" type="square">	<li>where
+the messages will be sorted by priority</li></ul>In an IoFilter's internal heap
+probably.<ul class="alternate" type="square">	<li>how the default priority will be
+handled</li></ul>Once Comparator is used, there's no default priority.  Everything is
+relative.<ul class="alternate" type="square">	<li>at what point the Comparator/Comparable
+interface will be used (I think anything before the writeRequestQueue will be
+useless)</li></ul>Before putting the message into writeRequestQueue.  I think it's not
+useless because the IoFilter implementation could maintain it's own writeRequestQueue to
+maintain the size of the real writeRequestQueue minimal so that high-priority messages are
+pushed into the real writeRequestQueue earlier than other buffered requests.  This might
+decrease throughput in some degrees, but the trade-off should be configurable. 
+
+
+New Comment: 
+I changed my mind.  We could let user specify the internal write request queue
+implementation like we did for session attributes: <a
+href="https://issues.apache.org/jira/browse/DIRMINA-393" title="Allow users to choose a
+Map implementation for storing session attributes." class="issue-link"
+data-issue-key="DIRMINA-393"><del>DIRMINA-393</del></a> 
+
+
+New Comment: 
+I've just added IoSessionDataStructureFactory which provides session attribute map and
+write request queue for a session.  By implementing this interface and changing
+IoService.sessionDataStructureFactory property, you can use whatever queue implementation
+you want, as long as it's thread safe.This means you can implement prioritization of
+messages very easily.  For example, you could extend DefaultIoSessionDataStructureFactory
+and override getWriteRequestQueue() method to return a synchronized PriorityQueue
+constructed with a proper Comparator. 
+
+
+New Comment: 
+Hi, sorry for the late reply. I haven't looked at the changes yet, but I'd like to comment
+on what you said anyway.&gt; - at what point the Comparator/Comparable interface will be
+used (I think anything before the writeRequestQueue will be useless)<br/>&gt;<br/>&gt;
+Before putting the message into writeRequestQueue. I think it's not useless because the
+IoFilter implementation could maintain it's own writeRequestQueueWell, that means the
+writeRequestQueue is effectively moved to the filter, and the original queue <span
+class="error">&#91;almost&#93;</span> becomes a no-op. So the sorting is still not done
+before the queue, just that the queue changes its place. It can work, but I don't think it
+is very nice.&gt; I changed my mind. We could let user specify the internal write request
+queue implementationOk, so the queue stays in place. The question remains - how to
+implement the comparison?<br/>As I understand it, at this point the message to send has to
+be in the form of a ByteBuffer, and there's not much else to use in the WriteRequest. Or
+has it changed? 
+
+
+New Comment: 
+Hmm... first off, IoSessionDataStructureFactory is not a filter.  it creates a few
+important fields like WriteRequestQueue when a new session is created.  It's a special
+extension point introduced due to user demand.  Therefore your first comment is not
+effective now.  I implemented as you requested mostly. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Implementation of comparison is up to you.
+ There's an interface called WriteRequestQueue, so you can do whatever you want with the
+message ordering.  Typically you could maintain two or more queues internally (e.g. fast
+lane and other lanes).It is true that the WriteRequest doesn't contain high-level
+information that helps you determine the priority of the request, although you can
+down-cast the write request to WriteRequestWrapper and get the original message, but I'm
+not sure it's a good way to determine the priority.  Let me think about this issue a
+little bit more... 
+
+

@@ -1,0 +1,78 @@
+Pattern changes caused by commit: 6f164b0110dc8d27ee107994131a11f468f05858
+
+From: Bridge-3
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-3
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-858.txt 
+
+commit 6f164b0110dc8d27ee107994131a11f468f05858
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-439 (DemuxingProtocolEncoder and DemuxingProtocolDecoder by refactoring DemuxingProtocolCodecFactory)
+    * Added DemuxingProtocolEncoder
+    * Added DemuxingProtocolDecoder
+    * Rewrote DemuxingProtocolCodecFactory by using DemuxingProtocolEncoder and Decoder
+    * Updated JavaDoc
+    * Moved UnknownMessageTypeException to org.apache.mina.common
+
+
+
+==================================
+ Issue DIRMINA-439 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-439] DemuxingProtocolEncoder and DemuxingProtocolDecoder by refactoring DemuxingProtocolCodecFactory
+-----------------
+
+-----------------
+Summary: DemuxingProtocolEncoder and DemuxingProtocolDecoder by refactoring DemuxingProtocolCodecFactory
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 17 Sep 2007 11:59:20 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Oct 2007 09:56:00 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+DemuxingProtocolCodecFactory is somewhat monolithic and needs polishing.  It would be
+more elegant to provide DemuxingProtocolEncoder and DemuxingProtocolDecoder separately,
+and to implement DemuxingProtocolCodecFactory by combining the two.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

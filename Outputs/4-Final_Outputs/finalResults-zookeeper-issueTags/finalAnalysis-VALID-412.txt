@@ -1,0 +1,270 @@
+Pattern changes caused by commit: ba65c32347b12607cfa8160088b442e2f56a837e
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-412.txt 
+
+commit ba65c32347b12607cfa8160088b442e2f56a837e
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-383. Asynchronous version of createLedger(). (flavio via mahadev)
+
+
+
+==================================
+ Issue ZOOKEEPER-383 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-383] Asynchronous version of createLedger()
+-----------------
+
+-----------------
+Summary: Asynchronous version of createLedger()
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 27 Apr 2009 20:35:44 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 28 May 2009 05:01:29 +0000
+-----------------
+
+-----------------
+Assigned to: Flavio Paiva Junqueira
+-----------------
+
+-----------------
+Description: 
+
+While there are async versions for read and write, there is no async version for creating
+a ledger. This can cause applications to have to change their whole thread design. 
+
+It
+should be easier and more consistent to add an async version of createLedger().
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+createLedger, openLedger, and closeLedger are operations that do not involve talking to
+bookies, so they don't go into the same pipeline as addEntry and readEntry operations.
+Instead, they are executed by the application thread when invoked. These operations do
+require talking to ZooKeeper, though. Making such operations asynchronous in the sense
+that a different thread executes the operation may require some restructuring. Perhaps
+what we can do is have ClientCBWorker executing the operation and calling back the
+application client. 
+
+
+New Comment: 
+The changes for the close procedure in <a
+href="https://issues.apache.org/jira/browse/ZOOKEEPER-400" title="Issues with procedure to
+close ledger" class="issue-link"
+data-issue-key="ZOOKEEPER-400"><del>ZOOKEEPER-400</del></a> affect this patch. 
+
+
+New Comment: 
+This is a preliminary patch. It works and contains a unit test. It needs a little bit of
+cleanup before being committed, though. Also, I think it would be good to have the
+synchronous versions of create, open, and close calling the respective asynchronous
+versions, just as we do with addEntry and readEntries, to avoid repetition of code.
+Because this patch corresponds to such a major change, I wonder if it would be best to
+discuss and implement this last suggestion in a separate jira. 
+
+
+New Comment: 
+yes i agree it would be good to use separate jiras.the patch looks good. great job. i'm
+wondering why you are queuing the operations into a blocking queue to send to a separate
+thread to issue the async calls. since they are async calls we could just issue them
+directly. couldn't we? 
+
+
+New Comment: 
+Thanks for the comments, Ben. The short answer to your question is yes, we could in the
+way you're saying. In fact, initially I had in mind processing the operation in the
+processResult callback methods. However, I found this approach confusing for understanding
+and maintaining the code, so I ended up writing the core logic of create, open, and close
+in the run() method of LedgerManagementProcessor. It is true, though, that we could
+eliminate the thread of LedgerManagementProcess and make run() a method that is invoked by
+other threads. The reason why I preferred to have this architecture is to isolate the
+execution of the create, open, and close procedures. There are operations, like ledger
+recovery, that are more expensive and it is perhaps a good idea to have them executed by a
+separate thread. What do you think? 
+
+
+New Comment: 
+In this new patch, I have moved all asynchronous callback interfaces inside one interface
+AsyncCallback, as we do in ZooKeeper. Consequently, I have removed the previous
+interfaces.I have also moved some constants we use to determine the path of znodes in
+ZooKeeper to BKDefs.It adds a unit test and all tests pass for me. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12408575/ZOOKEEPER-383.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12408575/ZOOKEEPER-383.patch</a><br/>
+ against trunk revision 776889.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/82/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/82/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Apparently my last patch conflicted with the code in trunk, so I regenerated it and I'm
+resubmitting it. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12408700/ZOOKEEPER-383.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12408700/ZOOKEEPER-383.patch</a><br/>
+ against trunk revision 777265.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/84/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+the patch looks good flavio. I have some comments and questions -<ul class="alternate"
+type="square">	<li>I think this is old code - it seems like all the callbacks (other than
+create/open) return a ledger id. Do we need that?<br/>  In case someone needs to use the
+ledgerhandle or id in the callback he should be able to pass that via<br/>  the Object
+ctx, no? The more useful case would be that we get the ledgerhandle in the return
+callback, but I think<br/>  the application can do it better passing it via Object
+ctx.</li></ul><ul class="alternate" type="square">	<li>ledgermanagementprocessor has some
+unused imports and unused variables</li></ul><ul class="alternate" type="square">	<li>one
+other thing, you might want to consider breaking the run method into different methods for
+readability and maintainence.<br/>   Its a huge method currently.</li></ul> 
+
+
+New Comment: 
+i think i would rather see the ledgerhandle in the callbacks, since it is something we
+already have and it is information you will usually need in the callback. 
+
+
+New Comment: 
+This patch addresses most of the issues raised by Mahadev. I haven't removed unused
+variables or imports because I couldn't see any. With respect to the discussion on
+callbacks, before we didn't have a LedgerHandle, but instead only ledger id. I'm fine
+either way, although I tend to agree with Ben that it might be better to have the ledger
+handle explicitly among the input parameters of the callback method. 
+
+
+New Comment: 
+I prefer to have a LedgerHandle object returned explicitly as Ben suggests, mainly because
+I tend to use that ctx object for other purposes. However, I have replaced the ledger
+identifier input with a LedgerHandle object for both addComplete and readComplete. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12408952/ZOOKEEPER-383.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12408952/ZOOKEEPER-383.patch</a><br/>
+ against trunk revision 777662.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/90/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I have just reorganized error codes in this new patch. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12409185/ZOOKEEPER-383.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12409185/ZOOKEEPER-383.patch</a><br/>
+ against trunk revision 777662.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-vesta.apache.org/92/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1. I just committed this. thanks flavio. 
+
+
+New Comment: 
+Integrated in ZooKeeper-trunk #328 (See <a
+href="http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/328/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/328/</a>)<br/>   
+. Asynchronous version of createLedger(). (flavio via mahadev) 
+
+

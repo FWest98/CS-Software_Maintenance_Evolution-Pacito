@@ -1,0 +1,148 @@
+Pattern changes caused by commit: f2039b34dc7adaf974132707a160b2e9896c0a38
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-999.txt 
+
+commit f2039b34dc7adaf974132707a160b2e9896c0a38
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-473 (ReadThrottleFilter throws IllegalStateException)
+    * Reverted the previous change partially - the counter is reset when it goes negative.
+
+
+
+==================================
+ Issue DIRMINA-473 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-473] ReadThrottleFilter throws IllegalStateException
+-----------------
+
+-----------------
+Summary: ReadThrottleFilter throws IllegalStateException
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 10 Nov 2007 23:46:03 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Jul 2008 12:53:29 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The new ReadThrottleFilter from trunk throws an IlleganStateException.
+
+NioSocketAcceptor
+acceptor;<br/>DefaultIoFilterChainBuilder filterChain = acceptor.getFilterChain();<br/>//
+Adding other Filters and ReadThrottleFilter as the last one<br/>ReadThrottleFilter
+throttle = new ReadThrottleFilter();<br/>filterChain.addLast("read-throttle",
+throttle);
+
+Exception:<br/>java.lang.IllegalStateException: sessionBufferSize &lt; 0<br/> 
+     at
+org.apache.mina.filter.traffic.ReadThrottleFilter.exit(ReadThrottleFilter.java:455)<br/>  
+    at
+org.apache.mina.filter.traffic.ReadThrottleFilter.messageReceived(ReadThrottleFilter.java:316)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:399)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:38)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:791)<br/>
+      at org.apache.mina.common.IoFilterEvent.fire(IoFilterEvent.java:54)<br/>       at
+org.apache.mina.common.IoEvent.run(IoEvent.java:62)<br/>       at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>      
+at java.lang.Thread.run(Thread.java:619)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Should be fixed now.  Please let me know if you still get the exception. 
+
+
+New Comment: 
+Hi Trustin,I'm unfortunately still getting the
+exception.-RogerException:<br/>java.lang.IllegalStateException: sessionBufferSize:
+-696<br/>       at
+org.apache.mina.filter.traffic.ReadThrottleFilter.exit(ReadThrottleFilter.java:493)<br/>  
+    at
+org.apache.mina.filter.traffic.ReadThrottleFilter.messageReceived(ReadThrottleFilter.java:347)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:399)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:38)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:791)<br/>
+      at org.apache.mina.common.IoFilterEvent.fire(IoFilterEvent.java:54)<br/>       at
+org.apache.mina.common.IoEvent.run(IoEvent.java:62)<br/>       at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>      
+at java.lang.Thread.run(Thread.java:619) 
+
+
+New Comment: 
+Could you please provide some reproduceable application? 
+
+
+New Comment: 
+BTW are you sure you are using the latest revision?  I think I didn't deploy the snapshot
+JAR after fixing this issue.  You'd better build MINA by yourself if you didn't. 
+
+
+New Comment: 
+Yes I'm building MINA myself from trunk. Just to be sure, when I checkout the code from
+&lt;<a href="http://svn.apache.org/repos/asf/mina/trunk" class="external-link"
+rel="nofollow">http://svn.apache.org/repos/asf/mina/trunk</a>&gt; I'll get always the
+latest code!?I'll see if I can some up with a little application (it may take a few days
+due to a lot of work I've to finish).-Roger 
+
+
+New Comment: 
+Any news on this issue? 
+
+
+New Comment: 
+Hi Trustin,we decided to go with MINA 1.1.x on our production servers for now but I will
+take a look at MINA 2 very soon again (we need the throttling).-Roger 
+
+
+New Comment: 
+I'm still seeing this issue with a very recent trunk (16-Dec-2007)&#8211;<br/>Luis Neves 
+
+

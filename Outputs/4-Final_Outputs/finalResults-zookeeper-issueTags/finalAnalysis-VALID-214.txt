@@ -1,0 +1,86 @@
+Pattern changes caused by commit: 4cdb4305ad4acd8189b4f771b30f05d4cf68703e
+
+From: Bridge-1
+To:   Bridge-0
+
+From: Mediator-6
+To:   Mediator-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-214.txt 
+
+commit 4cdb4305ad4acd8189b4f771b30f05d4cf68703e
+Author: Benjamin Reed <breed@apache.org>
+
+    ZOOKEEPER-134 findbugs cleanup
+
+
+
+==================================
+ Issue ZOOKEEPER-134 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-134] findbugs cleanup
+-----------------
+
+-----------------
+Summary: findbugs cleanup
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 3 Sep 2008 23:06:30 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 4 Sep 2008 17:02:47 +0000
+-----------------
+
+-----------------
+Assigned to: Patrick D. Hunt
+-----------------
+
+-----------------
+Description: 
+
+cleaned up a number of findbugs warnings, in particular:
+
+1) added @overrides
+appropriately<br/>2) import cleanups<br/>3) log or document many empty blocks<br/>4)
+resource cleanup (usually by adding finally blocks)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 ready to commit 
+
+
+New Comment: 
+Committed revision 692164. 
+
+
+New Comment: 
+Integrated in ZooKeeper-trunk #76 (See <a
+href="http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/76/" class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/76/</a>) 
+
+

@@ -1,0 +1,124 @@
+Pattern changes caused by commit: 8908133ce32d45edaab93ca46263a60e64f28cc2
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-76.txt 
+
+commit 8908133ce32d45edaab93ca46263a60e64f28cc2
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-501. Use enum to define the constants in DataTransferProtocol.
+
+
+
+==================================
+ Issue HDFS-501 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-501] Use enum to define the constants in DataTransferProtocol
+-----------------
+
+-----------------
+Summary: Use enum to define the constants in DataTransferProtocol
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 23 Jul 2009 20:26:40 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 27 Jul 2009 17:51:12 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+There are quite a few integer (int/byte) constants defined in DataTransferProtocol.  It
+is better to replace them by enums.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+h501_20090724.patch: define constants with enum. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 9 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div>Running unit
+tests ... 
+
+
+New Comment: 
+Only TestBackupNode failed for "ant test" but it is not related.  See <a
+href="https://issues.apache.org/jira/browse/HDFS-192" title="TestBackupNode sometimes
+fails" class="issue-link" data-issue-key="HDFS-192"><del>HDFS-192</del></a>. 
+
+
+New Comment: 
++1Nits:<ol>	<li>BlockReceiver.java - Indenting of <tt>op</tt> declaration around line 854,
+is not indented with the rest of the code (though the existing code does not follow 2
+space indentation)</li>	<li>Use <tt>read(in)</tt> method instead
+<tt>valueOf(in.readByte()</tt>. Currently both these methods are used. Perhaps
+<tt>valueOf()</tt> could be private. This will also be better in case these fields change
+from byte to some other type.</li></ol> 
+
+
+New Comment: 
+h501_20090724b.patch: incorporated Suresh's comments and cleaned up some codes.<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 12 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div> 
+
+
+New Comment: 
++1 for the new patch 
+
+
+New Comment: 
+Got no failure in unit tests this time.  (TestBackupNode is really unrelated to this.  The
+patch does not fix it.) 
+
+
+New Comment: 
+I have committed this. 
+
+

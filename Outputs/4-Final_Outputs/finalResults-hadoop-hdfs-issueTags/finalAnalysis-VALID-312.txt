@@ -1,0 +1,208 @@
+Pattern changes caused by commit: 817e892077a8c9f3abcd4408ea3f0d94f748ce49
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-312.txt 
+
+commit 817e892077a8c9f3abcd4408ea3f0d94f748ce49
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-758. Add decommissioning status page to Namenode Web UI. Contributed by Jitendra Nath Pandey.
+
+
+
+==================================
+ Issue HDFS-758 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-758] Improve reporting of progress of decommissioning
+-----------------
+
+-----------------
+Summary: Improve reporting of progress of decommissioning
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 9 Nov 2009 20:33:07 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 7 Jan 2010 01:34:51 +0000
+-----------------
+
+-----------------
+Assigned to: Jitendra Nath Pandey
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This would be incredibly useful for our site.  We find that there are sometimes very "long
+tails" in decommissioning - the last 4 hours of a node decommissioning might be due to a
+handful of stuck or slow blocks.  It drives our admins nuts that they don't know if things
+are 50% done or 99.999% done (and should just pull the plug). 
+
+
+New Comment: 
+<ol>	<li>Check for 80 char column size in the code</li>	<li>Instead of assertTrue to check
+equality, use assertEquals in tests</li>	<li>BlockManager.java	<ul>		<li>remove import of
+org.mortbay.log.Log and use FSNameSystem.LOG for
+logging</li>		<li>isReplicationInProgress() - logging information about block can be moved
+to separate method for better readability. Also move setting status = true to pervious
+<tt>if (!status))</tt> block.</li>		<li>isReplicationInProgress() - should
+blocksWithOnlyDecommissioningReplicasCount be incremented {{if (curReplicas == 0
+&amp;&amp; num.decommissioningReplicas() &gt; 0). Second condition is the new
+addition.</li>		<li>isReplicationInProgress() - consistent and shorter naming -
+underReplicatedCount to underReplicatedBlocks, blocksOnlyWithDecommissionReplicasCount to
+decommissionOnlyReplicas, underRepBlocksInFilesUnderConstruction to
+underReplicatedInOpenFiles.</li>	</ul>	</li>	<li>DatanodeDescriptor.java	<ul>		<li>make
+<tt>DecommissioningStatus</tt> and member <tt>decommissioningStatus</tt> package private
+and move all the related method into the class. Methods can be directly called on
+<tt>decommissioningStatus</tt> to set and get the data.</li>		<li>renaming -
+setBlockCountsInDecommissioning to set, getUnderRepBlockCountInDecommission to
+getUnderReplicatedBlocks, getBlocksWithOnlyDecommissionReplicas to
+getDecommissionOnlyReplicas(), getDecommissioningUnderRepBlocksInFilesUnderConstruction to
+getUnderReplicatedInOpenFiles, setDecommissionStartTime to setStartTime,
+getDecommissioningStartTime to getStartTime, DecommissionStatus.decommissionStartTime to
+DecommissionStatus.startTime.</li>		<li>Should block and replica counts be int instead of
+long?</li>	</ul>	</li>	<li>FSNamesystem	<ul>		<li>startDecommission() - setting the
+decommission start tiem should move DatanodeDescriptor.startDecommission(). Also the check
+if isDecommissionInProgress() &amp;&amp; isDecommissioned should happen in
+startDecommission().</li>		<li>startDecommission() - checkDecommissionStateInternal()
+replaces some code. They do not seem to be equivalent
+code.</li>		<li>getDecommissioningNodes - instead of getDataNodeListForReport(ALL),
+getDataNodeListForReport(LIVE) should
+suffice.</li>	</ul>	</li>	<li>NamenodeJspHelper	<ul>		<li>LOG should use
+NameJspHelper.class</li>		<li>Should NamenodeJspHelper.generateDecommissioningNodeData()
+return immediately if the node is not decommissioning or
+decommissioned?</li>		<li>generateHealthReport() - is it a good idea to have a method in
+FSNamesystem, getDecommissioningNodeCount(), instead of having to rely on
+getDecommissioningNodes, which returns an ArrayList, just to print the
+count?</li>		<li>generateNodesList() - please check whatNodes.equals(DECOMMISSIONING) in
+the else condition. typo Decommissioing. Also building <tt>decommissioning</tt> nodes
+should be done when whatNodes == DECOMMISSIONING.</li>	</ul>	</li></ol>I have not reviewed
+the test changes yet. 
+
+
+New Comment: 
+New patch uploaded. 
+
+
+New Comment: 
+test-patch results for <a href="https://issues.apache.org/jira/browse/HDFS-758"
+title="Improve reporting of progress of decommissioning" class="issue-link"
+data-issue-key="HDFS-758"><del>HDFS-758</del></a>.4.patch :     <span
+class="error">&#91;exec&#93;</span> +1 overall.  <br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 @author.  The patch does not contain any @author tags.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 tests included.  The patch appears to include 4 new or modified tests.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javadoc.  The javadoc tool did not generate any warning messages.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 release audit.  The applied patch does not
+increase the total number of release audit warnings. 
+
+
+New Comment: 
+Patch <a href="https://issues.apache.org/jira/browse/HDFS-758" title="Improve reporting of
+progress of decommissioning" class="issue-link"
+data-issue-key="HDFS-758"><del>HDFS-758</del></a>.4.patch submitted for hudson tests. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425676/HDFS-758.4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425676/HDFS-758.4.patch</a><br/>
+ against trunk revision 882733.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 4 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/121/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 for the patch. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/120/</a>)<br/>
+   . Add decommissioning status page to Namenode Web UI. Contributed by Jitendra Nath
+Pandey. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-758" title="Improve reporting of
+progress of decommissioning" class="issue-link"
+data-issue-key="HDFS-758"><del>HDFS-758</del></a>.5.0-20.patch is the patch for
+hadoop-0.20. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #123 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/123/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/123/</a>)<br/>
+   . Add decommissioning status page to Namenode Web UI. Contributed by Jitendra Nath
+Pandey. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #81 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/81/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/81/</a>) 
+
+

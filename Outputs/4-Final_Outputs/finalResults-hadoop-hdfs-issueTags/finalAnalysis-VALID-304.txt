@@ -1,0 +1,141 @@
+Pattern changes caused by commit: 0f1ca03f68fb0f499f23a89ffeb43f06a79c9bf0
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-304.txt 
+
+commit 0f1ca03f68fb0f499f23a89ffeb43f06a79c9bf0
+Author: Konstantin I Boudnik <cos@apache.org>
+
+    HDFS-774. Intermittent race condition in TestFiPipelines. Contributed by Konstantin Boudnik
+
+
+
+==================================
+ Issue HDFS-774 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-774] Intermittent race condition in TestFiPipelines
+-----------------
+
+-----------------
+Summary: Intermittent race condition in TestFiPipelines
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 16 Nov 2009 18:09:14 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 16 Nov 2009 21:40:09 +0000
+-----------------
+
+-----------------
+Assigned to: Konstantin I Boudnik
+-----------------
+
+-----------------
+Description: 
+
+At least one evidence of possible race condition has been seen in the <a
+href="http://hudson.zones.apache.org/hudson/view/Hadoop/job/Hadoop-Hdfs-trunk/142/testReport/org.apache.hadoop.hdfs/TestFiPipelines/pipeline_06/"
+class="external-link" rel="nofollow">Hudson build</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The issue is seems to be caused by a concurrent attempt to shutdown mini cluster. 
+
+
+New Comment: 
+Making <tt>shutdown()</tt> method to be synchronized should address the issue 
+
+
+New Comment: 
+I've ran the patched code a number of times and it seems to be Ok. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425106/HDFS-774.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425106/HDFS-774.patch</a><br/>
+ against trunk revision 880630.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/76/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Thanks for the review, Nicholas.The patch affects branch 0.21 as well.I've just committed
+this. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #112 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/112/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/112/</a>)<br/>
+   . Intermittent race condition in TestFiPipelines. Contributed by Konstantin Boudnik 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #145 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/145/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/145/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #118 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/</a>) 
+
+

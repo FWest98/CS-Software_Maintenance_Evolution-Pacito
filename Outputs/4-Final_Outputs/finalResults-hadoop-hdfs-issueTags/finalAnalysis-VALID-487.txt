@@ -1,0 +1,199 @@
+Pattern changes caused by commit: 02f08ba7079e2e418482ddd4504c096cc453ace4
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-487.txt 
+
+commit 02f08ba7079e2e418482ddd4504c096cc453ace4
+Author: Boris Shkolnik <boryas@apache.org>
+
+    HDFS-1038. Fix. Added missing test
+
+
+
+==================================
+ Issue HDFS-1038 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1038] In nn_browsedfscontent.jsp fetch delegation token only if security is enabled.
+-----------------
+
+-----------------
+Summary: In nn_browsedfscontent.jsp fetch delegation token only if security is enabled.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 12 Mar 2010 01:31:48 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 24 May 2010 22:25:22 +0000
+-----------------
+
+-----------------
+Assigned to: Jitendra Nath Pandey
+-----------------
+
+-----------------
+Description: 
+
+nn_browsedfscontent.jsp  calls getDelegationToken even if security is disabled, which
+causes NPE. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch hadoop-20. 
+
+
+New Comment: 
+patch for trunk 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12445220/HDFS-1038.1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12445220/HDFS-1038.1.patch</a><br/>
+ against trunk revision 947204.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/374/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+New patch includes a test case. 
+
+
+New Comment: 
+patch looks good +1.<br/>It might be a good idea to scan quickly all the places where the
+getDT api is called to verify 'null' value is expected there. 
+
+
+New Comment: 
+&gt;It might be a good idea to scan quickly all the places where the getDT api is called
+to verify 'null' value is expected there. NameNodeJspHelper.getDelegationToken is package
+private and is called in only one place, redirectToRandomDataNode in the same file, apart
+from the newly added testcase. 'redirectToRandomDataNode' method handles the null value. 
+
+
+New Comment: 
+test-patch results     <span class="error">&#91;exec&#93;</span> +1 overall.  <br/>    
+<span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 @author.  The patch does not contain any
+@author tags.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 tests included.  The patch appears to include 3
+new or modified tests.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 javadoc.  The javadoc tool did not generate any
+warning messages.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 javac.  The applied patch does not increase the
+total number of javac compiler warnings.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 findbugs.  The patch does not introduce any new Findbugs warnings.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 release audit.  The applied patch does not increase the total number of release audit
+warnings. 
+
+
+New Comment: 
+tests were run manually, all passed except TestHDFSTrash which fails without this patch as
+well. 
+
+
+New Comment: 
+Committed this. Thanks Jitendra. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12445373/HDFS-1038.2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12445373/HDFS-1038.2.patch</a><br/>
+ against trunk revision 947204.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/375/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #281 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/281/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/281/</a>)<br/>
+   <a href="https://issues.apache.org/jira/browse/HDFS-1038" title="In
+nn_browsedfscontent.jsp fetch delegation token only if security is enabled."
+class="issue-link" data-issue-key="HDFS-1038"><del>HDFS-1038</del></a>. In
+nn_browsedfscontent.jsp fetch delegation token only if security is enabled. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-1038" title="In
+nn_browsedfscontent.jsp fetch delegation token only if security is enabled."
+class="issue-link" data-issue-key="HDFS-1038"><del>HDFS-1038</del></a>.3.patch contains
+only the test. 
+
+

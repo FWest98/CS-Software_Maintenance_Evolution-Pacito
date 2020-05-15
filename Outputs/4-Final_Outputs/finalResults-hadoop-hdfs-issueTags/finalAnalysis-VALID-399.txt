@@ -1,0 +1,347 @@
+Pattern changes caused by commit: df189829064222aa6744406bae64798b1ddd227f
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-399.txt 
+
+commit df189829064222aa6744406bae64798b1ddd227f
+Author: Owen O'Malley <omalley@apache.org>
+
+    HDFS-991. Allow authentication to the web ui via a delegation token.
+    (omalley)
+
+
+
+==================================
+ Issue HDFS-991 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-991] Allow browsing the filesystem over http using delegation tokens
+-----------------
+
+-----------------
+Summary: Allow browsing the filesystem over http using delegation tokens
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 20 Feb 2010 23:18:35 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 26 Feb 2010 23:58:44 +0000
+-----------------
+
+-----------------
+Assigned to: Owen O'Malley
+-----------------
+
+-----------------
+Description: 
+
+Assuming the user authenticates to the NameNode in the browser, allow them to browse the
+file system by adding a delegation token the the url when it is redirected to a datanode.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch is preliminary, but it covers the basics. It looks for a user parameter in the
+namenode and gets a delegation token for the redirect. All of the datanode operations use
+the delegation token to create the dfs client and access the filesystem.I also removed the
+static Configuration out of the JspHelper and set the configuration in an attribute in the
+datanode. (It was already being done in the name node.) 
+
+
+New Comment: 
+Hi Owen,When does the delegation token that the namenode provides
+(redirectToRandomDataNode()) expire?A lot of websites pass security tokens via cookies,
+because GET parameters tend to get written down in referrer fields and such.  So there's
+the potential that someone will get their hands on your token.  Am I right that the token
+lets anyone read any data as if they were you?  I'd be more comfortable if it were cookie
+based (though that implies that your datanodes and your namenode are in the same domain,
+which might not be workable), though I do see how GET is simpler.The web security part of
+me is also worried that this is liable to CSRF (<a
+href="http://en.wikipedia.org/wiki/Cross-site_request_forgery" class="external-link"
+rel="nofollow">http://en.wikipedia.org/wiki/Cross-site_request_forgery</a>) attacks.  The
+key there, I think, is to make sure that when the namenode is issuing tokens, it's
+absolutely confident that it's issuing them to someone who is asking for
+them.<blockquote>URLEncoder.encode("/", "UTF-8")</blockquote>Might be worthwhile to make
+this a constant.  It's unlikely to change <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> <blockquote>URL Creation</blockquote>This
+isn't necessary this JIRA's to fix (nor is it introduced in this patch), but the manual
+URL concatenation strikes me as a bit ugly.  Most web frameworks have utilities to add GET
+parameters and such and to build URLs for you.  Not sure if one is handy in our
+environment, but usually more readable than long string
+concatenations.<blockquote>Tests</blockquote>There aren't any <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  Understandable in a preliminary patch. 
+
+
+New Comment: 
+<blockquote>When does the delegation token that the namenode provides
+(redirectToRandomDataNode()) expire?</blockquote>Delegation tokens default to living for 1
+day.<blockquote>A lot of websites pass security tokens via cookies, because GET parameters
+tend to get written down in referrer fields and such.</blockquote>Jetty doesn't do such
+logging. <b>smile</b> But as you point out, I don't think we really have a workable choice
+since we have no guarantee that the datanode can get the cookies set by the namenode.
+<b>sigh</b> 
+
+
+New Comment: 
+<blockquote>URLEncoder.encode("/", "UTF-8")</blockquote>Yeah, I laughed when I saw that
+code. I probably should have fixed it.<blockquote>URL Creation</blockquote>Patches
+accepted, if you have some framework burning a hole in your
+pocket.<blockquote>Tests</blockquote>It is actually really hard to write tests for the
+servlets. 
+
+
+New Comment: 
+Updated to unify the user stuff coming in from the web.Impossible to write unit tests for
+most of this code because they depend on security being turned on, which doesn't work in
+the unit tests (you'd need kerberos installed locally.) 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12436960/h-991.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12436960/h-991.patch</a><br/>
+ against trunk revision 916072.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 1 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    -1 javac.  The patch
+appears to cause tar ant target to fail.    -1 findbugs.  The patch appears to cause
+Findbugs to fail.    +1 release audit.  The applied patch does not increase the total
+number of release audit warnings.    -1 core tests.  The patch failed core unit tests.   
+-1 contrib tests.  The patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/testReport/</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/245/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+An update to the patch. Under manual testing this works for me. We don't currently have
+the infrastructure to test code that only runs with security turned on. We need to figure
+out a way to mock out Kerberos... 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12437052/h-991.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12437052/h-991.patch</a><br/>
+ against trunk revision 916292.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    -1 patch.  The patch command could not apply the patch.Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/246/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/246/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+This time with --no-prefix. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12437058/h-991.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12437058/h-991.patch</a><br/>
+ against trunk revision 916292.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    -1 findbugs.  The patch appears to introduce 4 new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/247/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Fix the servlets to use getServletContext rather than the request to call getParameter on. 
+
+
+New Comment: 
+Check patch through Hudson one more time.&#8211; Owen 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12437124/h-991.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12437124/h-991.patch</a><br/>
+ against trunk revision 916534.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    -1 findbugs.  The patch appears to introduce 4 new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/248/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The findbugs warning are spurious, because we have an input filter that quotes all of the
+HTTP parameters automatically. We should disable them from the build.The contrib failure
+was cactus' failure to download Tomcat. 
+
+
+New Comment: 
+Modified the findbugs exclude file to block all of the XSS and HRS, since we handle those
+with input quoting. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12437190/h-991.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12437190/h-991.patch</a><br/>
+ against trunk revision 916534.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/250/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Looks good. +1 
+
+
+New Comment: 
+Although i should mention that once <a
+href="https://issues.apache.org/jira/browse/HADOOP-6580" title="UGI should contain
+authentication method." class="issue-link"
+data-issue-key="HADOOP-6580"><del>HADOOP-6580</del></a> is committed, the calls to
+getDelegationToken will fail unless the ugi has the appropriate authentication method set
+on it. 
+
+
+New Comment: 
+I just committed this. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #205 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/205/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/205/</a>)<br/>
+   . Allow authentication to the web ui via a delegation token. <br/>(omalley) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #302 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #275 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/275/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/275/</a>) 
+
+
+New Comment: 
+This patch broke the HftpFileSystem, since in StreamFile.java you are now using name.conf
+attribute to get the configuration, but since it runs in the DataNode it uses
+datanode.conf name for the configuration attribute.<br/>This calls for a HftpFileSystem
+unittest, since we do not have one this slipped through. 
+
+

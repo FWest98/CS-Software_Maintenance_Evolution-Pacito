@@ -1,0 +1,128 @@
+Pattern changes caused by commit: acf1d0c5d0651b7810fd9ab5cb6b52112c5077f5
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1327.txt 
+
+commit acf1d0c5d0651b7810fd9ab5cb6b52112c5077f5
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-536 - TextLineDecoder throws an IndexOutOfBoundsException
+    * Added an if block that checks the case that matchCount is greater than the current buffer position
+
+
+
+==================================
+ Issue DIRMINA-536 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-536] TextLineDecoder throws an IndexOutOfBoundsException
+-----------------
+
+-----------------
+Summary: TextLineDecoder throws an IndexOutOfBoundsException
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 25 Feb 2008 14:49:45 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 12 Mar 2008 06:54:31 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Adding the following test to the TextLineDecoderTest JUNIT test class will raise the bug.
+<br/>It's due to an incomplete match being incorrectly rewinded that causes the
+IndexOutOfBoundsException 
+
+    public void testSMTPDataBounds() throws Exception 
+{      
+ TextLineDecoder decoder = new TextLineDecoder(Charset.forName("ISO-8859-1"),             
+  new LineDelimiter("\r\n.\r\n"));        CharsetEncoder encoder =
+Charset.forName("ISO-8859-1").newEncoder();        IoSession session = new DummySession();
+       TestDecoderOutput out = new TestDecoderOutput();        ByteBuffer in =
+ByteBuffer.allocate(16).setAutoExpand(true);        in.putString("\r\n",
+encoder).flip().mark();        decoder.decode(session, in.reset().mark(), out);       
+Assert.assertEquals(0, out.getMessageQueue().size());        in.putString("Body\r\n.\r\n",
+encoder).flip().mark();        decoder.decode(session, in.reset().mark(), out);       
+Assert.assertEquals(1, out.getMessageQueue().size());    }
+------
+
+To solve the issue, a
+simple patch is to replace the following line in
+org.apache.mina.filter.codec.textline.TextLineDecoder.java
+:
+
+in.position(in.position()-matchCount);
+
+by
+
+in.position(Math.max(0,
+in.position()-matchCount));
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Where does the class TestDecoderOutput come from? 
+
+
+New Comment: 
+It's an internal class of org.apache.mina.filter.codec.textline.TextLineDecoderTest which
+can be found in the core/src/test directory<br/>of the mina 1.1.6 archive for example. 
+
+
+New Comment: 
+Fixed as you suggested.  Please close this issue if it resolves your problem. 
+
+
+New Comment: 
+The fix is working as expected but it seems that the JUnit test has not been added to
+org.apache.mina.filter.codec.textline.TextLineDecoderTest in 1.1 branch<br/>Is it
+intentionnal ? 
+
+
+New Comment: 
+Yes, 1.x is purely under maintenance mode.  I was lazy to backport the test cases to both
+1.0 and 1.1. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+

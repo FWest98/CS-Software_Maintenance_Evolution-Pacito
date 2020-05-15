@@ -1,0 +1,388 @@
+Pattern changes caused by commit: e1a1ee81f1aa930cae20fa3fc76485e45a95f066
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Observer-0
+To:   Observer-1
+
+From: Strategy-4
+To:   Strategy-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-573.txt 
+
+commit e1a1ee81f1aa930cae20fa3fc76485e45a95f066
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-507. BookKeeper client re-write (Utkarsh and ben via mahadev)
+
+
+
+==================================
+ Issue ZOOKEEPER-507 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-507] BookKeeper client re-write
+-----------------
+
+-----------------
+Summary: BookKeeper client re-write
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 15 Aug 2009 08:26:12 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 26 Jan 2010 23:20:53 +0000
+-----------------
+
+-----------------
+Assigned to: Utkarsh Srivastava
+-----------------
+
+-----------------
+Description: 
+
+Error handling is far from ideal currently in the BookKeeper client.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+A major rewrite of the bookkeeper client library 
+
+
+New Comment: 
+We've been using this modified version of bookkeeper for some time with good results in
+terms of both stability and performance. This patch incorporates a couple of major
+changes, so its better reviewed as a whole, rather than as a diff. The two major changes
+are:i) Rewrite of the client library to deal with error cases, and generally iron out a
+lot of bugs.<br/>ii) Enhancing the bookie server to deal with a large number of open
+ledgers by multiplexing them into a common number of files.An added dependency is netty, a
+jboss project for network i/o. Netty is under an Apache 2.0 license, and the jar can be
+grabbed from <br/><a
+href="http://repository.jboss.com/maven2/org/jboss/netty/netty/3.1.2.GA/netty-3.1.2.GA.jar"
+class="external-link"
+rel="nofollow">http://repository.jboss.com/maven2/org/jboss/netty/netty/3.1.2.GA/netty-3.1.2.GA.jar</a> 
+
+
+New Comment: 
+Sorry for the delay, I'll be reviewing this shortly. 
+
+
+New Comment: 
+One small comment at this point is that we have no lib folder under bookkeeper, and Pat
+tells me that putting under PROJECT_ROOT/src/java/lib is not ok. So, it doesn't compile
+without modifying build.xml. I see two options:<ol>	<li>We create a
+bookkeeper/src/java/lib folder and add the netty jar. In this case, we edit build.xml to
+set its classpath appropriately;</li>	<li>We make it use ivy and fetch from a
+repository.</li></ol>Another point is that for the new bookie classes, I haven't seen
+javadocs or comments at all. I think it would be great to have some in there. 
+
+
+New Comment: 
+Rewrite of bookkeeper client library 
+
+
+New Comment: 
+The new bookie classes are written by Ben. Ben, can you please add javadocs for those? 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422953/ZOOKEEPER-507.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422953/ZOOKEEPER-507.patch</a><br/>
+ against trunk revision 835618.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 36 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/65/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422953/ZOOKEEPER-507.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422953/ZOOKEEPER-507.patch</a><br/>
+ against trunk revision 881623.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 36 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/4/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+ben,<br/>  will you be adding javadocs to the classes? 
+
+
+New Comment: 
+We also need to split this patch into two. There are really two major issue being solved
+here: new client code and ledger aggregation support. 
+
+
+New Comment: 
+waiting for ben to update the bookie doc 
+
+
+New Comment: 
+I have merged <a href="https://issues.apache.org/jira/browse/ZOOKEEPER-486" title="Improve
+bookie performance for large number of ledgers" class="issue-link"
+data-issue-key="ZOOKEEPER-486"><del>ZOOKEEPER-486</del></a> back. It doesn't seem to make
+a lot of sense to separate these patches because they are not completely disjoint. Aside
+from having more folks reviewing this patch, we need to:<ul>	<li>Improve documentation (<a
+href="https://issues.apache.org/jira/browse/ZOOKEEPER-607" title="improve bookkeeper
+overview" class="issue-link"
+data-issue-key="ZOOKEEPER-607"><del>ZOOKEEPER-607</del></a>);</li>	<li>Fetch netty jar
+through ivy (ZOOKEEPER-.633).</li></ul> 
+
+
+New Comment: 
+I had the wrong file name in the previous upload, I'm just uploading the same file with
+its name corrected. 
+
+
+New Comment: 
+BookieFailureTest is failing intermittently after the last modifications. I'm attaching
+the test output showing where it is hanging. 
+
+
+New Comment: 
+BookieFailureTest is failing consistently now, after I re-introduced the tests to check
+the failure of each bookie. These tests are redundant, but they should help to pinpoint
+problems that arise when the position of the bookie in the ensemble matters. A
+disadvantage of re-introducing the tests is that they increase the total time needed to
+run the tests.About the test failure, it seems that the test hangs when we error out add
+keys, but I'm not completely sure. I need to look more deeply into the problem.I have also
+wrote and modified javadoc blocks for some of the client package classes. 
+
+
+New Comment: 
+it turns out that the BookieFailureTest was failing due to a bug in netty. it appears to
+have been fixed at the end of september (see <a
+href="http://viewvc.jboss.org/cgi-bin/viewvc.cgi/netty/trunk/src/main/java/org/jboss/netty/channel/socket/nio/NioWorker.java?view=log"
+class="external-link"
+rel="nofollow">http://viewvc.jboss.org/cgi-bin/viewvc.cgi/netty/trunk/src/main/java/org/jboss/netty/channel/socket/nio/NioWorker.java?view=log</a>)
+. the fix is in 3.1.5. Running with netty 3.1.5 allows all the tests to pass. 
+
+
+New Comment: 
+Added documentation to user-facing classes. Made all the remaining non-user-facing classes
+package public. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430595/ZOOKEEPER-507.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430595/ZOOKEEPER-507.patch</a><br/>
+ against trunk revision 899383.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 27 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/107/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Utkarsh, This patch is broken. There is missing code, which you can actually see from the
+file size (compare to the previous patches). Could you upload a new complete patch? 
+
+
+New Comment: 
+Included all the new classes. Had forgot to svn add them earlier. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430774/ZOOKEEPER-507.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430774/ZOOKEEPER-507.patch</a><br/>
+ against trunk revision 899383.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 33 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    -1 release audit. 
+The applied patch generated 211 release audit warnings (more than the trunk's current 207
+warnings).    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/testReport/</a><br/>Release
+audit warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/artifact/trunk/patchprocess/releaseAuditDiffWarnings.txt"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/artifact/trunk/patchprocess/releaseAuditDiffWarnings.txt</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/109/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The following two classes are missing the license
+headers:<ol>	<li>BaseTestCase.java</li>	<li>SyncCounter.java</li></ol> 
+
+
+New Comment: 
+Fixed warnings, added 2 missing license headers 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430779/ZOOKEEPER-507.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430779/ZOOKEEPER-507.patch</a><br/>
+ against trunk revision 899383.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 33 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h8.grid.sp2.yahoo.net/110/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+lets try and get this in 3.3. 
+
+
+New Comment: 
+utkarsh and ben,<br/> can you folks please update the jira saying <ul class="alternate"
+type="square">	<li>what changes have been made - the basic design change</li>	<li>what
+classes have been added and what is there purpose (better javadoc would help
+here)</li>	<li>what user facing changes have been made</li>	<li>are there forrest docs
+added for the user interface?</li>	<li>also i took a cursory look, it seems some (very
+few) of the classes do not have any javadoc or very minimal. It would be really helpful
+for future and current development if javadoc is added to these classes</li></ul> 
+
+
+New Comment: 
+here are the main changes:1) changed to using netty for client requests<br/>2) made
+recovery more reliable<br/>3)  multiplexed writes to handle a large number of concurrent
+ledgers being written tothe user facing changes are minimal. our javadoc efforts have been
+with respect to user facing classes. the internal code is still a bit influx, so some of
+the internal or simple classes we have not put a lot of effort into documenting since they
+haven't really finalized.our main goal right now is to get the patch in since it is very
+large and hard to manage at this point. 
+
+
+New Comment: 
+two extremely small fixes to make the tests patch:1) The syncThread was not being killed
+in the shutdown() method of Bookie<br/>2) We need to add pending ops before calling
+connect() in PerChannelBookieConnection because in linux with local host the connect will
+return immediately.we really need to commit this thing. the patch has become extremely
+unwieldy! 
+
+
+New Comment: 
+Ben, could you explain the change in PerChannelBookieClient.java. As far as I could tell,
+you exchanged the order of <ul class="alternate" type="square">	<li>initiating a connect,
+and</li>	<li>adding operation to pendingops</li></ul>But since these are done under a
+lock, and the connect callback grabs the same lock, switching this order is immaterial. It
+shouldn't have fixed anything. 
+
+
+New Comment: 
+yeah that is exactly what i thought, which is why it took me so long to fix. the problem
+is that the connect in the same thread. so if the connect succeeds right away, which
+happens with local host, the pendingops list gets processed. thus, you need to add to
+pendingops before calling connect. 
+
+
+New Comment: 
+Oh, you mean the connect callback gets called in the same thread? If so, yes I can see why
+that would not work. 
+
+
+New Comment: 
++1 ... ill go ahead and commit this. please make sure you add more java docs and forrest
+docs for bookkeeper. 
+
+
+New Comment: 
+I just committed this. thanks utkarsh, ben and flavio. 
+
+

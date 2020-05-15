@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 710c0b36207a78644e659a28ccb6b1d1db73faa1
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-950.txt 
+
+commit 710c0b36207a78644e659a28ccb6b1d1db73faa1
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-292 (Shared I/O processors.)
+    Forgot to check in SimpleIoProcessorPool
+
+
+
+==================================
+ Issue DIRMINA-292 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-292] Shared I/O processors.
+-----------------
+
+-----------------
+Summary: Shared I/O processors.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 19 Oct 2006 13:48:37 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Nov 2007 05:33:11 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Currently, I/O processor threads belong to its parent IoService, which means that I/O
+processors cannot be shared among different services.  This becomes a serious issue when
+more than one service is deployed into the same JVM.  Therefore, we need a way to share
+the I/O processors among the services with the same transport type.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Updated issue description; I think it is too difficult to provide sharing for acceptor and
+connector threads other than I/O processors.  So I just narrowed down the scope of this
+issue.  Moreover, what's most critical part if sharing I/O processors.  The acceptor and
+connector threads are not that busy to cause contention IMHO, and it will be no problem at
+all once <a href="https://issues.apache.org/jira/browse/DIRMINA-341" title="Allow binding
+multiple SocketAddresses per IoAcceptor." class="issue-link"
+data-issue-key="DIRMINA-341"><del>DIRMINA-341</del></a> is resolved. 
+
+

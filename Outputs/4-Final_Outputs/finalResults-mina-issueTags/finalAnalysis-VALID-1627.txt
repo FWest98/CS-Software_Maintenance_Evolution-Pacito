@@ -1,0 +1,104 @@
+Pattern changes caused by commit: 584157b38da8daacb5cb4e3b90ba4477ffe401b3
+
+From: Facade-4
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1627.txt 
+
+commit 584157b38da8daacb5cb4e3b90ba4477ffe401b3
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Added invocation of the fireSessionClosed() event when the session has been removed. Fix for DIRMINA-661
+
+
+
+==================================
+ Issue DIRMINA-661 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-661] DummySession.close(true) not notifying close listener
+-----------------
+
+-----------------
+Summary: DummySession.close(true) not notifying close listener
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 13 Feb 2009 05:06:14 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 13 Feb 2009 08:12:46 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+I'm trying to add a close listener onto a session, and perform some processing after the
+session close is completed. 
+
+This works fine on a live system (i.e., when using a
+NioSocketSession), but when I unit test using a DummySession I never get notified about
+operationComplete.
+
+See example JUnit test case at:
+
+<a
+href="http://www.darose.net/TestDummyIoSession.java" class="external-link"
+rel="nofollow">http://www.darose.net/TestDummyIoSession.java</a>
+<hr />
+Additional
+analysis, as per Emmanuel Lécharny :
+
+I think that the listeners are never called in the
+awaitUninterruptibly() method :
+
+   /**
+<ul>	<li>{@inheritDoc}
+    */<br/>   public
+IoFuture awaitUninterruptibly() {<br/>       try 
+{           await0(Long.MAX_VALUE,
+false);       }
+ catch ( InterruptedException ie) 
+{           // Do nothing : this catch
+is just mandatory by contract       }
+  ...
+</li></ul>
+The doc is explicit here :<br/>  
+/**
+<ul>	<li>Wait for the asynchronous operation to complete
+uninterruptibly.</li>	<li>*The attached listeners will be notified when the operation
+is</li>	<li>completed.*<br/>    *</li>	<li>@return the current IoFuture<br/>    */<br/>  
+IoFuture awaitUninterruptibly();</li></ul>
+The listeners are never called... 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

@@ -1,0 +1,147 @@
+Pattern changes caused by commit: 0b5e1b05d681da7a141ae336fb5ca757f3fe46ee
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-6
+
+From: Flyweight-3
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-829.txt 
+
+commit 0b5e1b05d681da7a141ae336fb5ca757f3fe46ee
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-456 (Provide mechanism for detecting a dead lock caused by calling IoFuture.await() in an I/O processor thread.)
+    * Improved DefaultIoFuture to check dead lock every five seconds.  Checking the dead lock situation is an expensive operation.  However, it shouldn't cost much in most cases because it's checked just every five seconds, which is eternity for computers.
+
+
+
+==================================
+ Issue DIRMINA-456 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-456] Provide mechanism for detecting a dead lock caused by calling IoFuture.await() in an I/O processor thread.
+-----------------
+
+-----------------
+Summary: Provide mechanism for detecting a dead lock caused by calling IoFuture.await() in an I/O processor thread.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 12 Oct 2007 19:32:08 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 19 Oct 2007 05:45:49 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+As described in this thread <a href="http://tinyurl.com/3cwkb3" class="external-link"
+rel="nofollow">http://tinyurl.com/3cwkb3</a>, we need to provide support for flushing the
+session's write queue from the IoHandler.messageRecieved() method.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Isn't it enough to call WriteFuture.join() after each write? 
+
+
+New Comment: 
+Doing so would successfully cause the calling thread to block until the write completes. 
+I'm guessing the issue stems from wanting to force a flush from the IoHandler so that the
+calling thread wouldn't have to block. 
+
+
+New Comment: 
+Well, all write requests are flushed until the write request queue is empty unless user
+controls the traffic.  So.. there's no way to force a flush manually because it's always
+forced to flush. 
+
+
+New Comment: 
+The reason I logged this bug is because ubaggili seamed to be indicating that in his
+messageReceived() handler, he was issuing multiple IoSession.write()'s and the writes
+never got sent until the method returned.  He tested this by sleeping for 5 seconds before
+returning from messageReceived().I'll put together a test case to validate this claim. 
+
+
+New Comment: 
+Might that have occurred if he was running his filters in the same thread as his
+IoProcessor? 
+
+
+New Comment: 
+Good call Heath .  You were spot on with everything running in the same thread.  (Cool
+name BTW. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> )Consider the following example:	public
+static void main(String[] args) throws IOException {<br/>		NioSocketAcceptor acceptor =
+new
+NioSocketAcceptor(Executors.newCachedThreadPool());<br/>		acceptor.getFilterChain().addLast("executor",
+new ExecutorFilter(Executors.newCachedThreadPool()));<br/>		acceptor.setHandler(new
+IoHandlerAdapter() {<br/>			@Override<br/>			public void messageReceived(IoSession
+session, Object message) throws Exception {				session.write(IoBuffer.wrap("Have a nice
+day\n".getBytes()));				Thread.sleep(2000);				session.write(IoBuffer.wrap("MINA makes me
+happy\n".getBytes()));				Thread.sleep(2000);				session.write(IoBuffer.wrap("I like cold
+beverages\n".getBytes()));			}		});<br/>		acceptor.setLocalAddress(new
+InetSocketAddress(1995));<br/>		acceptor.bind();<br/>	}The above code works just fine.  If
+you comment out the executor filter, all the writes are done at once after waiting 4000ms.
+ This make sense because the messageReceived is being executed in the I/O thread.However,
+if you comment out the executor filter and then append .awaitUninterruptibly(), the server
+stalls indefinitely.So the question is, do we put something in the await methods that
+checks to see if the await is being called in the I/O thread the await is dependent on and
+throw a dead-lock exception?  Is there away that we can execute the desired action from
+the await methods instead of blocking in this case? 
+
+
+New Comment: 
+I'd be in favor of throwing an Exception rather than trying to complete everything inside
+awaitUninterruptibly for simplicity.Additionally, since we don't necessarily have control
+over the Executor, we might not be able to determine whether we are in a deadlock
+situation at all. 
+
+
+New Comment: 
+How do we detect such a situation btw?  Thread.currentThread() is somewhat expensive
+AFAIK. 
+
+
+New Comment: 
+We could put a flag in a ThreadLocal in the IoProcessor Thread, and then check for that
+ThreadLocal in awaitUninterruptibly. 
+
+
+New Comment: 
+Edited the subject of the issue for clarification 
+
+

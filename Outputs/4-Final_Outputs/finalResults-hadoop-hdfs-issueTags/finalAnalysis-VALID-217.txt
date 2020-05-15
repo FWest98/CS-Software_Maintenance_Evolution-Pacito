@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 8cfd45906682b7a2a0e3cd73e9e852b2bceaa498
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-217.txt 
+
+commit 8cfd45906682b7a2a0e3cd73e9e852b2bceaa498
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-657. Remove unused legacy data-node protocol methods. Contributed by Konstantin Shvachko.
+
+
+
+==================================
+ Issue HDFS-657 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-657] Remove unused legacy protocol methods.
+-----------------
+
+-----------------
+Summary: Remove unused legacy protocol methods.
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 27 Sep 2009 02:08:51 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 27 Sep 2009 02:25:42 +0000
+-----------------
+
+-----------------
+Assigned to: Konstantin Shvachko
+-----------------
+
+-----------------
+Description: 
+
+<tt>ClientDatanodeProtocol.recoverBlock()</tt> and
+<tt>DatanodeProtocol.nextGenerationStamp()</tt> are not used anymore.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The patch removes the two protocol methods and unused code related to this. Including
+<tt>ongoingCreates</tt> on the data-node and
+<tt>BlockInfoUnderConstruction.lastRecoveryTime</tt> on the name-node. 
+
+
+New Comment: 
+test-core failures only related <a href="https://issues.apache.org/jira/browse/HDFS-647"
+title="Internal server errors" class="issue-link"
+data-issue-key="HDFS-647"><del>HDFS-647</del></a>.<br/>test-patch results:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">.    [exec] There appear to be 108 release audit warnings before the
+patch and 108 release audit warnings after applying the patch.     [exec] +1 overall.     
+ [exec]     +1 @author.  The patch does not contain any @author tags.     [exec]     -1
+tests included.  The patch doesn't appear to include any <span
+class="code-keyword">new</span> or modified tests.     [exec]                        
+Please justify why no <span class="code-keyword">new</span> tests are needed <span
+class="code-keyword">for</span> <span class="code-keyword">this</span> patch.     [exec]  
+                      Also please list what manual steps were performed to verify <span
+class="code-keyword">this</span> patch.     [exec]     +1 javadoc.  The javadoc tool did
+not generate any warning messages.     [exec]     +1 javac.  The applied patch does not
+increase the total number of javac compiler warnings.     [exec]     +1 findbugs.  The
+patch does not introduce any <span class="code-keyword">new</span> Findbugs warnings.    
+[exec]     +1 release audit.  The applied patch does not increase the total number of
+release audit warnings.     [exec]
+======================================================================     [exec]
+======================================================================     [exec]    
+Finished build.     [exec]
+======================================================================     [exec]
+======================================================================BUILD
+SUCCESSFULTotal time: 12 minutes 53 seconds</pre></div></div> 
+
+
+New Comment: 
+The patch does not introduce new features, no new tests required. 
+
+

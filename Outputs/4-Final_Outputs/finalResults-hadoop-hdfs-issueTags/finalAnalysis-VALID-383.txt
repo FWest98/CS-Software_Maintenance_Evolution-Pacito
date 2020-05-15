@@ -1,0 +1,113 @@
+Pattern changes caused by commit: bb4bde9aeec8dc3a08dbf2087b4ff7d58c788dcc
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-383.txt 
+
+commit bb4bde9aeec8dc3a08dbf2087b4ff7d58c788dcc
+Author: Devaraj Das <ddas@apache.org>
+
+    HDFS-933. Adds Delegation token based authentication in the NameNode. Contributed by Kan Zhang.
+
+
+
+==================================
+ Issue HDFS-933 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-933] Add createIdentifier() implementation to DelegationTokenSecretManager
+-----------------
+
+-----------------
+Summary: Add createIdentifier() implementation to DelegationTokenSecretManager
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 30 Jan 2010 02:11:20 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 3 Feb 2010 02:56:31 +0000
+-----------------
+
+-----------------
+Assigned to: Kan Zhang
+-----------------
+
+-----------------
+Description: 
+
+abstract method createIdentifier() is being added in Common (<a
+href="https://issues.apache.org/jira/browse/HADOOP-6419" title="Change RPC layer to
+support SASL based mutual authentication" class="issue-link"
+data-issue-key="HADOOP-6419"><del>HADOOP-6419</del></a>) and needs to be implemented by
+DelegationTokenSecretManager. This allows the RPC Server's authentication layer to
+deserialize received TokenIdentifiers.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is a small change required by <a
+href="https://issues.apache.org/jira/browse/HADOOP-6419" title="Change RPC layer to
+support SASL based mutual authentication" class="issue-link"
+data-issue-key="HADOOP-6419"><del>HADOOP-6419</del></a>. 
+
+
+New Comment: 
+Add a new patch that enables the NameNode to use DelegationToken to authenticate users
+over RPC (based on RPC changes done in <a
+href="https://issues.apache.org/jira/browse/HADOOP-6419" title="Change RPC layer to
+support SASL based mutual authentication" class="issue-link"
+data-issue-key="HADOOP-6419"><del>HADOOP-6419</del></a>).ran full test suit locally and
+found 2 test (TestBalancer and TestDFSRollback) failed. Re-ran those 2 tests individually
+multiple times and they all passed. Wasn't able to run test-patch. 
+
+
+New Comment: 
+attaching a new patch that matches the latest Common changes. 
+
+
+New Comment: 
+Is this going to be committed ASAP? Trunk build's currently broken. 
+
+
+New Comment: 
++1 (I also ran tests/findbugs/javadoc manually). <br/>I just committed this. Thanks, Kan! 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #186 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/186/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/186/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+

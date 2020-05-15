@@ -1,0 +1,404 @@
+Pattern changes caused by commit: 7a0855e20a346a9fa6a95b2114192a909632aab8
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-267.txt 
+
+commit 7a0855e20a346a9fa6a95b2114192a909632aab8
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-654. Add support new atomic rename functionality in HDFS for supporting rename in FileContext. Contributed by Suresh Srinivas.
+
+
+
+==================================
+ Issue HDFS-654 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-654] HDFS needs to support new rename introduced for FileContext
+-----------------
+
+-----------------
+Summary: HDFS needs to support new rename introduced for FileContext
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 25 Sep 2009 00:54:52 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 23 Oct 2009 21:21:55 +0000
+-----------------
+
+-----------------
+Assigned to: Suresh Srinivas
+-----------------
+
+-----------------
+Description: 
+
+New rename functionality with different semantics to overwrite the existing destination
+was introduced for use in FileContext. Currently the default implementation in FileSystem
+is not atomic. This change implements atomic rename operation for use by FileContext.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+New patch. 
+
+
+New Comment: 
+Would appreciate it a lot if you  can please explain in short what the new semantics would
+be. what happens if the destination directory exists? what if the destination directory is
+non-empty? what if the destination is already a file. 
+
+
+New Comment: 
+Maybe I missed something, but does this do the right accounting for calculating the total
+number of inodes in the filesystem(to ensure correct working of namespace quotas)? 
+
+
+New Comment: 
+Dhruba this is as per the discussion in <a
+href="https://issues.apache.org/jira/browse/HADOOP-6240" title="Rename operation is not
+consistent between different implementations of FileSystem" class="issue-link"
+data-issue-key="HADOOP-6240"><del>HADOOP-6240</del></a>. This introduced a non atomic new
+Rename, as described in FileSystem#rename(String, String, Rename...). This change is
+overrides the default implementation. In addition to new semantics, rename will be
+atomic.<blockquote>Maybe I missed something, but does this do the right accounting for
+calculating the total number of inodes in the filesystem(to ensure correct working of
+namespace quotas)?</blockquote>can you be more elaborate? I did not understand the
+concern. 
+
+
+New Comment: 
+Thanks for the explanation. I was referring to the check in
+FSNameSystem.checkFsObjectLimit() that checks the total number of inodes in the FS. I was
+worried that you allow replacing a non-empty directory with an empty directory in which
+case the totalInode in the FS has to be adjusted accordingly. 
+
+
+New Comment: 
+Attaching new patch for the latest trunk that includes append changes 
+
+
+New Comment: 
+<ol>	<li>Parameter type <tt>Options.Rename</tt> would look better in <tt>rename()</tt>
+methods.</li>	<li>Increment <tt>ClientProtocol</tt> version.</li>	<li>import warning in
+FSDirectory.</li>	<li>Decrement <tt>LAYOUT_VERSION</tt> as you introduce new journal
+record.</li>	<li>I think that the whole stack of old <tt>rename()</tt> methods should be
+deprecated starting from <tt>DistributedFileSystem.rename(src, dst)</tt> down to
+<tt>FSDirectory.unprotectedRenameTo()</tt>. Because otherwise people writing tests or pure
+HDFS applications will not know which rename to use, and may by mistake use the one with
+the old semantics, which is not desirable. It will also clarify why you did not reuse code
+for 2 renames, but rather built a whole new branch of methods for the new
+semantics.</li>	<li>It is better to put comments related to deprecation in JavaDoc under
+<tt>/** @deprecated **/</tt> section.</li>	<li><tt>FSEditLog.OP_RENAME</tt> should be used
+for the new semantics. The old rename operation should be called
+<tt>FSEditLog.OP_RENAME_OLD</tt> so that we could remove it later.</li>	<li>You should
+probably verify that old layout images do not contain new rename op.</li></ol> 
+
+
+New Comment: 
+&gt; FSNameSystem.checkFsObjectLimit() I don't see that we check the total object limit 
+in the old rename() and we don't do it in the new one. Should we? <br/>To me rename does
+not change the total number of objects in the system if it is atomic. So probably we
+should not.<br/>The directory quotes should be updated though. I think it is taken care
+of. Suresh could you please confirm this. 
+
+
+New Comment: 
+&gt; FSNameSystem.checkFsObjectLimit() <br/>The count changes when the destination is
+removed. <tt>FSDirectory.removeChild(dstInode)</tt> and
+<tt>FSNamesystem.removePathAndBlocks()</tt> decrements the total INode count and the
+number of blocks. Also the lease to the removed destination is also removed. 
+
+
+New Comment: 
+New patch incorporates all the comments from Konstantin, except deprecation. After hudson
+tests to confirm the patch is good, I will attach another patch with old Rename
+deprecated. This will result in warnings. These need to be ignored to submit the patch. 
+
+
+New Comment: 
+New patch with deprecated methods as suggested by Konstantin. In three places deprecated
+warnings are suppressed. First one in FSEditLog which calls deprecated rename to replay a
+change recorded in the edits. Two others are in tests. 
+
+
+New Comment: 
+Latest patch passes all the tests. Here is the test-patch result:<br/>     <span
+class="error">&#91;exec&#93;</span> +1 overall.  <br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 @author.  The patch does not contain any @author tags.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 tests included.  The patch appears to include 16 new or modified tests.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javadoc.  The javadoc tool did not generate any warning messages.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 release audit.  The applied patch does not
+increase the total number of release audit warnings. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12421387/hdfs-654.5.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12421387/hdfs-654.5.patch</a><br/>
+ against trunk revision 822153.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 16 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/56/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Talked to Jakob: We have to update TestOfflineImageViewer when FSConstants.LAYOUT_VERSION
+is changed. 
+
+
+New Comment: 
+New patch has the following additional changes:<ol>	<li>Made changes to fix the rename
+issue in <a href="https://issues.apache.org/jira/browse/HDFS-677" title="Rename failure
+due to quota results in deletion of src directory" class="issue-link"
+data-issue-key="HDFS-677"><del>HDFS-677</del></a>. Before removing src and dst during
+rename quota is verified. On any failure adding src and dst back is done without checking
+for quota.</li>	<li>RenameAspects.aj which interecepted the calls to
+FSDirectory.addChild() now intercepts FSDirectory.addChildNoQuotaCheck(). Instead of
+checked QuotaExceedsException, which cannot be thrown since addChildNoQuotaCheck() does
+not throw exception, RuntimeException is thrown.</li>	<li>Addressed the comment from
+Nicholas.</li></ol> 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422588/hdfs-654.7.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422588/hdfs-654.7.patch</a><br/>
+ against trunk revision 826905.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 25 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/40/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422588/hdfs-654.7.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422588/hdfs-654.7.patch</a><br/>
+ against trunk revision 826905.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 25 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/46/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Failed test TestFileAppend2.testComplexAppend  is unrelated to this change. 
+
+
+New Comment: 
+<ol>	<li><tt>FSNamesystem.renameTo()</tt> should not be public.</li>	<li>format new
+methods to fit 80 symbol boundary.</li>	<li>In the new
+<tt>FSDirectory.unprotectedRenameTo()</tt> if <tt>collectSubtreeBlocksAndClear()</tt>
+throws a RuntimeException in line 649, then frinalized section will try to put
+<tt>removedDst</tt> back in the treeeven though there the <tt>renamedSrc</tt> is already
+there. I propose to move the assignment "<tt>removedDst = null;</tt>" three lines
+up.</li>	<li>In <tt>FSEditLog.loadEditRecords()</tt> you should follow the same naming
+convention with statistical variables <tt>numOpRename</tt> as with the operation
+constants:<br/><tt>numOpRename</tt> should count new renames, and <tt>numOpRenameOld</tt>
+- the old ones.<br/>This is only a log message, but it is going to be confusing
+otherwise.</li>	<li>Is OIV will be able to read new rename edit log records? Just adding
+the new supported version probably does not fix the reading problem by itself.</li></ol> 
+
+
+New Comment: 
+I have made all the changes suggested. Here are my comments:<br/>&gt;  1. 
+FSNamesystem.renameTo() should not be public.<br/>Currently all methods called from
+NameNode are public. I followed the same pattern. I have change renameTo methods both old
+and new to package private.&gt;   5. Is OIV will be able to read new rename edit log
+records? Just adding the new supported version probably does not fix the reading problem
+by itself.<br/>Per Jakob, the OIV reads FSImage only and not edit log. It needs to know
+all the supported versions. Without updating it, it will not load the FSImage with the new
+version. 
+
+
+New Comment: 
+New patch. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12423032/hdfs-654.9.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12423032/hdfs-654.9.patch</a><br/>
+ against trunk revision 828926.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 25 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/56/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+That is right OIV does not care about edits log.<br/>+1  patch looks great. 
+
+
+New Comment: 
+Committed the patch to trunk. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #82 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/82/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/82/</a>)<br/>
+   . Add support new atomic rename functionality in HDFS for supporting rename in
+FileContext. Contributed by Suresh Srinivas. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #59 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/59/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/59/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #78 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/78/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/78/</a>) 
+
+
+New Comment: 
+<blockquote>The count changes when the destination is removed.
+FSDirectory.removeChild(dstInode) and FSNamesystem.removePathAndBlocks() decrements the
+total INode count and the number of blocks. Also the lease to the removed destination is
+also removed.</blockquote>Here in new rename api, we are removing the blocks and adding to
+invalidates. We did not synced the edit log before adding to invalidates. This can leads
+to miss the blocks, as i explained the scenario in <a
+href="https://issues.apache.org/jira/browse/HDFS-2815" title="Namenode is not coming out
+of safemode when we perform ( NN crash + restart ) .  Also FSCK report shows blocks
+missed." class="issue-link" data-issue-key="HDFS-2815"><del>HDFS-2815</del></a>.<br/>I did
+not verify this yet. Will file a separate JIRA, once i confirm this as a bug. 
+
+
+New Comment: 
+Just verified the above specified point, Should not be a problem because renameInternal
+already help the lock on FsNameSystem. Also it is syncing the edits once inside the
+FSDirectory#renameTo itself synced once. Until FSNameSystem lock released anyway block
+deletion work won't be processed. This scenario should be fine for rename. Also reviewed
+all other APIs considering crash scenario. Except delete api, all other apis are fine.
+Thanks. 
+
+

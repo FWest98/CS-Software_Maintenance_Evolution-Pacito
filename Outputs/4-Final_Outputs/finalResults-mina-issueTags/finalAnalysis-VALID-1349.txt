@@ -1,0 +1,391 @@
+Pattern changes caused by commit: 158ea354f481d069fbc253e83d754d4ca39ce85c
+
+From: Facade-7
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1349.txt 
+
+commit 158ea354f481d069fbc253e83d754d4ca39ce85c
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-514 (Session closing problem on Mac OS X)
+    * Applied Rob Butler's patch, which will fix this problem hopefully
+
+
+
+==================================
+ Issue DIRMINA-514 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-514] Session closing problem on Mac OS X
+-----------------
+
+-----------------
+Summary: Session closing problem on Mac OS X
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 16 Jan 2008 16:24:27 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 21 Mar 2008 12:13:19 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+A call to session.close() does not send a FIN packet althought MINA will considers the
+session as closed.
+
+I've attached two test cases, one that works with MINA 1.1 (and works
+fine) and other with MINA 2.0 that doesn't close connections.
+
+This is a simple echo
+server that receives a message, writes it back to the client and (should) close the
+connection. 
+
+This problem is <b>NOT</b> ocurring on Linux where the same test case works
+fine. It only shows up on Mac OS X.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Test case with Mina 1.1 (It works fine) 
+
+
+New Comment: 
+Test case with Mina 2.0 (it shows up the problem on Mac OS X) 
+
+
+New Comment: 
+As you pointed out, it works just fine for both in Linux.  The following is the TCPDUMP
+result.  I tested using loopback device and eth0 (connected via a switching hub).  Does
+anyone have access to MacOS X?  I don't have any Mac for me.  For now I just suspect JDK
+hmm...trustin@eden:~/workspace/checkout/asf/mina/trunk/core$ sudo tcpdump -i lo port
+9090<br/>tcpdump: verbose output suppressed, use -v or -vv for full protocol
+decode<br/>listening on lo, link-type EN10MB (Ethernet), capture size 68
+bytes<br/>14:00:36.048017 IP localhost.34516 &gt; localhost.9090: S
+1140196216:1140196216(0) win 32792 &lt;mss 16396,sackOK,timestamp 77224720<span
+class="error">&#91;|tcp&#93;</span>&gt;<br/>14:00:36.059311 IP localhost.9090 &gt;
+localhost.34516: S 1130214661:1130214661(0) ack 1140196217 win 32768 &lt;mss
+16396,sackOK,timestamp 77224720<span
+class="error">&#91;|tcp&#93;</span>&gt;<br/>14:00:36.059353 IP localhost.34516 &gt;
+localhost.9090: . ack 1 win 257 &lt;nop,nop,timestamp 77224720
+77224720&gt;<br/>14:00:36.199075 IP localhost.34516 &gt; localhost.9090: P 1:3(2) ack 1
+win 257 &lt;nop,nop,timestamp 77224765 77224720&gt;<br/>14:00:36.199087 IP localhost.9090
+&gt; localhost.34516: . ack 3 win 256 &lt;nop,nop,timestamp 77224765
+77224765&gt;<br/>14:00:36.199628 IP localhost.9090 &gt; localhost.34516: P 1:3(2) ack 3
+win 256 &lt;nop,nop,timestamp 77224765 77224765&gt;<br/>14:00:36.199643 IP localhost.34516
+&gt; localhost.9090: . ack 3 win 257 &lt;nop,nop,timestamp 77224765
+77224765&gt;<br/>14:00:36.199701 IP localhost.9090 &gt; localhost.34516: F 3:3(0) ack 3
+win 256 &lt;nop,nop,timestamp 77224765 77224765&gt;<br/>14:00:36.211345 IP localhost.34516
+&gt; localhost.9090: F 3:3(0) ack 4 win 257 &lt;nop,nop,timestamp 77224769
+77224765&gt;<br/>14:00:36.211358 IP localhost.9090 &gt; localhost.34516: . ack 4 win 256
+&lt;nop,nop,timestamp 77224769 77224769&gt;10 packets captured<br/>20 packets received by
+filter<br/>0 packets dropped by
+kernel<br/>trustin@eden:~/workspace/checkout/asf/mina/trunk/core$ sudo tcpdump -i eth0
+port 9090<br/>tcpdump: verbose output suppressed, use -v or -vv for full protocol
+decode<br/>listening on eth0, link-type EN10MB (Ethernet), capture size 68
+bytes<br/>14:01:03.247024 IP bonobono.60466 &gt; eden.9090: S 918076750:918076750(0) win
+5840 &lt;mss 1460,sackOK,timestamp 29913736<span
+class="error">&#91;|tcp&#93;</span>&gt;<br/>14:01:03.247334 IP eden.9090 &gt;
+bonobono.60466: S 1159059088:1159059088(0) ack 918076751 win 5792 &lt;mss
+1460,sackOK,timestamp 77232880<span
+class="error">&#91;|tcp&#93;</span>&gt;<br/>14:01:03.247222 IP bonobono.60466 &gt;
+eden.9090: . ack 1 win 92 &lt;nop,nop,timestamp 29913736 77232880&gt;<br/>14:01:03.751808
+IP bonobono.60466 &gt; eden.9090: P 1:3(2) ack 1 win 92 &lt;nop,nop,timestamp 29913888
+77232880&gt;<br/>14:01:03.751822 IP eden.9090 &gt; bonobono.60466: . ack 3 win 46
+&lt;nop,nop,timestamp 77233031 29913888&gt;<br/>14:01:03.752581 IP eden.9090 &gt;
+bonobono.60466: P 1:3(2) ack 3 win 46 &lt;nop,nop,timestamp 77233032
+29913888&gt;<br/>14:01:03.752666 IP eden.9090 &gt; bonobono.60466: F 3:3(0) ack 3 win 46
+&lt;nop,nop,timestamp 77233032 29913888&gt;<br/>14:01:03.752841 IP bonobono.60466 &gt;
+eden.9090: . ack 3 win 92 &lt;nop,nop,timestamp 29913888 77233032&gt;<br/>14:01:03.753001
+IP bonobono.60466 &gt; eden.9090: F 3:3(0) ack 4 win 92 &lt;nop,nop,timestamp 29913888
+77233032&gt;<br/>14:01:03.753008 IP eden.9090 &gt; bonobono.60466: . ack 4 win 46
+&lt;nop,nop,timestamp 77233032 29913888&gt;10 packets captured<br/>10 packets received by
+filter<br/>0 packets dropped by
+kernel<br/>trustin@eden:~/workspace/checkout/asf/mina/trunk/core$ 
+
+
+New Comment: 
+I've got this happening in my application also, on Mac OS X Leopard 10.5.2.I've verified
+that MINA seems to be doing the right thing, in that the destroy function of NioProcessor
+is called and seems to execute OK.  .close is called on the channel, no exception is
+thrown, and the channel moves into the closed state.  However, the socket does remain open
+(I've only tested loopback).For reference, the destroy function is below.@Override<br/>   
+protected void destroy(NioSession session) throws Exception {<br/>        ByteChannel ch =
+session.getChannel();<br/>        SelectionKey key = session.getSelectionKey();<br/>      
+ if (key != null) {            key.cancel();        }<br/>        ch.close();<br/>   
+}<br/><br/>ch is a java.nio.channels.SocketChannel.  After the close statement, toString()
+gives java.nio.channels.SocketChannel<span
+class="error">&#91;closed&#93;</span><br/><br/>I haven't found any references to this as a
+known bug.  I would think that if it were a bug in the Mac OS, that these problems would
+be visible in every application that uses NIO, but I can't think what could be different
+here.<br/><br/>Following the Tomcat example, I tried explicitly closing the
+socket:<br/>protected void destroy(NioSession session) throws Exception {<br/>       
+ByteChannel ch = session.getChannel();<br/>        SelectionKey key =
+session.getSelectionKey();<br/>        if (key != null) {            key.cancel();       
+}        if (ch instanceof SocketChannel) {			SocketChannel sc = (SocketChannel)
+ch;			Socket socket =
+sc.socket();			socket.close();			System.out.println(socket.isClosed());		}       
+ch.close();<br/>    }But that doesn't improve matters: socket.isClosed() is true, but the
+socket remains open.netstat shows the socket to be in state ESTABLISHED (on both legs, as
+this is localhost).I think, but am not certain, that this only applies to channels where
+we are the server, if that provides a clue to anyone. 
+
+
+New Comment: 
+This looks like it might be related to <a
+href="https://issues.apache.org/jira/browse/DIRMINA-531" title="IoHandler.sessionClosed
+not called" class="issue-link" data-issue-key="DIRMINA-531"><del>DIRMINA-531</del></a> 
+
+
+New Comment: 
+This is what I get on my iMac (OS X 10.5.2)java -version<br/>java version
+"1.6.0_04-dp"<br/>Java(TM) SE Runtime Environment (build 1.6.0_04-dp-b06-110)<br/>Java
+HotSpot(TM) 64-Bit Server VM (build 1.6.0_04-b12-45-optimized, mixed mode)23:38:27.969274
+IP6 localhost.64788 &gt; localhost.websm: S 3411499079:3411499079(0) win 65535 &lt;mss
+16324,nop,wscale 2,nop,nop,timestamp 33588472 0,sackOK,eol&gt;<br/>23:38:27.969313 IP6
+localhost.websm &gt; localhost.64788: S 1775328828:1775328828(0) ack 3411499080 win 65535
+&lt;mss 16324,nop,wscale 3,nop,nop,timestamp 33588472
+33588472,sackOK,eol&gt;<br/>23:38:27.969322 IP6 localhost.64788 &gt; localhost.websm: .
+ack 1 win 65535 &lt;nop,nop,timestamp 33588472 33588472&gt;<br/>23:38:27.969331 IP6
+localhost.websm &gt; localhost.64788: . ack 1 win 65535 &lt;nop,nop,timestamp 33588472
+33588472&gt;<br/>23:38:29.805900 IP6 localhost.64788 &gt; localhost.websm: P 1:8(7) ack 1
+win 65535 &lt;nop,nop,timestamp 33588491 33588472&gt;<br/>23:38:29.805926 IP6
+localhost.websm &gt; localhost.64788: . ack 8 win 65534 &lt;nop,nop,timestamp 33588491
+33588491&gt;<br/>23:38:29.806421 IP6 localhost.websm &gt; localhost.64788: P 1:8(7) ack 8
+win 65534 &lt;nop,nop,timestamp 33588491 33588491&gt;<br/>23:38:29.806437 IP6
+localhost.64788 &gt; localhost.websm: . ack 8 win 65535 &lt;nop,nop,timestamp 33588491
+33588491&gt;<br/>23:38:29.806478 IP6 localhost.websm &gt; localhost.64788: F 8:8(0) ack 8
+win 65534 &lt;nop,nop,timestamp 33588491 33588491&gt;<br/>23:38:29.806490 IP6
+localhost.64788 &gt; localhost.websm: . ack 9 win 65535 &lt;nop,nop,timestamp 33588491
+33588491&gt;<br/>23:38:29.806608 IP6 localhost.64788 &gt; localhost.websm: F 8:8(0) ack 9
+win 65535 &lt;nop,nop,timestamp 33588491 33588491&gt;<br/>23:38:29.806623 IP6
+localhost.websm &gt; localhost.64788: . ack 9 win 65534 &lt;nop,nop,timestamp 33588491
+33588491&gt; 
+
+
+New Comment: 
+Mark - are you saying this works for you on your Mac?  Also, it looks like you're running
+Java 6, whereas the officially released Java on Leopard 10.5 is Java 5?(Java is bundled
+with and tied into the Mac OS).I'm wondering if this could be a Java 5 vs Java 6
+issue.I'll see if I can capture a trace of my own, Java 5 with 10.5.2. 
+
+
+New Comment: 
+I was just posting the output of tcpdump.  I did not analyze the results too well.  The
+JDK1.6 that I am using is a developer release from Apple.  I will look deeper into this
+tonight. 
+
+
+New Comment: 
+Well that was easy - thanks Matteo for a good test case.  Again, Mac OS 10.5.2; Java 5.Has
+anyone tried this with Java 5 on Linux / Windows?  Maybe the Mac OS isn't the factor
+here?java -version<br/>java version "1.5.0_13"<br/>Java(TM) 2 Runtime Environment,
+Standard Edition (build 1.5.0_13-b05-237)<br/>Java HotSpot(TM) Client VM (build
+1.5.0_13-119, mixed mode, sharing)sudo tcpdump -i lo0 port 9090 <br/>tcpdump: verbose
+output suppressed, use -v or -vv for full protocol decode<br/>listening on lo0, link-type
+NULL (BSD loopback), capture size 96 bytes<br/>12:30:59.691950 IP localhost.53249 &gt;
+localhost.websm: S 2108918664:2108918664(0) win 65535 &lt;mss 16344,nop,wscale
+3,nop,nop,timestamp 148704767 0,sackOK,eol&gt;<br/>12:30:59.692004 IP localhost.websm &gt;
+localhost.53249: S 879703052:879703052(0) ack 2108918665 win 65535 &lt;mss
+16344,nop,wscale 3,nop,nop,timestamp 148704767
+148704767,sackOK,eol&gt;<br/>12:30:59.692017 IP localhost.53249 &gt; localhost.websm: .
+ack 1 win 65535 &lt;nop,nop,timestamp 148704767 148704767&gt;<br/>12:30:59.692033 IP
+localhost.websm &gt; localhost.53249: . ack 1 win 65535 &lt;nop,nop,timestamp 148704767
+148704767&gt;<br/>12:31:00.774681 IP localhost.53249 &gt; localhost.websm: P 1:3(2) ack 1
+win 65535 &lt;nop,nop,timestamp 148704778 148704767&gt;<br/>12:31:00.774726 IP
+localhost.websm &gt; localhost.53249: . ack 3 win 65534 &lt;nop,nop,timestamp 148704778
+148704778&gt;<br/>12:31:00.775150 IP localhost.websm &gt; localhost.53249: P 1:3(2) ack 3
+win 65534 &lt;nop,nop,timestamp 148704778 148704778&gt;<br/>12:31:00.775199 IP
+localhost.53249 &gt; localhost.websm: . ack 3 win 65535 &lt;nop,nop,timestamp 148704778
+148704778&gt;Then nothing.  If I disconnect from the client, I then get
+this:12:31:09.078705 IP localhost.53249 &gt; localhost.websm: F 3:3(0) ack 3 win 65535
+&lt;nop,nop,timestamp 148704861 148704778&gt;<br/>12:31:09.078741 IP localhost.websm &gt;
+localhost.53249: . ack 4 win 65534 &lt;nop,nop,timestamp 148704861 148704861&gt; 
+
+
+New Comment: 
+OK.  I run the Echo2_0 class.  In a terminal I do the
+following:-------------------------------------------------<br/>elihusmails$ telnet
+localhost 9090<br/>Trying ::1...<br/>Connected to localhost.<br/>Escape character is
+'^]'.<br/>hello<br/>hello<br/>Connection closed by foreign
+host.<br/>-------------------------------------------------As soon as I type in "hello", I
+get the "Connection closed by foreign host".  I get this with Java 6, but not in Java 5. 
+So I think this is a problem with Java 5. 
+
+
+New Comment: 
+A "me too" for this bug. I see this problem as a hang within NioFileRegionTest, at least
+since revision 630016. The connector's sessionClosed method never gets called, so we wait
+forever for the latch.I'm running Mac OS 10.4.11. I see the problems with version 1.5.0_13
+of Apple's JRE and version 1.6.0_03-p3 of the SoyLatte port (haven't tested the latest
+version yet). 
+
+
+New Comment: 
+Someone donate me a MacBook! (Just kidding! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/biggrin.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>) 
+
+
+New Comment: 
+Mark Webb says:"From the tests that I have run, I believe that the problem goes
+away<br/>with the version of java that I am running.java -version<br/>java version
+"1.6.0_04-dp"<br/>Java(TM) SE Runtime Environment (build 1.6.0_04-dp-b06-110)<br/>Java
+HotSpot(TM) 64-Bit Server VM (build 1.6.0_04-b12-45-optimized, mixed mode)Its a developer
+release from Apple."So... it seems like it was a bug of Mac OS X JVM.  Can someone confirm
+it again?  Then we could close this issue. 
+
+
+New Comment: 
+I originally thought that it was likely to be a JVM bug and was worried it was not fixable
+by MINA, except that it was reported to work fine with MINA 1.1.  So it seems it's been
+introduced as a regression in MINA 2.  On that basis, I don't think it should be closed
+without a fix.Have we had any confirmation that the bug definitely doesn't occur with Java
+1.5 on Linux?  At the time when we were considering Linux, I don't think we knew that it
+was JVM version dependent. 
+
+
+New Comment: 
+Could this be the root cause / related?<a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6346658" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6346658</a>If Mina 1.1
+works and Mina 2.0 doesn't perhaps there is a work around that Mina 1.1 happened upon that
+Mina 2.0 with changes no longer has. 
+
+
+New Comment: 
+I just tested the provided code using Mina 2.0-M1 (as available from the Apache website)
+and have this issue.  But I tried the same test using a slightly older version of a Mina
+2.0-M1-snapshot and the connection is closed properly.  Both runs using the exact same JVM
+on Mac OS X Tiger.java -versionjava version "1.5.0_07"<br/>Java(TM) 2 Runtime Environment,
+Standard Edition (build 1.5.0_07-164)<br/>Java HotSpot(TM) Client VM (build 1.5.0_07-87,
+mixed mode, sharing)The older snapshot was before ByteBuffer was renamed IoBuffer and
+before SocketAcceptor was renamed NioSocketAcceptor.  Other than updating the attached
+code to use the older API's no other changes were made.Here's the data from the manifest
+of the Mina-core M1-snapshot that works if that helps determine when the snapshot was
+created:Manifest-Version: 1<br/>Created-By: Bnd-0.0.133<br/>Bundle-License: <a
+href="http://www.apache.org/licenses/LICENSE-2.0" class="external-link"
+rel="nofollow">http://www.apache.org/licenses/LICENSE-2.0</a><br/>Import-Package:
+org.apache.mina.common,org.apache.mina.common.support,<br/>
+org.apache.mina.filter,org.apache.mina.filter.codec,org.apache.mina.f<br/>
+ilter.codec.demux,org.apache.mina.filter.codec.serialization,org.apac<br/>
+he.mina.filter.codec.support,org.apache.mina.filter.codec.textline,or<br/>
+g.apache.mina.filter.executor,org.apache.mina.filter.reqres,org.apach<br/>
+e.mina.handler,org.apache.mina.handler.chain,org.apache.mina.handler.<br/>
+demux,org.apache.mina.handler.multiton,org.apache.mina.handler.suppor<br/>
+t,org.apache.mina.management,org.apache.mina.transport.socket.nio,org<br/>
+.apache.mina.transport.socket.nio.support,org.apache.mina.transport.v<br/>
+mpipe,org.apache.mina.transport.vmpipe.support,org.apache.mina.util,o<br/>
+rg.slf4j;version=1.3<br/>Include-Resource: src/main/resources/<br/>Export-Package:
+org.apache.mina.transport.vmpipe;uses:="org.apache.min<br/>
+a.common.support,org.apache.mina.common,org.apache.mina.transport.vmp<br/>
+ipe.support",org.apache.mina.filter.executor;uses:="org.apache.mina.c<br/>
+ommon,org.slf4j",org.apache.mina.common;uses:="org.apache.mina.transp<br/>
+ort.vmpipe,org.apache.mina.common.support,org.apache.mina.util,org.ap<br/>
+ache.mina.transport.socket.nio",org.apache.mina.filter.reqres;uses:="<br/>
+org.apache.mina.common,org.apache.mina.util",org.apache.mina.transpor<br/>
+t.socket.nio.support;uses:="org.apache.mina.common.support,org.apache<br/>
+.mina.common,org.apache.mina.util,org.apache.mina.transport.socket.ni<br/>
+o",org.apache.mina.transport.socket.nio;uses:="org.apache.mina.common<br/>
+.support,org.apache.mina.common,org.apache.mina.util,org.apache.mina.<br/>
+transport.socket.nio.support",org.apache.mina.handler.chain;uses:=org<br/>
+.apache.mina.common,org.apache.mina.handler.multiton;uses:=org.apache<br/>
+.mina.common,org.apache.mina.transport.vmpipe.support;uses:="org.apac<br/>
+he.mina.transport.vmpipe,org.apache.mina.common.support,org.apache.mi<br/>
+na.common",org.apache.mina.handler.demux;uses:="org.apache.mina.commo<br/>
+n,org.apache.mina.util",org.apache.mina.common.support;uses:="org.apa<br/>
+che.mina.common,org.apache.mina.util,org.slf4j",org.apache.mina.handl<br/>
+er.support;uses:=org.apache.mina.common,org.apache.mina.management;us<br/>
+es:=org.apache.mina.common,org.apache.mina.filter.codec.textline;uses<br/>
+:="org.apache.mina.common,org.apache.mina.filter.codec",org.apache.mi<br/>
+na.filter.codec.support;uses:="org.apache.mina.common.support,org.apa<br/>
+che.mina.common,org.apache.mina.filter.codec",org.apache.mina.util;us<br/>
+es:="org.apache.mina.common,org.slf4j",org.apache.mina.filter;uses:="<br/>
+org.apache.mina.filter.executor,org.apache.mina.common,org.apache.min<br/>
+a.util,org.slf4j",org.apache.mina.filter.codec.serialization;uses:="o<br/>
+rg.apache.mina.common,org.apache.mina.filter.codec",org.apache.mina.f<br/>
+ilter.codec.demux;uses:="org.apache.mina.common,org.apache.mina.util,<br/>
+org.apache.mina.filter.codec",org.apache.mina.filter.codec;uses:="org<br/>
+.apache.mina.common.support,org.apache.mina.common,org.apache.mina.fi<br/>
+lter.codec.support,org.apache.mina.util",org.apache.mina.handler;uses<br/>
+:="org.apache.mina.handler.support,org.apache.mina.common,org.apache.<br/>
+mina.util"<br/>Bundle-Version: 2.0.0.M1_SNAPSHOT<br/>Bundle-Description: MINA
+(Multipurpose Infrastructure for Network Appl<br/> ications) is a<br/>    network
+application framework which helps users de<br/> velop high<br/>    performance and highly
+scalable network applications e<br/> asily.<br/>Bundle-Name: Apache MINA Core
+API<br/>Bundle-DocURL: <a href="http://mina.apace.org/" class="external-link"
+rel="nofollow">http://mina.apace.org/</a><br/>Bundle-ManifestVersion: 2<br/>Bundle-Vendor:
+Apache MINA Project<br/>Bundle-SymbolicName: org.apache.mina.mina-core 
+
+
+New Comment: 
+Fortunately, I had the source jars in my IDE.  Expanding them I see ByteBuffer has this as
+a version tag: @version $Rev: 525370 $, $Date: 2007-04-03 23:07:02 -0400 (Tue, 03 Apr
+2007) $and SocketAcceptor has this as a version tag: @version $Rev: 389042 $, $Date:
+2006-03-27 07:49:41Z $ 
+
+
+New Comment: 
+I think I've found it.. but I don't know how to fix it.By walking through the debugger and
+watching telnet to see when the channel actually gets closed I've found it doesn't get
+closed when you would expect it to.You might expect Channel.close() to immediately close
+the channel, but it doesn't. Instead the channel remains open until the next time
+Selector.select(int) is called. In my older version of Mina 2.0 M1 snapshot the
+SocketIoProcessor$Worker loops again after Channel.close() is called, thus calling
+selector.select(1000) again and closing the channel. In the new Mina 2.0 M1 snapshot the
+AbstractPolingIoProcessor$worker immediately checks the number of sessions, finds it empty
+and exits the loop instead of calling selector.select(1000). Thus the channel is never
+closed.It would appear this isn't a bug in the JVM, as looking at the Javadoc for
+Selector: <a
+href="http://java.sun.com/j2se/1.5.0/docs/api/java/nio/channels/Selector.html"
+class="external-link"
+rel="nofollow">http://java.sun.com/j2se/1.5.0/docs/api/java/nio/channels/Selector.html</a>
+it says:___<em>The cancelled-key set is the set of keys that have been cancelled but whose
+channels have not yet been deregistered.</em>___ This set is not directly accessible. The
+cancelled-key set is always a subset of the key set.and also says:A key is added to a
+selector's key set as a side effect of registering a channel via the channel's register
+method. ___<em>Cancelled keys are removed from the key set during selection
+operations.</em>___So it would appear that you MUST call selector.select to deregister
+channels (and have them close) before exiting the worker thread loop. I'm sure this will
+be an easy fix for someone more familiar with MINA's internals. This is also something
+that's really easy to overlook, so I would add a unit test to track this issue so it
+doesn't regress. 
+
+
+New Comment: 
+The patch ended up being pretty easy and small.  Seems to work fine. 
+
+
+New Comment: 
+Patch applied.  Thanks, Rob!  Please confirm and close. 
+
+

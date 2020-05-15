@@ -1,0 +1,239 @@
+Pattern changes caused by commit: d57c771c3e2987281bb5212d0c300f5abb26143a
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-447.txt 
+
+commit d57c771c3e2987281bb5212d0c300f5abb26143a
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-1088. Prevent renaming symbolic link to its target. Contribute by Eli Collins.
+
+
+
+==================================
+ Issue HDFS-1088 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1088] Prevent renaming a symlink to its target 
+-----------------
+
+-----------------
+Summary: Prevent renaming a symlink to its target 
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 8 Apr 2010 02:10:44 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 21 Apr 2010 07:20:26 +0000
+-----------------
+
+-----------------
+Assigned to: Eli Collins
+-----------------
+
+-----------------
+Description: 
+
+Here's the HDFS side of <a href="https://issues.apache.org/jira/browse/HADOOP-6563"
+title="Add more tests to FileContextSymlinkBaseTest that cover intermediate symlinks in
+paths" class="issue-link" data-issue-key="HADOOP-6563"><del>HADOOP-6563</del></a>:
+
+<ul>	<li>Small bug fix for renaming a symlink to it's
+target</li>	<li>Hdfs#getFileBlockLocations needs to use getUriPath() to ensure an absolute
+path is passed in. See minor change to INode#getPathNames, which now asserts instead of
+returning null and causing NPEs. This was exposed via calling
+FileContext#getFileBlockLocations using a symlink.</li>	<li>Comment in FSImage around
+symlinks and image loading</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12441103/hdfs-1088-1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12441103/hdfs-1088-1.patch</a><br/>
+ against trunk revision 931675.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/150/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+There are two variants of rename implementation (one of them is deprecated). Could you
+please add this check to both of them. Also please throw an exception instead of returning
+false. I know that the new FSDirectory#unprotectedRenameTo() with rename options is
+returning false in one of the cases (dst.equals(src)). I think we should change that to
+throw an exception as well. If you are not doing that in this patch, I will create a bug
+to track that. 
+
+
+New Comment: 
+Thanks Suresh. Patch attached addresses all your feedback, including the hdfs side of <a
+href="https://issues.apache.org/jira/browse/HADOOP-6703" title="Prevent renaming a file,
+symlink or directory to itself" class="issue-link"
+data-issue-key="HADOOP-6703"><del>HADOOP-6703</del></a>. 
+
+
+New Comment: 
+The tests are all in the base classes which are in the patch for <a
+href="https://issues.apache.org/jira/browse/HADOOP-6703" title="Prevent renaming a file,
+symlink or directory to itself" class="issue-link"
+data-issue-key="HADOOP-6703"><del>HADOOP-6703</del></a>. 
+
+
+New Comment: 
++1 for the patch. One minor comment. In the exceptions thrown, should we include the name
+of the file? 
+
+
+New Comment: 
+Sounds good, updated patch attached. 
+
+
+New Comment: 
+Updated corresponding patch over in <a
+href="https://issues.apache.org/jira/browse/HADOOP-6703" title="Prevent renaming a file,
+symlink or directory to itself" class="issue-link"
+data-issue-key="HADOOP-6703"><del>HADOOP-6703</del></a> as well. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12441993/hdfs-1088-3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12441993/hdfs-1088-3.patch</a><br/>
+ against trunk revision 934196.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    -1 javac.  The patch
+appears to cause tar ant target to fail.    +1 findbugs.  The patch does not introduce any
+new Findbugs warnings.    +1 release audit.  The applied patch does not increase the total
+number of release audit warnings.    -1 core tests.  The patch failed core unit tests.   
+-1 contrib tests.  The patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/155/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 for the patch. 
+
+
+New Comment: 
+I am not able to check the test report to see which test failed. Eli, can you please
+comment on the failed test and if it is unrelated to this patch, when you can access
+hudson? I will commit the patch after that. 
+
+
+New Comment: 
+Attached the same patch but this one doesn't override TestFcHdfsSymlink#unwrapException.
+That's needed to make the tests in <a
+href="https://issues.apache.org/jira/browse/HADOOP-6703" title="Prevent renaming a file,
+symlink or directory to itself" class="issue-link"
+data-issue-key="HADOOP-6703"><del>HADOOP-6703</del></a> pass. I'll file a separate hdfs
+jira just to add this override. Splitting the tests (core class and hdfs class) across
+projects is a pain. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12442020/hdfs-1088-4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12442020/hdfs-1088-4.patch</a><br/>
+ against trunk revision 934196.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/317/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The test failures are unrelated. The tests are over in <a
+href="https://issues.apache.org/jira/browse/HADOOP-6703" title="Prevent renaming a file,
+symlink or directory to itself" class="issue-link"
+data-issue-key="HADOOP-6703"><del>HADOOP-6703</del></a>. 
+
+

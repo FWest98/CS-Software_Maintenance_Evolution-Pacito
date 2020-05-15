@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 86d61335e5872c6639976ad5f60fd14c9e6205d7
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-836.txt 
+
+commit 86d61335e5872c6639976ad5f60fd14c9e6205d7
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-354 (Software grant for a KeepAlive functionality)
+    * Imported KeepAliveFilters.zip (with some FIXME comments)
+
+
+
+==================================
+ Issue DIRMINA-354 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-354] Software grant for a KeepAlive functionality
+-----------------
+
+-----------------
+Summary: Software grant for a KeepAlive functionality
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 Feb 2007 14:20:40 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 23 Oct 2007 02:43:53 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Sending the source by zip as advised by Robert
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It seems like the software grant has not been faxed yet.  Please send again to the
+following fax number: +1.410.803.2258 
+
+

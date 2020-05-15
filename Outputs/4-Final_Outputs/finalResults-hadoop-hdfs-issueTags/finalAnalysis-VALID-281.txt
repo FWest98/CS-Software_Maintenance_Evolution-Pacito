@@ -1,0 +1,197 @@
+Pattern changes caused by commit: 8edb20a50963e208ddcba45593600b2e5df8de8f
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-281.txt 
+
+commit 8edb20a50963e208ddcba45593600b2e5df8de8f
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-737. Add full path name of the file to the block information and summary of total number of files, blocks, live and deadnodes to metasave output. Contributed by Jitendra Pandey.
+
+
+
+==================================
+ Issue HDFS-737 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-737] Improvement in metasave output
+-----------------
+
+-----------------
+Summary: Improvement in metasave output
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 Oct 2009 22:23:26 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 29 Oct 2009 22:43:59 +0000
+-----------------
+
+-----------------
+Assigned to: Jitendra Nath Pandey
+-----------------
+
+-----------------
+Description: 
+
+This jira tracks following improvements in metasave output<br/>1. A summary of total
+files/directories and blocks at the begining<br/>2. Full path name of the files should
+also be written out for under-replicated/corrupt or missing blocks.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Comments:<ol>	<li>Adding number of live and dead nodes will be useful information along
+with count of files, directories and blocks.</li>	<li>TestMetaSave.java - please make this
+Junit4 testcase. Also start and stop of the cluster can be done in @BeforeClass and
+@AfterClass methods.</li>	<li>TestMetaSave.java - some of the imports are not
+used.</li>	<li>FsNameSystem.metaSave, TestMetaSave.createFile, TestMetasave.testMetaSave -
+some lines exceed 80 chars.</li>	<li>TestMetaSave.testMetaSave - variable out is not
+used.</li></ol> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-737" title="Improvement in metasave
+output" class="issue-link" data-issue-key="HDFS-737"><del>HDFS-737</del></a>.2.patch is
+submitted for hudson tests. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12423472/HDFS-737.2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12423472/HDFS-737.2.patch</a><br/>
+ against trunk revision 830003.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/84/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-737" title="Improvement in metasave
+output" class="issue-link" data-issue-key="HDFS-737"><del>HDFS-737</del></a>.3.patch is
+submitted. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12423513/HDFS-737.3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12423513/HDFS-737.3.patch</a><br/>
+ against trunk revision 830804.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/87/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 for the patch. 
+
+
+New Comment: 
+The failure of TestBlockReport is not related to this patch. 
+
+
+New Comment: 
+Committed the patch to both trunk and 21. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #89 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/89/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/89/</a>)<br/>
+   . Add full path name of the file to the block information and summary of total number
+of files, blocks, live and deadnodes to metasave output. Contributed by Jitendra Pandey. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #100 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/100/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/100/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #136 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/136/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/136/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #72 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/72/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/72/</a>) 
+
+
+New Comment: 
+Patch for branch 20 attached. 
+
+

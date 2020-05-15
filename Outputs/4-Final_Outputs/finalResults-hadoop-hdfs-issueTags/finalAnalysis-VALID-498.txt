@@ -1,0 +1,102 @@
+Pattern changes caused by commit: 620186cbbc6a8e5cd020d2ea9bed71bfb626c480
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-498.txt 
+
+commit 620186cbbc6a8e5cd020d2ea9bed71bfb626c480
+Author: Boris Shkolnik <boryas@apache.org>
+
+    HDFS-1146. Javadoc for getDelegationTokenSecretManager in FSNamesystem (jnp via boryas)
+
+
+
+==================================
+ Issue HDFS-1146 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1146] Javadoc for getDelegationTokenSecretManager in FSNamesystem
+-----------------
+
+-----------------
+Summary: Javadoc for getDelegationTokenSecretManager in FSNamesystem
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 11 May 2010 20:29:05 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 2 Jun 2010 21:53:49 +0000
+-----------------
+
+-----------------
+Assigned to: Jitendra Nath Pandey
+-----------------
+
+-----------------
+Description: 
+
+Javadoc is missing for public method getDelegationTokenSecretManager in FSNamesystem.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch for yahoo-20. 
+
+
+New Comment: 
+test patch results.    <span class="error">&#91;exec&#93;</span> -1 overall.  <br/>    
+<span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 @author.  The patch does not contain any
+@author tags.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     -1 tests included.  The patch doesn't appear to
+include any new or modified tests.<br/>     <span class="error">&#91;exec&#93;</span>     
+                   Please justify why no new tests are needed for this patch.<br/>    
+<span class="error">&#91;exec&#93;</span>                         Also please list what
+manual steps were performed to verify this patch.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javadoc.  The javadoc tool did not generate any warning messages.<br/>     <span
+class="error">&#91;exec&#93;</span> <br/>     <span class="error">&#91;exec&#93;</span>   
+ +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.<br/>     <span class="error">&#91;exec&#93;</span> <br/>     <span
+class="error">&#91;exec&#93;</span>     +1 release audit.  The applied patch does not
+increase the total number of release audit warnings. 
+
+
+New Comment: 
+This patch just adds javadoc, therefore no tests have been added or modified. 
+
+
+New Comment: 
+ant test is not required because only javadoc is added in this patch. 
+
+
+New Comment: 
++1Committed to trunk. 
+
+

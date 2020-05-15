@@ -1,0 +1,69 @@
+Pattern changes caused by commit: 5c72e65fa8fc8401b4b23cc9065cfbb919de8c60
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1715.txt 
+
+commit 5c72e65fa8fc8401b4b23cc9065cfbb919de8c60
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the nasty windows CR/LF from all the files, added some missing ASF header, and replaced all the @author tag accordingly with DIRMINA-710
+
+
+
+==================================
+ Issue DIRMINA-710 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-710] Replace the current @author tags using http://mina.apache.org instead of the ML address
+-----------------
+
+-----------------
+Summary: Replace the current @author tags using http://mina.apache.org instead of the ML address
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 14 May 2009 09:06:39 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 10 Jun 2009 12:53:21 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+The current @author tag is :<br/>The Apache MINA Project (dev@mina.apache.org)
+
+It should
+be replaced by :<br/>@author &lt;a href="http://mina.apache.org"&gt;Apache MINA
+Project&lt;/a&gt;
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

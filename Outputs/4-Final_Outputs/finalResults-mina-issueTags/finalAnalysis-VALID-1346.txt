@@ -1,0 +1,97 @@
+Pattern changes caused by commit: 7552914ee19534ce18409bca581723551f6d008e
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Strategy-7
+To:   Strategy-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1346.txt 
+
+commit 7552914ee19534ce18409bca581723551f6d008e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-548 - subclass of CumulativeDecoder throws an UnsupportedOperationException if IoBuffer.slice() is used
+    * Modified CumulativeProtocolDecoder to reallocate its internal buffer if it detects auto-expansion has been disabled.
+    * Added the related test case, and it passed
+    * Removed unnecessary class - UnderivableBuffer
+
+
+
+==================================
+ Issue DIRMINA-548 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-548] subclass of CumulativeDecoder throws an UnsupportedOperationException if IoBuffer.slice() is used
+-----------------
+
+-----------------
+Summary: subclass of CumulativeDecoder throws an UnsupportedOperationException if IoBuffer.slice() is used
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 11 Mar 2008 17:00:32 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 17 Mar 2008 14:50:28 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+If one extends the CumulativeDecoder and finds that there is not enough data in the
+buffer, one returns false on doDecode() so mina can collect more data.  However, it seems
+that CumulativeDecoder puts the last remaining bytes from the decode into an
+UnderivableBuffer and stores it in the session.  When it gets more data later, the data is
+added to this session buffer, and the CumulativeDecoder subclass gets to it.
+
+Calling
+methods like slice() and duplicate() on an UnderivableBuffer throw an exception. 
+Therefore, your cumulative decoder that does slice() will result in an exception.
+
+See <a
+href="http://www.nabble.com/CumulativeDecoder-using-UnderivableBuffer-to15969933.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/CumulativeDecoder-using-UnderivableBuffer-to15969933.html</a>
+for more discussion.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I've just fixed this issue by modifying CumulativeProtocolDecoder to reallocate its
+internal buffer when buffer derivation is detected.  Please confirm the fix and close this
+issue. 
+
+

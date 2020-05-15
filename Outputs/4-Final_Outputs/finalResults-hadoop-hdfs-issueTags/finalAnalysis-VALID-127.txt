@@ -1,0 +1,230 @@
+Pattern changes caused by commit: eb4d167111385a67b9f2733611aadddf1a63fbe0
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-127.txt 
+
+commit eb4d167111385a67b9f2733611aadddf1a63fbe0
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-568. Update hadoop-mapred-examples-0.21.0-dev.jar for MAPREDUCE-874.
+
+
+
+==================================
+ Issue HDFS-568 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-568] TestServiceLevelAuthorization fails on latest build in Hudson
+-----------------
+
+-----------------
+Summary: TestServiceLevelAuthorization fails on latest build in Hudson
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 25 Aug 2009 18:50:35 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 28 Aug 2009 17:49:59 +0000
+-----------------
+
+-----------------
+Assigned to: Amareshwari Sriramadasu
+-----------------
+
+-----------------
+Description: 
+
+The latest build in Hudson of Hadoop-hdfs fails
+org.apache.hadoop.security.authorize.TestServiceLevelAuthorization.testServiceLevelAuthorization.
+ (<a
+href="http://hudson.zones.apache.org/hudson/view/Hadoop/job/Hadoop-Hdfs-trunk/61/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/view/Hadoop/job/Hadoop-Hdfs-trunk/61/testReport/</a>)
+
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Error
+Messageorg/apache/hadoop/examples/QuasiMonteCarloStacktracejava.lang.NoClassDefFoundError:
+org/apache/hadoop/examples/QuasiMonteCarlo<br/>	at
+org.apache.hadoop.mapred.TestMiniMRWithDFS.runPI(TestMiniMRWithDFS.java:176)<br/>	at
+org.apache.hadoop.security.authorize.TestServiceLevelAuthorization.testServiceLevelAuthorization(TestServiceLevelAuthorization.java:63)<br/>Caused
+by: java.lang.ClassNotFoundException: org.apache.hadoop.examples.QuasiMonteCarlo<br/>	at
+java.net.URLClassLoader$1.run(URLClassLoader.java:200)<br/>	at
+java.security.AccessController.doPrivileged(Native Method)<br/>	at
+java.net.URLClassLoader.findClass(URLClassLoader.java:188)<br/>	at
+java.lang.ClassLoader.loadClass(ClassLoader.java:307)<br/>	at
+sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:301)<br/>	at
+java.lang.ClassLoader.loadClass(ClassLoader.java:252)<br/>	at
+java.lang.ClassLoader.loadClassInternal(ClassLoader.java:320) 
+
+
+New Comment: 
+Oops, we have to update mapreduce jar. 
+
+
+New Comment: 
+I think the solution is to update hadoop-mapred-examples-0.21.0-dev.jar since <a
+href="https://issues.apache.org/jira/browse/MAPREDUCE-874" title="The name
+&quot;PiEstimator&quot; is misleading" class="issue-link"
+data-issue-key="MAPREDUCE-874"><del>MAPREDUCE-874</del></a> has changed it. 
+
+
+New Comment: 
+ After updated  hadoop-mapred-examples-0.21.0-dev.jar locally, passed
+TestServiceLevelAuthorization.<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>    [junit] Running
+org.apache.hadoop.security.authorize.TestServiceLevelAuthorization    [junit] Tests run:
+2, Failures: 0, Errors: 0, Time elapsed: 110.037 sec</pre></div></div>No patch is needed
+for this issue. 
+
+
+New Comment: 
+I have updated hadoop-mapred-examples-0.21.0-dev.jar on trunk. 
+
+
+New Comment: 
+In <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/87/testReport/"
+class="external-link" rel="nofollow">build #87</a>, TestServiceLevelAuthorization failed
+with a NullPointerException.<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">java.lang.NullPointerException	at
+org.apache.hadoop.mapred.TestMiniMRWithDFS.runWordCount(TestMiniMRWithDFS.java:209)	at
+org.apache.hadoop.security.authorize.TestServiceLevelAuthorization.testServiceLevelAuthorization(TestServiceLevelAuthorization.java:64)</pre></div></div> 
+
+
+New Comment: 
+Interestingly, TestServiceLevelAuthorization does not fail for the following command,
+which was used in my previous local test.<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>ant
+run-test-hdfs-with-mr -Dtestcase=TestServiceLevelAuthorization</pre></div></div>However,
+it will fail with NPE if it is executed by<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>ant
+test-core -Dtestcase=TestServiceLevelAuthorization</pre></div></div> 
+
+
+New Comment: 
+&gt; Interestingly, TestServiceLevelAuthorization does not fail for the following command,
+...<br/>Got a different story this morning.  The test fails for both commands.  I may have
+done some wrong previously. 
+
+
+New Comment: 
+I was seeing the same behavior. 
+
+
+New Comment: 
+TestServiceLevelAuthorization.testServiceLevelAuthorization() creates a MiniMRCluster and
+runs some jobs.  I think it makes sense to move it to the mapreduce sub-project. 
+
+
+New Comment: 
+I looked into this and the problem seems to emanating from
+CompletedJobStatusStore::readCounters(), which is returning a null value and crashing the
+test.  I don't believe it's related <a
+href="https://issues.apache.org/jira/browse/HDFS-538"
+title="DistributedFileSystem::listStatus incorrectly returns null for empty result sets"
+class="issue-link" data-issue-key="HDFS-538"><del>HDFS-538</del></a> and it's definitely
+not related to <a href="https://issues.apache.org/jira/browse/MAPREDUCE-874" title="The
+name &quot;PiEstimator&quot; is misleading" class="issue-link"
+data-issue-key="MAPREDUCE-874"><del>MAPREDUCE-874</del></a>.  Since the mapred jars don't
+get updated with every commit back into hdfs, it's not immediately obvious what may have
+caused the regression. I've spoken with Arun about it offline and he's looking into a
+possible cause. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/MAPREDUCE-870" title="Clean up the job
+Retire code" class="issue-link"
+data-issue-key="MAPREDUCE-870"><del>MAPREDUCE-870</del></a> retiresjobs immediately. So,
+mapred.job.tracker.retire.jobs is set to false in mapred-site.xml for mapreduce tests to
+run.<br/>I think the same thing should be done for hdfs also. 
+
+
+New Comment: 
+Attaching patch mapred.job.tracker.retire.jobs to false in mapred-site.xml 
+
+
+New Comment: 
+submitting for hudson 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12417974/patch-568.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12417974/patch-568.txt</a><br/>
+ against trunk revision 808670.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    -1 release audit. 
+The applied patch generated 148 release audit warnings (more than the trunk's current 147
+warnings).    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/testReport/</a><br/>Release
+audit warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/patchprocess/releaseAuditDiffWarnings.txt"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/patchprocess/releaseAuditDiffWarnings.txt</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/98/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The RAT warning is for the src/test/mapred-site.xml which has been added here. +1 for the
+patch. 
+
+
+New Comment: 
+I have committed this.  Thanks, Amareshwari! 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #6 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/6/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/6/</a>)<br/>
+   . Set mapred.job.tracker.retire.jobs to false in src/test/mapred-site.xml for mapreduce
+tests to run.  Contributed by Amareshwari Sriramadasu 
+
+

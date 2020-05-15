@@ -1,0 +1,135 @@
+Pattern changes caused by commit: 695d77e15c13913f7a459c47a64a1a6f2633ab4b
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-881.txt 
+
+commit 695d77e15c13913f7a459c47a64a1a6f2633ab4b
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-302 (Unbounded nature of writeRequestQueue can cause OutOfMemoryException)
+    * More JavaDoc for WriteThrottlePolicy
+
+
+
+==================================
+ Issue DIRMINA-302 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-302] Unbounded nature of writeRequestQueue can cause OutOfMemoryException
+-----------------
+
+-----------------
+Summary: Unbounded nature of writeRequestQueue can cause OutOfMemoryException
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 2 Nov 2006 12:18:02 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Nov 2007 12:18:50 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+As referenced in the following JIRAs:
+
+ <a
+href="https://issues.apache.org/jira/browse/DIRMINA-206" title="Prevent OutOfMemoryError
+when a server or a client is overloaded" class="issue-link"
+data-issue-key="DIRMINA-206"><del>DIRMINA-206</del></a> Prevent OutOfMemoryError when a
+server or a client is overloaded<br/> <a
+href="https://issues.apache.org/jira/browse/DIRMINA-144" title="Traffic shaping filter"
+class="issue-link" data-issue-key="DIRMINA-144"><del>DIRMINA-144</del></a> Traffic shaping
+filter<br/> <a href="https://issues.apache.org/jira/browse/DIRMINA-262" title="Controlling
+rate of writes in Mina 0.8.2" class="issue-link"
+data-issue-key="DIRMINA-262"><del>DIRMINA-262</del></a> Controlling rate of writes in Mina
+0.8.2
+
+Raised to hightlight the problem. There are a number of approaches that have been
+mentioned and could be used as an approach.
+
+Limiting the queue to number of requests or
+total size. 
+
+Then either blocking on a write or throwing an exception.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This filter is a temporary fix to the problem. It causes the write to block until the
+number of messages waiting to be sent is bellow the threshold (default : 5000). If this is
+used on a server then the session should have the ReadThrottleFilter enabled as while the
+mail thread is suspended waiting for the write to succeed the IOProcessor can cause a back
+log of read messages pushing the Out of Memory Exception somewhere else.As commented in
+the Javadoc this filter should really be part of the core to allow an exception to be
+thrown directly on the write() call from the client. This could then be policy driven on
+pending messages (as this is ) or pending bytes. 
+
+
+New Comment: 
+It sounds like a good idea to provide a policy configuration per session on the maximum
+number of pending messages (or bytes).  Let us include it in 2.0. 
+
+
+New Comment: 
+Will fix this in 2.0.0-M1 because it's very important for a scalable server. 
+
+
+New Comment: 
+We also need to monitor the total number of queued requests (and messages) per IoService. 
+
+
+New Comment: 
+I agree with Martin that this feature should be built in by default, because MINA already
+provides related properties such as IoSession.scheduledWrite(Messages|Bytes). 
+
+
+New Comment: 
+I thought about the following solution:<ul>	<li>Add
+WritePolicyViolationException</li>	<li>Add IoService.writePolicy property and
+IoSession.config.writePolicy whose type is WritePolicy</li>	<li>Add WritePolicy
+interface:<br/>public interface WritePolicy {<br/>     void enforcePolicy(IoSession
+session, Object message) throws WritePolicyViolationException;<br/>}</li>	<li>Add
+DefaultWritePolicy which provides what Martin suggested.</li></ul>However, I found no
+reason to provide new types and properties because this also can be implemented as a much
+simplified filter, again, because MINA already provides related properties such as
+IoSession.scheduledWrite(Messages|Bytes).Sorry for being fickle! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+

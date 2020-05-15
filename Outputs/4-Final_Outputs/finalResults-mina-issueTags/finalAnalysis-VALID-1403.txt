@@ -1,0 +1,76 @@
+Pattern changes caused by commit: 2e6680319c5d55b39eeb7e5790f3807ff719a595
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1403.txt 
+
+commit 2e6680319c5d55b39eeb7e5790f3807ff719a595
+Author: Sangjin Lee <sjlee@apache.org>
+
+    DIRMINA-571
+
+
+
+==================================
+ Issue DIRMINA-571 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-571] SocketConnectorTest.testConnectFutureSuccessTiming() fails
+-----------------
+
+-----------------
+Summary: SocketConnectorTest.testConnectFutureSuccessTiming() fails
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 17 Apr 2008 20:00:02 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Apr 2008 20:02:48 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The test fails because the connect future gets completed as part of sessionCreated(). 
+The same failure exists with DatagramConnectorTest as well.  The problem is reproduced
+intermittently on some platforms (mostly windows) but not all.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

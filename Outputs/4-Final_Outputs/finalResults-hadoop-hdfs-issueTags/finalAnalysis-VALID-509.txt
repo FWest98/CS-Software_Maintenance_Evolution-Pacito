@@ -1,0 +1,510 @@
+Pattern changes caused by commit: 1700a788ffd5368f4708ec1b342460df99d0ba56
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-509.txt 
+
+commit 1700a788ffd5368f4708ec1b342460df99d0ba56
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-1110. Reuses objects for commonly used file names in namenode to reduce the heap usage. Contributed by Suresh Srinivas.
+
+
+
+==================================
+ Issue HDFS-1110 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1110] Namenode heap optimization - reuse objects for commonly used file names
+-----------------
+
+-----------------
+Summary: Namenode heap optimization - reuse objects for commonly used file names
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 Apr 2010 18:42:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Jun 2010 18:16:12 +0000
+-----------------
+
+-----------------
+Assigned to: Suresh Srinivas
+-----------------
+
+-----------------
+Description: 
+
+There are a lot of common file names used in HDFS, mainly created by mapreduce, such as
+file names starting with "part". Reusing byte[] corresponding to these recurring file
+names will save significant heap space used for storing the file names in millions of
+INodeFile objects.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Approach:<ul class="alternate" type="square">	<li>Commonly used file names are defined by
+a regex in a config file. The config file is preconfgured with part-00.* and part-?-00.*
+regex for file names created by mapreduce. It covers part-00000 to part-00999,
+part-m-00000 to part-m-00999 and part-r-00000 to part-r-00999.</li>	<li>When creating a
+INodeFile, for names that match the regex, add an entry of file name to byte[] for the
+first time. For subsequent creation of INodeFile, reuse the existing
+byte[].</li>	<li>Clusters where there are other common file names, those names can be
+added to the config file by the cluster admin.</li>	<li>Max size to which dictionary can
+grow to will be set to prevent a poor choice of regex (example .*) from over using the
+heap.</li></ul>Alternative approach:<ul class="alternate" type="square">	<li>During
+startup, while loading fsimage, the number of times a file name occurs can be counted
+(uses a lot of heap) and dictionary can be setup with top N recurring
+names.</li></ul>Alternative approach has the advantage that regex file to define names
+that need to be added dictionary is not requried. It does not work when the namenode
+starts fresh or recurring names get added post startup. I am planning to go with approach
+1. 
+
+
+New Comment: 
+preliminary patch. 
+
+
+New Comment: 
+Hi suresh, awesome idea. Can we somehow make this automatic (instead of yet another regex
+configuration that an administrator has to configure). what if we make the NN do some
+periodic housekeeping that looks for the top-N matching path components?also, do you have
+a measurement on how much space this could save on your cluster? 
+
+
+New Comment: 
+Here is an analysis of an fsimage on one of Yahoo production clusters with 54 million
+files:<div class='table-wrap'><table class='confluenceTable'><tbody><tr><td
+class='confluenceTd'>File names used &gt; 100000 times</td><td
+class='confluenceTd'>24</td></tr><tr><td class='confluenceTd'>File names used between
+10001 to 100000 times</td><td class='confluenceTd'>467</td></tr><tr><td
+class='confluenceTd'>File names used between 1001 to 10000 times</td><td
+class='confluenceTd'>4335</td></tr><tr><td class='confluenceTd'>File names used between
+101 to 1000 times</td><td class='confluenceTd'>40031</td></tr><tr><td
+class='confluenceTd'>File names used between 10 to 100 times</td><td
+class='confluenceTd'>403975</td></tr><tr><td class='confluenceTd'>File names used between
+2 to 9 times</td><td class='confluenceTd'>606579</td></tr><tr><td
+class='confluenceTd'>File names used between 1 times</td><td
+class='confluenceTd'>4114531</td></tr><tr><td class='confluenceTd'><b>Total file
+names</b></td><td
+class='confluenceTd'><b>5169942</b></td></tr></tbody></table></div>Dictionary stores names
+that are used more than 10 times to benefit from reuse. Names used less than 10 times may
+not result in a lot of saving, considering those names are stored in HashMap as
+HashMap.Entry (size 28 bytes) and other HashMap overhead.Given that, my proposal
+is:<ol>	<li>From my previous proposal, name dictionary will use regex listed in a config
+file "hdfs-filenames-regex" to track common file names. This file is setup with
+<tt>part-.*</tt>. This is will be a admin configured file.</li>	<li>Build a tool to
+generate list names that is used more than 10 times from fsimage. The generated list
+excludes the names that are already covered by regex, to reduce the size of the list and
+loading time. This list is saved as config file "hdfs-filenames".</li>	<li>NameDictionary
+loads "hdfs-filenames-regex" and "hdfs-filesnames". NN stores list of regex and a HashMap
+of name (String) to internal object (byte[]). A file name is first looked up in the map.
+If the name is not found, then a check is made to see if it matches any regex. A name
+matching the regex is added to the map.</li></ol>Optional:<ol>	<li>In the longer
+run:	<ul>		<li>the tool runs offline periodically (on any machine) on the namenode
+image.</li>		<li>namenode could refresh its dictionary with the new list of common names
+used. It could lazily walk through the directory structure and set the INodeFile to reuse
+the byte[].</li>	</ul>	</li></ol> 
+
+
+New Comment: 
+Dhruba, see my comments on what can be done in the longer run. I feel analysis of what are
+common names can be offline to reduce the load on NN. Also if you have ideas on doing it
+online, let me know. 
+
+
+New Comment: 
+For the above table, 448832 file names are used for ~47 million files. So instead of 47
+million byte[], we should be able to 448832 byte[]. Assuming a file size of 10 bytes, this
+translated to 4.7GB for a namenode with heap size 40G. 
+
+
+New Comment: 
+<blockquote>Build a tool to generate list names that is used more than 10 times from
+fsimage.</blockquote>Also, we don't actually have to build a separate tool, as the offline
+image viewer can quickly be extended to provide these numbers and generate the new file. 
+The numbers above were generated from just a few lines in a new viewer. 
+
+
+New Comment: 
+<blockquote>File names used &gt; 100000 times 	24</blockquote>What are the names of these
+24 files? Do they fall under the proposed default pattern. How big is the noise if we use
+the default pattern.On the one hand I see the point of providing a generic approach for
+people to specify their own patterns.<br/>But I also agree with Dhruba that we need to
+optimize only for the top ten (or so) file names, which will give us 5% saving in the
+meta-data memory footprint. The rest should be ignored, it would be a wast of resources to
+optimize for the rest. Your approach 2 would be a move in this direction.So may be it
+would be useful to have a tool Jacob mentions (OIV-based), so that admins could run it
+offline on the image and get top N frequently used names, with an estimate how much space
+this saves. Then they will be able to formulate the reg exp. Otherwise, it is going to be
+a painful guessing game. 
+
+
+New Comment: 
+<blockquote>What are the names of these 24 files? Do they fall under the proposed default
+pattern. How big is the noise if we use the default pattern.</blockquote>Of 24, 22 are
+part-* files.<blockquote>we need to optimize only for the top ten (or so) file names,
+which will give us 5% saving in the meta-data memory footprint</blockquote>I do not think
+top 10 will save 5% of meta-data memory fooprint. See the posted results below.I have a
+bug in my previous calculation, that made the savings seem too good to be true. With 47
+million files optimized to use the dictionary, the saving of 10 bytes gives 470MB and not
+4.7GB <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> Also I did not account for byte[]
+overhead of 24 bytes.Any way I have a tool NamespaceDedupe with the new patch. You could
+run on fsimage to see the frequency of occurence and savings in heap size. Dhruba you can
+run this on images on your production cluster to see how savings compare with what I have
+posted below.23 names are used by 3343781 between 100000 and 360461 times. Saved space
+114962311<br/>468 names are used by 12944154 between 10000 and 100000 times. Saved space
+448255164<br/>4335 names are used by 10522601 between 1000 and 10000 times. Saved space
+391364352<br/>40031 names are used by 10654372 between 100 and 1000 times. Saved space
+382273386<br/>403974 names are used by10722689 between 10 and 100 times. Saved space
+354416484<br/>Total saved space 1691271697 
+
+
+New Comment: 
+Won't this require a lot of synchronization that previously didn't exist? ie every time
+you delete a file you'll need to atomically decrement the count in the map and possibly
+mutate the map to remove the file. Would be nice if different parts of the namespace
+didn't require synchronization because they happened to share files with the same name. 
+
+
+New Comment: 
+Access to the map is only during write operations (create and while digesting editslog).
+All of that is synchronized by a large FSNamesystem lock. Also I am not proposing to do
+reference counting. Once in this map, it will remain there. The map it self should not
+have large number of entries, only the top N popular names. 
+
+
+New Comment: 
+hi suresh, are you saying that we save 470MB on a 40GB heap size? If that is the case,
+then the savings might be too meagre compared to the code complexity of the patch. do you
+agree? 
+
+
+New Comment: 
+470MB was based on my rough calculation. Look at detailed info I posted earlier. If we use
+dictionary for names used more than 10, the savings is 1.6G in old generation of size 37G
+(BTW not all the 37G was used in old gen, ~30G was used and the remaining was headroom). 
+
+
+New Comment: 
+Thanks Suresh for the numbers.&gt; agree with Dhruba that we need to optimize only for the
+top ten (or so) file names, which will give us 5% saving in the metaOne fear I have is
+that the regex matching inside the fsnamesystem lock could increase CPU increase in such a
+way that the 5% gain in memory might not be a good tradeoff. any thoughts on this? 
+
+
+New Comment: 
+<blockquote>agree with Dhruba that we need to optimize only for the top ten (or so) file
+names, which will give us 5% saving in the meta</blockquote>As I had commented earlier, we
+need to have at least a dictionary of size 500K to see gains, not just top ten file names.
+See the breakdown from my previous analysis. Regex matching should not be a big issue.
+Look up is always made in the dictionary hashmap (for most of the frequently used file
+names, there will be a hit). Regex is used only for names not found in the dictionary.
+This is done only while creating a file.After thinking about this solution, here is an
+alternate solution I am leaning towards. Let me know what you guys think:<ol>	<li>During
+startup, maintain two maps. One is a transient map used for counting number of times a
+file name is used and the corresponding byte[]. The second is the dictionary map which
+maintains file name to byte[].</li>	<li>While consuming fsimage and editslog:	<ul>		<li>If
+name is found in the dictionary map, use byte[] corresponding to it</li>		<li>if name is
+found in the transient map, increment the number of times the name is used. If the name is
+used more than threshold (10 times), delete it from the transient map and promote it to
+dictionary.</li>		<li>if name is not found in the transient map, add it to the transient
+map with use count set to 1.</li>		<li>At the end of consuming editslog, delete the
+transient map.</li>	</ul>	</li></ol>Advantages:<ol>	<li>No configuration files and no
+regex. Simplified administration.</li></ol>Disadvantages:<ol>	<li>Dictionary is
+initialized only during startup. Hence it does not react to and optimize for files names
+that become popular post startup.</li>	<li>Impacts startup time  due to two hashmap
+lookups (though it should be a small fraction of disk i/o time during startup)</li></ol> 
+
+
+New Comment: 
+Awesome. I like this idea because it has no configuration shing-bang and is automatic. My
+opinion is that it is ok to do this only during NN startup time. Maybe you can have only
+one dictionary where you store the count-of-occurances as well. i.e move the count from
+the transient map to the dictionary... otherwise the same logic as u described. when the
+image is fully loaded, we have to purge the dictionary of all items whose count is lesser
+than 10 .also, this has some relationship to <a
+href="https://issues.apache.org/jira/browse/HDFS-1140" title="Speedup
+INode.getPathComponents" class="issue-link"
+data-issue-key="HDFS-1140"><del>HDFS-1140</del></a>. 
+
+
+New Comment: 
+<blockquote>Maybe you can have only one dictionary where you store the count-of-occurances
+as well. i.e move the count from the transient map to the dictionary...</blockquote>I
+prefer having two different hashmaps for the following reasons:<ol>	<li>If a single
+hashmap is used, it grows to the size of all the names, not just the names stored in the
+dictionary. Either we have shrink the map post purging entries (by making another copy) or
+use heap more than necessary to retain a map much larger than what it should
+be.</li>	<li>In dictionary, I do not intend to track the number of times the name is used.
+This information is unnecessary. All we care about is whether it used more than certain
+threshold and not the exact number of times a name is used.</li></ol> 
+
+
+New Comment: 
+Attached patch implements the solution I had proposed previously. There is an additional
+optimization due to the chosen mechanism. During startup, if a name is used more than
+once, byte[] is reused (not just for the names used more than 10 times).Only the names
+used more than 10 times is added to the dictionary. Adding other names will undo the space
+gained due to heap used for storing hashmap entries (as described earlier).I ran tests to
+benchmark startup time and total heap size (gotten by triggering full GC after startup).
+Here are the results:<div class='table-wrap'><table class='confluenceTable'><tbody><tr><th
+class='confluenceTh'>&nbsp;</th><th class='confluenceTh'>Without patch</th><th
+class='confluenceTh'>With patch</th></tr><tr><th class='confluenceTh'>Startup Time</th><td
+class='confluenceTd'>880s</td><td class='confluenceTd'>892s</td></tr><tr><th
+class='confluenceTh'>Heap size</th><td class='confluenceTd'>24.197G</td><td
+class='confluenceTd'>22.372G</td></tr></tbody></table></div>Startup time increased by 12s
+with 1.825G saved from 24.197G heap.BTW I am thinking of removing NamespaceDeduper tool
+attached in the patch. Any thoughts? 
+
+
+New Comment: 
+Dhruba or Jakob, can you please comment... 
+
+
+New Comment: 
+Looking good.Review:<ul>	<li>If you keep <tt>NamespaceDedupe</tt>, which I would recommend
+as I do think it adds value in and of itself, it's probably best to move its user-facing
+bits with the rest of the offline image viewers. <tt>OfflineImageViewer.java</tt> handles
+all the command line arguments and such.</li>	<li><tt>NamespaceDedupe.java</tt>:51 line
+goes more than 80 characters.</li>	<li>Nit: <tt>TestNameDictionary::testNameReuse()</tt>
+at first looked to me like a unit test that hadn't annotated.  Maybe
+verifyNameReuse?</li>	<li>The static class <tt>ByteArray</tt> seems like a candidate
+either for being a stand-alone class or wrapped by <tt>NameDictionary</tt>; it's not
+really an integral part of <tt>FSDirectory</tt>.</li>	<li>The
+<tt>NameDictionary.lookup(name, value)</tt> method seems a bit odd in its usage. Both
+times it's used via dictionary.lookup(name, name), which makes me wonder if this is the
+right API.  Do we expect <tt>NameDictionary</tt> to be used elsewhere such that this
+abstraction is worth the odd API?</li></ul>Overall I think this is a good thing to do. The
+12 second startup cost compared to the almost 2 gb savings seems worth it to me.  There
+should be a linear tradeoff such that small clusters should see essentially no impact and
+large clusters pay a very small penalty at startup but have the benefits for their entire
+runtime. A useful improvement later on may be a safemode command to repopulate the
+dictionary, which would take into account changes since cluster startup, particularly
+newly popular filenames. 
+
+
+New Comment: 
+&gt; The 12 second startup cost compared to the almost 2 gb savings seems worth it to me.I
+agree, sounds good. 
+
+
+New Comment: 
+Thanks Jakob.<blockquote>The NameDictionary.lookup(name, value) method seems a bit odd in
+its usage. Both times it's used via dictionary.lookup(name, name), which makes me wonder
+if this is the right API. Do we expect NameDictionary  to be used elsewhere such that this
+abstraction is worth the odd API?</blockquote>I see your point. I decided to use same key
+and value to reduce object count. I do not want to rule out using NameDictionary for other
+things and hence it is generic with the possibility of key and value being different. I
+can add a comment to indicate key and value are the same when doing lookup. Let me know if
+you think of other alternatives. 
+
+
+New Comment: 
+Alternatively we can follow the convention in java.util.Dictionary:<ol>	<li>Change the
+method name from lookup to put</li>	<li>Add methods get and remove for
+completeness</li></ol> 
+
+
+New Comment: 
+<blockquote>Change the method name from lookup to put</blockquote>That sounds good.  To
+me, this seems more like a cache (or as Suresh pointed out, interning of Strings), than a
+dictionary, but the distinction is definitely blurry.<blockquote>Add methods get and
+remove for completeness</blockquote>This would be extra complexity that wouldn't be called
+by anyone, correct? I'd hold off on that functionality until it's needed. 
+
+
+New Comment: 
+Named the class NameCache instead NameDictionary. Also moved ByteArray class to util
+package. 
+
+
+New Comment: 
+<ol>	<li>variable <tt>cache</tt> should read <tt>nameCache</tt></li>	<li>comment for it
+should be transformed to JavaDoc comments.</li>	<li><tt>FSDirectory.cache</tt> should be
+initialized in the constructor rather than during declaration.<br/>And 10 should be
+declared as a constant.</li>	<li>I would consider using NameCache&lt;byte[]&gt; instead of
+NameCache&lt;ByteArray&gt;.<br/>You get less objects and conversions, if of course I
+didn't miss anything here.</li>	<li>Introduce <tt>FSDirectory.cache(INode)</tt> method,
+which calls NameCache.put().</li>	<li>In NameCache some comments need clarification	<ul
+class="alternate" type="square">		<li>"This class has two phases"<br/>Probably something
+else has 2 phases.</li>		<li>"This class must be synchronized externally"</li>		<li>Member
+inline comments should be transformed into javadoc.</li>	</ul>	</li>	<li>NameCache.cache
+should be initialized in the constructor rather than during
+declaration.</li>	<li><tt>UseCount</tt> should probably be a private inner (rather than
+static) class,<br/>and should use the same parameter K with which NameCache&lt;K&gt; is
+parametrized.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-keyword">private</span> <span
+class="code-keyword">class </span>UseCount {    <span class="code-object">int</span>
+count;  <span class="code-comment">// <span class="code-object">Number</span> of times a
+name occurs</span>    <span class="code-keyword">final</span> K value;  <span
+class="code-comment">// Internal value <span class="code-keyword">for</span> the
+name</span>    UseCount(<span class="code-keyword">final</span> K value) {      <span
+class="code-keyword">this</span>.value = value;   
+}}</pre></div></div></li>	<li><tt>UseCount.count</tt> should be initialized in the
+constructor. It is better to have increment()<br/>and get() methods rather than accessing
+count directly from the outside.</li></ol>I like the idea of using the useThreshold to
+determine names that should be promoted to the nameCache.<br/>My main concern is, that the
+threshold is 10. This means there will a lot of names in the cache.<br/>And all these
+names are in a HashTable, which has a huge overhead, as we know from another jira.<br/>We
+still save space, but for names that occur only 10 times the savings are probably
+negligible.I would imagine that only 5% or 10% of the most frequently used names get
+promoted.<br/>It is fine with me to use this simple promoting scheme as a starting point,
+with an intention to<br/>optimize it later. But I would increase the useThreshold to 1000
+or so.Should we make it configurable? Could be useful for testing. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12446370/hdfs-1110.4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12446370/hdfs-1110.4.patch</a><br/>
+ against trunk revision 951555.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/397/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Removed NamespaceDedupe and added it as a processor "NameDistribution" to oiv tool.Took
+care of all the comments from Konstantin (thanks!).<blockquote>I would consider using
+NameCache&lt;byte[]&gt; instead of NameCache&lt;ByteArray&gt;....</blockquote>Cache
+inserts byte[] into HashMap. This requires wrapping byte[] in another class to provide
+<tt>hashCode()</tt> and <tt>equals()</tt><blockquote>My main concern is, that the
+threshold is 10. This means there will a lot of names in the cache...</blockquote>For the
+fsimage I am working with, threshold of 10 results in addition of 10% of the files names 
+to the cache. See the analysis I have posted. For each name cached, a HashMap.Entry takes
+48 bytes. With threshold 10, space equivalent 9 byte arrays is saved. This is 9 *
+(24+bytes in array) = 216+9*(bytes in array) bytes. This is significant savings, compared
+to the cost of HashMap.Entry.I have made the threshold configurable with a hidden option
+"dfs.namenode.name.cache.threshold". This could be used to run tests to see if we can
+decrease the threshold further. 
+
+
+New Comment: 
+Minor chages:<ul class="alternate" type="square">	<li>fixed typo "in in" in
+ByteArray.java</li>	<li>Removed NameCache.UseCount.count initialization during
+declaration.</li></ul> 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12446649/hdfs-1110.6.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12446649/hdfs-1110.6.patch</a><br/>
+ against trunk revision 952861.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/191/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Failed tests TestBalancer and TestLargeDirectoryDelete are not related to this... 
+
+
+New Comment: 
++1 on the patch.We also talked about replacing HashMap with a TreeMap.<br/>The advantages
+of TreeMap are <ul class="alternate" type="square">	<li>you don't need to wrap byte[] into
+a class, as it lets to provide a comparator, which compares byte[]s, and</li>	<li>it does
+not have memory overhead of HashMap</li></ul>The disadvantage is that file creation will
+require a log-time lookup in TreeMap instead of a constant lookup in HashMap. Besides, the
+HashMap memory overhead is small compared to the overall memory savings provided by the
+approach. <br/>The decision is to use HashMap with a byte[] wrapped into ByteArray class. 
+
+
+New Comment: 
+Attaching 20 version of patch. It does not include OfflineImageViewer tool (since oiv is
+not available in 20). 
+
+
+New Comment: 
++1 for the patch for 0.20 
+
+
+New Comment: 
+I committed the change to trunk. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #310 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/310/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/310/</a>) 
+
+
+New Comment: 
+Hi Suresh, new commit should be appended at end of the list in CHANGE.txt but not inserted
+in the beginning.<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>--- hadoop/hdfs/trunk/CHANGES.txt	2010/06/11
+18:09:48	953802+++ hadoop/hdfs/trunk/CHANGES.txt	2010/06/11 18:15:17	953803@@ -9,6 +9,9 @@
+   IMPROVEMENTS +    HDFS-1110. Reuses objects for commonly used file names in namenode
+to+    reduce the heap usage. (suresh)+     HDFS-1096. fix for prev. commit.
+(boryas)</pre></div></div> 
+
+

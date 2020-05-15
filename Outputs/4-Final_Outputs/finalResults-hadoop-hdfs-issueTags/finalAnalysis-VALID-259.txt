@@ -1,0 +1,176 @@
+Pattern changes caused by commit: 57fe80c673eed7bc83ea37c24970b42f1451b35f
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-259.txt 
+
+commit 57fe80c673eed7bc83ea37c24970b42f1451b35f
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-719. Add 6 fault injection tests for pipeline close to simulate slow datanodes and disk errors.
+
+
+
+==================================
+ Issue HDFS-719 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-719] Add more fault injection tests for pipeline close
+-----------------
+
+-----------------
+Summary: Add more fault injection tests for pipeline close
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 20 Oct 2009 23:35:33 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 21 Oct 2009 20:12:43 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+Implement pipeline fault injection tests to simulate slow datanodes, out of memory
+problems and disk errors.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+h719_20091020.patch: added 6 new fault injection tests 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422761/h719_20091020.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422761/h719_20091020.patch</a><br/>
+ against trunk revision 826905.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 15 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/45/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Few points:<ul class="alternate" type="square">	<li>instead of<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>-   
+private BlockReceiver receiver; // The owner of this responder.+    final BlockReceiver
+receiver; // The owner of this responder.</pre></div></div>you can declare this aspect to
+be <tt>privileged</tt> - it will have access to the private members of the
+class.</li>	<li>the following method returns <tt>long</tt> but the javadoc is about
+<tt>int</tt><div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>+   * Return a random integer uniformly
+distributed over the interval [min,max).    * Assume max - min &lt;= Integer.MAX_VALUE.   
+*/   public static long nextRandomLong(final long min, final long max)
+{</pre></div></div></li></ul>+1 Looks good otherwise 
+
+
+New Comment: 
+Thanks, Cos.  I will try "privileged".   For the javadoc, a long in java is an integer but
+you are right that it is not clear. 
+
+
+New Comment: 
+<tt>privileged</tt> works flawlessly. I'm using it for the same
+<tt>BlockReceiverAspects</tt> in <a href="https://issues.apache.org/jira/browse/HDFS-521"
+title="Create new tests for pipeline" class="issue-link"
+data-issue-key="HDFS-521"><del>HDFS-521</del></a>. If you'll such modifier I'll have one
+less conflict to resolve after all <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+h719_20091021.patch: incorporated Cos' comments. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 15 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div>The new tests
+were passed in my local machine.In the previous Hudson run, it passed all the aop tests. 
+The failure of TestFileAppend2.testComplexAppend  is not related to this.  There was no
+contrib test failing.  I also checked the raw log but don't know why getting a -1 on
+contrib tests.In the new patch, all changes are localized to aop.  So it won't affect
+contrib and other non-aop components.  It is safe to commit it. 
+
+
+New Comment: 
+I have committed this to 0.21 and above. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #52 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #79 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/</a>) 
+
+

@@ -1,0 +1,119 @@
+Pattern changes caused by commit: b010deca84339d6b6bf863b46af41aa241064ca6
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-64.txt 
+
+commit b010deca84339d6b6bf863b46af41aa241064ca6
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-443. Add a new metrics numExpiredHeartbeats to the Namenode.  Contributed by Jitendra Nath Pandey
+
+
+
+==================================
+ Issue HDFS-443 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-443] New metrics in namenode to capture lost heartbeats.
+-----------------
+
+-----------------
+Summary: New metrics in namenode to capture lost heartbeats.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 23 Jun 2009 18:25:45 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 14 Jul 2009 18:40:32 +0000
+-----------------
+
+-----------------
+Assigned to: Jitendra Nath Pandey
+-----------------
+
+-----------------
+Description: 
+
+Number of lost heartbeats metrics will count the heartbeats that namenode didn't receive
+in a heartbeat interval. This will help operations team to detect the network issues or
+bad datanode behaviors early on.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Files modified<br/>1. 
+hdfs/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java<br/>2. 
+hdfs/org/apache/hadoop/hdfs/server/namenode/metrics/FSNamesystemMetrics.javaNew file added
+for unit test<br/>1.
+test/hdfs/org/apache/hadoop/hdfs/server/namenode/metrics/TestFSMetricLostHeartbeats.java 
+
+
+New Comment: 
+1. The lost hearbeat is counted only when heartbeat for a datanode expires, i.e. when the
+namenode assumes that datanode is dead.<br/>2. In the unit test, thread sleeps for twice
+the heartbeat expiry interval before checking the metrics.<br/>3. This patch is on
+hadoop-hdfs-trunk created after the split. 
+
+
+New Comment: 
+<ol>	<li>Is it a good idea to reuse existing test case TestDatanodeReport.java for testing
+the newly added metrics? At lease we should set the <tt>heartbeat.recheck.interval</tt> to
+500ms.</li>	<li>It is better to call <tt>LostHeartbeats</tt> to <tt>ExpiredHeartbeats</tt>
+and variable <tt>numLostHeartbeats</tt> to <tt>numExpiredHeartbeats</tt>?</li></ol> 
+
+
+New Comment: 
+1. Modified TestDatanodeReport.java for unit test. Removed the new unit test file.<br/>2.
+Name of the metrics changed to ExpiredHeartbeats and variable is numExpiredHeartbeats. 
+
+
+New Comment: 
++1 for the patch 
+
+
+New Comment: 
+     <span class="error">&#91;exec&#93;</span> +1 overall.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 @author.  The patch does not contain any @author tags.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 tests included.  The patch appears to include 3 new or modified tests.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 javadoc.  The javadoc tool did not generate any warning messages.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.<br/>     <span class="error">&#91;exec&#93;</span><br/>     <span
+class="error">&#91;exec&#93;</span>     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.<br/>     <span class="error">&#91;exec&#93;</span><br/>     <span
+class="error">&#91;exec&#93;</span>     +1 release audit.  The applied patch does not
+increase the total number of release audit warnings. 
+
+
+New Comment: 
+I have committed this.  Thanks, Jitendra! 
+
+

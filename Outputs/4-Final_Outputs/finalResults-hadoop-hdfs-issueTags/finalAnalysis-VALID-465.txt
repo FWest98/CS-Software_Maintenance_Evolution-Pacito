@@ -1,0 +1,209 @@
+Pattern changes caused by commit: abb8a22937958bdc8a43eccf182b851bc62f4dce
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-465.txt 
+
+commit abb8a22937958bdc8a43eccf182b851bc62f4dce
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-1104. Fsck triggers full GC on NameNode. Contributed by Hairong Kuang.
+
+
+
+==================================
+ Issue HDFS-1104 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1104] Fsck triggers full GC on NameNode
+-----------------
+
+-----------------
+Summary: Fsck triggers full GC on NameNode
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 21 Apr 2010 22:12:47 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 30 Apr 2010 22:07:47 +0000
+-----------------
+
+-----------------
+Assigned to: Hairong Kuang
+-----------------
+
+-----------------
+Description: 
+
+A NameNode at one of our clusters fell into full GC while fsck was performed. Digging
+into the problem shows that it is caused by how NameNode handles the access time of a
+file.
+
+Fsck calls open on every file in the checked directory to get the file's block
+locations. Each open changes the file's access time and then leads to writing a
+transaction entry to the edit log. The current code optimizes open so that it returns
+without issuing synchronizing the edit log to the disk. It happened that in our cluster no
+other jobs were running while fsck was performed. No edit log sync was ever called. So all
+open transactions were kept in memory. When the edit log buffer got full, it automatically
+doubled its space by allocating a new buffer.  Full GC happened when no contiguous space
+were found when allocating a new bigger buffer.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+A few ideas coming up:<br/>1. Access time updates should turn off by default.<br/>2. Fsck
+should not update a file's access time.<br/>3. A file's access time should not be updated
+on every open. Ideally it could be collected once a day or a week. This could greatly
+reduce the edit log size.<br/>4. Edit log buffer should be automatically flushed when
+buffer get full or certain amount of time is elapsed without any sync call.I'd like to
+focus on 1 &amp; 2 for 0.20. We probably should address 3 or 4 in the trunk. 
+
+
+New Comment: 
++1 to 1 and 2. I'd make 2 configurable and leave the default to the current behavior. 
+
+
+New Comment: 
+Are you proposing to change the default behaviour of an existing 0.20 release? In the 0.20
+release, access times are switch on by default.I like options 2 and 4. 
+
+
+New Comment: 
+#1: atime is important from an operations perspective for random usage file systems, such
+as tmp directories.  Defaulting it off would make it counter to almost every file system
+that I can think of.  <span class="error">&#91;In fact, I can&#39;t think of -any- that
+default it off, but I&#39;m sure there is one out there somewhere.&#93;</span>  So a -1 on
+that idea.#2 was done to mirror what we saw with posix, when fsck specifically hits a file
+(since fsck mainly works on files, not blocks, like 'real' fsck).  I'm slightly concerned
+about changing this functionality, as I could see it being used during debugging (the only
+time lots of files are accessed at all is during a nightly fsck).   But I recognize this
+is an extreme edge case.  #3 defeats the point of having atime at all.#4 that just seems
+like a good idea in general. why hold it in memory if it isn't getting used? +1 
+
+
+New Comment: 
+Would #4 fix the issue we saw completely, while keeping the previously defined behavior
+that most people seem to like? It seems that this edge case we've encountered reveals a
+deficiency in how we're flushing edits, not in fsck itself. 
+
+
+New Comment: 
+I know that most file systems enable access time by default. But I also know that in
+practice it is turned off by many administrators for the performance purpose. I agree that
+correct access time is sometimes useful, but in most cases it is unnecessary and only adds
+unnecessary I/O to the system. Turning this off by default will benefit most of our
+users.For fsck, I'd like to propose not to update access time and provide no configuration
+to turn it off. This will greatly improve fsck performance.Yes, #4 is a must. I will open
+a different jira for this. 
+
+
+New Comment: 
+&gt; Turning this off by default will benefit most of our users.I do not support this
+idea. It will break quite a few  existing pipelines for us.&gt; For fsck, I'd like to
+propose not to update access time and provide no configuration to turn it off+1. fsck
+should not update the access time of files. 
+
+
+New Comment: 
+Ok, I will keep the access time update on by default.This patch makes sure that fsck does
+not update access time of every file that it has touched. 
+
+
+New Comment: 
+This bug seems to be introduced by <a
+href="https://issues.apache.org/jira/browse/HADOOP-4268" title="Permission checking in
+fsck" class="issue-link" data-issue-key="HADOOP-4268"><del>HADOOP-4268</del></a>, isn't
+it?  Before this patch, Namenode.Fsck used to invoke a namesystem.getBlockLocations that
+did not upadte the atime of a file. This bug does not exists in 0.20.2.. this is a
+regression. Can we add a unit test so that this code is well protected for the future? 
+
+
+New Comment: 
+This patch adds a unit test that makes sure fsck does not update access time. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>The unit test may not work since there is a
+FSNamesystem.accessTimePrecision.</li>	<li>NameNode.getBlockLocationsNoATime(..) does not
+check permission.</li></ul> 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12443136/fsckATime1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12443136/fsckATime1.patch</a><br/>
+ against trunk revision 939091.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/333/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+This patch addressed Nicholas's review comments:<br/>&gt; The unit test may not work since
+there is a FSNamesystem.accessTimePrecision.<br/>Changed the default precision in the
+test.<br/>&gt;  NameNode.getBlockLocationsNoATime(..) does not check
+permission.<br/>Woops, it was in the first patch but was accidentally removed from the 2nd
+patch. 
+
+
+New Comment: 
++1 patch looks good.  Thanks, Hairong. 
+
+
+New Comment: 
+Hudson seems not working. I ran ant test on my local machine and all tests were passed. 
+
+
+New Comment: 
+I've just committed this! 
+
+
+New Comment: 
+This patch is for Yahoo's 0.20 security branch. 
+
+

@@ -1,0 +1,123 @@
+Pattern changes caused by commit: 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+
+From: Facade-2
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1498.txt 
+
+commit 7eacbd8c73450ed71ebe9e2b2e793a703a86e7ae
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Applied patch for DIRMINA-608 provided by Barend
+
+
+
+==================================
+ Issue DIRMINA-608 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-608] Move stats out of the IoService API
+-----------------
+
+-----------------
+Summary: Move stats out of the IoService API
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 13 Jul 2008 13:02:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 10 Aug 2008 21:22:33 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+The statictic informations contained into the IoService API could be put in some specific
+class, and made available through a call to a dedicated getter :
+
+IoServiceStatistics
+getStatistics()
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached is a first proposal, please take a look. I'd like to see if there's any initial
+feedback now, and I'll work up a more extensive patch the coming weeks before M3 is
+released.Open issues:<ul class="alternate" type="square">	<li>should maybe leave the
+methodes on the IoService interface for the next milestone, marked deprecated, and don't
+remove them until 2.0 final.</li></ul><ul class="alternate" type="square">	<li>interface
+naming is open to debate (e.g. the current naming scheme doesn't really allow the same
+interfaces to be used for IoSession statistics).</li></ul><ul class="alternate"
+type="square">	<li>location of the lastReadTime() / lastWriteTime() / lastIoTime() methods
+is open to debate.</li></ul><ul class="alternate" type="square">	<li>to keep the impact of
+this first patch low, I just made AbstractIoService implement the statistics interfaces,
+rather than factoring them into inner classes. (separation of concerns, high cohesion,
+etc.) Factoring them into separate classes gives the ability to deploy those instances
+into an MBeanServer, which I think is a big reason to make that change. Not all
+application servers use the standard MBeanServer (at least historically; Java 5 may have
+changed that) and JMX+OSGi isn't always straightforward, so the actual MBean deployment
+should be handled by a pluggable strategy implementation.</li></ul><ul class="alternate"
+type="square">	<li>I haven't touched the IoSession statistics yet, but the basic idea is
+the same.</li></ul><ul class="alternate" type="square">	<li>anything
+else?</li></ul>Thanks,Barend 
+
+
+New Comment: 
+Patch applied.One more thing would be valuabe : atm, the getStatistics() method return
+'this', which means all the methods are included into the AbstractIoService class. It
+would be much more preferable that the statistics were implemented into a separated class,
+so that the getStatistics() method returns a reference to this class. The
+AbstractIoService would then be much more light.That also means we won't have to implement
+IoServiceStatistics in AbstractIoService. A simpler IoStatistics interface with a
+getStatistics() method would be enough.wdyt ? 
+
+
+New Comment: 
+I agree, and I fully intend to do so. This patch was intended for early feedback about
+e.g. the interface naming, and I will submit a definitive patch (and tick the licensing
+checkbox) when I get a more comprehensive refactoring in place. 
+
+
+New Comment: 
+Hi Barend,I know realize that I have committed your patch but that you didn't checked the
+licensing checkbox.Is it possible that you check it so I don't have to revert the patch ?
+Thanks ! 
+
+
+New Comment: 
+By Emmanuel's request, this is identical to the previous patch, but with the license
+checkbox ticked. Sorry for causing the confusion. 
+
+
+New Comment: 
+Shouldn't this issue be marked as fixed in 2.0.0 M3 now that Barend gived ASF license to
+use his patch ? 
+
+

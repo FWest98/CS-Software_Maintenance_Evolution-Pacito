@@ -1,0 +1,463 @@
+Pattern changes caused by commit: 8bf59c1a84d0cec00bc945590d8eb857ac08b153
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-352.txt 
+
+commit 8bf59c1a84d0cec00bc945590d8eb857ac08b153
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-767. An improved retry policy when the DFSClient is unable to fetch a
+    block from the datanode.  (Ning Zhang via dhruba)
+
+
+
+==================================
+ Issue HDFS-767 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-767] Job failure due to BlockMissingException
+-----------------
+
+-----------------
+Summary: Job failure due to BlockMissingException
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 12 Nov 2009 19:43:43 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 28 Dec 2009 19:45:18 +0000
+-----------------
+
+-----------------
+Assigned to: Ning Zhang
+-----------------
+
+-----------------
+Description: 
+
+If a block is request by too many mappers/reducers (say, 3000) at the same time, a
+BlockMissingException is thrown because it exceeds the upper limit (I think 256 by
+default) of number of threads accessing the same block at the same time. The DFSClient wil
+catch that exception and retry 3 times after waiting for 3 seconds. Since the wait time is
+a fixed value, a lot of clients will retry at about the same time and a large portion of
+them get another failure. After 3 retries, there are about 256*4 = 1024 clients got the
+block. If the number of clients are more than that, the job will fail. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Sounds like randomized backoff might help here? 
+
+
+New Comment: 
+The problem may be solved by increase the number of retries to a sufficiently large number
+say (the maximum mapper slots) / 256. But the performance is not good since a client could
+wait up to (3 * #_of_retires) seconds.A common case we see is that a read request can be
+served well less than 3 sec (could be just subsecond). And it is a wait of time to wait 3
+seconds and let another bunch of 256 clients read the same block. So we propose the
+following change in the DFSClient to introduce a random factor to the wait time. So
+instead of being a fixed value 3000 as the wait time, it becomes the following formular: 
+waitTime = 3000 * failures + 3000 * (failures + 1) * rand(0, 1);where failures is the
+number of failures (starting from 0), and rand(0, 1) returns a random double from 0.0 to
+1.0. The rationale behind this formula is as follows:1) At the first time getting a
+BlockMissingException, the client waits a random time from 0-3 seconds and retry. If the
+block read can be served very quickly, the client get get it faster than always waiting
+for 3 sec. Also by distributing all clients evenly in the 3 sec window, more clients will
+be served for this round of retry. <br/>2) If the client still get the same exception and
+retry at the second time, it may be because the read is too slow or the number of requests
+are too large and the client is not lucky to ensure a spot in the last retry. To solve the
+first problem the second retry will wait 3 seconds before retry to ensure all clients in
+the first retry has already at least started (and hopefully some of them have already
+finished). To solve the second problem, we will increase the waiting window to 6 seconds
+and make sure less conflicts are there for the 3rd retry. <br/>3) Similarly at the 3rd
+retry, we will wait for 6 second to clean up the waiting window from the 2nd retry and
+make the waiting window to 9 seconds. Any comments on the design and proposal for unit
+test? 
+
+
+New Comment: 
+@Todd, exactly. We need to introduce some random factor to the wait time. Can you comment
+on the proposal in my previous post? 
+
+
+New Comment: 
+Hi Ning,The formula seems reasonable but slightly more complicated than necessary. Why not
+simply use truncated binary exponential backoff like ethernet? <a
+href="http://en.wikipedia.org/wiki/Truncated_binary_exponential_backoff"
+class="external-link"
+rel="nofollow">http://en.wikipedia.org/wiki/Truncated_binary_exponential_backoff</a> -
+this formula is well known and proven to be effective for similar situations. 
+
+
+New Comment: 
+Hi Todd, Thanks for the link. Dhruba also suggested it before. It works pretty well if we
+have a good estimation of the time to serve one block, which can be used as the "slot
+time" specified in the algorithm. I think it works great for Ethernet where the size of a
+frame transmitted in Ethernet is fixed and we have a pretty good idea on how much time we
+should wait before retry. In the case of HDFS, the size of the data to be read could range
+from several KB to hundreds of of MB. The time spent on serving a request could range from
+sub-millisecond to several seconds. So it is hard to configure the slot time to catch the
+norm of the request serving time. We can certainly set the slot time small enough to
+accommodate the case of short requests, and the # of retries very large to accommodate the
+case of long requests. But the worst case is unbounded. e.g., the wait time always start
+from 0 makes it possible that no matter how many retries the the wait time could be a very
+small number so that the job fails. This is OK for Ethernet since there are other
+protocols on top of it that add another layer of fault tolerance.Since DFSClient is
+already at the top layer of DFS and we don't want clients to worry too much about fault
+tolerance, it would be nice to have an upper bound of retries. The effect of the proposed
+formula is similar to exponential backoff in the case of a large number of short requests.
+But the former takes the # of failures into consideration when calculating the wait time.
+The # of failures acts as an indication of how busy the block is and how much time
+(non-zero) we should wait. In the worst case, each retry will have at least 256 clients
+get the block (assuming serving a block cost &lt; 3 sec). And there is a fixed upper bound
+of retries: (max # of mapper or reducer slots) / 256. 
+
+
+New Comment: 
+I see why the idea of slot time doesn't apply, but still unsure about the 3000*failures
+without randomization term. It seems like this time delta is to ensure that all "round two
+attempts" come after all "round one" attempts, but in that case the delta would be since
+the first request, not since the most recent request, right? Do we not really want to do
+something like:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">start_time = now()<span
+class="code-keyword">while</span> failing and failures &lt; N:  attempt to read  <span
+class="code-keyword">if</span> failed:    next_read = start_time + failures * 3000 +
+3000*(failures + 1)*rand(0,1)    sleep(next_read - now())</pre></div></div>If I'm
+understanding this correctly, this produces all 1st retries between interval 0..3, all
+round 2 between 3..9, all round 3 between 9..15. Is that what we're attempting to do? 
+
+
+New Comment: 
+Todd, you are right if we want to establish the time windows at the point of the first
+request. And your calculated time is the total wait time. My formula consider the next
+wait time which is 0..3 for the first attempt, 3..9 for 2nd attempt and 6..15 for 3rd
+attempt. The total wait time range is 0..3, 3..12, and 9..27 for the first 3 attempts. One
+reason for my formula is its simplicity, we don't need to keep track of the first trial
+time and current time. It only depends on 1 parameter (the # of failures). The second
+reason is that we don't know how much time will be spent from sending out the request to
+getting a failure. it could be tens to hundreds of milliseconds due to network roundtrip
+and NameNode workload. We don't want to add that into the consideration. 
+
+
+New Comment: 
+Hi Ning,Sounds good - your formula seems to make sense. If you can add a few lines of
+comments around the formula (or a pointer to this JIRA) I think that would be helpful to
+make sure people looking at the code down the line will understand where it came
+from.Additionally, I think making the 3000 parameter a configuration variable (even if an
+undocumented one) would be swell. 
+
+
+New Comment: 
+Thanks for the comments Todd. I'll add sufficient comments and a new parameter for the
+waiting time window instead of constant 3000. Anyone has more comments or concerns? 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-767" title="Job failure due to
+BlockMissingException" class="issue-link"
+data-issue-key="HDFS-767"><del>HDFS-767</del></a>.patch contains the following
+changes:<br/> 1) code change in DFSClient.java to add random backoff discussed in this
+JIRA. <br/> 2) add unit test in TestDFSClientRetries to test effectiveness and performance
+of different parameters settings. 
+
+
+New Comment: 
+I wasn't aware of limit on number of accessors for single block. Anyone knows reason
+behind such a restriction? 
+
+
+New Comment: 
+This limit is on the number of simultaneous thread accessing the same block. The more
+simultaneous threads the more resources are needed, which can bring the data node down if
+there is no such guard. 
+
+
+New Comment: 
+There is a global limit on number of threads in DataNode. is that what you are referring
+to?. But there is no separate limit on a single block AFAIK. It is better not to have
+these limits (I should really get to implementing async IO for readers soon and I plan to.
+also there is a proposal to read data over RPC). For now, I think you should increase the
+limit. 256 is too small for most machines.. many large clusters have this limit set to 2k
+or more. 
+
+
+New Comment: 
+Raghu, you are right. The xceivers count is on the DataNode level rather than on the block
+level. That makes 256 sounds too small. We will follow your tips to make
+dfs.datanode.max.xcievers larger. Before the async IO and RPC are implemented, I think
+this patch still makes sense even if xceiver is changed to 2k. One reason is that there is
+still a high probability that all 3 replicas got 2k slots occupied (considering 2k is on
+the data level, and sometimes 2 replicas are used if software RAID is deployed) in a large
+and busy cluster. In our cluster, I've seen over 26k mappers accessing the same file at
+roughtly the same time. The current implementation waiting for a hard-coded 3 seconds
+seems to be inflexible and has poor performance.  Another reason is that as the cluster
+scales out (# of machines as well as # of mapper slots are increasing), individual
+machines are not scaling up accordingly (some of the machine in the cluster have lower
+memory and CPU power). So we cannot always increase xceivers count for this case. 
+
+
+New Comment: 
+Just wondering is there anyone looking at this patch? 
+
+
+New Comment: 
+I just briefly looked at it. Essentially, you are randomizing the retry times without
+actually increasing the number of retries (retry interval is increased). In that case, we
+will still see failures if the fetches take longer than a few seconds (a few seconds is
+quite possible, if you have a lot of threads reading from the disk, each client will take
+longer to read same amount of data).+1 for the patch, as a work around for some
+situations. 
+
+
+New Comment: 
+Thanks Raghu. Both number of retries and the waiting time are configurable. Currently the
+base wait time is 3 sec. If it is too short, the user can set a higher value through
+dfs.client.baseTimeWindow.waitOn.BlockMissingException. The response time may be longer
+with a large base wait window.  Or the user can just set the number of retries to be large
+enough (through dfs.client.max.block.acquire.failures) since the wait window will be
+increased while the number of retries is increasing. Eventually the wait window will be
+larger than the time spent to read one block. 
+
+
+New Comment: 
+Can someone give an ETA on when this patch will be reviewed? 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425556/HDFS-767.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425556/HDFS-767.patch</a><br/>
+ against trunk revision 889494.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 6 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    -1 javac.  The
+applied patch generated 23 javac compiler warnings (more than the trunk's current 22
+warnings).    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/144/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I've come across problems w/ random backoff on systems where the entire building gets
+powered off and on in one go, everything boots back up, and they all come up at the same
+time, all go on the network at the same time, all flood and then back off. This happens
+if<ul>	<li>the hardware is identical</li>	<li>boot time to on-LAN is the same (either PXE
+time or flash disk)</li>	<li>the random number generator is driven off the start time of
+the machine</li></ul>Accordingly, this code may still have problems in such situations,
+where the only workaround is to use a bit of the MAC address as part of your parameters,
+to give you something different from everyone else. 
+
+
+New Comment: 
+Is there any java Random class that already takes the the mac address (or parts of it)
+while generating the initial seed? 
+
+
+New Comment: 
+java's Random class (at least in the Sun JVM) uses /dev/random to get its seed.
+/dev/random is handled by Linux and is reasonably secure - it uses all sorts of things to
+collect entropy, including disk seek times, etc. 
+
+
+New Comment: 
+Steve: can we leave this patch to continue to use Random()? If most JVM's implementation
+of Random() already takes machine's mac address, disk, etc (as Todd points out), then can
+we can depend on that. In fact, there any many places in the HDFS code that uses a
+Random() object and changing it in one place might not matter much. 
+
+
+New Comment: 
+Thanks for the comments Steve and Todd. I checked the JDK source code (1.6.0_16) and
+Random() uses a very simple default seed:    /**<ul>	<li>Creates a new random number
+generator. This constructor sets</li>	<li>the seed of the random number generator to a
+value very likely</li>	<li>to be distinct from any other invocation of this
+constructor.<br/>     */<br/>    public Random() { this(++seedUniquifier +
+System.nanoTime()); }    private static volatile long seedUniquifier =
+8682522807148012L;</li></ul>Based on the discussion in Sun's forum: <a
+href="http://forums.sun.com/thread.jspa?threadID=5398150" class="external-link"
+rel="nofollow">http://forums.sun.com/thread.jspa?threadID=5398150</a> , nanoTime is a
+native method and is implemented based on the CPU clock cycles. So I guess the chance of
+getting the same value from nanoTime is not that high even though all machines boot up at
+the same time. I agree that adding the machine's MAC address would greatly reduce the
+conflict probability, I am also fine to make that change in the next version. The change
+would be fairly simple since JDK1.6 has support get the MAC address. 
+
+
+New Comment: 
+I am attaching the second version of the patch. It fixes the javac warning issue. I also
+did a simple test on nanoTime() on jdk1.6.0_16 on Linux and found it is highly fine
+grained (consistent with the description that it was implemented using CPU clock cycles).
+So Random() seed confliction is fairly rare. As mentioined by Dhruba, Random() was used in
+many places. So we probably don't want to change it in this one place. A separate JIRA is
+probably  the best if it renders iteself as a real problem later. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12428065/HDFS-767_2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12428065/HDFS-767_2.patch</a><br/>
+ against trunk revision 891109.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 6 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/148/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Hi Ning, can we get a few more minor issues fixed:<blockquote><ul class="alternate"
+type="square">	<li>* Licensed to the Apache Software Foundation (ASF) under one</li>	<li>*
+or more contributor license agreements.  See the NOTICE file<br/>+ * Licensed the Apache
+Software Foundation (ASF) under one<br/>+ * or more contributor license See.<br/>+ *
+agreements the NOTICE file</li></ul><ul>	<li>distributed with this work for additional
+information</li>	<li>regarding copyright ownership.  The ASF licenses this
+file</li></ul></blockquote>The above change change be reverted.<blockquote>      
+prefetchSize = conf.getLong(DFSConfigKeys.DFS_CLIENT_READ_PREFETCH_SIZE_KEY,
+prefetchSize);<br/>+      timeWindow =
+conf.getInt("dfs.client.baseTimeWindow.waitOn.BlockMissingException",
+3000);</blockquote>can we add the new configuration value to DFSConfigKeys?<blockquote>+  
+         // See JIRA <a href="https://issues.apache.org/jira/browse/HDFS-767" title="Job
+failure due to BlockMissingException" class="issue-link"
+data-issue-key="HDFS-767"><del>HDFS-767</del></a> for more details.</blockquote>Remove the
+above comment because this is already captured in the svn revision historyThanks a bunch 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/HDFS-767" title="Job failure due to
+BlockMissingException" class="issue-link"
+data-issue-key="HDFS-767"><del>HDFS-767</del></a>_3.patch contains all the changes
+suggested by Dhruba. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12428890/HDFS-767_3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12428890/HDFS-767_3.patch</a><br/>
+ against trunk revision 893650.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 6 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I changed the name of the config to fs.client.retry.window.base to match other DFS config
+parameters. 
+
+
+New Comment: 
++1. code looks code. 
+
+
+New Comment: 
+I just committed this. Thanks Ning! 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #158 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/158/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/158/</a>)<br/>
+   . An improved retry policy when the DFSClient is unable to fetch a<br/>block from the
+datanode.  (Ning Zhang via dhruba) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #186 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/186/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/186/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #171 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/171/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/171/</a>) 
+
+

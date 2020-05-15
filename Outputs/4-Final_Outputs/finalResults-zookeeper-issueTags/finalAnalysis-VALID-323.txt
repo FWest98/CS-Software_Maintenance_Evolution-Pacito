@@ -1,0 +1,219 @@
+Pattern changes caused by commit: a1ac465be361ff478f9b66147731e588fef64ff3
+
+From: Facade-7
+To:   Facade-8
+
+From: Strategy-3
+To:   Strategy-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-323.txt 
+
+commit a1ac465be361ff478f9b66147731e588fef64ff3
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-276. Bookkeeper contribution (Flavio and Luca Telloli via mahadev)
+
+
+
+==================================
+ Issue ZOOKEEPER-276 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-276] Bookkeeper contribution
+-----------------
+
+-----------------
+Summary: Bookkeeper contribution
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 20 Jan 2009 11:54:00 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 30 Jan 2009 19:30:58 +0000
+-----------------
+
+-----------------
+Assigned to: Flavio Paiva Junqueira
+-----------------
+
+-----------------
+Description: 
+
+BookKeeper is a system to reliably log streams of records. In BookKeeper, servers are
+"bookies", log streams are "ledgers", and each unit of a log (aka record) is a "ledger
+entry". BookKeeper is designed to be reliable; bookies, the servers that store ledgers can
+be byzantine, which means that some subset of the bookies can fail, corrupt data, discard
+data, but as long as there are enough correctly behaving servers the service as a whole
+behaves correctly; the meta data for BookKeeper is stored in ZooKeeper.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+BookKeeper is a system to reliably log streams of records. In BookKeeper, servers are
+"bookies", log streams are "ledgers", and each unit of a log (aka record) is a "ledger
+entry". BookKeeper is designed to be reliable; bookies, the servers that store ledgers can
+be byzantine, which means that some subset of the bookies can fail, corrupt data, discard
+data, but as long as there are enough correctly behaving servers the service as a whole
+behaves correctly; the meta data for BookKeeper is stored in ZooKeeper.The main motivation
+for this system comes from the namenode of the Hadoop Distributed File System (HDFS).
+Namenodes have to log operations in a reliable fashion so that recovery is possible in the
+case of failures. Currently, HDFS does write-ahead logging on its local storage. This
+allows the namenode to restart after a failure, but it does not allow recovery from a
+complete machine failure. A shared, fault-tolerant write-ahead log is needed so that the
+namenode can be started on another machine and recover state properly. We have found the
+applications for BookKeeper extend beyond HDFS. In fact, any application that uses
+write-ahead logging can take advantage of BookKeeper.Back to the namenode example, one
+potential solution is to replicate across a number of replicas, and use an agreement
+protocol (e.g., 3PC) to guarantee that operations hit enough replicas. This approach
+doesn't take full advantage of I/O parallelism that can be achieved by striping. We can
+also take advantage of a single writer and immutable ledger entries to simplify the
+protocol and obtain better performance and fault-tolerance guarantees.The approach we
+propose is different. We propose a highly-available system that receives entries from a
+client and stores it. Such a system can be used by several client systems, and not only
+HDFS. There are several advantages in building such a service:<ul>	<li>We can use hardware
+that is optimized for such a service. We currently believe that such a system has to be
+optimized only for disk I/O;</li>	<li>We can have a pool of servers implementing such a
+log system, and shared among a number of servers. BookKeeper is hence a good candidate for
+a cloud service;</li>	<li>We can have a higher degree of replication with such a pool,
+which makes sense if the hardware necessary for it is cheaper compared to the one the
+application uses.</li></ul>In this patch, we include the source code of BookKeeper to be
+included in the "contrib" folder of the ZooKeeper distribution. We note that this is still
+experimental code, but the community is free to evaluate, discuss, and hopefully
+contribute. 
+
+
+New Comment: 
+Initial contribution of BookKeeper. Please note this is still experimental code. 
+
+
+New Comment: 
+Last updated version 
+
+
+New Comment: 
+one thing i noticed -sorry I should have pointed this out earlier -we should remove the
+@author tags.<br/>This is just a convention that hadoop has been following (given that a
+file might get changed often by different people over time)example -<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>      + * @author luca telloli */      in
+src/contrib/bookkeeper/test/org/apache/bookkeeper/test/BookieReadWriteTest.java</pre></div></div>also,
+their are no javadocs in the classes. I think it will be good to have  javadocs for some
+of the important classes in BookKeeper.other than that I think the contribution looks
+good. 
+
+
+New Comment: 
+Removed some calls to registerAsConcrete that were preventing me from compiling
+successfully. 
+
+
+New Comment: 
+Implemented Mahadev suggestions. 
+
+
+New Comment: 
+Forgot to mention that unit tests pass just fine for me. 
+
+
+New Comment: 
+bookkeeper is contributed as <br/>org.apache.bookkeeper package &#8211; <br/>shouldnt it
+be org.apache.zookeeper.bookkeeper.* ? 
+
+
+New Comment: 
+also ant tar on top level dir fails with  the following error - <div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>compile:     [echo] contrib: bookkeeper    [javac] Compiling 26 source
+files to /Users/mahadev/workspace/zookeeper-commit-trunk/build/contrib/bookkeeper/classes 
+  [javac]
+/Users/mahadev/workspace/zookeeper-commit-trunk/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/bookie/Bookie.java:302:
+method does not override a method from its superclass    [javac]         @Override   
+[javac]          ^    [javac]
+/Users/mahadev/workspace/zookeeper-commit-trunk/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/proto/BookieClient.java:317:
+method does not override a method from its superclass    [javac]         	@Override   
+[javac]                  ^    [javac]
+/Users/mahadev/workspace/zookeeper-commit-trunk/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/proto/BookieServer.java:87:
+method does not override a method from its superclass    [javac]     @Override    [javac] 
+    ^    [javac]
+/Users/mahadev/workspace/zookeeper-commit-trunk/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/proto/BookieServer.java:164:
+method does not override a method from its superclass    [javac]     @Override    [javac] 
+    ^    [javac]
+/Users/mahadev/workspace/zookeeper-commit-trunk/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/util/LocalBookKeeper.java:143:
+method does not override a method from its superclass    [javac] 		@Override    [javac]   
+              ^    [javac] 5 errors</pre></div></div> 
+
+
+New Comment: 
+On issue 1: we have checked with Patrick Hunt (and Patrick checked with Doug Cutting) that
+it is ok to use org.apache.bookkeeper. I also prefer it that way;On issue 2: Unfortunately
+my compiler doesn't complain about the override tags you mentioned (I'm on macos, jvm
+1.6.0), so I just removed the ones you pointed out. Please give it another try. 
+
+
+New Comment: 
+<blockquote>On issue 1: we have checked with Patrick Hunt (and Patrick checked with Doug
+Cutting) that it is ok to use org.apache.bookkeeper. I also prefer it that
+way;</blockquote>That is fine with me.<blockquote>On issue 2: Unfortunately my compiler
+doesn't complain about the override tags you mentioned (I'm on macos, jvm 1.6.0), so I
+just removed the ones you pointed out. Please give it another try.</blockquote>. will give
+it a try... 
+
+
+New Comment: 
+i fixed some problems in the build. 
+
+
+New Comment: 
+fixed license on oen of the files... <br/>and fixed bookkeeper tests ... (they had
+@override  tags which were nto required.) 
+
+
+New Comment: 
++1 on the patch .. the patch has tests and readme. <br/>some more javadocs would be great
+but we can fix that later. ill commit this for now. 
+
+
+New Comment: 
+I just committed this. Thanks Luca and Flavio. 
+
+
+New Comment: 
+Integrated in ZooKeeper-trunk #217 (See <a
+href="http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/217/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/217/</a>) 
+
+
+New Comment: 
+I have a simple question about bookkeeper ( I could not find  design doc, if there is one,
+please point me to it).Suppose I have a service with 3 bookies and 1 ledger. I write 1
+ledger entry. When this appliction-write to the ledger entry is complete, this transaction
+is  successfully done on at least 2 of the bookies. Does the completion of the
+application-write also guarantee that this transaction is synchonously persisted on the
+disk on these two bookies, or does this transaction reside in memory of these two bookies
+and is lazily flushed? Thanks. 
+
+

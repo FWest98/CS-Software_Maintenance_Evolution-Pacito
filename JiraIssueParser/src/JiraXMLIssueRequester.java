@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
@@ -15,20 +17,31 @@ import org.xml.sax.InputSource;
 public class JiraXMLIssueRequester {
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "mina-issueTags";
+    private static String analyzedProject = "hadoop-hdfs-issueTags";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
+
+        File finalCSVFile = new File(".\\finalResults-" + analyzedProject + "\\" + analyzedProject + "-CSV.csv");
+
+        FileWriter fw = new FileWriter(finalCSVFile.getPath());
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter pw = new PrintWriter(bw);
+        pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
+                + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "ResolvedDate" + "," + "PatternChanges");
+        pw.flush();
+        pw.close();
 
         for (File analyzedFile : issueTagsFiles) {
 
             String issueKey = obtainIssueKey(analyzedFile);
 
             if (issueKey != null) {
-                get_response(issueKey, analyzedFile);
+                get_response(issueKey, analyzedFile, finalCSVFile);
             }
         }
+
     }
 
     private static File[] createDirectoryAndFileArray() {
@@ -75,7 +88,7 @@ public class JiraXMLIssueRequester {
     }
 
 
-    public static void get_response(String issueKey, File outputFile) {
+    public static void get_response(String issueKey, File outputFile, File csvFile) {
         try {
             String format = "xml";
             String url = "https://issues.apache.org/jira/si/jira.issueviews:issue-" + format + "/" + issueKey + "/" + issueKey + ".xml";
@@ -98,22 +111,85 @@ public class JiraXMLIssueRequester {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                     .parse(new InputSource(new StringReader(response.toString())));
             NodeList errNodes = doc.getElementsByTagName("item");
+
+            FileWriter csvFileWriter = new FileWriter(csvFile.getPath(), true);
+            BufferedWriter csvBufferedWriter = new BufferedWriter(csvFileWriter);
+            PrintWriter csvPrintWriter = new PrintWriter(csvBufferedWriter);
+
             if (errNodes.getLength() > 0) {
                 Element err = (Element) errNodes.item(0);
 
-                //File file = new File(outputFile.getName());
-
-
                 File issueTagsFile = new File(".\\" + analyzedProject + "\\" + outputFile.getName());
+                FileReader fileReaderForCommitID = new FileReader(issueTagsFile.getPath());
+                BufferedReader bufferedReaderForCommitID = new BufferedReader(fileReaderForCommitID);
+                String firstLine = bufferedReaderForCommitID.readLine();
+                String before;
+                String after;
+                StringBuilder detectedPatterns = new StringBuilder();
+                String detectedPattern;
+                String bufferedLine = bufferedReaderForCommitID.readLine();
+                boolean reached = false;
 
-                File finalResultsFile = new File(".\\finalResults-" + analyzedProject + "\\" + outputFile.getName());
+                while (bufferedLine != null && reached == false) {
 
+                    if (bufferedLine.contains("=")) {
+                        reached = true;
+                    } else {
+                        if (!bufferedLine.isEmpty()) {
+
+                            before = bufferedLine.substring(bufferedLine.lastIndexOf(" ") + 1);
+                            after = bufferedReaderForCommitID.readLine();
+                            after = after.substring(after.lastIndexOf(" ") + 1);
+                            detectedPattern = before.substring(0, before.indexOf("-"));
+
+                            String numberBeforeString = before.substring(before.indexOf("-")+1);
+                            int numberBefore = Integer.parseInt(numberBeforeString);
+                            String numberAfterString = after.substring(after.indexOf("-")+1);
+                            int numberAfter = Integer.parseInt(numberAfterString);
+
+                            int patternDifferences = numberBefore - numberAfter;
+
+                            if (patternDifferences > 0) {
+                                detectedPatterns.append(patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED,");
+                            } else {
+                                detectedPatterns.append(Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED,");
+                            }
+                        }
+                    }
+                    bufferedLine = bufferedReaderForCommitID.readLine();
+                }
+
+                String project = err.getElementsByTagName("project").item(0).getTextContent().replaceAll(",", "-");
+                String commitID = firstLine.substring(firstLine.lastIndexOf(" ")+1);
+                String developer = err.getElementsByTagName("assignee").item(0).getTextContent().replaceAll(",", "-");
+                String title = err.getElementsByTagName("title").item(0).getTextContent().replaceAll(",", "-");
+                String summary = err.getElementsByTagName("summary").item(0).getTextContent().replaceAll(",", "-");
+                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent().replaceAll(",", "-");
+                String issueType = err.getElementsByTagName("type").item(0).getTextContent().replaceAll(",", "-");
+                String createdDate = err.getElementsByTagName("created").item(0).getTextContent().replaceAll(",", "-");
+                String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent().replaceAll(",", "-");
+                String patternChanges = detectedPatterns.toString();
+
+                /////////////////////////////
+                ///// WRITE TO CSV FILE /////
+                /////////////////////////////
+
+                csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
+                        + parsedIssueKey + "," + issueType + "," + createdDate + "," + resolvedDate + "," + patternChanges);
+                csvPrintWriter.flush();
+                csvPrintWriter.close();
+
+                /////////////////////////////////////
+                ///// WRITE TO INDIVIDUAL FILES /////
+                /////////////////////////////////////
+
+                File finalResultsFile = new File(".\\finalResults-" + analyzedProject + "\\finalAnalysis-" + outputFile.getName());
                 Files.copy(issueTagsFile.toPath(), finalResultsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
                 FileWriter fr = new FileWriter(finalResultsFile, true);
                 BufferedWriter br = new BufferedWriter(fr);
                 br.write("\n\n\n==================================\n Issue " + issueKey + " Description \n=======================================");
-
                 br.write("\n\nProject: " + err.getElementsByTagName("project").item(0).getTextContent());
                 br.write("\n-----------------");
                 br.write("\n\n-----------------\n");
@@ -138,12 +214,33 @@ public class JiraXMLIssueRequester {
                 br.write("Assigned to: " + err.getElementsByTagName("assignee").item(0).getTextContent());
                 br.write("\n-----------------");
                 br.write("\n\n-----------------\n");
-                String description = err.getElementsByTagName("description").item(0).getTextContent().replaceAll("<p>|<\\/p>", "\n");
+                String description = err.getElementsByTagName("description").item(0).getTextContent()
+                        .replaceAll("<p>|<\\/p>", "\n");
                 br.write("Description: \n");
-                for (String line : textLimiter(description, 40)) {
+                for (String line : textLimiter(description, 90)) {
                     br.write(line);
                     br.write("\n");
                 }
+
+                NodeList commentsNodes = doc.getElementsByTagName("comments");
+                Element commentElement = (Element) commentsNodes.item(0);
+
+                br.write("\n-----------------");
+                br.write("\n\n-----------------\n");
+                br.write("Comments: \n\n");
+
+                for (int i = 0; i < commentElement.getElementsByTagName("comment").getLength() -1; i++){
+                    String comment = commentElement.getElementsByTagName("comment").item(i).getTextContent()
+                            .replaceAll("<p>|<\\/p>", "");
+
+                    br.write("New Comment: \n");
+                    for (String commentSmallerLine : textLimiter(comment, 90)) {
+                        br.write(commentSmallerLine);
+                        br.write("\n");
+                    }
+                    br.write("\n\n");
+                }
+
                 br.close();
                 fr.close();
             } else {

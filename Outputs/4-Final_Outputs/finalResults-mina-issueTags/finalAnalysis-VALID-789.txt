@@ -1,0 +1,266 @@
+Pattern changes caused by commit: 8164cbb110e9ce353e27feeeaa2c0ed4d3ce5859
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-3
+To:   Facade-4
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-789.txt 
+
+commit 8164cbb110e9ce353e27feeeaa2c0ed4d3ce5859
+Author: Maarten Bosteels <maarten@apache.org>
+
+    Resolved issue: DIRMINA-445 : IoSessionLogger methods now take an Object instead of String (avoiding log message composition when logging event is filtered out)
+
+
+
+==================================
+ Issue DIRMINA-445 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-445] SessionLog improvement
+-----------------
+
+-----------------
+Summary: SessionLog improvement
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 24 Sep 2007 14:01:15 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 28 Sep 2007 19:30:51 +0000
+-----------------
+
+-----------------
+Assigned to: Maarten Bosteels
+-----------------
+
+-----------------
+Description: 
+
+SessionLog.debug(IoSession,String), info(IoSession,String), warn(IoSession,String) and
+error(IoSession,String) should be changed to SessionLog.debug(IoSession,Object),
+info(IoSession,Object), warn(IoSession,Object) and error(IoSession,Object), as in
+log4j.
+
+The reason for this is that if passing Objects instead of String allow to delay
+the composition of the logging message (.toString() call) until really needed and that
+could greatly improve performance. This kind of feature is needed to build SW able to be
+turned in debug while in production using NDC/MDC filters (using log4j e.g.).
+
+Some code
+snippet the illustrate this:
+
+    public void messageReceived(IoSession session, Object o)
+throws Exception
+    {       MyProtocolRequest req = (MyProtocolRequest) o;      
+NDC.put(req.getUserId());       SessionLog.debug(session, new RequestDumper(req));      
+NDC.pop();    }
+    class RequestDumper()<br/>    {<br/>        public
+RequestDumper(MyProtocolRequest req)
+        {            this.req = req;        }
+       
+public String toString()
+        {            return req.toString();        }
+       
+private MyProtocolRequest req;<br/>    }
+
+In that snippet, the cost of converting
+MyProtocolRequest to a String is not paied when SessionLog.debug() is called, but when the
+underlying logging framework needs the string for logging. The perf improvement could be
+massive if the underlying protocol uses some kind of filtering to filter-out most debug
+logs; in that example, the logging framework would be configured to filter-in only logs
+with a NDC set to a specific user.
+
+With this feature, we could enable debug in production
+for some few users only, without killing the overall performances.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Some remarks:<ul>	<li>MINA uses the SLF4J API (not log4j) and for some reason SLF4J does
+not have the logger.debug(Object obj) API<br/>   So while we could change the API of
+SessionLog, we would have to call toString() anyway<br/>   (unless we would do the
+isDebugEnabled check in SessionLog)</li></ul><ul>	<li>Have you looked at the
+MdcInjectionFilter ?<br/>   IMHO it covers the functionality of SessionLog, with much more
+flexibility </li></ul><ul>	<li>SLF4J supports the elegant Marker mechanism, which you can
+use to avoid the expensive toString() call :<br/>   logger.debug("message received: {}",
+new RequestDumper(req));<br/>   =&gt; toString() will only be called when the LoggingEvent
+is actually generated</li></ul> 
+
+
+New Comment: 
+I have looked at the trunk. It seems that SessionLog has been moved to a IoSessionLogger,
+but Vincent proposal is still valid.The code looks like :<br/>    public static void
+trace(Logger log, IoSession session, String message) {<br/>        if
+(log.isTraceEnabled()) {            log.trace(String.valueOf(getPrefix(session)) +
+message);        }    }Two remarks there :<br/>1) using the Marker mechanism, it could be
+written like  :<br/>    public static void trace(Logger log, IoSession session, String
+message) {<br/>        if (log.isTraceEnabled()) {<br/>            log.trace( "{} {}",
+getPrefix(session), message); // No need to call the String.valueOf( getPrefix()),
+getprefix already returns a String<br/>        } <br/>    }2) As soon as you encapsulate
+the log method in such a wrapper, then suddenly you can pass an Object instead of a
+String, and transform the methods to looks like :<br/>    public static void trace(Logger
+log, IoSession session, Object message) {<br/>        if (log.isTraceEnabled()) {<br/>    
+       log.trace( "{} {}", getPrefix(session), message);<br/>        } <br/>    }It comes
+at no cost, and will save a lot of CPURegarding 1.1.2, we have almost the same code :<br/>
+   public static void debug(IoSession session, String message) {<br/>        Logger log =
+getLogger(session);<br/>        if (log.isDebugEnabled()) {           
+log.debug(String.valueOf(session.getAttribute(PREFIX)) + message);        }    }which can
+be written like :<br/>    public static void debug(IoSession session, Object message)
+{<br/>        Logger log = getLogger(session);<br/>        if (log.isDebugEnabled())
+{<br/>            log.debug( "{} {}", session.getAttribute(PREFIX), message); // No need
+either to call String.valueOf(), slf4j will handle the object itself.<br/>        } <br/> 
+  } 
+
+
+New Comment: 
+Emmanuel, you're right: IoSessionLogger can use the Marker mechnism itself, I hadn'
+thought about that <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The solution will certainly save CPU when
+the LoggingEvent is filtered out<br/>but it might add some overhead when the event is not
+filtered ?I will try to test the performance impact and apply the change when it's
+beneficial. 
+
+
+New Comment: 
+Hmmm... Not sure I understand the potential negative impact of this change, when the event
+is not filtered... Do you mean if log is not activated, for instance? 
+
+
+New Comment: 
+How's the test going Maarten?  I guess there won't be any negative performance impact
+regarding the proposed change. 
+
+
+New Comment: 
+I was thinking that the call to MessageFormatter.format(String messagePattern, Object
+arg1, Object arg2)<br/>would be slower than the simple string concatenation we have
+now.<br/><a
+href="http://svn.slf4j.org/viewvc/slf4j/trunk/slf4j-api/src/main/java/org/slf4j/helpers/MessageFormatter.java?revision=761&amp;view=markup"
+class="external-link"
+rel="nofollow">http://svn.slf4j.org/viewvc/slf4j/trunk/slf4j-api/src/main/java/org/slf4j/helpers/MessageFormatter.java?revision=761&amp;view=markup</a>and
+it is about 50% slower<br/>but in absolute numbers the difference is of course
+insignificant :  0,0006 ms per invocation <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I will apply the proposed change
+immediately. 
+
+
+New Comment: 
+Wait a sec... we have MDCInjectionFilter now.  Do we really need ioSessionLogger?  We
+could just insert MDCInjectionFilter and let the user format the whole message without
+using IoSessionLogget at all. 
+
+
+New Comment: 
+Applied change proposed by Emmanuel Lecharny Please note that in the comments I mistakenly
+used the term "Marker mechanism" when I meant<br/>the methods that take a format parameter
+that contains {} placeholders .Apparently Marker's are a different concept: <a
+href="http://www.slf4j.org/api/org/slf4j/Marker.html" class="external-link"
+rel="nofollow">http://www.slf4j.org/api/org/slf4j/Marker.html</a> 
+
+
+New Comment: 
+I completely agree with replacing IoSessionLogger with MdcInjectionFilter<br/>(that's why
+I proposed it in my first comment on this issue).<br/>I just didn't dare to push 'my'
+MdcInjectionFilter too hard <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>IMO MdcInjectionFilter has several
+advantages:<ul>	<li>all log events will contain the remoteIP, as opposed to only those
+created via IoSessionLogger<br/>   (but maybe not everybody wants that ?)</li>	<li>users
+can use all methods of org.slf4j.Logger while currently IoSessionLogger only offers a
+subset</li>	<li>it's an othogonal concern: remove the filter and the log-statements still
+work</li>	<li>users can add custom session attributes to the Mdc</li>	<li>users can decide
+how to format the IoSession attributes (remoteIp, remotePort, ...)</li></ul> 
+
+
+New Comment: 
+I completely agree with you, too. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><br/>(in that you are pushing so hard!
+Just kidding. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Let's go for it! 
+
+
+New Comment: 
+I forgot to mention it would be nice if you can add a section about MdcInjectionFilter to
+our new logging manual page after removing IoSessionLogger. 
+
+
+New Comment: 
+about documentation on MdcInjectionFilter: will do it asapabout removing IoSessionLogger:
+<br/>It is used a lot in current code, would you replace it with plain calls to
+org.slf4j.Logger ?<br/>IoSessionLogger has the advantage that it always emits
+remoteAddress, regardless of filters in the chain.<br/>We could inform people that they
+will only see the remoteAddress for MINA-generated loggings when they have an
+MdcInjectionFilter in their chain. WDYT ? 
+
+
+New Comment: 
+Hmm you are right.  Modifying MdcInjectionFilter to clear IoSessionLogger.PREFIX attribute
+to an empty string will be needed though, to prevent unwanted prefix for advanced users. 
+
+
+New Comment: 
+However, I am just worried about losing this advantage:<ul>	<li>users can use all methods
+of org.slf4j.Logger while currently IoSessionLogger only offers a subset</li></ul>We could
+modify IoSessionLogger to provide all the methods, but does it worth?  Assuming all users
+are going to use MdcInjectionFilter eventually, we might be just OK to remove
+IoSessionLogger.  I'd like to know what others think about this issue. 
+
+
+New Comment: 
+Not sure I understand what you mean.<br/>I was still suggesting to remove IoSessionLogger,
+but the consequence is that MINA-generated loggings will<br/>no longer have the
+remoteAdrress, unless users add a MdcInjectionFilter.<br/>But you think that's not
+acceptable ? 
+
+
+New Comment: 
+You're right I think we need a vote, although I am afraid I won't like the outcome <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Ah.. I thought you don't want to remove IoSessionLogger because remoteAddress will not be
+printed out. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/biggrin.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Another critial issue with SLF4J MDC is
+not that it doesn't support any other logging frameworks than Log4J.  It should at least
+work with java.util.logging.and here's another related issue:<a
+href="http://www.nabble.com/Integrating-SessionLog-into-IoSession-tf4156058s16868.html#a12138654"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Integrating-SessionLog-into-IoSession-tf4156058s16868.html#a12138654</a> 
+
+

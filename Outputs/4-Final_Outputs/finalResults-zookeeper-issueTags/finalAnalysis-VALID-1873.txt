@@ -1,0 +1,138 @@
+Pattern changes caused by commit: bee2ef8da3c4a7a2a1925ac8fc5375a7dee702ae
+
+From: Flyweight-2
+To:   Flyweight-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1873.txt 
+
+commit bee2ef8da3c4a7a2a1925ac8fc5375a7dee702ae
+Author: tison <wander4096@gmail.com>
+
+    ZOOKEEPER-3350: Remove CommonNames
+
+
+
+==================================
+ Issue ZOOKEEPER-3350 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-3350] Get rid of CommonNames
+-----------------
+
+-----------------
+Summary: Get rid of CommonNames
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 8 Apr 2019 09:04:50 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 3 May 2019 15:39:48 +0000
+-----------------
+
+-----------------
+Assigned to: Zili Chen
+-----------------
+
+-----------------
+Description: 
+
+Inside <tt>CommonNames</tt> it says <tt>TODO: will get rid of it
+eventually.</tt>.
+
+However, I don't see the reason of such removal and since it came from
+over ten years ago I'd like to know whether it is still valid.
+
+cc <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=phunt"
+class="user-hover" rel="phunt">Patrick D. Hunt</a> <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=anmolnar"
+class="user-hover" rel="anmolnar">Andor Molnár</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<b>DATA_TREE_KEY</b>,<b>STANDALONE_SERVER_KEY</b> was never used any more.<br/>Maybe we
+can do a refactor for this class.<br/>give her a better name: JMXConstants.<br/>remove the
+useless fields.<br/>WDYT?   <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=Tison"
+class="user-hover" rel="tison">Zili Chen</a> 
+
+
+New Comment: 
+Technically I agree with <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=maoling"
+class="user-hover" rel="maoling">maoling</a>.However, it confuses me the TODO comment says
+"will get rid of it eventually". <tt>CommonNames.DOMAIN</tt> is a constance that used to
+be shown on JMX. I'd prefer learn the evolution of JMX usage in ZK. 
+
+
+New Comment: 
+Well, I can see the evolution. Now DataTreeKey has gone into <tt>DataTreeBean#getName</tt>
+and similarly "StandaloneServer" has gone into
+<tt>ZooKeeperServerBean#getName</tt>.Regarding the DOMAIN field usage I'd like to move it
+as <tt>MBeanRegistry.DOMAIN</tt> and remove CommonNames. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=Tison"
+class="user-hover" rel="tison">Zili Chen</a>1. git log|grep -C 20
+f1dd874ed7ddd42f006600319dd5e896ed8ac349<br/>commit
+f1dd874ed7ddd42f006600319dd5e896ed8ac349<br/>Author: Benjamin Reed
+&lt;breed@apache.org&gt;<br/>Date: Tue Jun 3 15:51:18 2008 +0000<br/> [ 1913998 ] JMX
+instrumentation <br/>git-svn-id: <a
+href="https://svn.apache.org/repos/asf/hadoop/zookeeper/trunk@670963"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/hadoop/zookeeper/trunk@670963</a>
+13f79535-47bb-0310-9956-ffa450edef68<a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=breed"
+class="user-hover" rel="breed">Benjamin Reed</a> may give us more info about this.<br/>2.
+I prefer the refactor one,JMXConstants will have a more augmentability for placing more
+constants about JMX in the future.But moving  it as <tt><b>MBeanRegistry.DOMAIN</b> is
+also a good option.</tt> 
+
+
+New Comment: 
+Issue resolved by pull request 914<br/><a
+href="https://github.com/apache/zookeeper/pull/914" class="external-link"
+rel="nofollow">https://github.com/apache/zookeeper/pull/914</a> 
+
+
+New Comment: 
+FAILURE: Integrated in Jenkins build ZooKeeper-trunk #505 (See <a
+href="https://builds.apache.org/job/ZooKeeper-trunk/505/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/ZooKeeper-trunk/505/</a>)<br/><a
+href="https://issues.apache.org/jira/browse/ZOOKEEPER-3350" title="Get rid of CommonNames"
+class="issue-link" data-issue-key="ZOOKEEPER-3350"><del>ZOOKEEPER-3350</del></a>: Remove
+CommonNames (andor: rev bee2ef8da3c4a7a2a1925ac8fc5375a7dee702ae)<ul>	<li>(edit)
+zookeeper-server/src/test/java/org/apache/zookeeper/test/ObserverMasterTest.java</li>	<li>(edit)
+zookeeper-server/src/test/java/org/apache/zookeeper/test/ReconfigTest.java</li>	<li>(edit)
+zookeeper-server/src/test/java/org/apache/zookeeper/test/JMXEnv.java</li>	<li>(edit)
+zookeeper-server/src/test/java/org/apache/zookeeper/test/QuorumMajorityTest.java</li>	<li>(delete)
+zookeeper-server/src/main/java/org/apache/zookeeper/jmx/CommonNames.java</li>	<li>(edit)
+zookeeper-server/src/main/java/org/apache/zookeeper/jmx/MBeanRegistry.java</li>	<li>(edit)
+zookeeper-server/src/test/java/org/apache/zookeeper/test/HierarchicalQuorumTest.java</li></ul> 
+
+

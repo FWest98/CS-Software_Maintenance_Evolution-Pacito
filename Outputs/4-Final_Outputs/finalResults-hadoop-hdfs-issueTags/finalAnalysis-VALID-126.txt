@@ -1,0 +1,142 @@
+Pattern changes caused by commit: c33374507739c9caedc87f9f2d6e47a6c9d9baf8
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-126.txt 
+
+commit c33374507739c9caedc87f9f2d6e47a6c9d9baf8
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-562. Add a test for NameNode.getBlockLocations(..) to check read from un-closed file.  (szetszwo)
+
+
+
+==================================
+ Issue HDFS-562 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-562] Add a test for NameNode.getBlockLocations(..) to check read from un-closed file.
+-----------------
+
+-----------------
+Summary: Add a test for NameNode.getBlockLocations(..) to check read from un-closed file.
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 21 Aug 2009 21:28:17 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 25 Aug 2009 18:21:43 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+NameNode.getBlockLocations(..) should return BlockInfoUnderConstruction, which was
+introduced by <a href="https://issues.apache.org/jira/browse/HDFS-517" title="Introduce
+BlockInfoUnderConstruction to reflect block replica states while writing."
+class="issue-link" data-issue-key="HDFS-517"><del>HDFS-517</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+h562_20090821.patch:<ul class="alternate" type="square">	<li>simplified codes in
+FSNamesystem, FSDirectory, etc.</li>	<li>added a new test</li>	<li>changed
+TestBlockUnderConstruction to junit 4</li></ul> 
+
+
+New Comment: 
+Current NameNode.getBlockLocations(..) already supports read from un-closed file.  I will
+add a test in this issue. 
+
+
+New Comment: 
+h562_20090821b.patch: same as h562_20090821.patch but reverted "simplified codes in
+FSNamesystem, FSDirectory, etc." 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12417334/h562_20090821b.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12417334/h562_20090821b.patch</a><br/>
+ against trunk revision 806746.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 4 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/78/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-vesta.apache.org/78/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 4 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div> 
+
+
+New Comment: 
+The patch adds a new test TestBlockUnderConstruction, which worked fine in my local
+machine. 
+
+
+New Comment: 
+Does it make sense to have a short description of the test?+1 patch looks good otherwise! 
+
+
+New Comment: 
++1. One thing though. It is better not to reuse NameNode.LOG for logging in the test. The
+test should have its own log. 
+
+
+New Comment: 
+h562_20090825.patch: added a javadoc on the new test and removed the log message.Thanks,
+Konstantin and Konstantin for the comments. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>     [exec] +1 overall.       [exec]      [exec]     +1 @author.  The
+patch does not contain any @author tags.     [exec]      [exec]     +1 tests included. 
+The patch appears to include 4 new or modified tests.     [exec]      [exec]     +1
+javadoc.  The javadoc tool did not generate any warning messages.     [exec]      [exec]  
+  +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.     [exec]      [exec]     +1 findbugs.  The patch does not introduce any new
+Findbugs warnings.     [exec]      [exec]     +1 release audit.  The applied patch does
+not increase the total number of release audit warnings.</pre></div></div>Checked the test
+again.  It worked fine. 
+
+

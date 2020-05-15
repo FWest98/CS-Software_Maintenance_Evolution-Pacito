@@ -1,0 +1,183 @@
+Pattern changes caused by commit: d912542f7a8144570fda377dc39fca900f649904
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-347.txt 
+
+commit d912542f7a8144570fda377dc39fca900f649904
+Author: Steve Loughran <stevel@apache.org>
+
+    HDFS-775 FSDataset calls getCapacity() twice
+
+
+
+==================================
+ Issue HDFS-775 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-775] FSDataset calls getCapacity() twice -bug?
+-----------------
+
+-----------------
+Summary: FSDataset calls getCapacity() twice -bug?
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 17 Nov 2009 11:38:30 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Dec 2009 21:09:49 +0000
+-----------------
+
+-----------------
+Assigned to: Steve Loughran
+-----------------
+
+-----------------
+Description: 
+
+I'm not sure this is a bug or "as intended", but I thought I'd mention
+it.
+
+FSDataset.getCapacity() calls DF.getCapacity() twice, when evaluating its capacity.
+Although there is caching to stop the shell being exec'd twice in a row, there is a risk
+that the first call doesn't run the shell, and the second does -so the value changes
+during the method. 
+
+If that is not intended, it is better to cache the first value for
+the whole method
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here's the code<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-object">long</span>
+getCapacity() <span class="code-keyword">throws</span> IOException {      <span
+class="code-keyword">if</span> (reserved &gt; usage.getCapacity()) {        <span
+class="code-comment">//FIRST CALL</span>        <span class="code-keyword">return</span>
+0;      }      <span class="code-keyword">return</span> usage.getCapacity()-reserved;     
+   <span class="code-comment">//SECOND CALL</span>    }</pre></div></div>It looks like the
+method intends to return capacity as a number &gt;=0, but if the second invocation
+triggers a shell exec the capacity could decrease and the return value could then be
+negative, which could have implications elsewhere.Looking at the usages, FSVolumeSet can
+get confused by this, as it adds the capacities of all volumes together, no checks for
+being below zero. <div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-object">long</span> getCapacity() <span class="code-keyword">throws</span>
+IOException {      <span class="code-object">long</span> capacity = 0L;      <span
+class="code-keyword">for</span> (<span class="code-object">int</span> idx = 0; idx &lt;
+volumes.length; idx++) {        capacity += volumes[idx].getCapacity();      }      <span
+class="code-keyword">return</span> capacity;    }</pre></div></div>A negative capacity
+from one volume would make the entire datanode capacity appear smaller than it is. 
+
+
+New Comment: 
+minor defect; its transient and nothing will actually break. 
+
+
+New Comment: 
+This is a patch for this; I am using this defect to understand how to work with git/github
+for patches, so apologies if it does not apply properly - the path looks odd and may need
+a -p1 to take 
+
+
+New Comment: 
+patch with corrected path 
+
+
+New Comment: 
+No tests; this is a race condition being eliminated here. Proofs of correctness only are
+sufficient, and I don't do those. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12427479/HDFS-775-2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12427479/HDFS-775-2.patch</a><br/>
+ against trunk revision 888538.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/139/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1. Patch looks good to me. 
+
+
+New Comment: 
+committed. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #156 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/156/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/156/</a>)<br/>
+    FSDataset calls getCapacity() twice 
+
+
+New Comment: 
+Hi Steve, forgot to update CHANGE.txt? 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #159 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/</a>)<br/>
+    FSDataset calls getCapacity() twice 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #182 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/</a>) 
+
+

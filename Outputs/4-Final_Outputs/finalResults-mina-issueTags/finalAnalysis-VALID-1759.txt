@@ -1,0 +1,210 @@
+Pattern changes caused by commit: 40e1c38c4d772c62d0b73c26dfabe53a5b10b674
+
+From: Facade-5
+To:   Facade-4
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1759.txt 
+
+commit 40e1c38c4d772c62d0b73c26dfabe53a5b10b674
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    some fix for DIRMINA-651
+    idle stats are stored in AtomicInteger
+
+
+
+==================================
+ Issue DIRMINA-651 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-651] Data Race in org.apache.mina.core.session.AbstractIoSession
+-----------------
+
+-----------------
+Summary: Data Race in org.apache.mina.core.session.AbstractIoSession
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 19 Dec 2008 12:33:00 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 24 Aug 2009 14:56:00 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+We run ftpserver-1.0.0-M4 with our tool (<a
+href="http://www.alphaworks.ibm.com/tech/mtrat" class="external-link"
+rel="nofollow">http://www.alphaworks.ibm.com/tech/mtrat</a>) and one user logins to the
+server, then a data race is reported. The data race  happens in the field "readMessages"
+of class "org/apache/mina/transport/socket/nio/NioSocketSession". Thread "pool-3-thread-1"
+read this field while thread "pool-2-thread-1" write to it, which both threads don't share
+the same lock to protect the critical section.
+
+Data Race 4 : 1526 :
+org/apache/mina/transport/socket/nio/NioSocketSession : readMessages<br/>  Thread
+"pool-3-thread-1" : Tid 15 : Rid 1540 : READ<br/>        Lock Set : [ ]<br/>        Vector
+Clock : 3<br/>      <span
+class="error">&#91;org/apache/mina/core/session/AbstractIoSession : updateThroughput :
+667&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker : updateThroughput :
+265&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker : notifyIdleSession :
+201&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/session/IdleStatusChecker : notifyIdleness :
+150&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor :
+notifyIdleSessions : 604&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor : access$700 :
+58&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/polling/AbstractPollingIoProcessor$Worker : run :
+863&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/util/NamePreservingRunnable : run : 51&#93;</span><br/>
+ Thread "pool-2-thread-1" : Tid 16 : Rid 1683 : WRITE<br/>        Lock Set : [ ]<br/>     
+  Vector Clock : 2<br/>      <span
+class="error">&#91;org/apache/mina/core/session/AbstractIoSession : increaseReadMessages :
+728&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$TailFilter :
+messageReceived : 746&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain :
+callNextMessageReceived : 414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain : access$1200 :
+49&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1 :
+messageReceived : 832&#93;</span><br/>      <span
+class="error">&#91;org/apache/ftpserver/listener/nio/FtpLoggingFilter : messageReceived :
+83&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain :
+callNextMessageReceived : 414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain : access$1200 :
+49&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1 :
+messageReceived : 832&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/IoFilterEvent : fire :
+60&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/logging/MdcInjectionFilter : filter :
+137&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/util/CommonEventFilter : messageReceived :
+70&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain :
+callNextMessageReceived : 414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain : access$1200 :
+49&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1 :
+messageReceived : 832&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/codec/ProtocolCodecFilter$ProtocolDecoderOutputImpl
+: flush : 379&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/codec/ProtocolCodecFilter : messageReceived :
+173&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain :
+callNextMessageReceived : 414&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain : access$1200 :
+49&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/DefaultIoFilterChain$EntryImpl$1 :
+messageReceived : 832&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/core/filterchain/IoFilterEvent : fire :
+60&#93;</span><br/>      <span class="error">&#91;org/apache/mina/core/session/IoEvent :
+run : 64&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker :
+runTask : 551&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker :
+runTasks : 543&#93;</span><br/>      <span
+class="error">&#91;org/apache/mina/filter/executor/OrderedThreadPoolExecutor$Worker : run
+: 487&#93;</span>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This file contains data races reported by our tool (<a
+href="http://www.alphaworks.ibm.com/tech/mtrat" class="external-link"
+rel="nofollow">http://www.alphaworks.ibm.com/tech/mtrat</a>) when we open two new consoles
+and login as admin and anonymous respectively, then admin uploads a file to ftpserver
+while anonymous download a file from ftpserver. Hope that it will be helpful from data
+race defects correction. 
+
+
+New Comment: 
+I've moved this to MINA as that's where the actual bug is. 
+
+
+New Comment: 
+it's race on statistics, really important ? because if we lock all those vars, I suspect
+it'll have an impact on the perfs. 
+
+
+New Comment: 
+Julien,Yes, I agree with you that adding lock will impact the performance. There
+is<br/>often a trade-off between correctness and performance. If you don't
+consider<br/>the statistics correctness, it is all right to keep things unchanged, but
+at<br/>least adding some comments on this piece of code will help to avoid to<br/>review
+the same issue in the future <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Regards,<br/>Daniel2009/3/10 Julien
+Vermillard (JIRA) &lt;jira@apache.org&gt; 
+
+
+New Comment: 
+You are 300% right, we need to find a consensus on that and document it 
+
+
+New Comment: 
+IMO, we should get rid os statistics - at least, in the way they are implemented -.The
+idea would be to implement them as a filter. The reason they are embedded is that we
+needed them for two things :<ul class="alternate" type="square">	<li>the now dead
+throttling filter</li>	<li>and for JMX</li></ul>I know that 97,4% of all the statistics
+are correct, but at some point, we should consider the 7,3% which are incorrect <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/>3.0 ? 
+
+
+New Comment: 
+Affect 2.0.0-M4 as it is the version used by FTPServer 
+
+
+New Comment: 
+Some of these races are in the idle time checking, which is a core functionality in MINA
+of course. Those we have to fix. As for the stats that was added for throttling, I don't
+think we use them anywhere in FtpServer and thus we do not care if they are removed (our
+exposure to IoSession are only in our internal classes and we can therefore change them
+without having to release a non-backwards compatible release). But, I have to confirm this
+when I have some more time. 
+
+
+New Comment: 
+Affected to 2.0.0-RC1 
+
+
+New Comment: 
+A simple lock or Atomic object on the Idle stats could be ok for everyone ? 
+
+

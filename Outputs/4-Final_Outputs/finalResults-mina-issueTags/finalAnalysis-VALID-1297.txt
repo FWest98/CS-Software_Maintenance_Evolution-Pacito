@@ -1,0 +1,83 @@
+Pattern changes caused by commit: 1d82343383f157b3c91e1a96b1fb0e51ad2cef60
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1297.txt 
+
+commit 1d82343383f157b3c91e1a96b1fb0e51ad2cef60
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-522 (Remove unused code in RequestResponseFilter)
+    * Removed unused code block that creates a new Date object.
+
+
+
+==================================
+ Issue DIRMINA-522 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-522] Remove unused code in RequestResponseFilter
+-----------------
+
+-----------------
+Summary: Remove unused code in RequestResponseFilter
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 29 Jan 2008 01:08:50 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Feb 2008 03:37:34 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+RequestResponseFilter.doFilterWrite contains the following code, which creates a Date
+object that is never used.
+
+        // Schedule a task to be executed on timeout.<br/>    
+   // Find the timeout date avoiding overflow.<br/>        Date timeoutDate = new
+Date(System.currentTimeMillis());<br/>        if (Long.MAX_VALUE -
+request.getTimeoutMillis() &lt; timeoutDate<br/>                .getTime()) 
+{           
+timeoutDate.setTime(Long.MAX_VALUE);        }
+ else 
+{           
+timeoutDate.setTime(timeoutDate.getTime()                    +
+request.getTimeoutMillis());        } 
+
+-----------------
+
+-----------------
+Comments: 
+
