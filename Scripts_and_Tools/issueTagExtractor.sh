@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-#This script is supposed to be ran inside a folder containing outputs from the Java project, more specifically, folder inside the folder numbered with 2 inside the Outputs folder
+#This script is supposed to be ran inside a folder containing outputs from the Java project, more specifically, folders inside the folder numbered with 2 inside the Outputs folder
 
 if [ $# -eq 0 ]
   then
