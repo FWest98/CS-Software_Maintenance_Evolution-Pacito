@@ -1,0 +1,307 @@
+Pattern changes caused by commit: 981ee774eb1d6efd5971569ca29890817d0271ea
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5371.txt 
+
+commit 981ee774eb1d6efd5971569ca29890817d0271ea
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix CASSANDRA-3427
+
+
+
+==================================
+ Issue CASSANDRA-3427 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3427] CompressionMetadata is not shared across threads, we create a new one for each read
+-----------------
+
+-----------------
+Summary: CompressionMetadata is not shared across threads, we create a new one for each read
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 31 Oct 2011 13:57:36 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 31 Oct 2011 15:44:26 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+The CompressionMetada holds the compressed block offsets in memory. Without being
+absolutely huge, this is still of non-negligible size as soon as you have a bit of data in
+the DB. Reallocating this for each read is a very bad idea.
+
+Note that this only affect
+range queries, since "normal" queries uses CompressedSegmentedFile that does reuse a
+unique CompressionMetadata instance.
+
+( Background: <a
+href="http://thread.gmane.org/gmane.comp.db.cassandra.user/21362" class="external-link"
+rel="nofollow">http://thread.gmane.org/gmane.comp.db.cassandra.user/21362</a> )
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is unfortunately a showstopper for our hadoop jobs querying our production
+cluster.With 1.0.1 is there any workaround for this issue?<br/>Is it correct that this
+"compressed block offsets" totals to <br/>  (&lt;sstable-size&gt; / &lt;chunk_length&gt;)
+* 8bytesTherefore a change to a higher chunk_length should be an intermediate workaround? 
+
+
+New Comment: 
+Quite honestly, the best workaround is likely to apply the attached patch on top of 1.0.1
+(you can wait for someone to review to get a bit more confidence).Because yes, a bigger
+chunk_length would diminish the problem, but if you do enough range_queries you would
+likely still OOM and there is point after which a chunk_length too big is just
+counter-productive. 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Rolled out into production. Works a charm! Even on 200Gb sstables.Sincere appreciations on
+this one. 
+
+
+New Comment: 
+Won't the cache here leak?<br/>Many (most?) sstables are transient (gone after the next
+minor compaction), but this cache will just grow... 
+
+
+New Comment: 
+Oh yes, it seems like I missed that one - we should remove entry from the cache when
+SSTable gets compacted out. What do you think, Sylvain? 
+
+
+New Comment: 
+Or use a ConcurrentLinkedHashMap w/ fixed capacity? 
+
+
+New Comment: 
+yes but that will also imply that we should weight it in memory size instead of number of
+entries so need to use jamm which is calculation overhead, better just remove unused
+because we know precisely when to do that... 
+
+
+New Comment: 
+patch according to Pavel's suggestion 
+
+
+New Comment: 
+Ok, I think using an object cache is ugly (I know that it was my idea).At first, I tried
+going with the natural idea, to add the compressionMetadata as a final field of
+SSTableReader and use that everywhere, ensuring we use one per sstable. Turned out that
+for SSTableWriter you need to have the metadata existing before the SSTableReader is
+created and that seemed like a bit of a mess so I backtracked and decided to go with an
+object cache in CompressionMetada, but more out of laziness than anything else.That was
+wrong of me to be lazy. We don't need that object cache and if its use is going to leak
+out of CompressionMetada (like hard coding the addition of the notifier in the DataTracker
+constructor; which defeats the purpose of the notifier abstraction in the first place)
+then it's not even clean as far as code is concerned.Attaching a v2 patch that remove the
+cache and do a slight modification of the initial idea, that is it just let
+CompressedSegmentedFile create the CompressionMetada and have the rest of the code use
+that. Turns out that once I plug my brain, it's only a few lines of code. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Alright, committed this new version, thanks 
+
+
+New Comment: 
+Handling jvm memory since upgrading to cassandra-1.0 and enabling compression is still a
+headache.<br/>Where i used to be able to run w/ Xmx8G i'm now struggling to run with
+Xmx20G (all caches are disabled) and during startup can hit<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>java.lang.OutOfMemoryError: Java heap space        at
+org.apache.cassandra.utils.BigLongArray.&lt;init&gt;(BigLongArray.java:53)        at
+org.apache.cassandra.utils.BigLongArray.&lt;init&gt;(BigLongArray.java:39)        at
+org.apache.cassandra.io.compress.CompressionMetadata.readChunkOffsets(CompressionMetadata.java:122)</pre></div></div>I
+could keep increasing chunk_length (it's already at 256) but this seems awkward just to
+get a cluster running smoothly. At minimum the calculations for memory requirements for
+cassandra should be re-written if compression is to take such a large chunk of heap. 
+
+
+New Comment: 
+Does heap usage stay high-post startup?  Can you try forcing a full GC to check that? 
+
+
+New Comment: 
+<blockquote>Does heap usage stay high-post startup? Can you try forcing a full GC to check
+that?</blockquote>Yes. GC doesn't seem to help, i'll attach a munin graph that shows it
+over time. It was running for a number of days just under 20G, but you can see from that
+how "squeezed" it was.(invoking full gc via jmx has no noticeable effect on heap used) 
+
+
+New Comment: 
+0.8 was running on Xmx8G up until week 44.<br/>at that point we upgraded to 1.0 and
+enabled compression. The very high memory usage at the beginning of week 44 was to handle
+the change from chunk_length 16 to 256.<br/>Then for most of week 44 and week 45 we ran
+with Xmx16G, but this was very "squeezed". Now that's OOM, and raising it to 20G didn't
+help. Currently it's on 30G.Also note we're always used
+-XX:CMSInitiatingOccupancyFraction=60 for this cluster.<br/>(full java opts are "-Xss128k
+-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42  -XX:SurvivorRatio=8 
+-XX:MaxTenuringThreshold=1  -XX:+UseParNewGC  -XX:+UseConcMarkSweepGC
+-XX:+CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction=60
+-XX:+UseCMSInitiatingOccupancyOnly -Xmx30g -Xmx30g -Xmn800M   -XX:ParallelCMSThreads=4 
+-XX:+CMSIncrementalMode  -XX:+CMSIncrementalPacing  -XX:CMSIncrementalDutyCycleMin=0 
+-XX:CMSIncrementalDutyCycle=10". the last 5 were added during week 44 to try and help, ref
+<a href="http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html" class="external-link"
+rel="nofollow">http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html</a>) 
+
+
+New Comment: 
+What version exactly are you running now?  1.0.2?  1.0.0 + 3427?  Something else? 
+
+
+New Comment: 
+I've attached a tiny patch (0001-debugging.patch) that prints in the log the size of the
+long array we allocate for the chunk offsets. Would you mind trying with this and attach a
+log of when startup hits one of the OOM you pasted earlier (feel free to use a 8GB heap if
+it's easier to reproduce). I'd like to know if those offsets are indeed the problem. 
+
+
+New Comment: 
+I can get you a place to upload the heap dump from an OOM too.  (8GB would be best, since
+heap analysis requires ram proportional to the heap size.)To rule out the obvious, have
+you tried running 1.0.x w/o compression? 
+
+
+New Comment: 
+version: 1.0.2 snapshot (pretty close to release date) + <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3197" title="Separate input and
+output connection details in ConfigHelper" class="issue-link"
+data-issue-key="CASSANDRA-3197"><del>CASSANDRA-3197</del></a>.<br/>w/o compression: that
+would require a full compact/scrub. that takes close to 24hrs <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/><br/>patch: i attach that and hopefully have output
+soon. a heap dump can be done at the same time... 
+
+
+New Comment: 
+startup log with debug (off 1.0.2 release)<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>INFO 
+48:34,688 DatabaseDescriptor: Loading settings from
+file:/iad/finn/countstatistics/conf/cassandra-prod.yamlINFO  48:34,782 DatabaseDescriptor:
+DiskAccessMode 'auto' determined to be mmap, indexAccessMode is mmapINFO  48:34,792
+DatabaseDescriptor: Global memtable threshold is enabled at 512MBINFO  48:34,890
+AbstractCassandraDaemon: JVM vendor/version: Java HotSpot(TM) 64-Bit Server
+VM/1.6.0_24INFO  48:34,891 AbstractCassandraDaemon: Heap size: 760414208/8506048512INFO 
+48:34,891 AbstractCassandraDaemon: Classpath:
+/iad/finn/countstatistics/jar/countstatistics.jar:/iad/common/apps/cassandra/lib/jamm-0.2.5.jarINFO
+ 48:37,158 CLibrary: JNA mlockall successfulINFO  48:37,879 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/Versions-h-42 (256 bytes)INFO  48:37,879
+SSTableReader: Opening /iad/finn/countstatistics/cassandra-data/system/Versions-h-41 (256
+bytes)INFO  48:37,879 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/Versions-h-40 (256 bytes)INFO  48:37,959
+SSTableReader: Opening /iad/finn/countstatistics/cassandra-data/system/IndexInfo-h-3 (223
+bytes)INFO  48:38,001 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/Schema-h-15 (34257 bytes)INFO  48:38,045
+SSTableReader: Opening /iad/finn/countstatistics/cassandra-data/system/Migrations-h-15
+(78524 bytes)INFO  48:38,096 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/LocationInfo-h-150 (80 bytes)INFO 
+48:38,096 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/LocationInfo-h-149 (628 bytes)INFO 
+48:38,096 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/system/LocationInfo-h-151 (163 bytes)INFO 
+48:38,192 DatabaseDescriptor: Loading schema version
+1940c630-0be4-11e1-0000-d1695892b1ffINFO  51:35,136 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191473
+(38646535 bytes)INFO  51:35,136 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190467
+(2284524668 bytes)INFO  51:35,136 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191469
+(254927460 bytes)INFO  51:35,136 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191475
+(30477008 bytes)INFO  51:35,136 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-114136
+(156044360682 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191294
+(4585008988 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190415
+(15857295280 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-183183
+(196289440978 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191472
+(1346076 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190736
+(4626053255 bytes)INFO  51:35,137 SSTableReader: Opening
+/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191435
+(1188223188 bytes)INFO  51:35,187 CompressionMetadata: Allocating chunks index for 5745
+chunks for uncompressed size of 1470519
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191472-CompressionInfo.db)INFO
+ 51:35,421 CompressionMetadata: Allocating chunks index for 129646 chunks for uncompressed
+size of 33189311
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191475-CompressionInfo.db)INFO
+ 51:35,544 CompressionMetadata: Allocating chunks index for 165602 chunks for uncompressed
+size of 42393918
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191473-CompressionInfo.db)INFO
+ 51:37,171 CompressionMetadata: Allocating chunks index for 1091377 chunks for
+uncompressed size of 279392485
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191469-CompressionInfo.db)INFO
+ 51:41,148 CompressionMetadata: Allocating chunks index for 5086138 chunks for
+uncompressed size of 1302051278
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191435-CompressionInfo.db)INFO
+ 51:46,351 CompressionMetadata: Allocating chunks index for 9766541 chunks for
+uncompressed size of 2500234376
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190467-CompressionInfo.db)INFO
+ 51:56,717 CompressionMetadata: Allocating chunks index for 19828434 chunks for
+uncompressed size of 5076078986
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190736-CompressionInfo.db)INFO
+ 51:56,897 CompressionMetadata: Allocating chunks index for 19626358 chunks for
+uncompressed size of 5024347477
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-191294-CompressionInfo.db)INFO
+ 52:21,670 CompressionMetadata: Allocating chunks index for 67865822 chunks for
+uncompressed size of 17373650297
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-190415-CompressionInfo.db)INFO
+ 55:55,920 CompressionMetadata: Allocating chunks index for 666981588 chunks for
+uncompressed size of 170747286320
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-114136-CompressionInfo.db)INFO
+ 56:49,620 CompressionMetadata: Allocating chunks index for 840404671 chunks for
+uncompressed size of 215143595584
+(/iad/finn/countstatistics/cassandra-data/countstatisticsCount/thrift_no_finntech_countstats_count_Count_neg8589045746818385983-h-183183-CompressionInfo.db)ERROR
+57:51,112 AbstractCassandraDaemon: Fatal exception in thread
+Thread[SSTableBatchOpen:8,5,main]java.lang.OutOfMemoryError: Java heap space	at
+org.apache.cassandra.utils.BigLongArray.&lt;init&gt;(BigLongArray.java:53)	at
+org.apache.cassandra.utils.BigLongArray.&lt;init&gt;(BigLongArray.java:39)	at
+org.apache.cassandra.io.compress.CompressionMetadata.readChunkOffsets(CompressionMetadata.java:127)
+       ...</pre></div></div> 
+
+

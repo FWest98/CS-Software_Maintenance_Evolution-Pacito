@@ -1,0 +1,146 @@
+Pattern changes caused by commit: de2495c2c9bf8d8387d241df2962ae52f092b145
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8299.txt 
+
+commit de2495c2c9bf8d8387d241df2962ae52f092b145
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix hinting for dropped local writes
+    patch by jbellis and aleksey for CASSANDRA-4753
+
+
+
+==================================
+ Issue CASSANDRA-4753 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4753] Timeout reporter writes hints for the local node
+-----------------
+
+-----------------
+Summary: Timeout reporter writes hints for the local node
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 3 Oct 2012 15:47:49 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Dec 2012 20:56:53 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+MessagingService.java:330 calls StorageProxy.scheduleLocalHint() without checking if the
+local node is the target. This causes StorageProxy.scheduleLocalHint to throw
+AssertionError sometimes.
+
+Got this error when some batches are timed out. This can happen
+because even local batches now go through StorageProxy.sendMessages and aren't just
+rm.apply()'d.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+See <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4542?focusedCommentId=13451479&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13451479"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-4542?focusedCommentId=13451479&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13451479</a><br/>and
+<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4542?focusedCommentId=13451486&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13451486"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-4542?focusedCommentId=13451486&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13451486</a> 
+
+
+New Comment: 
+Special-casing for local inserts might be worth it now that abm is the default and we went
+even futher with <a href="https://issues.apache.org/jira/browse/CASSANDRA-4738"
+title="Improve CQL3 batchlog support" class="issue-link"
+data-issue-key="CASSANDRA-4738"><del>CASSANDRA-4738</del></a>. 
+
+
+New Comment: 
+Sounds like the right solution is to add a local-only apply the way we do for normal
+Mutations. 
+
+
+New Comment: 
+That particular error has been fixed some time ago (same issue that was causing batchlog
+timeouts in beta1). So there is really no need to special-case timeout-reporter for local
+node - such cases just should not happen.However, I added a check for local node to
+StorageProxy.shouldHint so that no issue like this one pops in the future. 
+
+
+New Comment: 
+It's valid for local writes to timeout, but we don't want to just drop them on the floor
+if they do.  v2 attached. 
+
+
+New Comment: 
+You are right. There is still the option of special-casing local endpoint for
+syncWriteToBatchlog and asyncRemoveFromBatchlog. I know single-node clusters are not a
+pirority, but still. That would also make this issue go away. 
+
+
+New Comment: 
+Something like v3. 
+
+
+New Comment: 
+Hmm.  We actually have a couple problems here.<ol>	<li>We do allow local writes to be
+dropped, but</li>	<li>Nobody writes hints for dropped local writes</li>	<li>If local hints
+were attempted, they would error out (what v2 was trying to fix)</li></ol>We actually do
+want to hint batchlog inserts to maintain the contract of "timed out means it's in
+progress, you do not have to retry."I'm not sure what the best way to add hinting
+(actually, retry-on-hint-stage) code for insertLocal is though.  One option would be to
+just make local writes non-droppable, but then we lose our backpressure mechanism of a
+full hint stage causing OverloadedException, and a poorly behaving client could OOM the
+coordinator with a lot of local writes. 
+
+
+New Comment: 
+Here is one solution: <a href="http://github.com/jbellis/cassandra/branches/4753-5"
+class="external-link"
+rel="nofollow">http://github.com/jbellis/cassandra/branches/4753-5</a><ul
+class="alternate" type="square">	<li>Created LocalMutationRunnable that retries with hint
+backpressure if it gets dropped</li>	<li>Added an updated v3, with an additional assert to
+make sure we don't introduce a bug if we decide to allow using the coordinator as a
+batchlog member in non-single-node clusters</li></ul> 
+
+
+New Comment: 
++1 
+
+

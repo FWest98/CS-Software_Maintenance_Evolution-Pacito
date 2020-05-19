@@ -1,0 +1,94 @@
+Pattern changes caused by commit: 8fd3f49e8469f0123a58b37243b3a2e1147fa51f
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6949.txt 
+
+commit 8fd3f49e8469f0123a58b37243b3a2e1147fa51f
+Author: Dave Brosius <dbrosius@apache.org>
+
+    ex msg for cql3 order by constraints says primary filter can be an IN clause which is misleading
+    patch by dbrosius reviewed by slebresne for CASSANDRA-4319
+
+
+
+==================================
+ Issue CASSANDRA-4319 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4319] ex msg for cql3 order by constraints says primary filter can be an IN clause which is misleading
+-----------------
+
+-----------------
+Summary: ex msg for cql3 order by constraints says primary filter can be an IN clause which is misleading
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Jun 2012 23:28:10 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 8 Jun 2012 23:33:24 +0000
+-----------------
+
+-----------------
+Assigned to: Dave Brosius
+-----------------
+
+-----------------
+Description: 
+
+select * from visitor_audit where visitor_id in ('1_172892701', '1_316755431') order by
+audit_id desc limit 6;
+
+gives error
+
+Bad Request: Ordering is only supported is the first
+part of the PRIMARY KEY is restricted by an Equal or a IN
+
+which seems to be what the
+query is doing. 
+
+But it only supports Equal, fix error message.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Yeah, IN was disallowed "recently" but I forgot to update the error message.<br/>+1 (I
+believe this affect 1.1 too though). 
+
+

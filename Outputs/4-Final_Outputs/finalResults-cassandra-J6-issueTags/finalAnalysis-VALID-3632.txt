@@ -1,0 +1,88 @@
+Pattern changes caused by commit: 8e180e8764d2dffd6c71ca399b51c24dcee268d6
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3632.txt 
+
+commit 8e180e8764d2dffd6c71ca399b51c24dcee268d6
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Don't cast block offsets to int
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2376
+
+
+
+==================================
+ Issue CASSANDRA-2376 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2376] Both name an index iterators cast block offset to int
+-----------------
+
+-----------------
+Summary: Both name an index iterators cast block offset to int
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 24 Mar 2011 04:55:01 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 28 Mar 2011 16:15:04 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+This means that performing random access to the end of a large row will not work.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch also unifies skipBytes checking into skipBytesFully even where we really are only
+skipping an int's worth of bytes. 
+
+
+New Comment: 
+Small nitpick: it could be nice to add a message to the eof exception saying how many
+bytes out of how many have been skipped before reaching eof, but that'd require to do a
+catch and re-throw in the 'long' version.+1 
+
+
+New Comment: 
+v2 adds length information to EOFException 
+
+
+New Comment: 
+Committed as rev1086290. 
+
+

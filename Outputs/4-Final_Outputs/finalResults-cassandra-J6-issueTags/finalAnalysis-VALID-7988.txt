@@ -1,0 +1,184 @@
+Pattern changes caused by commit: edf63d8a5110aaaa1efa708343d1dce071d031cd
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7988.txt 
+
+commit edf63d8a5110aaaa1efa708343d1dce071d031cd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Support multiple outputs in BOF
+    Patch by Michael Kjellman, reviewed by brandonwilliams for
+    CASSANDRA-4912
+
+
+
+==================================
+ Issue CASSANDRA-4912 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4912] BulkOutputFormat should support Hadoop MultipleOutput
+-----------------
+
+-----------------
+Summary: BulkOutputFormat should support Hadoop MultipleOutput
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 5 Nov 2012 16:12:11 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 19 Nov 2012 20:27:31 +0000
+-----------------
+
+-----------------
+Assigned to: Michael Kjellman
+-----------------
+
+-----------------
+Description: 
+
+Much like <a href="https://issues.apache.org/jira/browse/CASSANDRA-4208"
+title="ColumnFamilyOutputFormat should support writing to multiple column families"
+class="issue-link" data-issue-key="CASSANDRA-4208"><del>CASSANDRA-4208</del></a> BOF
+should support outputting to Multiple Column Families. The current approach taken in the
+patch for COF results in only one stream being sent and an exception being thrown when
+Hadoop is run in local mode due to the call to ConfigHelper when a new BulkRecordWriter is
+created.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+so obviously this is due to the handling in the close() function in BulkRecordWriter. So
+far i've been unable to get BOF to work in Local mode thru eclipse with MultipleOutput.
+ConfigHelper is happy on the first check of the job config, but when the reducer is
+instantiated the column family output names don't seem to be set. close() is pretty simple
+in BulkRecordWriter though, looks like the sstable is first closed, and then streamed to
+the nodes. I'm guessing that either close() is only being called on one of the
+sstables/named outputs (i do see in a fully distributed cluster the sstables get created
+for multiple column families). 
+
+
+New Comment: 
+Hmm, normally I find the opposite: local mode works, and then everything breaks in
+distributed mode <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  Can you post everything needed to test? 
+
+
+New Comment: 
+So when ConfigHelper calls checkOutputSpecs() in local mode when the job is setup we don't
+throw any exceptions. When a reducer is created however
+org.apache.cassandra.hadoop.ConfigHelper.getOutputColumnFamily throws a
+UnsupportedOperationException that the output column family isn't setup. It looks like
+mapreduce.output.basename is null.See Example.java attached as a stripped down example MR
+job. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a> If I patch
+BulkOutputFormat.java in a similar manner to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4208"
+title="ColumnFamilyOutputFormat should support writing to multiple column families"
+class="issue-link" data-issue-key="CASSANDRA-4208"><del>CASSANDRA-4208</del></a> (line 40)
+this is what is causing the initial check of the config to pass but fail when the reducer
+is created. Still not sure why the behavior is different. 
+
+
+New Comment: 
+looks like OUTPUT_COLUMNFAMILY_CONFIG never gets set in ConfigHelper when a a new
+BulkRecordWriter is created. Difficult to figure out exactly what should/where the code
+should be setting mapreduce.output.basename in the job config. 
+
+
+New Comment: 
+I think also another difference in behavior between CFOF and BOF is that when a new
+BulkRecordWriter(Configuration conf) is created it creates the directory for the sstables.
+It calls ConfigHelper here to get the name of the column family so it can create the
+directory. The only call to getOutputColumnFamily is RangeClient in CFOF.Normally, without
+MultipleOutputs the job config would include a setOutputColumnFamily(). I don't understand
+what calls setOutputColumnFamily when you add a new named MultipleOutput. I presume this
+is where the problem is. 
+
+
+New Comment: 
+okay so it looks like setting outputdir in the creation of the object is causing the
+problem. I moved setting outputdir into prepareWriter() and it looks like both sstables
+are created and streamed.<a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a> any reason the outputdir is
+created when the BulkRecordWriter object is created? 
+
+
+New Comment: 
+Propose to set outputdir after the instantiation to add support for MultipleOutputs with
+BulkOutputFormat 
+
+
+New Comment: 
+There is no particular reason that I recall, it was just a convenient place at the time. 
+
+
+New Comment: 
+Do you have an Example.java that contains all the imports? 
+
+
+New Comment: 
+Updated example with imports. 
+
+
+New Comment: 
+I still get a slew of errors trying to compile this. An obvious one is in
+ReducerToCassandra.reduce where 'val' is never defined, but there are many others. 
+
+
+New Comment: 
+yeah sorry wasn't originally intended as a functional example. i'll create one that does
+something now. 
+
+
+New Comment: 
+Okay, attached a script to load data (really simple but wanted you to see what kind of
+data I was using to test that the Example job runs) and App.java which will allow you to
+output to multiple column families with BOF. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a> also including a pom.xml
+for you if you decide to use maven for testing this. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a> did everything compile okay
+for you? 
+
+

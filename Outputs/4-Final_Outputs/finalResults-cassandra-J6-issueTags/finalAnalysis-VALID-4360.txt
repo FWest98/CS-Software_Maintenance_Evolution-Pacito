@@ -1,0 +1,168 @@
+Pattern changes caused by commit: 058cf7fe690d8db822a891b0b2cd3979b6f42a62
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4360.txt 
+
+commit 058cf7fe690d8db822a891b0b2cd3979b6f42a62
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix potential NPE during read repair
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2823
+
+
+
+==================================
+ Issue CASSANDRA-2823 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2823] NPE during range slices with rowrepairs
+-----------------
+
+-----------------
+Summary: NPE during range slices with rowrepairs
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 24 Jun 2011 15:39:41 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 28 Jun 2011 07:55:38 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Doing some heavy testing of relatively fast feeding (5000+ mutations/sec) + repair on all
+node + range slices.<br/>Then occasionally killing a node here and there and restarting
+it.
+
+Triggers the following NPE<br/> ERROR <span
+class="error">&#91;pool-2-thread-3&#93;</span> 2011-06-24 20:56:27,289 Cassandra.java
+(line 3210) Internal error processing
+get_range_slices<br/>java.lang.NullPointerException<br/>	at
+org.apache.cassandra.service.RowRepairResolver.maybeScheduleRepairs(RowRepairResolver.java:109)<br/>	at
+org.apache.cassandra.service.RangeSliceResponseResolver$2.getReduced(RangeSliceResponseResolver.java:112)<br/>	at
+org.apache.cassandra.service.RangeSliceResponseResolver$2.getReduced(RangeSliceResponseResolver.java:83)<br/>	at
+org.apache.cassandra.utils.MergeIterator$ManyToOne.consume(MergeIterator.java:161)<br/>	at
+org.apache.cassandra.utils.MergeIterator.computeNext(MergeIterator.java:88)<br/>	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)<br/>	at
+com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)<br/>	at
+org.apache.cassandra.service.RangeSliceResponseResolver.resolve(RangeSliceResponseResolver.java:120)<br/>	at
+org.apache.cassandra.service.RangeSliceResponseResolver.resolve(RangeSliceResponseResolver.java:43)
+
+Looking
+at the code in getReduced:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>                ColumnFamily resolved =
+versions.size() &gt; 1                                      ?
+RowRepairResolver.resolveSuperset(versions)                                      :
+versions.get(0);</pre></div></div>
+seems like resolved becomes null when this happens and
+versions.size is larger than 1.
+
+RowRepairResolver.resolveSuperset() does actually return
+null if it cannot resolve anything, so there is definately a case here which can occur and
+is not handled.
+
+It may also be an interesting question if it is guaranteed that          
+     <br/>versions.add(current.left.cf);<br/>can never return null?
+
+Jonathan suggested on
+IRC that maybe 
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>                ColumnFamily resolved =
+versions.size() &gt; 1                                      ?
+RowRepairResolver.resolveSuperset(versions)                                      :
+versions.get(0);                if (resolved == null)                      return new
+Row(key, resolved);</pre></div></div>
+could be a fix.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I think the problem is with the call to removeDeleted in resolveSuperset() (which is
+fairly new). Basically, the code is fine with resolved being null as long as this means
+that all the versions are null. But the removeDeleted call make it possible to have a null
+removeDeleted even if the versions are not null, if a row tombstone expires between the
+time it was returned by the node and the time it is resolved by the coordinator for
+instance.Attaching patch that skips the maybeScheduleRepair() call if resolved == null
+since even in that case there is nothing to repair since the tombstone are now expired. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+although I slightly prefer the "if == null return" immediately after initializing
+resolved, to keep those two pieces of logic together. 
+
+
+New Comment: 
+Yeah, I didn't do that mostly because there is still a few lines of code (besides maybe
+scheduling repair) that we need to do even if resolved is null (debugging message in
+RowRepairResolver and more importantly, the clear of versions and versionSources in
+RangeSliceResolver). 
+
+
+New Comment: 
+ah, right &#8211; skipping the clear would be buggy.  +1 again. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Committed, thanks 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #195 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/195/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/195/</a>)<br/>    Fix potential
+NPE in range slice read repair<br/>patch by slebresne; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2823" title="NPE during range slices
+with rowrepairs" class="issue-link"
+data-issue-key="CASSANDRA-2823"><del>CASSANDRA-2823</del></a>slebresne : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1140470"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1140470</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/service/RowRepairResolver.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/service/RangeSliceResponseResolver.java</li></ul> 
+
+
+New Comment: 
+does 0.7 need this? 
+
+
+New Comment: 
+You're right, 0.7 needs that too. I've committed it there too. 
+
+

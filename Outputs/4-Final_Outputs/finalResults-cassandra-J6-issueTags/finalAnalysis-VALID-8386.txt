@@ -1,0 +1,233 @@
+Pattern changes caused by commit: 0906b7cc5173770e04932432d40503f7c39eb61f
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8386.txt 
+
+commit 0906b7cc5173770e04932432d40503f7c39eb61f
+Author: Yuki Morishita <yukim@apache.org>
+
+    Show progress on nodetool repair command; patch by yukim reviewed Sylvain Lebresne for CASSANDRA-4767
+
+
+
+==================================
+ Issue CASSANDRA-4767 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4767] Need some indication of node repair success or failure
+-----------------
+
+-----------------
+Summary: Need some indication of node repair success or failure
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 4 Oct 2012 22:52:13 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Jan 2013 20:30:28 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+We are currently verifying node repair status via basic log analysis.  In order to
+automatically track the status of periodic node repair jobs, it would be better to have an
+indicator (through JMX perhaps).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Yes, JMX is the right place for this.One possible API: a List of Map&lt;String:
+String&gt;:{'Session': session id, 'Initiator': node "coordinating" the repair, 'Status':
+'Pending'|'Validating'|'Repairing'|'Success'|'Failed', 'Started': start timestamp,
+'Finished': finish timestamp}If this is unintrusive enough we can try to get it into
+1.1.x; otherwise, an early 1.2 release./cc <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=j.casares"
+class="user-hover" rel="j.casares">Joaquin Casares</a> 
+
+
+New Comment: 
+Our approach with these jmx type operations in the past has been let the jmx call block
+until it finishes. That does have some downsides though like checking progress and jmx
+timeouts.If we do this we should hopefully make it generic enough to hook all of our long
+running jmx calls in to. 
+
+
+New Comment: 
+None? of the other ones have the concept of a unique session so that's broadening the
+scope significantly. 
+
+
+New Comment: 
+Darn. 
+
+
+New Comment: 
+So I've been working on this issue a while, and I think it is not useful to log session
+state per repair session.Repair session is generated per range, so when you invoke your
+repair command without specifying keyspace and -pr option, the command will generate
+(number of keyspaces) x (replication factor) x (number of tokens(for vnodes) sessions.
+When vnode is enabled, the number could become a lot.I think what we want here is to track
+repair state per invocation of repair command. So what I'm working on right now is to give
+some feedback to client(using JMX notification). In this way, we can go further and make
+repair command 'async', so that we can get rid of JMX timeout(<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2126" title="RMI call times out on
+large repair jobs" class="issue-link"
+data-issue-key="CASSANDRA-2126"><del>CASSANDRA-2126</del></a>). 
+
+
+New Comment: 
+If we go that approach, I stand by my earlier comment to make it generic enough to plug
+other long running jmx commands in to eventually. 
+
+
+New Comment: 
+Tracking this per repair invocation is simple and sufficient 
+
+
+New Comment: 
+Patch attached to track repair progress by using JMX notification.I made another JMX
+method forceTableRepairAsync, to invoke repair asynchronously, because I think we don't
+want to break existing API at the middle of 1.1 release.<br/>StorageServiceMBean now has
+notification support, so we can use that to turn other long running JMX calls into async
+call and track progress as well in the future.Repair command subscribes to JMX
+notification and invoke async repair, receives STARTED, and FINISHED event to determine
+command start and stop, as well as SUCCESS and FAILED to track status per repair
+session.Sample output of 'nodetool repair' is as follows:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2012-12-17 13:13:40,754] Starting repair command #1, repairing 3 ranges
+<span class="code-keyword">for</span> keyspace Keyspace1[2012-12-17 13:14:11,178] Repair
+session de064180-487d-11e2-0000-de5e2f7aa3ff <span class="code-keyword">for</span> range
+(0,56713727820156410577229101238628035242] failed with error java.io.IOException: Endpoint
+/127.0.0.1 died[2012-12-17 13:14:11,178] Repair session
+f026e950-487d-11e2-0000-de5e2f7aa3ff <span class="code-keyword">for</span> range
+(56713727820156410577229101238628035242,113427455640312821154458202477256070484]
+finished[2012-12-17 13:14:11,178] Repair session f0275e80-487d-11e2-0000-de5e2f7aa3ff
+<span class="code-keyword">for</span> range (113427455640312821154458202477256070484,0]
+finished[2012-12-17 13:14:11,178] Repair command #1 finished</pre></div></div> 
+
+
+New Comment: 
+So there will be multiple notifications for a repair invocation for all keyspaces? 
+
+
+New Comment: 
+Yes.<br/>Repair command number is assigned per keyspace, and each notification contains
+(repair command #, status) pair.<br/>You can get command number as return value of async
+repair invocation, and listen for status like FINISHED for that command number. 
+
+
+New Comment: 
+That look good to me overall. The only problem I see is if 2 repairs are started on the
+same node simultaneously. In that case, I think both 'nodeProbe' will get notified and you
+could get messages for repair you did started which I suspect would be slightly confusing.
+Maybe we could make the NodeProbe listener only listen on the command it has started (i.e.
+make it discard all other command numbers). We can't really do that with the repair
+command since we need to set up the listener before we call forceTableRepairAsync, but
+maybe we could provide a uuid in foceRepairAsync that would be sent back in the
+notification?Nit:<ul class="alternate" type="square">	<li>I'm not JMX expert, but the doc
+for Notification says "It is strongly recommended that notification senders use the object
+name rather than a reference to the MBean object as the source", but as far as I can tell,
+we do use the MBean object. No clue why this recommendation though, and everything seems
+to work correctly, just mentionning it.</li>	<li>We're starting to have a bit of
+duplication of the forceTable* methods in StorageService. Ideally we could have just one
+async method that returns a future, and have the blocking version using it but wait on the
+future. That being said, if we just remove the blocking versions in 1.2 it's not a problem
+(but I don't know if we want to do that, maybe they are still useful when you use jconsole
+for instance).</li></ul> 
+
+
+New Comment: 
+Oh, and while we're at it and since we add a new JMX call, let's maybe rename it to
+forceRepairAsync and drop the 'Table' qualification that is just confusing for end-users. 
+
+
+New Comment: 
+Attaching v2.I made the following changes:<ul class="alternate" type="square">	<li>Created
+RepairRunner that implements NotificationListener and it now only handles notification
+from repair command that it invoked. Code could be cleaned up further (for example,
+notification listener could be registered once) but I needed to touch other
+commands(scrub, cleanup...) as well so I avoided to change all the
+code.</li>	<li>Notification source is now ObjectName. I think JMX serializes source object
+and sends it to listener, so using ObjectName is the right thing. Thanks for
+reminding.</li>	<li>'forceTableRapirAsync' -&gt; 'forceRepairAsync'</li></ul>I think we
+need to keep blocking repair methods for backward compatibility. There could be someone
+using those directly from their scripts.<br/>Speaking of backward compatibility, the patch
+modifies behavior of repair command in the way that it outputs repair progress but I think
+it should not be the concern to put this in 1.1 release. 
+
+
+New Comment: 
+My last minor nit is that while a given RepairRunner don't count other repair
+notifications, it still prints their messages which I'd prefer avoiding. But with that
+fixed, +1 on the patch. Now given how advanced we are in the 1.1 cycle, my own choice
+would be to just go for 1.2, but since I don't think this can break things in any major
+way I won't oppose pushing in 1.1 either.<blockquote>I think we need to keep blocking
+repair methods for backward compatibility</blockquote>I agree. When I talked about
+duplication, I was talking of the body of the methods themselves. By that I mean that
+forceRepairAsync and forceTableRepair have roughtly the same body (or rather
+forceRepairAsync is a subset as it sends the notifications, but it wouldn't matter if
+forceTableRepair was sending notification too). We could imagine fixing that code
+duplication. But that being said, it'll fix itself if we remove the blocking methods in a
+latter release so I'm fine not bothering with that for now.<blockquote>the patch modifies
+behavior of repair command in the way that it outputs repair progress</blockquote>Do you
+mean what is logged? If so, I agree it's likely not a problem. 
+
+
+New Comment: 
+Attaching v3 with the fix to only output the log it invoked.<br/>I also attached 1.2
+version of the patch separately, since it includes some refactoring around repair code in
+StorageService.<blockquote>Do you mean what is logged?</blockquote>yes. 
+
+
+New Comment: 
+lgtm, +1 (including the 1.2 refactor). 
+
+

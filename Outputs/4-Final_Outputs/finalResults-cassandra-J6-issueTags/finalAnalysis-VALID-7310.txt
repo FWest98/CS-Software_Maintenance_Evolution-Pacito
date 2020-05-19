@@ -1,0 +1,135 @@
+Pattern changes caused by commit: aa81f84c38f2c1fcad08eae955bec031341f8f75
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7310.txt 
+
+commit aa81f84c38f2c1fcad08eae955bec031341f8f75
+Author: Yuki Morishita <yukim@apache.org>
+
+    change cache write progress check to cache type basis; patch by yukim,
+    reviewed by jbellis for CASSANDRA-4533
+
+
+
+==================================
+ Issue CASSANDRA-4533 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4533] Multithreaded cache saving can skip caches
+-----------------
+
+-----------------
+Summary: Multithreaded cache saving can skip caches
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 13 Aug 2012 06:40:40 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 22 Aug 2012 14:01:47 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Cassandra flushes the key and row cache to disk periodically. It also uses a atomic flag
+in flushInProgress to enforce single cache writer at any time.
+
+However, the cache saving
+task could be submitted to CompactionManager concurrently, as long as the number of worker
+thread in CompactionManager is larger than 1. 
+
+Due to the effect of above atomic flag,
+only one cache will be written out to disk. Other writer are cancelled when the flag is
+true.
+
+I observe the situation in Cassandra 1.0. If nothing is changed, the problem should
+remain in Cassandra 1.1, either.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Looks like we should switch to a ConcurrentSet like we did in Memtable.meteringInProgress. 
+
+
+New Comment: 
+Is it possible to fix it also in 1.0? 
+
+
+New Comment: 
+No, it's not worth risking regressions over in 1.0.x. The good news is that 1.1.4+ look
+pretty stable. 
+
+
+New Comment: 
+Looks like we have to maintain our own fork, as we can not keep up with the upgrade
+cycle... 
+
+
+New Comment: 
+Attaching patch against 1.1 branch.<br/>Caches are grobal since 1.1, so I used CacheType
+as key for flushInProgerss concurrent set. 
+
+
+New Comment: 
+Hmm, I don't think this quite works because it still means we can skip saving cache for CF
+X when CF Y is being flushed.I think the problem this code is trying to solve, over a
+basic executor + queue, is multiple tasks for X getting queued up while (say) compaction
+is sucking a lot of i/o, then firing off those cache-save tasks for X faster than the
+defined saving period when it speeds up.I guess we could make it a Pair&lt;CF,
+CacheType&gt;?TBH this is probably premature optimization, if your cache period is so
+frequent that multiple queued tasks is a problem, then you should just fix that.  I'd be
+okay with just ripping this out.  Alternatively, we could have the task check to see if
+the last-saved cache is older than M minutes before overwriting it, similar to how normal
+background compaction submissions are a no-op if it turns out there's nothing to do by the
+time we execute the task. 
+
+
+New Comment: 
+<blockquote>Hmm, I don't think this quite works because it still means we can skip saving
+cache for CF X when CF Y is being flushed.</blockquote>In my understanding, since 1.1, C*
+stores key and row caches globally, those are saved at once for every CF for each cache
+type.<br/>AutoSavingCache$Writer writes all CF for certain CacheType in one execution. 
+
+
+New Comment: 
+You're right, my mistake.  +1 
+
+

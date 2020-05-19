@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 7cbfaf92d232d211946737d3e122dcca28761638
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5256.txt 
+
+commit 7cbfaf92d232d211946737d3e122dcca28761638
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    CLI `describe cluster;` output should be on separate lines for separate versions
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3170
+
+
+
+==================================
+ Issue CASSANDRA-3170 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3170] Schema versions output should be on separate lines for separate versions
+-----------------
+
+-----------------
+Summary: Schema versions output should be on separate lines for separate versions
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 9 Sep 2011 18:21:26 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 18 Oct 2011 22:28:51 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+On the CLI if you do a 'describe cluster;' it would be really nice to have different
+versions on different lines or some way to call out multiple versions more.  Right now
+it's a UUID with a list of nodes for one, but with multiple versions, it's on the same
+line - another UUID and another list of nodes.  That's hard to distinguish between one
+version and multiple versions at a glance.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

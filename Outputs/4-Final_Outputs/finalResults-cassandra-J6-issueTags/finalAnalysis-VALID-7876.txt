@@ -1,0 +1,107 @@
+Pattern changes caused by commit: a2ca30e79510a04ca1f6b9c5a342ee9467176a9f
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7876.txt 
+
+commit a2ca30e79510a04ca1f6b9c5a342ee9467176a9f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    reset getRangeSlice filter after finishing a row forget_paged_slice
+    patch by Piotr Kołaczkowski; reviewed by jbellis for CASSANDRA-4919
+
+
+
+==================================
+ Issue CASSANDRA-4919 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4919] StorageProxy.getRangeSlice sometimes returns incorrect number of columns
+-----------------
+
+-----------------
+Summary: StorageProxy.getRangeSlice sometimes returns incorrect number of columns
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 6 Nov 2012 15:55:21 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 12 Nov 2012 22:00:24 +0000
+-----------------
+
+-----------------
+Assigned to: Piotr Kolaczkowski
+-----------------
+
+-----------------
+Description: 
+
+When deployed on a single node, number of columns is correct.<br/>When deployed on a
+cluster, total number of returned columns is slightly lower than desired. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching a patch fixing paged column iteration. 
+
+
+New Comment: 
+Is there a dtest for this? 
+
+
+New Comment: 
+There's a wide row test and a range slice test, but not a combination of the two. 
+
+
+New Comment: 
+committed, and create <a href="https://github.com/riptano/cassandra-dtest/issues/5"
+class="external-link"
+rel="nofollow">https://github.com/riptano/cassandra-dtest/issues/5</a> to follow up w/
+dtest. 
+
+
+New Comment: 
+I note for the testing part that this only concern getRangeSlice with the isPaging option
+(i.e. for thrift, get_paged_slice) and that currently CQL never calls that so this is not
+reproducible with CQL. We may end up using the isPaging thing in CQL with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4851" title="CQL3: improve support
+for paginating over composites" class="issue-link"
+data-issue-key="CASSANDRA-4851"><del>CASSANDRA-4851</del></a> however. 
+
+

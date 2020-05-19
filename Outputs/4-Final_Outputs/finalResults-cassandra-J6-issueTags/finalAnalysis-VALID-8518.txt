@@ -1,0 +1,100 @@
+Pattern changes caused by commit: be01197786a8122fc17ba457a2c77ffdfab2af07
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8518.txt 
+
+commit be01197786a8122fc17ba457a2c77ffdfab2af07
+Author: Yuki Morishita <yukim@apache.org>
+
+    fix test for CASSANDRA-5166
+
+
+
+==================================
+ Issue CASSANDRA-5166 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5166] Saved key cache is not loaded when opening ColumnFamily
+-----------------
+
+-----------------
+Summary: Saved key cache is not loaded when opening ColumnFamily
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 16 Jan 2013 23:03:07 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 18 Jan 2013 17:49:12 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+<em>This bug happens on cassandra version 1.1.3 ~ 1.1.x only</em>
+
+In order to load key
+cache in SSTableReader#open, keyCache has to be set by calling setTrackedBy before
+loading. <a href="https://issues.apache.org/jira/browse/CASSANDRA-4436" title="Counters in
+columns don&#39;t preserve correct values after cluster restart" class="issue-link"
+data-issue-key="CASSANDRA-4436"><del>CASSANDRA-4436</del></a> changed the order to load
+then setTrackedBy, so saved key cache is never loaded.<br/>In 1.2, key cache stores both
+key and position, and is loaded out side of SSTableReader so the issue only happens on
+1.1.x branch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Test and proposed fix attached. 
+
+
+New Comment: 
++1 
+
+

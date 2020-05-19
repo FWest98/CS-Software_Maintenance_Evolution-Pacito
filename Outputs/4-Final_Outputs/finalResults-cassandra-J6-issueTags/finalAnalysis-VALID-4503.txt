@@ -1,0 +1,88 @@
+Pattern changes caused by commit: 474547cf16aad0d97bfa455d864340ee1c44e1a4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4503.txt 
+
+commit 474547cf16aad0d97bfa455d864340ee1c44e1a4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    stop reading cache after max size-to-save is reached
+    patch by Chris Burroughs; reviewed by jbellis for CASSANDRA-2082
+
+
+
+==================================
+ Issue CASSANDRA-2082 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2082] Saved row cache continues to be read past max cache size
+-----------------
+
+-----------------
+Summary: Saved row cache continues to be read past max cache size
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 31 Jan 2011 19:46:30 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 26 Jul 2011 18:58:40 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Burroughs
+-----------------
+
+-----------------
+Description: 
+
+Scenario:
+<ul class="alternate" type="square">	<li>Node has a saved row cache of size
+n</li>	<li>node OOMs</li>	<li>Make row cache size = .5n to prevent OOM while we debug,
+restart node.</li>	<li>n items are still read from the row cache, making startup take
+twice as long as needed.</li></ul>
+(This is intended as a straightforward bug, not as a
+hackish <a href="https://issues.apache.org/jira/browse/CASSANDRA-1966" title="Option to
+control how many items are read on cache load" class="issue-link"
+data-issue-key="CASSANDRA-1966"><del>CASSANDRA-1966</del></a>.)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Note that the second patch applies on top of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1966" title="Option to control how
+many items are read on cache load" class="issue-link"
+data-issue-key="CASSANDRA-1966"><del>CASSANDRA-1966</del></a>. 
+
+
+New Comment: 
+Committed since the code involved is small, but I note that the applicability is limited
+because you can't change the cache setting via schema or JMX until the node has started
+successfully.  So it's only useful if you notice memory pressure and change the setting
+before the node OOMs. 
+
+

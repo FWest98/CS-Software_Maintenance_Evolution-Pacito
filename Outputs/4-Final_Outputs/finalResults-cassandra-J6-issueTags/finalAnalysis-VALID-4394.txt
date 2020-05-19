@@ -1,0 +1,108 @@
+Pattern changes caused by commit: 8e701e01cdb656b65f8efa9c8264baf9f4a373f2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4394.txt 
+
+commit 8e701e01cdb656b65f8efa9c8264baf9f4a373f2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    improve cli treatment of multiline comments
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-2852
+
+
+
+==================================
+ Issue CASSANDRA-2852 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2852] Cassandra CLI - Import Keyspace Definitions from File - Comments do partitially interpret characters/commands
+-----------------
+
+-----------------
+Summary: Cassandra CLI - Import Keyspace Definitions from File - Comments do partitially interpret characters/commands
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 3 Jul 2011 18:23:39 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 4 Jul 2011 16:22:21 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Hello, 
+
+using: bin/cassandra-cli -host localhost --file conf/schema-sample.txt
+
+with
+schema-sample.txt having contents like this:
+
+/* here are a lot of comments,<br/>like this
+sample create keyspace;<br/>and so on<br/>*/
+
+Will result in an error: <br/>Line 1 =&gt;
+Syntax Error at Position 323: mismatched charackter '&lt;EOF&gt;' expecting '*'
+
+The Cause
+is the keyspace; statement =&gt; the semicolon ";" causes the error.
+
+However:
+
+Writing
+the word "keyspace;" with quotes, does NOT lead to the error.<br/>so this works: <br/>/*
+here are a lot of comments,<br/>like this sample create "keyspace;"<br/>and so
+on<br/>*/
+
+From my point of view this is an error. Everyting between the "Start Comment"
+=&gt; /* and "End Comment" =&gt; */ Should be treated as a comment and not be interpreted
+in any way. Thats the definition of a comment, to be not interpreted at all. 
+
+Or this
+must be documented somewhere very prominently, otherwise this will lead to unnecessary
+wasting of time searching for this odd behavoiur. And it makes "commenting out" statements
+much more cumbersome.
+
+Plattform: Windows Vista
+
+thanks
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+can be applied on both 0.7 and 0.8 branches. 
+
+
+New Comment: 
+committed 
+
+

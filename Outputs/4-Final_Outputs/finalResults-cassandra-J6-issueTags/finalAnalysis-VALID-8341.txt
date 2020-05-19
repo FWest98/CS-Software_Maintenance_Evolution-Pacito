@@ -1,0 +1,133 @@
+Pattern changes caused by commit: 565f675b16747e7bfa827cb220cfce28f33c5b81
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8341.txt 
+
+commit 565f675b16747e7bfa827cb220cfce28f33c5b81
+Author: Dave Brosius <dbrosius@apache.org>
+
+    allow building of cassandra without maven using -Dwithout.maven=true
+    patch by eevans/dbrosius reviewed by jbellis for CASSANDRA-3818
+
+
+
+==================================
+ Issue CASSANDRA-3818 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3818] disabling m-a-t for fun and profit (and other ant stuff)
+-----------------
+
+-----------------
+Summary: disabling m-a-t for fun and profit (and other ant stuff)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 31 Jan 2012 02:32:20 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 1 Jan 2013 19:00:13 +0000
+-----------------
+
+-----------------
+Assigned to: David Brosius
+-----------------
+
+-----------------
+Description: 
+
+It should be possible to disable maven-ant-tasks for environments with more rigid
+dependency control, or where network access isn't available.
+
+Patches to follow.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Changes attached as patches, and pushed to Github as: <a
+href="https://github.com/eevans/cassandra/tree/3818" class="external-link"
+rel="nofollow">https://github.com/eevans/cassandra/tree/3818</a>0001 / 8ad3ad<br/>0002 /
+9e26a1<br/>0003 / 294bd1The first 3 changesets are basically cleanups.0004 /
+fc8d65Changeset #4 creates a new target called <em>test-all</em>, which runs test,
+test-compression, long-test, and test-clientutil.jar per the discussion on dev@0005 /
+d110aeAdds a property (-Dwithout.maven) that disables maven-base dependency resolution,
+(at least for the build and test targets).0006 / e093d8Adds a property (-Dwithout.rat)
+that disables the automatic prepending of license headers to the Thrift generated
+classes.0007 / 1037a9Adds a check that makes gen-thrift-java a noop if
+<tt>interface/cassandra.thrift</tt> has not been updated (useful in environments where the
+Thrift code is regenerated as part of the build). 
+
+
+New Comment: 
+I will review in the next couple of days as soon as I get the bandwidth 
+
+
+New Comment: 
+Are you still planning to review, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=stephenc"
+class="user-hover" rel="stephenc">Stephen Connolly</a>? 
+
+
+New Comment: 
+Dave, what can you make of this? 
+
+
+New Comment: 
+rebased the patch for trunk (1.3) as one file-&gt;3818.txtI inserted bogus proxy server,
+cassandra still builds fine (and faster).perhaps new targets should get description
+attributes so they show up in ant -p, but otherwise lgtm. 
+
+
+New Comment: 
+Added descriptions to test-all and write-java-license-headers as v2.But I'm getting the
+following error:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>BUILD
+FAILED/Users/johnathanellis/projects/cassandra/git/build.xml:1113: The following error
+occurred while executing this
+line:/Users/johnathanellis/projects/cassandra/git/build.xml:1055: Reference
+cobertura.classpath not found.</pre></div></div> 
+
+
+New Comment: 
+what target are you running? 
+
+
+New Comment: 
+ant clean test 
+
+
+New Comment: 
+fix cobertura.classpath issue in v3 
+
+
+New Comment: 
+WFM.  Ship it! 
+
+

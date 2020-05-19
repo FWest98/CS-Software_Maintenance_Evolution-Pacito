@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 38748b43d8de17375c7cc16e7a4969ca4c1a2aa1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6809.txt 
+
+commit 38748b43d8de17375c7cc16e7a4969ca4c1a2aa1
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: update recognized syntax for cql3
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4198
+
+
+
+==================================
+ Issue CASSANDRA-4198 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4198] cqlsh: update recognized syntax for cql3
+-----------------
+
+-----------------
+Summary: cqlsh: update recognized syntax for cql3
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 30 Apr 2012 16:07:35 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 18 May 2012 15:35:30 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+cqlsh should recognize cql3 syntax when in cql3 mode; this includes tab completing proper
+syntax and properly quoting any terms in single- or double-quotes (current version only
+knows how to use single quotes).
+
+also, prefer using the term "TABLE" over "COLUMNFAMILY"
+wherever one of those is generated from cqlsh (like in DESCRIBE output).
+
+and if it's not
+too bad, it would help to have the online help strings reflect cql3 syntax (maybe with a
+nod to cql2 restrictions where appropriate).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This fairly hefty patch does some refactoring in cqlsh to allow everything to use the
+right sort of quoting in the right places, and to handle parsing in both modes with good
+modular separation.Defines cql3 syntax so that it can be properly recognized and
+completed.It might be worth holding off on a review for just a bit until I can finish the
+test suite in <a href="https://issues.apache.org/jira/browse/CASSANDRA-3920" title="tests
+for cqlsh" class="issue-link"
+data-issue-key="CASSANDRA-3920"><del>CASSANDRA-3920</del></a>, so that the reviewer
+doesn't need to take in all the changes at once.These changes are also split into much
+smaller, more individually understandable commits in the 4198 branch in my github:<a
+href="https://github.com/thepaul/cassandra/tree/4198" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/4198</a>Current version tagged
+pending/4198. 
+
+
+New Comment: 
+Committed. 
+
+

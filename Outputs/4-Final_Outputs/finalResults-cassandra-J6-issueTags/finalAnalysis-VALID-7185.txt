@@ -1,0 +1,99 @@
+Pattern changes caused by commit: e73b2a68bf25597b351cbaa52700edad4ed773de
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7185.txt 
+
+commit e73b2a68bf25597b351cbaa52700edad4ed773de
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: add a COPY TO command
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4434
+
+
+
+==================================
+ Issue CASSANDRA-4434 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4434] add COPY TO
+-----------------
+
+-----------------
+Summary: add COPY TO
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 11 Jul 2012 21:03:17 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 24 Jul 2012 19:02:20 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4012" title="Load-from-flat-file
+data import tool" class="issue-link"
+data-issue-key="CASSANDRA-4012"><del>CASSANDRA-4012</del></a> added COPY FROM; this is a
+ticket to add the inverse.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached; changes also available in the 4434 branch in my github. Current version
+tagged pending/4434.<a href="https://github.com/thepaul/cassandra/tree/4434"
+class="external-link" rel="nofollow">https://github.com/thepaul/cassandra/tree/4434</a> 
+
+
+New Comment: 
+At a quick glance, I think linesource is only defined for FROM:<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>cqlsh:Keyspace1&gt; copy "Standard1" to 'foo.csv';global name
+'linesource' is not definedcqlsh:Keyspace1&gt; </pre></div></div> 
+
+
+New Comment: 
+Gah, dumb, I only tested with STDOUT. Fixed that. Extra one-line patch attached, 4434
+branch updated, new tag pending/4434-2. 
+
+

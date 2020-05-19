@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 520bd60ed98c18f1ce4dc67f8d852da5cac28ead
+
+From: Flyweight-6
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3754.txt 
+
+commit 520bd60ed98c18f1ce4dc67f8d852da5cac28ead
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add optional key alias to CFMetaData
+    patch by jhermes; reviewed by jbellis for CASSANDRA-2396
+
+
+
+==================================
+ Issue CASSANDRA-2396 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2396] Allow key name metadata
+-----------------
+
+-----------------
+Summary: Allow key name metadata
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 28 Mar 2011 16:15:02 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 11 Apr 2011 14:11:36 +0000
+-----------------
+
+-----------------
+Assigned to: Jon Hermes
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-2311" title="type validated row
+keys" class="issue-link" data-issue-key="CASSANDRA-2311"><del>CASSANDRA-2311</del></a>
+allows typed keys. We also want to allow giving keys a name (that would need to conform to
+the CF comparator). This is required for Hive support; <a
+href="https://issues.apache.org/jira/browse/HIVE-1434" title="Cassandra Storage Handler"
+class="issue-link" data-issue-key="HIVE-1434"><del>HIVE-1434</del></a> currently stores
+that metadata in an external repository but it would be cleaner to keep it in CFMetadata.
+This would allow CQL to support using the key name in select and where clauses, reducing
+the impedance mismatch between JDBC/CQL and JDBC/Hive.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch adds the prop.If CLI support and/or JMX calls are needed to expose this even
+further, they can be added on this ticket.It would be nice to link the CQL dep. to this
+ticket in case something comes up. 
+
+
+New Comment: 
+Unrelated to this ticket but stumbled upon, moved convertToCFMD(thrift CfDef) into CFMD.
+It had no business being in CassandraServer. 
+
+

@@ -1,0 +1,75 @@
+Pattern changes caused by commit: 41a8903cfb77d3521e02e176bd7f8b3683026e35
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5569.txt 
+
+commit 41a8903cfb77d3521e02e176bd7f8b3683026e35
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    JMX-enabled incremental_backups setting.
+    Patch by brandonwilliams reviewed by jbellis for CASSANDRA-3561
+
+
+
+==================================
+ Issue CASSANDRA-3561 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3561] Make incremental_backups setting mutable via JMX
+-----------------
+
+-----------------
+Summary: Make incremental_backups setting mutable via JMX
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Dec 2011 17:46:17 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 18:23:30 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+This would be more useful as in the schema as a CF-level setting, but for 1.1 let's at
+least make it setting it via JMX possible.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Nit: can we make the getter start with "is" instead of "get"?+1 otherwise 
+
+
+New Comment: 
+Renamed getter and committed. 
+
+

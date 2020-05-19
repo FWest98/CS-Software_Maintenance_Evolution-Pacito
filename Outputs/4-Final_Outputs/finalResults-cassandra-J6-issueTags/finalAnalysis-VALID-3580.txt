@@ -1,0 +1,93 @@
+Pattern changes caused by commit: a0498517f2feb70db1ad0cad5417577b11cd74cc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3580.txt 
+
+commit a0498517f2feb70db1ad0cad5417577b11cd74cc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix comparator used for non-indexed secondary expressions inindex scan
+    patch by Roland Gude and jbellis for CASSANDRA-2347
+
+
+
+==================================
+ Issue CASSANDRA-2347 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2347] index scan uses incorrect comparator on non-indexed expressions
+-----------------
+
+-----------------
+Summary: index scan uses incorrect comparator on non-indexed expressions
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 17 Mar 2011 03:35:00 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 18 Mar 2011 02:55:52 +0000
+-----------------
+
+-----------------
+Assigned to: Roland Gude
+-----------------
+
+-----------------
+Description: 
+
+When multiple index expressions are specified, the column name comparator is used when
+evaluating secondary (non-indexed) expressions after an indexed expression match.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch w/ failing test + fix 
+
+
+New Comment: 
+committed (original fix by Roland Gude, not sure if he has a Jira account) 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #391 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/391/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/391/</a>)<br/>    fix
+comparator used for non-indexed secondary expressions inindex scan<br/>patch by Roland
+Gude and jbellis for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2347"
+title="index scan uses incorrect comparator on non-indexed expressions" class="issue-link"
+data-issue-key="CASSANDRA-2347"><del>CASSANDRA-2347</del></a> 
+
+
+New Comment: 
+i just created an account. just in case it is needed and maybe i can contribute more in
+the future. 
+
+

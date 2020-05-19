@@ -1,0 +1,109 @@
+Pattern changes caused by commit: 8c24d019fced1bb6039310c192208721462d280a
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8016.txt 
+
+commit 8c24d019fced1bb6039310c192208721462d280a
+Author: Yuki Morishita <yukim@apache.org>
+
+    Remove cassandra specific exceptions from JMX interface; patch by yukim reviewed by dbrosius for CASSANDRA-4893
+
+
+
+==================================
+ Issue CASSANDRA-4893 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4893] Don't throw internal exceptions over JMX
+-----------------
+
+-----------------
+Summary: Don't throw internal exceptions over JMX
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 1 Nov 2012 18:33:35 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 21 Nov 2012 23:13:10 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Similarly to how we don't return internal objects over JMX we shouldn't throw internal
+exceptions over jmx as well.
+
+The one example I encountered was throwing
+ConfigurationException for the move() command. We should check the rest of our jmx as
+well.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch is against 1.2 branch. It removes or cassandra related exceptions or replace them
+with standard ones.<br/>It may be better to put this into 1.2.0 since it changes method
+signatures which we don't want to do it in minor versions. 
+
+
+New Comment: 
+I want to get rc1 out really, really badly.  If you can expedite review of this <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=nickmbailey"
+class="user-hover" rel="nickmbailey">Nick Bailey</a> that would be great.  Otherwise,
+we've waited this long, it won't kill us to push it to 1.3. 
+
+
+New Comment: 
+doesn't doingthrow new IllegalArgumentException(e);still exhibit the problem of needing
+the underlying exception class of 'e' in the classpath of the caller?it seems the thrown
+exception needs to lose it's exception history. 
+
+
+New Comment: 
+Dave, thanks for review.<br/>Updated patch not to wrap cause and instead use just error
+message. 
+
+
+New Comment: 
+Cassandra throws a few custom exceptions that are non-checked. Not sure if any of these
+places can have these exceptions, but if the were, then we would still have bad exception
+types going back to jmx. To be paranoid, catching just 'Exception' in these circumstances
+would be needed. Don't know if this is a real issue tho.Some of these methods are used as
+'real code' outside of jmx, and thus we are weakening the exception model in these spots.
+Most of these look like client/tool code so i guess it's ok.nit: not a fan of dangling
+statements after a try/catch-&gt;exit, as in setCompactionStrategyClass, i'd move
+maybeReloadCompactionStrategy into the try.otherwise, if the above first issue, isn't an
+issue... lgtm. 
+
+

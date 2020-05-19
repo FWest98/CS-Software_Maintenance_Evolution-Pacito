@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 7c557e25038db45d1e5e8555d11608a5cbb390c4
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4176.txt 
+
+commit 7c557e25038db45d1e5e8555d11608a5cbb390c4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    optimize column serializer creation
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2716
+
+
+
+==================================
+ Issue CASSANDRA-2716 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2716] avoid allocating a new serializer per ColumnFamily (row)
+-----------------
+
+-----------------
+Summary: avoid allocating a new serializer per ColumnFamily (row)
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 26 May 2011 21:56:48 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 27 May 2011 15:07:21 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Column.serializer and Supercolumn.serializer both allocate new objects with each call.
+The most frequent offender is the ColumnFamily constructor.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+(patch is against 0.8, may require slight tweaks for 0.7) 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

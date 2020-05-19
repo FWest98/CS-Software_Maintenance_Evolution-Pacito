@@ -1,0 +1,94 @@
+Pattern changes caused by commit: f74ed12a70ba0e59efef20a2207ef6bf4df0ae04
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6979.txt 
+
+commit f74ed12a70ba0e59efef20a2207ef6bf4df0ae04
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix bug in sstable blacklisting with LCS
+    patch by jbellis; reviewed by yukim for CASSANDRA-4343
+
+
+
+==================================
+ Issue CASSANDRA-4343 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4343] fix sstable blacklisting for LCS
+-----------------
+
+-----------------
+Summary: fix sstable blacklisting for LCS
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 14 Jun 2012 23:56:38 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 15 Jun 2012 17:28:06 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+CompactionsTest failed after <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4341" title="Small SSTable Segments
+Can Hurt Leveling Process" class="issue-link"
+data-issue-key="CASSANDRA-4341"><del>CASSANDRA-4341</del></a> but the cause was an
+existing bug in the blacklisting code.Consider L0 sstables A and B and L1 sstable C.  A
+and B overlap with C, and C is suspect/blacklisted.  getCandidatesFor will return {A, B,
+C}, and getCompactionCandidates will then remove C from the candidate list.  A and B will
+be compacted to D in L1, so L1 will now contain two overlapping sstables C and D.Patch to
+fix by check blacklist in getCandidatesFor.  If an overlapping sstable is suspect, we'll
+proceed to the next possible range instead of doing an incorrect compaction.  Overlapping
+suspect sstables in L0 are also handled. 
+
+
+New Comment: 
++1 (I didn't see any test failure without patch, though.) 
+
+

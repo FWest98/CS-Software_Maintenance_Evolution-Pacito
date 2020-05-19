@@ -1,0 +1,83 @@
+Pattern changes caused by commit: d2b60f28935466f6e37fc9d64a44c5c81bc14fb4
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7085.txt 
+
+commit d2b60f28935466f6e37fc9d64a44c5c81bc14fb4
+Author: Yuki Morishita <yukim@apache.org>
+
+    use proper partitioner for Range; patch by yukim, reviewed by jbellis for CASSANDRA-4404
+
+
+
+==================================
+ Issue CASSANDRA-4404 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4404] tombstone estimation needs to avoid using global partitioner against index sstables
+-----------------
+
+-----------------
+Summary: tombstone estimation needs to avoid using global partitioner against index sstables
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 2 Jul 2012 22:26:42 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 3 Jul 2012 19:37:05 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch is available at <a
+href="https://github.com/yukim/cassandra/commit/1644a5b701b054b646e049ef5cf725b2b2670709.diff"
+class="external-link"
+rel="nofollow">https://github.com/yukim/cassandra/commit/1644a5b701b054b646e049ef5cf725b2b2670709.diff</a><br/>Reviewed
+and committed while JIRA is down. 
+
+

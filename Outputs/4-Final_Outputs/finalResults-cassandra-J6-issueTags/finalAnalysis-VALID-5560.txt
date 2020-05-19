@@ -1,0 +1,104 @@
+Pattern changes caused by commit: a795eb936deea623d7d521da6ed2fc371c0d925a
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5560.txt 
+
+commit a795eb936deea623d7d521da6ed2fc371c0d925a
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix race between cf flush and its 2ndary indexes flush
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3547
+
+
+
+==================================
+ Issue CASSANDRA-3547 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3547] Race between cf flush and  its secondary indexes flush
+-----------------
+
+-----------------
+Summary: Race between cf flush and  its secondary indexes flush
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 1 Dec 2011 11:19:10 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 10:50:02 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+When a CF with indexes is flushed, it's indexes are flushed too. In particular their
+memtable is switched, but without making the old memtable frozen. This can conflict with a
+concurrent flush of the index itself, as reported on the user list by Michael
+Vaknine:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>TST-Cass2 ERROR [Thread-58] 2011-11-30
+20:40:17,449 AbstractCassandraDaemon.java (line 133) Fatal exception in thread
+ThreadTST-Cass2 ERROR [Thread-58] 2011-11-30 20:40:17,449
+java.lang.AssertionErrorTST-Cass2 ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.ColumnFamilyStore.maybeSwitchMemtable(ColumnFamilyStore.java:671)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.ColumnFamilyStore.forceFlush(ColumnFamilyStore.java:745)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.ColumnFamilyStore.forceBlockingFlush(ColumnFamilyStore.java:750)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.index.keys.KeysIndex.forceBlockingFlush(KeysIndex.java:119)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.index.SecondaryIndexManager.flushIndexesBlocking(SecondaryIndexManager.java:258)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.db.index.SecondaryIndexManager.maybeBuildSecondaryIndexes(SecondaryIndexManager.java:123)TST-Cass2
+ERROR [Thread-58] 2011-11-30 20:40:17,449 at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:151)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to freeze every memtable we actually flush. 
+
+
+New Comment: 
+Actually I see no reason this wouldn't affect 0.8. The patch is against 1.0 but it will be
+trivial to rebase to 0.8 if needed. 
+
+
+New Comment: 
++1, and I think we do need this for 0.8 as well 
+
+
+New Comment: 
+However...  0.8 is stable enough, and this bug is rare enough, and flush code is tricky
+enough, that maybe we should leave it be.  I could go either way. 
+
+

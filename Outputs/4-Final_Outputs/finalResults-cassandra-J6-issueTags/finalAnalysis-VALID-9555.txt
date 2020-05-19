@@ -1,0 +1,109 @@
+Pattern changes caused by commit: d87ed95c0fbffc978cbcaec5d02cb65fdd4b0ea4
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9555.txt 
+
+commit d87ed95c0fbffc978cbcaec5d02cb65fdd4b0ea4
+Author: Dave Brosius <dbrosius@apache.org>
+
+    fix help text for --tspw option of cassandra-cli
+    patch by hmetske reviewed by dbrosius for CASSANDRA-5643
+
+
+
+==================================
+ Issue CASSANDRA-5643 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5643] error in help text of cassandra-cli (--tspw option shows SSL: full path to truststore)
+-----------------
+
+-----------------
+Summary: error in help text of cassandra-cli (--tspw option shows SSL: full path to truststore)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 15 Jun 2013 12:43:43 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 15 Jun 2013 15:30:15 +0000
+-----------------
+
+-----------------
+Assigned to: Harry Metske
+-----------------
+
+-----------------
+Description: 
+
+When you issue the cmdline "cassandra-cli -?" you get the following:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>cssndra@ubuntu2:/opt/cassandra/conf$ cassandra-cli -?usage:
+cassandra-cli -?,--help                                           usage help
+-alg,--ssl-alg &lt;ALGORITHM&gt;                          SSL: algorithm                  
+                                  (default: SunX509) -B,--batch                           
+              enabled batch mode                                                    
+(suppress output; errors are fatal) -ciphers,--ssl-ciphers &lt;CIPHER-SUITES&gt;          
+   SSL: comma-separated                                                     list of
+encryption suites to use    --debug                                          display
+stack-traces                                                     (NOTE: We print
+strack-traces in the places where it makes sense even                                     
+               without --debug) -f,--file &lt;FILENAME&gt;                               
+load statements from                                                     the specific file
+-h,--host &lt;HOSTNAME&gt;                                cassandra server's              
+                                      host name    --jmxpassword &lt;JMX-PASSWORD&gt;     
+               JMX service password    --jmxport &lt;JMX-PORT&gt;                         
+   JMX service port    --jmxusername &lt;JMX-USERNAME&gt;                     JMX service
+username -k,--keyspace &lt;KEYSPACE&gt;                            cassandra keyspace     
+                                               user is authenticated against -p,--port
+&lt;PORT&gt;                                    cassandra server's                        
+                            thrift port -prtcl,--ssl-protocol &lt;PROTOCOL&gt;            
+       SSL: connections                                                     protocol to
+use (default: TLS) -pw,--password &lt;PASSWORD&gt;                           password for 
+                                                   cassandra authentication   
+--schema-mwt &lt;TIME&gt;                              Schema migration wait              
+                                      time (secs.), default is 10 secs -st,--store-type
+&lt;STORE-TYPE&gt;                       SSL: type of store -tf,--transport-factory
+&lt;TRANSPORT-FACTORY&gt;         Fully-qualified                                         
+           TTransportFactory class name for creating a connection to cassandra
+-ts,--truststore &lt;TRUSTSTORE&gt;                       SSL: full path to               
+                                     truststore -tspw,--truststore-password
+&lt;TRUSTSTORE-PASSWORD&gt;   SSL: full path to                                           
+         truststore -u,--username &lt;USERNAME&gt;                            user name
+for                                                     cassandra authentication
+-v,--verbose                                        verbose output when                   
+                                 using batch mode</pre></div></div>
+As you see, the help
+text for the --tspw switch has the same as the --ts switch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+proposed patch 
+
+

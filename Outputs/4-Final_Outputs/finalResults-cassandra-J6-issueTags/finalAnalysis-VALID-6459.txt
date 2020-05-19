@@ -1,0 +1,118 @@
+Pattern changes caused by commit: 67e88da62ec58a19479e979ed890f30aae9cb890
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6459.txt 
+
+commit 67e88da62ec58a19479e979ed890f30aae9cb890
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    clarify backwards-compatibility policy (CASSANDRA-3951)
+
+
+
+==================================
+ Issue CASSANDRA-3951 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3951] make thrift interface "backwards compat" guarantee more specific
+-----------------
+
+-----------------
+Summary: make thrift interface "backwards compat" guarantee more specific
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 23 Feb 2012 17:46:07 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 2 Apr 2012 21:40:32 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+The comments in cassandra.thrift read:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre># The API
+version (NOT the product version), composed as a dot delimited# string with major, minor,
+and patch level components.##  - Major: Incremented for backward incompatible changes. An
+example would#           be changes to the number or disposition of method arguments.#  -
+Minor: Incremented for backward compatible changes. An example would#           be the
+addition of a new (optional) method.#  - Patch: Incremented for bug fixes. The patch level
+should be increased#           for every edit that doesn't result in a change to
+major/minor.## See the Semantic Versioning Specification (SemVer)
+http://semver.org.</pre></div></div>
+This is great to have documented guarantees, but it
+is unclear whether the "backward compatibility" discussed refers to the Cassandra server
+being able to talk to clients built against older thrift specs, or whether it refers to
+clients being able to talk to Cassandra servers built against older thrift specs.
+
+In a
+conversation on irc this morning, I found out that it actually meant that the former
+(older clients should be able to talk to a new Cassandra, but newer clients are not
+guaranteed to be able to talk to an old Cassandra). On the other hand, people seemed
+willing to extend the compatibility guarantees in <b>both</b> directions going forward,
+since we would like to switch to a dedicated CQL transport anyway.
+
+Either way, the
+comments in cassandra.thrift should be specific about what is guaranteed so that client
+and library authors, and Cassandra developers, all agree what to expect.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<blockquote>older clients should be able to talk to a new Cassandra, but newer clients are
+not guaranteed to be able to talk to an old Cassandra</blockquote>This is my preferred
+policy.  In the general case, whether a client wants to support old C* versions is really
+up to individual client dev teams, and not something we can really control server side.Any
+objections to codifying policy as such? 
+
+
+New Comment: 
+To elaborate: the context here is that taking obsolete fields out of the IDL makes it
+difficult for some clients (especially java) to support old C* versions even if they want
+to, since you'd have to do some crazy classloader stuff to get different jar versions
+supported.So as a "we'll try not to make life harder than necessary for clients" position
+I'm fine with saying "thou shalt not remove obsolete fields" from the thrift idl.  But
+more than that we can't promise from the server side. 
+
+
+New Comment: 
+I summarized that position (accurately, I hope) in this patch (tag pending/3951 in my
+github). 
+
+

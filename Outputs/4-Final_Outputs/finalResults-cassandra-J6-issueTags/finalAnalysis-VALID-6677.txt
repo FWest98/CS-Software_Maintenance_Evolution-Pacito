@@ -1,0 +1,206 @@
+Pattern changes caused by commit: cb25a8fcdd9626c6b29a3b1a94dfda5fd0375928
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6677.txt 
+
+commit cb25a8fcdd9626c6b29a3b1a94dfda5fd0375928
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Add varint encoding to Serializing Cache
+    patch by Vijay; reviewed by jbellis,xedin for CASSANDRA-4138
+
+
+
+==================================
+ Issue CASSANDRA-4138 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4138] Add varint encoding to Serializing Cache
+-----------------
+
+-----------------
+Summary: Add varint encoding to Serializing Cache
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 11 Apr 2012 19:30:02 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 28 Apr 2012 02:00:49 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch is the first attempt to add VarInt Encoding to cassandra. It save's us
+around 10% of the memory compared to normal DataInputStream. (based on a simple test via
+Stress Tool)<br/>Once this gets committed i will work on the rest of the pieces. 
+
+
+New Comment: 
+Couldn't we just extend DataOutputStream instead of introducing ADOS?(Pretty sure
+AbstractDataInput was a mistake as well.) 
+
+
+New Comment: 
+I did try it before copying.... the problem is that we cannot override writeInt()
+writeLong() and writeShort() because they are marked as final.<br/><a
+href="http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/6-b14/java/io/DataOutputStream.java#DataOutputStream.writeInt%28int%29"
+class="external-link"
+rel="nofollow">http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/6-b14/java/io/DataOutputStream.java#DataOutputStream.writeInt%28int%29</a> 
+
+
+New Comment: 
+If we're relying on overriding writeInt etc, does that mean we're giving up being able to
+use varints over the network?  (Not a concern for the cache obviously but I'm thinking
+ahead to <a href="https://issues.apache.org/jira/browse/CASSANDRA-3024" title="sstable and
+message varint encoding" class="issue-link"
+data-issue-key="CASSANDRA-3024"><del>CASSANDRA-3024</del></a>.) 
+
+
+New Comment: 
+Hi Jonathan, Nope this ticket was just an extension of the parent, i wanted to get the lhf
+first <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>... Once we have EDOS we can use it
+forIVersionedSerializer.serialize(T t, EncodedDataOutput dos, int
+version)<br/>and<br/>OutboundTcpConnection.write(Message message, String id,
+EncodedDataOutput out)Which will be easier to deal with the version too (and with SST
+versioning)... Hope it makes sense. 
+
+
+New Comment: 
+To avoid confusion related to naming of {write, read}VLong methods (as it gives a feeling
+that writeInt doesn't really write an int anymore) in the EDIS and EDOS I propose to
+rename them to VInt{Encode, Decode}. Furthermore, we could give a better feel of the
+encoding used by adding {VInt} as a prefix to both classes (as an alternative they could
+be moved to o.a.c.u.vint package), also I think the DBContants class is now should be
+changed to only share sizeof(type) methods and become something like DBContants.{native,
+vint}.sizeof(type)... 
+
+
+New Comment: 
+Hi Pavel, attached patch has recommended changes except &gt;&gt;&gt; I think the
+DBContants class is now should be changed to only share sizeof(type) methods and become
+something like DBContants.{native, vint}.sizeof(type)I will mark it private once parent
+ticket is complete (Messaging and SSTable formats), currently we have it called in other
+places too. 
+
+
+New Comment: 
+You can drop changing *_SIZE constants to private in this one but nothing is keeping us
+from implementing the later part of the proposal, all your changes would use sizeof(type)
+methods without need to change the rest of the code. 
+
+
+New Comment: 
+Attached patch changes the DBConstants to private and changes other unrelated code to use
+sizeof instead of constants. 
+
+
+New Comment: 
+Made some refactoring (added license headers, renamed variables etc.)I have removed
+o.a.c.util package that you created and moved Encoded* clases to o.a.c.utils.vint, done
+the same for tests.Renamed DBContants to DBTypeSizes with two statics NATIVE and VINT to
+be used for sizeof(type) + all related code.Moved class EncodedDBConstant to the
+DBTypeSized and renamed it to VIntEncodedDBTypeSizes, the same done for native - it's
+NativeDBTypeSizes now.Changed {encode, decode}VInt methods visibility to private and
+renamed to vint{Encode, Decode} + added a comment why we  use single method for all
+integer types.One problem remains - CompactionsTest fails after your modifications. 
+
+
+New Comment: 
+v4 fixes the test failures (BBU.readShort to readUnsignedShort) and also fixes the
+autoboxing in the verbs which was there in earlier versions... Thanks! 
+
+
+New Comment: 
+Ok, let's give a Jonathan chance to make a final look. 
+
+
+New Comment: 
+It's not immediately clear to me what the changes in ByteBufferUtil are doing &#8211; EDOS
+doesn't change writeByte so what is breaking?  is this backwards compatible?Have you done
+any smoke tests to see what kind of savings you get on typical cached data?  In other
+words: is our intuition correct that this is worth the extra complexity? 
+
+
+New Comment: 
+<blockquote>It's not immediately clear to me what the changes in ByteBufferUtil are doing
+– EDOS doesn't change writeByte so what is breaking? is this backwards
+compatible?</blockquote>I can explain ByteBufferUtil changes - instead of doing short
+write manually (copy code that does it from DO) it just uses appropriate method from the
+DataOutput which would handle the short encode and write. EDOS don't really need to change
+the way we write bytes, this is only about encoding integer types compactly. All legacy
+tests are passing and this doesn't seem to touch code so dramatically to break it as soon
+as it's all about SerializingCache...<blockquote>Have you done any smoke tests to see what
+kind of savings you get on typical cached data? In other words: is our intuition correct
+that this is worth the extra complexity?</blockquote>This is question to Vijay so I won't
+interfere, just want to note that he pointed out in the first comment that this saves ~10%
+of memory compared to normal DIS. 
+
+
+New Comment: 
+&gt;&gt;&gt; Have you done any smoke tests to see what kind of savings you get on typical
+cached data?<br/>Yes i do see 10% gain in space.&gt;&gt;&gt;  is our intuition correct
+that this is worth the extra complexity?<br/>The complexity for the Cache as such is only
+using EDOS instead of DOS... other complexity are generic to support messaging and SSTable
+formats. 
+
+
+New Comment: 
+In addition to Pavel's comment, the reason for the change is to make the
+writeWithShortLength write a varint while using EDOS (will just use a byte instead of 2
+for most of the cases). 
+
+
+New Comment: 
+Yeah, this is my intended clarification of why is that needed but I somehow missed it <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+LGTM, +1. 
+
+

@@ -1,0 +1,207 @@
+Pattern changes caused by commit: 8b8a928e04bd091a6d774a9d5b9937d2002d7882
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5254.txt 
+
+commit 8b8a928e04bd091a6d774a9d5b9937d2002d7882
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m obsolete CF/KS rename code
+    patch by jbellis; reviewed by pyaskevich for CASSANDRA-3292
+
+
+
+==================================
+ Issue CASSANDRA-3292 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3292] creating column family sets durable_writes to true
+-----------------
+
+-----------------
+Summary: creating column family sets durable_writes to true
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 1 Oct 2011 07:00:16 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Oct 2011 13:22:50 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+<span class="error">&#91;default@rapidshare&#93;</span> describe keyspace
+rapidshare;<br/>Keyspace: rapidshare:<br/>  Replication Strategy:
+org.apache.cassandra.locator.NetworkTopologyStrategy<br/>  Durable Writes:
+<b>false</b><br/>    Options: <span class="error">&#91;datacenter1:1&#93;</span><br/> 
+Column Families:<br/><span class="error">&#91;default@rapidshare&#93;</span> create column
+family t1;<br/>1ba19300-ebfa-11e0-0000-34912694d0bf<br/>Waiting for schema
+agreement...<br/>... schemas agree across the cluster<br/><span
+class="error">&#91;default@rapidshare&#93;</span> describe keyspace
+rapidshare;<br/>Keyspace: rapidshare:<br/>  Replication Strategy:
+org.apache.cassandra.locator.NetworkTopologyStrategy<br/>  Durable Writes:
+<b>true</b><br/>    Options: <span class="error">&#91;datacenter1:1&#93;</span><br/> 
+Column Families:<br/>    ColumnFamily: t1<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.BytesType<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.BytesType<br/>      Row cache size / save period in
+seconds: 0.0/0<br/>      Key cache size / save period in seconds: 200000.0/14400<br/>     
+Memtable thresholds: 0.028124999999999997/1440/6 (millions of ops/minutes/MB)<br/>      GC
+grace seconds: 864000<br/>      Compaction min/max thresholds: 4/32<br/>      Read repair
+chance: 1.0<br/>      Replicate on write: true<br/>      Built indexes: []
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I can re-pro in the following version too<br/> INFO 00:32:55,237 Cassandra version:
+1.0.0-rc1-SNAPSHOT<br/> INFO 00:32:55,237 Thrift API version: 19.18.0<br/>Satish 
+
+
+New Comment: 
+01: removes the unused rename CF/KS code02: adds KSM.cloneWith for migrations to use that
+will be futureproof against new constructors being added 
+
+
+New Comment: 
+(patch is against trunk) 
+
+
+New Comment: 
+rebased 02 
+
+
+New Comment: 
+you forgot to remove Table.renameCf method and some of the tests are failing<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>    [junit] Testsuite: org.apache.cassandra.db.ReadMessageTest   
+[junit] Tests run: 3, Failures: 1, Errors: 0, Time elapsed: 0,599 sec    [junit]    
+[junit] Testcase: testNoCommitLog(org.apache.cassandra.db.ReadMessageTest):	FAILED   
+[junit]     [junit] junit.framework.AssertionFailedError:     [junit] 	at
+org.apache.cassandra.db.ReadMessageTest.testNoCommitLog(ReadMessageTest.java:135)   
+[junit]     [junit]     [junit] Test org.apache.cassandra.db.ReadMessageTest FAILED   
+[junit] Testsuite: org.apache.cassandra.db.RecoveryManager2Test    [junit] Tests run: 1,
+Failures: 1, Errors: 0, Time elapsed: 0,669 sec    [junit]     [junit] Testcase:
+testWithFlush(org.apache.cassandra.db.RecoveryManager2Test):	FAILED    [junit] Expecting
+only 1 replayed mutation, got 0    [junit] junit.framework.AssertionFailedError: Expecting
+only 1 replayed mutation, got 0    [junit] 	at
+org.apache.cassandra.db.RecoveryManager2Test.testWithFlush(RecoveryManager2Test.java:68)  
+ [junit]     [junit]     [junit] Test org.apache.cassandra.db.RecoveryManager2Test FAILED 
+  [junit] Testsuite: org.apache.cassandra.db.RecoveryManager3Test    [junit] Tests run: 1,
+Failures: 1, Errors: 0, Time elapsed: 0,621 sec    [junit]     [junit] Testcase:
+testMissingHeader(org.apache.cassandra.db.RecoveryManager3Test):	FAILED    [junit] Columns
+[(as string: )])] is not expected [col1]    [junit] junit.framework.AssertionFailedError:
+Columns [(as string: )])] is not expected [col1]    [junit] 	at
+org.apache.cassandra.db.TableTest.assertColumns(TableTest.java:553)    [junit] 	at
+org.apache.cassandra.db.TableTest.assertColumns(TableTest.java:514)    [junit] 	at
+org.apache.cassandra.db.RecoveryManager3Test.testMissingHeader(RecoveryManager3Test.java:76)
+   [junit]     [junit]     [junit] Test org.apache.cassandra.db.RecoveryManager3Test
+FAILED    [junit] Testsuite: org.apache.cassandra.db.RecoveryManagerTest    [junit] Tests
+run: 3, Failures: 1, Errors: 1, Time elapsed: 0,611 sec    [junit]     [junit] Testcase:
+testOne(org.apache.cassandra.db.RecoveryManagerTest):	FAILED    [junit] Columns [(as
+string: )])] is not expected [col1]    [junit] junit.framework.AssertionFailedError:
+Columns [(as string: )])] is not expected [col1]    [junit] 	at
+org.apache.cassandra.db.TableTest.assertColumns(TableTest.java:553)    [junit] 	at
+org.apache.cassandra.db.TableTest.assertColumns(TableTest.java:514)    [junit] 	at
+org.apache.cassandra.db.RecoveryManagerTest.testOne(RecoveryManagerTest.java:70)   
+[junit]     [junit]     [junit] Testcase:
+testRecoverCounter(org.apache.cassandra.db.RecoveryManagerTest):	Caused an ERROR   
+[junit] null    [junit] java.lang.NullPointerException    [junit] 	at
+org.apache.cassandra.db.RecoveryManagerTest.testRecoverCounter(RecoveryManagerTest.java:99)
+   [junit]     [junit]     [junit] Test org.apache.cassandra.db.RecoveryManagerTest
+FAILED</pre></div></div>Otherwise it seems to be the way to go <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+updated w/ above fixes 
+
+
+New Comment: 
+Please don't forget to remove Table.renameCf(...) method when you will be committing, +1. 
+
+
+New Comment: 
+Yes, that's part of the new 01. 
+
+
+New Comment: 
+Sorry, seems like it didn't override 0001 for me, see it now, +1. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #377 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/377/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/377/</a>)<br/>    r/m obsolete
+CF/KS rename code<br/>patch by jbellis; reviewed by pyaskevich for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3292" title="creating column family
+sets durable_writes to true" class="issue-link"
+data-issue-key="CASSANDRA-3292"><del>CASSANDRA-3292</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185761"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185761</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/src/avro/internode.genavro</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/Table.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/migration/RenameColumnFamily.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/migration/RenameKeyspace.java</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/db/DefsTest.java</li></ul> 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #380 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/380/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/380/</a>)<br/>    finish fixing
+changing durable_writes keyspace option during CF creation<br/>patch by jbellis; reviewed
+by pyaskevich for <a href="https://issues.apache.org/jira/browse/CASSANDRA-3292"
+title="creating column family sets durable_writes to true" class="issue-link"
+data-issue-key="CASSANDRA-3292"><del>CASSANDRA-3292</del></a><br/>add KSM.systemKeyspace
+and cloneWith methods<br/>patch by jbellis; reviewed by pyaskevich for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3292" title="creating column family
+sets durable_writes to true" class="issue-link"
+data-issue-key="CASSANDRA-3292"><del>CASSANDRA-3292</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185963"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185963</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/config/DatabaseDescriptor.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/config/KSMetaData.java</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/SchemaLoader.java</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/config/DatabaseDescriptorTest.java</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/db/DefsTest.java</li></ul>jbellis
+: <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185961"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1185961</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/config/DatabaseDescriptor.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/config/KSMetaData.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/migration/AddColumnFamily.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/migration/DropColumnFamily.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/migration/UpdateKeyspace.java</li></ul> 
+
+

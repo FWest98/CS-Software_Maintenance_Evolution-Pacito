@@ -1,0 +1,107 @@
+Pattern changes caused by commit: 686fe1e14565259cfdc533fae352f34bfd35b9f0
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7507.txt 
+
+commit 686fe1e14565259cfdc533fae352f34bfd35b9f0
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pass pig vars through url params in addition to env vars.
+    Patch by Jeremiah Johnson and brandonwilliams, reviewed by xedin for
+    CASSANDRA-4499
+
+
+
+==================================
+ Issue CASSANDRA-4499 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4499] CassandraStorage allow_deletes doesn't work in Hadoop cluster
+-----------------
+
+-----------------
+Summary: CassandraStorage allow_deletes doesn't work in Hadoop cluster
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 7 Aug 2012 23:21:13 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 21 Sep 2012 20:15:47 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+When using CassandraStorage in a Pig script that runs in a Hadoop cluster, the
+environment variable configuration option for allow_deletes doesn't work.  I'd like to see
+allow_deletes added as a URL parameter.
+
+For example, I'd like to do<br/>STORE
+storable_events INTO 'cassandra://drlcrs/event?allow_deletes=true' USING
+org.apache.cassandra.hadoop.pig.CassandraStorage();
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+No unit tests available yet - I'm not sure how to test the URL or failure cases by looking
+at the existing tests.  I'll have to dig a little more. 
+
+
+New Comment: 
+I've submitted trunk-4499.txt which is missing unit tests but is what I'm looking for so
+that allow_deletes can be set without using environment variables. 
+
+
+New Comment: 
+<blockquote>No unit tests available yet - I'm not sure how to test the URL or failure
+cases by looking at the existing tests. I'll have to dig a little more.</blockquote>We
+should be able to just insert empty tuples in the tests in examples/pig.While we're at it,
+maybe we should move the wide row flag to the url too. 
+
+
+New Comment: 
+v2 also allows setting widerow and secondary index mode with url params. 
+
+
+New Comment: 
++1 
+
+

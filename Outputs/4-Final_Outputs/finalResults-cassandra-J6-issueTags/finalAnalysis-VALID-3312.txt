@@ -1,0 +1,128 @@
+Pattern changes caused by commit: 9efe2f795157267fac53b6791734ca7a7a51fe31
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3312.txt 
+
+commit 9efe2f795157267fac53b6791734ca7a7a51fe31
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix for cleanup writing old-format data into new-version sstable
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2211
+
+
+
+==================================
+ Issue CASSANDRA-2211 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2211] Cleanup can create sstables whose contents do not match their advertised version
+-----------------
+
+-----------------
+Summary: Cleanup can create sstables whose contents do not match their advertised version
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 21 Feb 2011 23:28:02 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 22 Feb 2011 14:53:19 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Since cleanup switched to per-sstable operation (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1916" title="Cleanup needs to remove
+secondary index entries" class="issue-link"
+data-issue-key="CASSANDRA-1916"><del>CASSANDRA-1916</del></a>), the main loop looks like
+this:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">                    <span
+class="code-keyword">if</span> (Range.isTokenInRanges(row.getKey().token, ranges))        
+           {                        writer = maybeCreateWriter(sstable,
+compactionFileLocation, expectedBloomFilterSize, writer);                       
+writer.append(<span class="code-keyword">new</span> EchoedRow(row));                      
+ totalkeysWritten++;                    }                    <span
+class="code-keyword">else</span>                    {                        <span
+class="code-keyword">while</span> (row.hasNext())                        {                
+           IColumn column = row.next();                            <span
+class="code-keyword">if</span> (indexedColumns.contains(column.name()))                   
+            Table.cleanupIndexEntry(cfs, row.getKey().key, column);                       
+}                    }</pre></div></div>
+... that is, rows that haven't changed we copy to
+the new sstable without deserializing, with EchoedRow.  But, the new sstable is created
+with CURRENT_VERSION which may not be what the old data consisted of.
+
+(This could cause
+symptoms similar to <a href="https://issues.apache.org/jira/browse/CASSANDRA-2195"
+title="java.lang.RuntimeException: java.lang.NegativeArraySizeException"
+class="issue-link" data-issue-key="CASSANDRA-2195"><del>CASSANDRA-2195</del></a> but I do
+not think it is the cause of that bug; IIRC the cluster in question there was not upgraded
+from an older Cassandra.)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This bug was introduced in 0.7.0 but in practice was not a problem until we changed
+sstable formats again in 0.7.1 for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1555" title="Considerations for
+larger bloom filters" class="issue-link"
+data-issue-key="CASSANDRA-1555"><del>CASSANDRA-1555</del></a>. 
+
+
+New Comment: 
+A better fix would be to have it echo if the data is on the current version, otherwise
+rewrite.  This would (a) be a better fit with our policy of not having to keep code around
+to write old versions and (b) allow a better upgrade path to version N + 1 (that doesn't
+support the old version sstables) than major compaction. I'll see if I can do that
+tonight. 
+
+
+New Comment: 
+v2 as described above. 
+
+
+New Comment: 
++1 on the patch. I'm just attaching a v3 that simply use getDefaultGcBefore() throughout
+CompactionManager (to make things cleaner)Sadly, this is not the only place where we echo
+data wrongfully, cf. <a href="https://issues.apache.org/jira/browse/CASSANDRA-2216"
+title="Compaction can echo data which breaks upon sstable format changes"
+class="issue-link" data-issue-key="CASSANDRA-2216"><del>CASSANDRA-2216</del></a> 
+
+
+New Comment: 
+committed 
+
+

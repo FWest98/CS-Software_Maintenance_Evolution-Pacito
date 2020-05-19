@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
 public class JiraXMLIssueRequester {
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "hadoop-hdfs-issueTags";
+    private static String analyzedProject = "cassandra-issueTags";
 
     public static void main(String[] args) throws IOException {
 
@@ -67,11 +67,11 @@ public class JiraXMLIssueRequester {
             String line = reader.readLine();
             while (line != null) {
 
-                if (line.contains("ZOOKEEPER-") || line.contains("DIRMINA-") || line.contains("HDFS-")) {
+                if (line.contains("ZOOKEEPER-") || line.contains("DIRMINA-") || line.contains("HDFS-") || line.contains("CASSANDRA-")) {
                     String[] segments = line.split(" |\\.|:|\\(|\\)");
 
                     for (String segment : segments) {
-                        if (segment.contains("ZOOKEEPER-") || segment.contains("DIRMINA-") || segment.contains("HDFS-")) {
+                        if (segment.contains("ZOOKEEPER-") || segment.contains("DIRMINA-") || segment.contains("HDFS-") || line.contains("CASSANDRA-")) {
                             issueKey = segment;
                         }
                     }
@@ -161,15 +161,15 @@ public class JiraXMLIssueRequester {
                     bufferedLine = bufferedReaderForCommitID.readLine();
                 }
 
-                String project = err.getElementsByTagName("project").item(0).getTextContent().replaceAll(",", "-");
+                String project = err.getElementsByTagName("project").item(0).getTextContent().replaceAll(",|;", "-");
                 String commitID = firstLine.substring(firstLine.lastIndexOf(" ")+1);
-                String developer = err.getElementsByTagName("assignee").item(0).getTextContent().replaceAll(",", "-");
-                String title = err.getElementsByTagName("title").item(0).getTextContent().replaceAll(",", "-");
-                String summary = err.getElementsByTagName("summary").item(0).getTextContent().replaceAll(",", "-");
-                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent().replaceAll(",", "-");
-                String issueType = err.getElementsByTagName("type").item(0).getTextContent().replaceAll(",", "-");
-                String createdDate = err.getElementsByTagName("created").item(0).getTextContent().replaceAll(",", "-");
-                String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent().replaceAll(",", "-");
+                String developer = err.getElementsByTagName("assignee").item(0).getTextContent().replaceAll(",|;", "-");
+                String title = err.getElementsByTagName("title").item(0).getTextContent().replaceAll(",|;", "-");
+                String summary = err.getElementsByTagName("summary").item(0).getTextContent().replaceAll(",|;", "-");
+                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent().replaceAll(",|;", "-");
+                String issueType = err.getElementsByTagName("type").item(0).getTextContent().replaceAll(",|;", "-");
+                String createdDate = err.getElementsByTagName("created").item(0).getTextContent().replaceAll(",|;", "-");
+                String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent().replaceAll(",|;", "-");
                 String patternChanges = detectedPatterns.toString();
 
                 /////////////////////////////

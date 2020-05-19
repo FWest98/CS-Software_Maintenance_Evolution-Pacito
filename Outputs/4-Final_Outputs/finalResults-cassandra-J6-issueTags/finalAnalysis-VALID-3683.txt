@@ -1,0 +1,81 @@
+Pattern changes caused by commit: f674bcc07220ea7accc086406f1d99cfa6578a5f
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3683.txt 
+
+commit f674bcc07220ea7accc086406f1d99cfa6578a5f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add IntegerType to CliUserHelp
+    patch by Joaquin Casares; reviewed by Pavel Yaskevich for CASSANDRA-2414
+
+
+
+==================================
+ Issue CASSANDRA-2414 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2414] IntegerType isn't noted in cli
+-----------------
+
+-----------------
+Summary: IntegerType isn't noted in cli
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 1 Apr 2011 23:31:35 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 4 Apr 2011 13:21:22 +0000
+-----------------
+
+-----------------
+Assigned to: Joaquin Casares
+-----------------
+
+-----------------
+Description: 
+
+The cli's help doesn't list all comparator types.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Just added IntegerType to the list. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

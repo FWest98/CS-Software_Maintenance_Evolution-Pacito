@@ -1,0 +1,130 @@
+Pattern changes caused by commit: 3298c2f19edbb307893d4ba634dd14becc510157
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8556.txt 
+
+commit 3298c2f19edbb307893d4ba634dd14becc510157
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix start key/end token validation for wide row iteration.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-5168
+
+
+
+==================================
+ Issue CASSANDRA-5168 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5168] word count example fails with InvalidRequestException(why:Start key's token sorts after end token)
+-----------------
+
+-----------------
+Summary: word count example fails with InvalidRequestException(why:Start key's token sorts after end token)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 17 Jan 2013 20:22:34 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 25 Jan 2013 20:28:25 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Tried with the latest 1.2 branch (commit d64dc2eb3a1a3c3771bbe3218af9ce9629ec67bf) and
+got this error.  Seems related to but different than <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5106" title="Stock example for using
+pig throws InvalidRequestException(why:Start token sorts after end token)"
+class="issue-link" data-issue-key="CASSANDRA-5106"><del>CASSANDRA-5106</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>java.lang.RuntimeException: InvalidRequestException(why:Start key's
+token sorts after end token)        at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.maybeInit(ColumnFamilyRecordReader.java:475)
+       at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.computeNext(ColumnFamilyRecordReader.java:481)
+       at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.computeNext(ColumnFamilyRecordReader.java:427)
+       at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:143)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:138)       
+at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader.getProgress(ColumnFamilyRecordReader.java:109)
+       at
+org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.getProgress(MapTask.java:411)    
+   at
+org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.nextKeyValue(MapTask.java:427)   
+    at org.apache.hadoop.mapreduce.MapContext.nextKeyValue(MapContext.java:67)        at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:143)        at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)        at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)        at
+org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)Caused by:
+InvalidRequestException(why:Start key's token sorts after end token)        at
+org.apache.cassandra.thrift.Cassandra$get_paged_slice_result.read(Cassandra.java:13685)   
+    at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:78)        at
+org.apache.cassandra.thrift.Cassandra$Client.recv_get_paged_slice(Cassandra.java:731)     
+  at org.apache.cassandra.thrift.Cassandra$Client.get_paged_slice(Cassandra.java:715)     
+  at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.maybeInit(ColumnFamilyRecordReader.java:460)
+       ... 12 more</pre></div></div>Only affects the wide row iterator.  In this case it's
+setting start key to -5551577223485402047 (key808) and comparing to -9223372036854775808 
+
+
+New Comment: 
+I think we need to check that end token is not minimum here too. 
+
+
+New Comment: 
++1 
+
+

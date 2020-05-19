@@ -1,0 +1,74 @@
+Pattern changes caused by commit: 016244785802c29cace8d89b6c3f022af668ee1b
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6502.txt 
+
+commit 016244785802c29cace8d89b6c3f022af668ee1b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow short snitch names & update snitch comments
+    patch by jbellis; reviewed by vijay for CASSANDRA-4130
+
+
+
+==================================
+ Issue CASSANDRA-4130 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4130] update snitch documentation
+-----------------
+
+-----------------
+Summary: update snitch documentation
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 Apr 2012 14:08:03 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 6 Apr 2012 22:31:00 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+

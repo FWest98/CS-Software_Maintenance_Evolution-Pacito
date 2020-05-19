@@ -1,0 +1,196 @@
+Pattern changes caused by commit: 2d72056c14f9b97e67dd94e48691f3ec1a88d9d6
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6892.txt 
+
+commit 2d72056c14f9b97e67dd94e48691f3ec1a88d9d6
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Better error messages from improper input in cli, better decimal parsing
+    patch by dbrosius reviewed by pyaskevich for CASSANDRA-3865
+
+
+
+==================================
+ Issue CASSANDRA-3865 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3865] Cassandra-cli returns 'command not found' instead of syntax error
+-----------------
+
+-----------------
+Summary: Cassandra-cli returns 'command not found' instead of syntax error
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 6 Feb 2012 19:32:46 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 26 May 2012 19:54:45 +0000
+-----------------
+
+-----------------
+Assigned to: David Brosius
+-----------------
+
+-----------------
+Description: 
+
+When creating a column family from the output of 'show schema' with an index, there is a
+trailing comma after "index_type: 0,"  The return from this is a 'command not found'  This
+is misleading because the command is found, there is just a syntax error.
+
+'Command not
+found: `create column family $cfname ...`
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is fixed in 1.0.7 (<a href="https://issues.apache.org/jira/browse/CASSANDRA-3714"
+title="Show Schema; inserts an extra comma in column_metadata" class="issue-link"
+data-issue-key="CASSANDRA-3714"><del>CASSANDRA-3714</del></a>). 
+
+
+New Comment: 
+This doesn't appear to be fixed.Welcome to Cassandra CLI version 1.0.8Type 'help;' or '?'
+for help.<br/>Type 'quit;' or 'exit;' to quit.<span
+class="error">&#91;default@linkcurrent&#93;</span> create column family
+social_poll_deltas<br/>...	  with column_type = 'Standard'<br/>...	  and comparator =
+'CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.LongType)'<br/>...	
+ and default_validation_class = 'UUIDType'<br/>...	  and key_validation_class =
+'UUIDType'<br/>...	  and rows_cached = 0.0<br/>...	  and row_cache_save_period =
+0<br/>...	  and row_cache_keys_to_save = 2147483647<br/>...	  and keys_cached =
+200000.0<br/>...	  and key_cache_save_period = 14400<br/>...	  and read_repair_chance =
+.25<br/>...	  and gc_grace = 864000<br/>...	  and min_compaction_threshold = 4<br/>...	 
+and max_compaction_threshold = 32<br/>...	  and replicate_on_write = true<br/>...	  and
+row_cache_provider = 'SerializingCacheProvider'<br/>...	  and compaction_strategy =
+'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'<br/>...	  and comment =
+'Social poll totals and deltas ';<br/>Command not found: `create column family
+social_poll_deltas with column_type = 'Standard' and comparator =
+'CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.LongType)'
+and default_validation_class = 'UUIDType' and key_validation_class = 'UUIDType' and
+rows_cached = 0.0 and row_cache_save_period = 0 and row_cache_keys_to_save = 2147483647
+and keys_cached = 200000.0 and key_cache_save_period = 14400 and read_repair_chance = .25
+and gc_grace = 864000 and min_compaction_threshold = 4 and max_compaction_threshold = 32
+and replicate_on_write = true and row_cache_provider = 'SerializingCacheProvider' and
+compaction_strategy = 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'
+and comment = 'Social poll totals and deltas ';`. Type 'help;' or '?' for help. 
+
+
+New Comment: 
+As an update, the problem with this (after MUCH trial and error), was that the
+read_repair_chance was .25 instead of 0.25. 
+
+
+New Comment: 
+support decimal parsing as 0.5 and .5against trunk 
+
+
+New Comment: 
+That't one way to fix parsing problem, but in my understanding, what Eric is saying is
+that it's hard to find the error from the message above.<br/>If we can display more user
+friendly message like "Parse error: read_repair_chance = .25", instead of saying "Command
+not found", user can easily fix what's wrong.I'm fine with current Double definition if we
+can fix the error message. What do you think, Pavel? 
+
+
+New Comment: 
+As Yuki said, I'd be more interested in the fix being a complaint of a syntax error (or
+parse error) when attempting to create a column family as opposed to "command not found"
+(which is clearly ambiguous).  This way I (as a user) know that the CLI is aware that I am
+attempting to create a column family and it's failing.  Now not only do I know that I am
+on the right track with the command I'm trying to execute, but then I know roughly where
+the problem is. Fixing the parse error is just a band-aid. 
+
+
+New Comment: 
+I think that Dave's patch is one part of it, another would be to change "Command not
+found" to "Error in the command" and add information from RecognitionException (which
+NoViableAltException extends) to were recognition error have actually happend.Edit: Also,
+Dave, please don't forget that this is intended for inclusion into 1.0 so patches should
+be against cassandra-1.0 branch instead. 
+
+
+New Comment: 
+My fault, I added 1.0 as a fix target after Dave's patch since I thought it was going to
+be a quick fix.  Let's target 1.1 instead. 
+
+
+New Comment: 
+3865_better_cli_ex_handling.txthas better decimal parsing as before.Also has better error
+messaging when the exception is NoViableAltException.For some reason the code special
+cased that exception and returned the non-useful "Command not found" message. I just
+removed the special casing and now the message is useful.If there is some case that
+someone knows about that the message "Command not found" is useful, i can put it back in
+for that specific case, but i couldn't see it.against cassandra-1.1 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed to branch cassandra-1.1 as commit 2d72056c14f9b97e67dd94e48691f3ec1a88d9d6 
+
+
+New Comment: 
+You also need to add line about that into CHANGES.txt and up-merge it into trunk. 
+
+
+New Comment: 
+ok, I did CHANGES.txt update and merge for you this time <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Integrated in Cassandra #1453 (See <a href="https://builds.apache.org/job/Cassandra/1453/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/1453/</a>)<br/>    add missing
+CHANGES.txt entry for <a href="https://issues.apache.org/jira/browse/CASSANDRA-3865"
+title="Cassandra-cli returns &#39;command not found&#39; instead of syntax error"
+class="issue-link" data-issue-key="CASSANDRA-3865"><del>CASSANDRA-3865</del></a> (Revision
+d16c4468e86fbdb82ed981ef6c6ced6f275e4f21)     Result = FAILURE<br/>xedin : <br/>Files :
+<ul>	<li>CHANGES.txt</li></ul> 
+
+
+New Comment: 
+I have fixed small bug and committed to 1.1 and up-merged into trunk. 
+
+

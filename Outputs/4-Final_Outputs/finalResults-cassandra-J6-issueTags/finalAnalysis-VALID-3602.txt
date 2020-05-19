@@ -1,0 +1,127 @@
+Pattern changes caused by commit: 7a7dd17d0d00e226208eabb9c916c31287350a9b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3602.txt 
+
+commit 7a7dd17d0d00e226208eabb9c916c31287350a9b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow negative numbers in the cli
+    patch by Pavel Yaskevich; reviewed by jbellis for CASSANDRA-2358
+
+
+
+==================================
+ Issue CASSANDRA-2358 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2358] CLI doesn't handle inserting negative integers
+-----------------
+
+-----------------
+Summary: CLI doesn't handle inserting negative integers
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 20 Mar 2011 06:36:57 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 31 Mar 2011 18:41:12 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+The CLI raises a syntax error when trying to insert negative integers:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>[default@Keyspace1] set StandardInteger['key'][-12] = 'val';Syntax
+error at position 28: mismatched character '1' expecting '-'</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I will wait until <a href="https://issues.apache.org/jira/browse/CASSANDRA-2341"
+title="Cli support for counters" class="issue-link"
+data-issue-key="CASSANDRA-2341"><del>CASSANDRA-2341</del></a> is committed, it brings
+notation of the positive/negative integers into CLI grammar. 
+
+
+New Comment: 
+We should fix negative ints in 0.7 unless it's a huge pain.  (Counters will stay 0.8
+only.) 
+
+
+New Comment: 
+Gotcha! No, this won't be a pain at all. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #402 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/402/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/402/</a>)<br/>    allow
+negative numbers in the cli<br/>patch by Pavel Yaskevich; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2358" title="CLI doesn&#39;t handle
+inserting negative integers" class="issue-link"
+data-issue-key="CASSANDRA-2358"><del>CASSANDRA-2358</del></a> 
+
+
+New Comment: 
+merged to trunk but CliTest fails.  Can you fix? 
+
+
+New Comment: 
+Can you remove it from trunk for now? I will create a separate version of this patch for
+the trunk. 
+
+
+New Comment: 
+removed 
+
+
+New Comment: 
+Thanks! 
+
+
+New Comment: 
+branch: trunk (latest commit e6c5a28da940a086d0e786f1ad0288c0b0efa27d) 
+
+
+New Comment: 
+committed trunk patch 
+
+

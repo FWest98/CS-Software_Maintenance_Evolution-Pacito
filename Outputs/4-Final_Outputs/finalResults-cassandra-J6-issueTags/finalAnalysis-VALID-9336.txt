@@ -1,0 +1,87 @@
+Pattern changes caused by commit: 11b0cfbe71aca834b4e60a5262dfb5ee1d945baf
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9336.txt 
+
+commit 11b0cfbe71aca834b4e60a5262dfb5ee1d945baf
+Author: Yuki Morishita <yukim@apache.org>
+
+    revert CASSANDRA-5523
+
+
+
+==================================
+ Issue CASSANDRA-5523 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5523] Prevent repair among the nodes of different version
+-----------------
+
+-----------------
+Summary: Prevent repair among the nodes of different version
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 29 Apr 2013 22:21:49 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Aug 2013 03:28:39 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Since streaming file to the node of different version is not allowed, and in fact it
+would be the cause of repair hang, there is no point to allow repairing among the nodes of
+different versions.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to fail repair when the participants' versions are different.<br/>Note that we don't
+need to check if the node is pre-1.1 for sequential repair, I removed that check also. 
+
+
+New Comment: 
+I would change the message to "different protocol versions" or "different major releases"
+since different minor releases should be okay.Otherwise +1 
+
+
+New Comment: 
+Committed with the message fix. Thanks! 
+
+
+New Comment: 
+The fix was unreliable because every time connection is closed, protocol version for that
+connection is also reset (set to null), leading to not able to repair
+randomly.<br/>Reverted from 1.2 branch and trunk for now. 
+
+

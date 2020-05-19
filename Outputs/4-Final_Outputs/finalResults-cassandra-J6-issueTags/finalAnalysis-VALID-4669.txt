@@ -1,0 +1,139 @@
+Pattern changes caused by commit: a9e9b720fb04aa7218a0815ea4cfeaa1ef60c065
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4669.txt 
+
+commit a9e9b720fb04aa7218a0815ea4cfeaa1ef60c065
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    return an InvalidRequestException if an indexed column is assigned a value larger than 64K
+    patch by pyaskevich and jbellis for CASSANDRA-3057
+
+
+
+==================================
+ Issue CASSANDRA-3057 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3057] secondary index on a column that has a value of size > 64k will fail on flush
+-----------------
+
+-----------------
+Summary: secondary index on a column that has a value of size > 64k will fail on flush
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 18 Aug 2011 22:02:13 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 19 Aug 2011 01:54:41 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+exception seen on flush when an indexed column contain size &gt; 64k:
+
+granted that
+having a value &gt; 64k possibly mean something that shouldn't be indexed as it most
+likely would have a high cardinality, but i think there would still be some valid use case
+for it.
+
+test case:<br/>simply run the stress test with <br/>-n 1 -u 0 -c 2  -y Standard 
+-o INSERT  -S 65536 -x KEYS
+
+then call a flush
+
+exception:<br/> INFO <span
+class="error">&#91;FlushWriter:8&#93;</span> 2011-08-18 21:49:33,214 Memtable.java (line
+218) Writing Memtable-Standard1.Idx1@1652462853(16/20 serialized/live bytes, 1
+ops)<br/>Standard1@980087547(196659/245823 serialized/live bytes, 3 ops)<br/>ERROR <span
+class="error">&#91;FlushWriter:8&#93;</span> 2011-08-18 21:49:33,230
+AbstractCassandraDaemon.java (line 133) Fatal exception in thread Thread<span
+class="error">&#91;FlushWriter:8,5,RMI Runtime&#93;</span><br/>java.lang.AssertionError:
+65536<br/>        at
+org.apache.cassandra.utils.ByteBufferUtil.writeWithShortLength(ByteBufferUtil.java:330)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter.append(SSTableWriter.java:164)<br/>       
+at org.apache.cassandra.db.Memtable.writeSortedContents(Memtable.java:245)<br/>        at
+org.apache.cassandra.db.Memtable.access$400(Memtable.java:49)<br/>        at
+org.apache.cassandra.db.Memtable$3.runMayThrow(Memtable.java:270)<br/>        at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Let's add a ThriftValidation check that values inserted into an indexed column are less
+than the "short" length. 
+
+
+New Comment: 
++1 on validation approach (rejecting indexed values &gt; max column name size) + useful
+error message "can't index column value of size A for index B in CF C of KS D" instead of
+"assertion spew"for durability of previous conversations: the problem is the value in a
+column ends up as the name in a the index column family.  So, if you try to index a value
+that is greater than the max column name size it is not handled well. 
+
+
+New Comment: 
+(technically, the value becomes a row key, which happens to have the same size limit as
+column names.) 
+
+
+New Comment: 
+We're already looping through ColumnDefinitions for getValueValidator, let's extract a
+getColumnDefinition from that so we only do the search once. 
+
+
+New Comment: 
+Sorry, I missed metadata.getColumnDefinition(ByteBuffer) method that is why I did a loop,
+fixed now. 
+
+
+New Comment: 
+v3 attached to only do the definition lookup once. 
+
+
+New Comment: 
+Misunderstood what you meant... +1 
+
+
+New Comment: 
+committed 
+
+

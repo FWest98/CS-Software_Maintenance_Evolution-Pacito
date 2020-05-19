@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 2d6c8729e1ca48c6a5b3d67d797828d2c25e090b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6211.txt 
+
+commit 2d6c8729e1ca48c6a5b3d67d797828d2c25e090b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Cli doesn't call getBroadcastAddress needlessly, avoids loading yaml.
+    Patch by brandonwilliams, reviewed by Dave Brosius for CASSANDRA-3986
+
+
+
+==================================
+ Issue CASSANDRA-3986 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3986] Cli shouldn't call FBU.getBroadcastAddress needlessly
+-----------------
+
+-----------------
+Summary: Cli shouldn't call FBU.getBroadcastAddress needlessly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 1 Mar 2012 16:19:02 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 1 Mar 2012 16:34:03 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+The cli is calling this, which causes yaml to be loaded, but the broadcast address isn't
+needed.
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">            <span class="code-comment">// adding
+<span class="code-keyword">default</span> data center from SimpleSnitch</span>           
+<span class="code-keyword">if</span> (currentStrategyOptions == <span
+class="code-keyword">null</span> || currentStrategyOptions.isEmpty())            {        
+       SimpleSnitch snitch = <span class="code-keyword">new</span> SimpleSnitch();        
+       Map&lt;<span class="code-object">String</span>, <span
+class="code-object">String</span>&gt; options = <span class="code-keyword">new</span>
+HashMap&lt;<span class="code-object">String</span>, <span
+class="code-object">String</span>&gt;();               
+options.put(snitch.getDatacenter(FBUtilities.getBroadcastAddress()), <span
+class="code-quote">"1"</span>);                ksDef.setStrategy_options(options);        
+   }</pre></div></div>
+because SimpleSnitch always returns 'datacenter1'
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1Getting user reports that this is causing cli on windows to fail due to not being able
+to load the yaml for some reason (when creating keyspaces) 
+
+
+New Comment: 
+Committed.  Probably only causes a problem on windows because the cli doesn't have the
+yaml in the classpath from the bat file. 
+
+

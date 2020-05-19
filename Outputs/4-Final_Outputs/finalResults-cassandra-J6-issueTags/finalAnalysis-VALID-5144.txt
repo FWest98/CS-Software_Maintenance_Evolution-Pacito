@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 90f0e9a44fb28ec2ad2fc1d5aa7f5ef0125574e9
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5144.txt 
+
+commit 90f0e9a44fb28ec2ad2fc1d5aa7f5ef0125574e9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Nodetool closes JMX connections to avoid leaking timer threads.
+    Patch by vijay, reviewed by brandonwilliams for CASSANDRA-3309
+
+
+
+==================================
+ Issue CASSANDRA-3309 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3309] Nodetool Doesnt close the open JMX connection causing it to leak Threads
+-----------------
+
+-----------------
+Summary: Nodetool Doesnt close the open JMX connection causing it to leak Threads
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 4 Oct 2011 20:22:14 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 4 Oct 2011 21:21:05 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+When nodetool is used intensively we will see 1000's of "JMX server connection
+timeout"
+
+Fix is to close the connections when no longer needed.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Simple fix which just fixes nodetool to close the connection which it creates. tested and
+works fine. 
+
+
+New Comment: 
+Committed 
+
+

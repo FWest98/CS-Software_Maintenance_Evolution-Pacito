@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 1a3a52642c6e72666beb20346093cc3cf2e374f5
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5740.txt 
+
+commit 1a3a52642c6e72666beb20346093cc3cf2e374f5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    remove ConsistencyLevelTest.java
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3531
+
+
+
+==================================
+ Issue CASSANDRA-3531 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3531] Fix crack-smoking in ConsistencyLevelTest
+-----------------
+
+-----------------
+Summary: Fix crack-smoking in ConsistencyLevelTest
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 25 Nov 2011 11:37:54 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 4 Jan 2012 03:17:19 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+First, let's note that this test fails in current 1.0 branch. It was "broken" (emphasis
+on the quotes) by <a href="https://issues.apache.org/jira/browse/CASSANDRA-3529"
+title="ConcurrentModificationException in Table.all()" class="issue-link"
+data-issue-key="CASSANDRA-3529"><del>CASSANDRA-3529</del></a>. But it's not <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3529"
+title="ConcurrentModificationException in Table.all()" class="issue-link"
+data-issue-key="CASSANDRA-3529"><del>CASSANDRA-3529</del></a> fault, it's only that the
+use of NonBlockingHashMap changed the order of the tables returned by
+Schema.instance.getNonSystemTables(). <b>And</b>,  it turns out that ConsistencyLevelTest
+bails out as soon as it has found one keyspace with rf &gt;= 2 due to a misplaced return.
+So it use to be that ConsistencyLevelTest was only ran for Keyspace5 (whose RF is 2) for
+which the test work. But for any RF &gt; 2, the test fails.
+
+The reason of this failing is
+that the test creates a 3 node cluster for whom only 1 node is alive as far as the failure
+detector is concerned. So for RF=3 and CL=QUORUM, the writes are unavailable (the failure
+detector is queried), while for reads we "pretend" two nodes are alive so we end up with a
+case where isWriteUnavailable != isReadUnavailable.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I did some minimal-necessary work to get CLT to pass in trunk, but it sounds like you have
+deeper changes in mind. 
+
+
+New Comment: 
+The deeper change I have in mind consists roughly in removing that test. It's trying to
+tests the result of WriteHandler.assureSufficientLiveNodes() but that method depends on
+the result of the FailureDetector. The problem is that I don't think we really have a good
+way to create real multi-nodes cluster in the unit test. Maybe we can "fake" live nodes
+but I'm not sure how and in the end it makes me wonder what the tests is really testing if
+we're starting to fake too much stuff. It seems to me that the distributed tests are
+probably a better place to do that kind of thing.In any case, It's really annoying to have
+unit tests failure, especially in the 1.0 branch. And as said in the description, that
+test never really worked anyway so any opposition to at least commenting it for now? 
+
+

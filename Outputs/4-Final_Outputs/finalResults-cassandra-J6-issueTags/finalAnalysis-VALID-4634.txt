@@ -1,0 +1,75 @@
+Pattern changes caused by commit: fb05f27d5196bde59cf15d1276cd6a7de82968e8
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4634.txt 
+
+commit fb05f27d5196bde59cf15d1276cd6a7de82968e8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix NPE when debug logging is enabled and dropped CF is present
+    patch by fantayeneh gizaw; reviewed by jbellis for CASSANDRA-3021
+
+
+
+==================================
+ Issue CASSANDRA-3021 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3021] Null pointer dereference of m in org.apache.cassandra.db.commitlog.CommitLogSegment.dirtyString()
+-----------------
+
+-----------------
+Summary: Null pointer dereference of m in org.apache.cassandra.db.commitlog.CommitLogSegment.dirtyString()
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 12 Aug 2011 16:24:56 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 12 Aug 2011 19:33:10 +0000
+-----------------
+
+-----------------
+Assigned to: fantayeneh asres gizaw
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Fixes the NP Dereference 
+
+
+New Comment: 
+committed to 0.8.5 and trunk, thanks! 
+
+

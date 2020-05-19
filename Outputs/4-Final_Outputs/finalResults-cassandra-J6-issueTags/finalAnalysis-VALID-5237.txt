@@ -1,0 +1,96 @@
+Pattern changes caused by commit: e91b3a6c398e51449221cc87a5a29bc1f495343d
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5237.txt 
+
+commit e91b3a6c398e51449221cc87a5a29bc1f495343d
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    ColumnFamily min_compaction_threshold should be >= 2
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3342
+
+
+
+==================================
+ Issue CASSANDRA-3342 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3342] cassandra-cli allows setting min_compaction_threshold to 1
+-----------------
+
+-----------------
+Summary: cassandra-cli allows setting min_compaction_threshold to 1
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 11 Oct 2011 01:01:05 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 14 Oct 2011 21:38:03 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+{{<br/><span class="error">&#91;root@Apture&#93;</span> update column family MagicLinks
+with min_compaction_threshold=1 and
+max_compaction_threshold=20;<br/>b98e3b80-f3a3-11e0-0000-76abb4a6dbbf<br/>Waiting for
+schema agreement...<br/>... schemas agree across the cluster<br/>}}
+
+I'm told that a
+min_compaction_threshold of 1 is nonsensical.  I had a spell where my servers stopped
+doing compactions.  Once I upped the min_compaction_threshold, they started compacting
+again.  I'm unable to confirm for sure that this was the case.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+ISTM the easiest thing to do here is actually use 2 when a user specifies 1. 
+
+
+New Comment: 
+I'd rather raise an error server-side, than silently not do what was requested 
+
+
+New Comment: 
++1 with minor typo fixes: s/then/than/ and s/greather/greater/ 
+
+
+New Comment: 
+Committed. 
+
+

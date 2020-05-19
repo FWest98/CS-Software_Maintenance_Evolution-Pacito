@@ -1,0 +1,126 @@
+Pattern changes caused by commit: a4c397b49c08f543fd42ddc21a6312bce5571947
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7496.txt 
+
+commit a4c397b49c08f543fd42ddc21a6312bce5571947
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix error when using ORDER BY with extended selections
+    patch by Pavel Yaskevich; reviewed by Sylvain Lebresne for CASSANDRA-4689
+
+
+
+==================================
+ Issue CASSANDRA-4689 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4689] Log error when using IN together with ORDER BY
+-----------------
+
+-----------------
+Summary: Log error when using IN together with ORDER BY
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 19 Sep 2012 14:57:10 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 20 Sep 2012 13:59:07 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">$ bin/cqlsh -3Connected to Test Cluster at
+localhost:9160.[cqlsh 2.2.0 | Cassandra 1.1.5-SNAPSHOT | CQL spec 3.0.0 | Thrift protocol
+19.32.0]Use HELP <span class="code-keyword">for</span> help.cqlsh&gt; use ks;cqlsh:ks&gt;
+drop TABLE test;cqlsh:ks&gt; CREATE TABLE test (my_id varchar, time_id uuid, value <span
+class="code-object">int</span>, PRIMARY KEY (my_id, time_id));cqlsh:ks&gt; INSERT INTO
+test (my_id, time_id, value) VALUES (<span class="code-quote">'key1'</span>, 1,
+1);cqlsh:ks&gt; INSERT INTO test (my_id, time_id, value) VALUES (<span
+class="code-quote">'key2'</span>, 2, 2);cqlsh:ks&gt; select * from test where my_id
+in(<span class="code-quote">'key1'</span>, <span class="code-quote">'key2'</span>) order
+by time_id;TSocket read 0 bytes</pre></div></div>
+The log shows this:
+<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">ERROR [Thrift:5] 2012-09-19 08:44:59,859 CustomTThreadPoolServer.java
+(line 204) Error occurred during processing of message.java.lang.IllegalArgumentException:
+Column time_id wasn't found in select clause.	at
+org.apache.cassandra.cql3.statements.SelectStatement.getColumnPositionInSelect(SelectStatement.java:866)	at
+org.apache.cassandra.cql3.statements.SelectStatement.orderResults(SelectStatement.java:836)	at
+org.apache.cassandra.cql3.statements.SelectStatement.process(SelectStatement.java:807)	at
+org.apache.cassandra.cql3.statements.SelectStatement.execute(SelectStatement.java:137)	at
+org.apache.cassandra.cql3.QueryProcessor.processStatement(QueryProcessor.java:108)	at
+org.apache.cassandra.cql3.QueryProcessor.process(QueryProcessor.java:121)	at
+org.apache.cassandra.thrift.CassandraServer.execute_cql_query(CassandraServer.java:1242)	at
+org.apache.cassandra.thrift.Cassandra$Processor$execute_cql_query.getResult(Cassandra.java:3542)	at
+org.apache.cassandra.thrift.Cassandra$Processor$execute_cql_query.getResult(Cassandra.java:3530)	at
+org.apache.thrift.ProcessFunction.process(ProcessFunction.java:32)	at
+org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:34)	at
+org.apache.cassandra.thrift.CustomTThreadPoolServer$WorkerProcess.run(CustomTThreadPoolServer.java:186)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>
+NOTE: This issue appears
+similar to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4612"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-4612</a> from the user
+perspective, even though 4612 was verified as fixed.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Jonathan, I can easily handle this one if Sylvain has a lot on his plate. 
+
+
+New Comment: 
+changes from <a href="https://issues.apache.org/jira/browse/CASSANDRA-4612" title="cql
+error with ORDER BY when using IN" class="issue-link"
+data-issue-key="CASSANDRA-4612"><del>CASSANDRA-4612</del></a> aren't covering extended
+selections properly. 
+
+
+New Comment: 
++1 
+
+

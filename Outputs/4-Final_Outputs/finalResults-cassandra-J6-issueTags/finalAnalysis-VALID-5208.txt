@@ -1,0 +1,235 @@
+Pattern changes caused by commit: ab95f980f4ea13a60a03b0bdf90479c7c36c54e8
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5208.txt 
+
+commit ab95f980f4ea13a60a03b0bdf90479c7c36c54e8
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Expire dead gossip states based on time.
+    Patch by Jérémy Sevellec, reviewed by Paul Cannon and brandonwilliams
+    for CASSANDRA-2961
+
+
+
+==================================
+ Issue CASSANDRA-2961 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2961] Expire dead gossip states based on time
+-----------------
+
+-----------------
+Summary: Expire dead gossip states based on time
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 27 Jul 2011 23:22:22 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 12 Oct 2011 16:17:15 +0000
+-----------------
+
+-----------------
+Assigned to: Jérémy Sevellec
+-----------------
+
+-----------------
+Description: 
+
+Currently dead states are held until aVeryLongTime, 3 days.  The problem is that if a
+node reboots within this period, it begins a new 3 days and will repopulate the ring with
+the dead state.  While mostly harmless, perpetuating the state forever is at least wasting
+a small amount of bandwidth.  Instead, we can expire states based on a ttl, which will
+require that the cluster be loosely time synced; within the quarantine period of 60s.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It looks like as a benefit of our ghetto string concatenation/delimiting in
+VersionedValue, we can just append timestamps to states that need to expire, then respect
+those in the gossiper (if present) instead of aVLT, but we still need to use aVLT if not. 
+This way, everything will stay backward-compatible, since older nodes will just get extra
+'pieces' in SS notifications and not use them.  We probably only need to do this for the
+removed and left states, since the fat client removal logic is already solid and a
+timestamp won't really help there anyway. 
+
+
+New Comment: 
+What do you think about : <ul class="alternate" type="square">	<li>create a Map of
+"expireTimeEndpointMap" into Gossiper wich store endpoints as key and expireTime as
+value.</li></ul><ul class="alternate" type="square">	<li>SS, when a state change
+:</li>	<li>if STATUS is REMOVED_TOKEN or STATUS_LEFT, extract the expireTime in the string
+a the end of the VV and call the Gossiper to add the endpoint/expireTime into the
+expireTimeEndpointMap.<br/>For all other state</li>	<li>for all other STATUS, call the
+gossiper to remove the endpoint into expireTimeEndpointMap if it is present.</li></ul><ul
+class="alternate" type="square">	<li>Gossiper, when doing status check for each endpoint,
+verifying if there is an expireTime in expireTimeEndpointMap for this endpoint, if so, we
+have an expireTime, if not, expireTime is set with aVeryLongTime. test and evict if
+necessary the endpoint.</li></ul>It makes sense for you?(I describe a lot... sorry but i
+would like to be sure of good understanding all aspect of the problem...) 
+
+
+New Comment: 
+This sounds good, a couple of points though:<blockquote>for all other STATUS, call the
+gossiper to remove the endpoint into expireTimeEndpointMap if it is
+present.</blockquote>REMOVED_TOKEN and STATUS_LEFT are the only states we need to worry
+about expiring.<blockquote>Gossiper, when doing status check for each endpoint, verifying
+if there is an expireTime in expireTimeEndpointMap for this endpoint, if so, we have an
+expireTime, if not, expireTime is set with aVeryLongTime. test and evict if necessary the
+endpoint.</blockquote>I think if there is no expireTime we should just respect aVLT as we
+currently do, instead of populating expireTimeEndpointMap.  That way when debugging we can
+tell if the remote side gave us an expireTime or not, otherwise it won't be
+distinguishable. 
+
+
+New Comment: 
+I agree with you about the fact that : REMOVED_TOKEN and STATUS_LEFT are the only states
+we need to worry about expiring. But if SS :<ul class="alternate" type="square">	<li>first
+receive a change for an endpoint with the status by REMOVED_TOKEN or
+STATUS_LEFT</li>	<li>and then for this same endpoint receiving an other change with one of
+other status<br/>we have to delete the expireTime because the gossiper will remove this
+endpoint when expireTime will be exceeded and it must not? no?</li></ul> 
+
+
+New Comment: 
+Yes, we'll need to perform housekeeping on expireTimeEndpointMap.  The simplest thing to
+do is delete the entry when marking it alive, since there is no other way for a dead state
+to change. 
+
+
+New Comment: 
+In addition, I have include a lib for test (hamcrest) to simplify the writing of assertion
+into Junit. 
+
+
+New Comment: 
+Can you rebase without the line reformatting? 
+
+
+New Comment: 
+ok. I thought it was a good idea but I realize that to inspect the patch, it is difficult.
+I will publish a new patch version as soon as possible. 
+
+
+New Comment: 
+We typically don't adhere to 80 columns anyway, java is too verbose <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+yes it's true and it'is my code style configuration <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+here is a new version of the patch without the reformating.<br/>I had got a problem with
+indentation code style. 
+
+
+New Comment: 
+A few things:<ul>	<li>I don't think it's worth pulling in the hamcrest dependency for 'is'
+instead of writing assertEquals(1L, expireTime)</li>	<li>VersionedValue.getExpireTime
+feels like the wrong place to me for that logic, but I could be wrong</li>	<li>rather than
+having multiple calls to addExpireTimeIfFound let's put this in excise()</li>	<li>some
+DEBUG logging to know when an endpoint is going to be expired (and whether a timestamp was
+supplied or not) could be helpful in the future</li></ul> 
+
+
+New Comment: 
+ok I like it, it's few things <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> : <ul class="alternate"
+type="square">	<li>hamscrest : In my case, It's true, I just use hamcrest with "is" into
+assert. There is a lot of other verb which interesting to make asserting more readable. Tt
+was for help for next but if you want I can remove it. tell me you do you
+prefer.</li>	<li>VersionedValue.getExpireTime : It's true, I put it in the Gossiper? a
+utility class?</li>	<li>addExpireTimeIfFound : ok i put one call in excise but i keep the
+method to isolate the thinking. if you're ok.</li>	<li>DEBUG log : ho there was (to make
+my test), but i remove it before creating the patch... I add them again</li></ul> 
+
+
+New Comment: 
+I found why i have make 2 call of addExpireTimeIfFound into SS instead of calling it into
+excise : <br/>There is 3 calls to excise in SS : handleStateLeft, handleStateRemoving
+and... removeToken.<br/>In removeToken, we don't have the "pieces" of the VV which contain
+expireTime. So we can't extract an expireTime.so there is 3 possibilities : <ul
+class="alternate" type="square">	<li>modify excise to add "pieces" parameter, set it to
+null in the removeToken call and manage the case if pieces is null. I find this solution
+not so beautiful but will work.</li>	<li>refactor and create 2 method signature of excise
+: one with pieces parameter and one without.</li>	<li>keep as it is.</li></ul>It's as you
+want. Tell me what is your preference (or another). 
+
+
+New Comment: 
+<blockquote>hamscrest : In my case, It's true, I just use hamcrest with "is" into assert.
+There is a lot of other verb which interesting to make asserting more readable. Tt was for
+help for next but if you want I can remove it. tell me you do you prefer.</blockquote>I
+don't think it's providing enough utility yet to justify another
+dependency.<blockquote>VersionedValue.getExpireTime : It's true, I put it in the Gossiper?
+a utility class?</blockquote>I think I would pass the expire times to the VV constructors
+and put the actual generation of the times in Gossiper.<blockquote>There is 3 calls to
+excise in SS : handleStateLeft, handleStateRemoving and... removeToken. In removeToken, we
+don't have the "pieces" of the VV which contain expireTime. So we can't extract an
+expireTime.</blockquote>That's because in removeToken, we are responsible for the
+generation of the expireTime (we are the removal coordinator.) 
+
+
+New Comment: 
+You can find an new version of the patch : <ul class="alternate"
+type="square">	<li>without hamcrest dependency</li>	<li>compute the generation of
+expireTime into gossiper and calling it into the constructor of VV</li>	<li>modify SS to
+be more readable</li>	<li>adding some log</li></ul>I hope it's ok <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+So it looks like expireTimeEndpointMap is meant to contain absolute timestamps, not
+durations; however, the default expiretime value (as returned by
+o.a.c.gms.Gossiper.getExpireTimeForEndpoint()) is aVeryLongTime.That should probably be
+(System.currentTimeMillis() + aVeryLongTime).Also, I think it would make more sense to
+pass expire times into the VersionedValue constructors, not call into the Gossiper from
+inside them. 
+
+
+New Comment: 
+Here is a new version of the patch integrating your comments 
+
+
+New Comment: 
++1 
+
+

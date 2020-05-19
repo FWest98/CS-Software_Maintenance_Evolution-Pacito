@@ -1,0 +1,206 @@
+Pattern changes caused by commit: e2612579e5c1c1d1f7daefe15a8244b0d087f4fc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3774.txt 
+
+commit e2612579e5c1c1d1f7daefe15a8244b0d087f4fc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    use 64KB flush buffer instead of in_memory_compaction_limit
+    patch by C. Scott Andreas; reviewed by jbellis for CASSANDRA-2463
+
+
+
+==================================
+ Issue CASSANDRA-2463 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2463] Flush and Compaction Unnecessarily Allocate 256MB Contiguous Buffers
+-----------------
+
+-----------------
+Summary: Flush and Compaction Unnecessarily Allocate 256MB Contiguous Buffers
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 12 Apr 2011 21:23:43 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Apr 2011 05:34:31 +0000
+-----------------
+
+-----------------
+Assigned to: C. Scott Andreas
+-----------------
+
+-----------------
+Description: 
+
+Currently, Cassandra 0.7.x allocates a 256MB contiguous byte array at the beginning of a
+memtable flush or compaction (presently hard-coded as
+Config.in_memory_compaction_limit_in_mb). When several memtable flushes are triggered at
+once (as by `nodetool flush` or `nodetool snapshot`), the tenured generation will
+typically experience extreme pressure as it attempts to locate <span
+class="error">&#91;n&#93;</span> contiguous 256mb chunks of heap to allocate. This will
+often trigger a promotion failure, resulting in a stop-the-world GC until the allocation
+can be made. (Note that in the case of the "release valve" being triggered, the problem is
+even further exacerbated; the release valve will ironically trigger two contiguous 256MB
+allocations when attempting to flush the two largest memtables).
+
+This patch sets the
+buffer to be used by BufferedRandomAccessFile to Math.min(bytesToWrite,
+BufferedRandomAccessFile.DEFAULT_BUFFER_SIZE) rather than a hard-coded 256MB. The typical
+resulting buffer size is 64kb.
+
+I've taken some time to measure the impact of this change
+on the base 0.7.4 release and with this patch applied. This test involved launching
+Cassandra, performing four million writes across three column families from three clients,
+and monitoring heap usage and garbage collections. Cassandra was launched with 2GB of heap
+and the default JVM options shipped with the project. This configuration has 7 column
+families with a total of 15GB of data.
+
+Here's the base 0.7.4 release:<br/><a
+href="http://cl.ly/413g2K06121z252e2t10" class="external-link"
+rel="nofollow">http://cl.ly/413g2K06121z252e2t10</a>
+
+Note that on launch, we see a flush
++ compaction triggered almost immediately, resulting in at least 7x very quick 256MB
+allocations maxing out the heap, resulting in a promotion failure and a full GC. As
+flushes proceeed, we see that most of these have a corresponding CMS, consistent with the
+pattern of a large allocation and immediate collection. We see a second promotion failure
+and full GC at the 75% mark as the allocations cannot be satisfied without a collection,
+along with several CMSs in between. In the failure cases, the allocation requests occur so
+quickly that a standard CMS phase cannot completed before a ParNew attempts to promote the
+surviving byte array into the tenured generation. The heap usage and GC profile of this
+graph is very unhealthy.
+
+Here's the 0.7.4 release with this patch applied:<br/><a
+href="http://cl.ly/050I1g26401B1X0w3s1f" class="external-link"
+rel="nofollow">http://cl.ly/050I1g26401B1X0w3s1f</a>
+
+This graph is very different. At
+launch, rather than a immediate spike to full allocation and a promotion failure, we see a
+slow allocation slope reaching only 1/8th of total heap size. As writes begin, we see
+several flushes and compactions, but none result in immediate, large allocations. The
+ParNew collector keeps up with collections far more ably, resulting in only one healthy
+CMS collection with no promotion failure. Unlike the unhealthy rapid allocation and
+massive collection pattern we see in the first graph, this graph depicts a healthy
+sawtooth pattern of ParNews and an occasional effective CMS with no danger of heap
+fragmentation resulting in a promotion failure.
+
+The bottom line is that there's no need
+to allocate a hard-coded 256MB write buffer for flushing memtables and compactions to
+disk. Doing so results in unhealthy rapid allocation patterns and increases the
+probability of triggering promotion failures and full stop-the-world GCs which can cause
+nodes to become unresponsive and shunned from the ring during flushes and compactions.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+[ Patch attached ] 
+
+
+New Comment: 
+Patch attached. Applies cleanly to tag 'cassandra-0.7.4'. All tests pass. 
+
+
+New Comment: 
+I started making it more complicated:<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">        <span
+class="code-comment">// the gymnastics here are because</span>        <span
+class="code-comment">//  - we want the buffer large enough that we're not re-buffering
+when we have to seek back to the</span>        <span class="code-comment">//    start of a
+row to write the data size.  Here, <span class="code-quote">"10% larger than the average
+row"</span> is <span class="code-quote">"large enough,"</span></span>        <span
+class="code-comment">//    meaning we expect to seek and rebuffer about 1/10 of the
+time.</span>        <span class="code-comment">//  - but we don't want to allocate a huge
+buffer unnecessarily <span class="code-keyword">for</span> a small amount of data</span>  
+     <span class="code-comment">//  - and on the low end, we don't want to be absurdly
+stingy with the buffer size <span class="code-keyword">for</span> small rows</span>       
+<span class="code-keyword">assert</span> estimatedSize &gt; 0;        <span
+class="code-object">long</span> maxBufferSize = <span
+class="code-object">Math</span>.min(DatabaseDescriptor.getInMemoryCompactionLimit(), 1024
+* 1024);        <span class="code-object">int</span> bufferSize;        <span
+class="code-keyword">if</span> (estimatedSize &lt; 64 * 1024)        {           
+bufferSize = (<span class="code-object">int</span>) estimatedSize;        }        <span
+class="code-keyword">else</span>        {            <span class="code-object">long</span>
+estimatedRowSize = estimatedSize / keyCount;            bufferSize = (<span
+class="code-object">int</span>) <span class="code-object">Math</span>.min(<span
+class="code-object">Math</span>.max(1.1 * estimatedRowSize, 64 * 1024), maxBufferSize);   
+    }</pre></div></div>...  but the larger our buffer is, the larger the penalty for
+guessing wrong when we have to seek back and rebuffer.Then I went through and added size
+estimation to the CompactionManager, until I thought "it's kind of ridiculous to be
+worrying about saving a few bytes less than 64KB, especially when we expect most memtables
+to have more data in them than 64K when flushed."Thus, I arrived at the patch Antoine de
+Saint-Exupery would have written, attached as v2. 
+
+
+New Comment: 
+A noteworthy factor here is that unless an fsync()+fadvise()/madvise() have evicted data,
+in the normal case this stuff should still be in page cache for any reasonably sized row.
+For truly huge rows, the penalty of seeking back should be insignificant anyway.Total +1
+on avoiding huge allocations. I was surprised to realize, when this ticket came along,
+that this was happening <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I have been suspecting that the bloom
+filters are a major concern too with respect to triggering promotion failures (but I
+haven't done testing to confirm this). Are there other cases than this and the bloom
+filters where we know that we're doing large allocations? 
+
+
+New Comment: 
+(I wonder if this is the cause of the intermittent load-spikes-after-upgrade-to-0.7
+reports we've seen.) 
+
+
+New Comment: 
+As a data point to that question, we hardly ever had CMS collections on 0.6.8 and maybe
+one full GC ever that I can think of for what was years of cumulative uptime. It surely
+differs for workloads, but in our case 0.7 got much worse along the CMS dimension. 
+
+
+New Comment: 
+Filed <a href="https://issues.apache.org/jira/browse/CASSANDRA-2466" title="bloom filters
+should avoid huge array allocations to avoid fragmentation concerns" class="issue-link"
+data-issue-key="CASSANDRA-2466"><del>CASSANDRA-2466</del></a> for the bloom filter case. 
+
+
+New Comment: 
+First time I got a +1 via Twitter: <a
+href="http://twitter.com/#!/cscotta/status/58031493565513728" class="external-link"
+rel="nofollow">http://twitter.com/#!/cscotta/status/58031493565513728</a>committed. 
+
+

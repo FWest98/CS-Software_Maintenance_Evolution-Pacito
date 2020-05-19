@@ -1,0 +1,201 @@
+Pattern changes caused by commit: 4069d8af44241b84cfdfa60dc362868ef5241ecf
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4627.txt 
+
+commit 4069d8af44241b84cfdfa60dc362868ef5241ecf
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make sure truncate clears out the commitlog
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2950
+
+
+
+==================================
+ Issue CASSANDRA-2950 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2950] Data from truncated CF reappears after server restart
+-----------------
+
+-----------------
+Summary: Data from truncated CF reappears after server restart
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 26 Jul 2011 20:56:33 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 11 Aug 2011 19:36:15 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+<ul>	<li>Configure 3 node cluster</li>	<li>Ensure the java stress tool creates Keyspace1
+with RF=3</li></ul><div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// Run
+Stress Tool to generate 10 keys, 1 column</span>stress --operation=INSERT -t 2
+--num-keys=50 --columns=20 --consistency-level=QUORUM --average-size-values
+--replication-factor=3 --create-index=KEYS --nodes=cathy1,cathy2<span
+class="code-comment">// Verify 50 keys in CLI</span>use Keyspace1; list Standard1; <span
+class="code-comment">// TRUNCATE CF in CLI</span>use Keyspace1;truncate counter1;list
+counter1;<span class="code-comment">// Run stress tool and verify creation of 1 key with
+10 columns</span>stress --operation=INSERT -t 2 --num-keys=1 --columns=10
+--consistency-level=QUORUM --average-size-values --replication-factor=3
+--create-index=KEYS --nodes=cathy1,cathy2<span class="code-comment">// Verify 1 key in
+CLI</span>use Keyspace1; list Standard1; <span class="code-comment">// Restart all three
+nodes</span><span class="code-comment">// You will see 51 keys in CLI</span>use Keyspace1;
+list Standard1; </pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is a general issue with all CF's. updating bug. 
+
+
+New Comment: 
+The other permutation of this bug looked like, assuming write with CL.Q:<ul>	<li>Insert 50
+(3 nodes up)</li>	<li>truncate CF (3 nodes up)</li>	<li>Insert 1 (3 nodes
+up)</li>	<li>Bring node3 down</li>	<li>Delete 1  (2 nodes up)</li>	<li>Bring up node3 and
+run repair</li>	<li>Take down node1 and node2.</li>	<li>Query node3 with CL.ONE: list
+Standard1;  &#8212; 30 rows returned</li></ul>Not sure, but this looked suspicious in my
+logs:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"> INFO 01:19:45,616 Streaming to /50.57.114.45 INFO
+01:19:45,689 Finished streaming session 698609583499991 from /50.57.107.176 INFO
+01:19:45,690 Finished streaming session 698609609994154 from /50.57.114.45 INFO
+01:19:46,501 Finished streaming repair with /50.57.114.45 <span
+class="code-keyword">for</span> (0,56713727820156410577229101238628035242]: 0 oustanding
+to complete session INFO 01:19:46,531 Compacted to /<span
+class="code-keyword">var</span>/lib/cassandra/data/Keyspace1/Standard1-tmp-g-106-Data.db. 
+16,646,523 to 16,646,352 (~99% of original) bytes <span class="code-keyword">for</span> 30
+keys.  Time: 1,509ms. INFO 01:19:46,930 Finished streaming repair with /50.57.107.176
+<span class="code-keyword">for</span> (113427455640312821154458202477256070484,0]: 1
+oustanding to complete session INFO 01:19:47,619 Finished streaming repair with
+/50.57.114.45 <span class="code-keyword">for</span>
+(113427455640312821154458202477256070484,0]: 0 oustanding to complete session INFO
+01:19:48,232 Finished streaming repair with /50.57.107.176 <span
+class="code-keyword">for</span>
+(56713727820156410577229101238628035242,113427455640312821154458202477256070484]: 1
+oustanding to complete session INFO 01:19:48,856 Finished streaming repair with
+/50.57.114.45 <span class="code-keyword">for</span>
+(56713727820156410577229101238628035242,113427455640312821154458202477256070484]: 0
+oustanding to complete session</pre></div></div> 
+
+
+New Comment: 
+Currently, truncate does:<ul>	<li>force a flush</li>	<li>record the time</li>	<li>delete
+any sstables older than the time</li></ul>This isn't quite enough if the machine crashes
+shortly afterward, however, since there can be mutations present in the commitlog that
+were previously truncated and are now resurrected by CL replay.One thing we could do is
+record the truncate time for the CF in the system ks and then ignore mutations older than
+that, however this would require time synchronization between the client and the server to
+be accurate. 
+
+
+New Comment: 
+but we record CL "context" at time of flush in the sstable it makes, and we on replay we
+ignore any mutations from before that position.checked and we do wait for flush to
+complete in truncate. 
+
+
+New Comment: 
+<blockquote>but we record CL "context" at time of flush in the sstable it makes, and we on
+replay we ignore any mutations from before that position.</blockquote>I think there's
+something wrong with that, then:<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre> INFO 21:25:15,274 Replaying
+/var/lib/cassandra/commitlog/CommitLog-1312924388053.logDEBUG 21:25:15,290 Replaying
+/var/lib/cassandra/commitlog/CommitLog-1312924388053.log starting at 0DEBUG 21:25:15,291
+Reading mutation at 0DEBUG 21:25:15,295 replaying mutation for system.4c:
+{ColumnFamily(LocationInfo [47656e65726174696f6e:false:4@1312924388140000,])}DEBUG
+21:25:15,321 Reading mutation at 89DEBUG 21:25:15,322 replaying mutation for
+system.426f6f747374726170: {ColumnFamily(LocationInfo [42:false:1@1312924388203,])}DEBUG
+21:25:15,322 Reading mutation at 174DEBUG 21:25:15,322 replaying mutation for system.4c:
+{ColumnFamily(LocationInfo [546f6b656e:false:16@1312924388204,])}DEBUG 21:25:15,322
+Reading mutation at 270DEBUG 21:25:15,324 replaying mutation for Keyspace1.3030:
+{ColumnFamily(Standard1
+[C0:false:34@1312924813259,C1:false:34@1312924813260,C2:false:34@1312924813260,C3:false:34@1312924813260,C4:false:34@1312924813260,])}</pre></div></div>The
+last entry there is the first of many errant mutations. 
+
+
+New Comment: 
+Ah, <a href="https://issues.apache.org/jira/browse/CASSANDRA-2419" title="Risk of counter
+over-count when recovering commit log" class="issue-link"
+data-issue-key="CASSANDRA-2419"><del>CASSANDRA-2419</del></a> keeps on
+giving...<blockquote>but we record CL "context" at time of flush in the sstable it makes,
+and we on replay we ignore any mutations from before that position.</blockquote>The
+obvious problem with this is that the point of truncate is to blow away such sstables... 
+Patch attached.  Comment explains the core fix:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>// Bonus
+complication: since we store replay position in sstable metadata,// truncating those
+sstables means we will replay any CL segments from the// beginning if we restart before
+they are discarded for normal reasons// post-truncate.  So we need to (a) force a new
+segment so the currently// active one can be discarded, and (b) flush *all* CFs so that
+unflushed// data in others don't keep any pre-truncate CL segments
+alive.</pre></div></div>Patch also fixes the bug in ReplayManagerTruncateTest that made it
+miss this. 
+
+
+New Comment: 
+I think the forceFlush of all the CF is not safe, because if for a given column family the
+memtable is clean, forceFlush will return immediately, even though there could be a
+memtable being flush at the same time (or pending flush). So we cannot be sure all the old
+segment are clean after the waitFutures (I know, it took me some time to figure out some
+problem with repair for this very reason when the repairs were not properly
+synchronized).What we would need is to add to the future we wait on the futures of all the
+flush being processed at that time. Sounds annoying though. 
+
+
+New Comment: 
++1, though this patch is against trunk, not 0.8.  Also mistakenly bumps the log4j level to
+debug. 
+
+
+New Comment: 
+v2:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>// Bonus bonus: simply forceFlush of all the
+CF is not enough, because if// for a given column family the memtable is clean, forceFlush
+will return// immediately, even though there could be a memtable being flush at the same//
+time.  So to guarantee that all segments can be cleaned out, we need//
+"waitForActiveFlushes" after the new segment has been created.</pre></div></div> 
+
+
+New Comment: 
+Attaching a v3 that is rebased against 0.8. I've also slightly change the logic in
+Truncate to submit all the flushes and then call waitForActiveFlushes, as this is slightly
+simpler and should work equally well as far as I can tell.<br/>Apart from that, this lgtm. 
+
+
+New Comment: 
+committed 
+
+

@@ -1,0 +1,142 @@
+Pattern changes caused by commit: 8289d6840388a1f868c14a2740e7f1bbefa0e675
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4810.txt 
+
+commit 8289d6840388a1f868c14a2740e7f1bbefa0e675
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix CLI `show schema;` to output correct keyspace definition statement
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3129
+
+
+
+==================================
+ Issue CASSANDRA-3129 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3129] "show schema" in CLI outputs invalid text structure that cannot be replayed (easily tweakable though)
+-----------------
+
+-----------------
+Summary: "show schema" in CLI outputs invalid text structure that cannot be replayed (easily tweakable though)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Sep 2011 18:23:43 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 6 Sep 2011 16:50:55 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Log explaining the problem. Trouble happens at the "and replication_factor = 1"
+string
+
+<span class="error">&#91;default@unknown&#93;</span> connect cassandra2/9160;     
+                                 <br/>Connected to: "Lab1" on
+cassandra2/9160
+<ul>	<li>Create a keyspace with a pretty simple definition<br/><span
+class="error">&#91;default@unknown&#93;</span> create keyspace foo<br/>...	  with
+placement_strategy = 'SimpleStrategy'<br/>...	  and strategy_options =
+[{replication_factor : 1}
+];<br/>f9e13340-d58f-11e0-0000-e3f60146f2df<br/>Waiting for
+schema agreement...<br/>... schemas agree across the cluster<br/><span
+class="error">&#91;default@unknown&#93;</span> use foo;<br/>Authenticated to keyspace:
+foo
+</li></ul><ul>	<li>Copy the schema so we can paste it later<br/><span
+class="error">&#91;default@foo&#93;</span> show schema; <br/>create keyspace foo<br/>  and
+replication_factor = 1<br/>  with placement_strategy = 'SimpleStrategy'<br/>  and
+strategy_options = [{replication_factor : 1}
+];
+</li></ul>
+use foo;
+<ul>	<li>Remove the
+keyspace, so we can paste the exact same text above<br/><span
+class="error">&#91;default@foo&#93;</span> drop keyspace
+foo;<br/>07c93a70-d590-11e0-0000-e3f60146f2df<br/>Waiting for schema agreement...<br/>...
+schemas agree across the cluster</li></ul><ul>	<li>Paste the schema shown above as result
+of the 'show schema' command<br/><span class="error">&#91;default@unknown&#93;</span>
+create keyspace foo<br/>...	  and replication_factor = 1<br/>...	  with placement_strategy
+= 'SimpleStrategy'<br/>...	  and strategy_options = [{replication_factor : 1}
+];<br/>No
+enum constant
+org.apache.cassandra.cli.CliClient.AddKeyspaceArgument.REPLICATION_FACTOR
+</li>	<li>Presented
+an error that should not occur if show schema generated valid text</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Evaldo, please confirm that this fixed the problem! 
+
+
+New Comment: 
+Does this handle an upgraded 0.7 schema that didn't have replication_factor set in
+strategy_options? 
+
+
+New Comment: 
+makes sure to include "replication_factor" if set as an attribute to the strategy_options. 
+
+
+New Comment: 
+The existing backwards compatibility code in KSMetadata doesn't cover this?(No, I don't
+know the answer to these questions.) 
+
+
+New Comment: 
+Oh, I overlooked that - it actually does add replication_factor to the strategy_options. 
+
+
+New Comment: 
++1I also note that the original report shows "... and ... with ... and ..." in the create
+statement.  Is there a second bug?  The first option should always be "with." 
+
+
+New Comment: 
+<blockquote>I also note that the original report shows "... and ... with ... and ..." in
+the create statement. Is there a second bug? The first option should always be
+"with."</blockquote>It was fixed with removal of replication_strategy - writeAttr(...)
+call there had a wrong second argument. 
+
+
+New Comment: 
+Committed. 
+
+

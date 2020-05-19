@@ -1,0 +1,172 @@
+Pattern changes caused by commit: be313935e54be450d9aaabda7965a2f266e922c9
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5667.txt 
+
+commit be313935e54be450d9aaabda7965a2f266e922c9
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fsync the directory after new sstable or commitlog segment are created
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3250
+
+
+
+==================================
+ Issue CASSANDRA-3250 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3250] fsync the directory after new sstable or commit log segment are created
+-----------------
+
+-----------------
+Summary: fsync the directory after new sstable or commit log segment are created
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 23 Sep 2011 14:39:16 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 19 Dec 2011 23:50:49 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+The mannual of fsync said:
+<blockquote>
+Calling  fsync()  does  not  necessarily  ensure 
+that  the entry in the directory containing the file has also reached disk.  For that an
+explicit fsync() on a file descriptor for the directory is also needed.
+</blockquote>
+At
+least on ext4, syncing the directory is a must to have step, as described by <span
+class="error">&#91;1&#93;</span>. Otherwise, the new sstables or commit logs could be
+missed after crash even if itself is synced. 
+
+Unfortunately, JVM does not provide an
+approach to sync the directory...
+
+<span class="error">&#91;1&#93;</span> <a
+href="http://www.linuxfoundation.org/news-media/blogs/browse/2009/03/don%E2%80%99t-fear-fsync"
+class="external-link"
+rel="nofollow">http://www.linuxfoundation.org/news-media/blogs/browse/2009/03/don%E2%80%99t-fear-fsync</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There is a relative discussion on PostgreSQL.<a
+href="http://postgresql.1045698.n5.nabble.com/fsync-reliability-td4330289.html"
+class="external-link"
+rel="nofollow">http://postgresql.1045698.n5.nabble.com/fsync-reliability-td4330289.html</a> 
+
+
+New Comment: 
+On XFS, this is not a problem per the developer's response<span
+class="error">&#91;1&#93;</span>.<span class="error">&#91;1&#93;</span> <a
+href="http://www.spinics.net/lists/xfs/msg07229.html" class="external-link"
+rel="nofollow">http://www.spinics.net/lists/xfs/msg07229.html</a> 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>shouldn't the directory cache be per-Writer, not
+static?</li>	<li>why would the FD be null?  if it shouldn't be, let's use an assert
+there</li></ul> 
+
+
+New Comment: 
+<blockquote>shouldn't the directory cache be per-Writer, not static?</blockquote>It's
+useful to make it static instead of instantiation per-Writer because we need every writer
+to be able to see already open directories.<blockquote>why would the FD be null? if it
+shouldn't be, let's use an assert there</blockquote>Directory FD could be null when it's
+the first time we see directory e.g. first time for commitlog, different data directories,
+also I made it that way because of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2749" title="fine-grained control
+over data directories" class="issue-link"
+data-issue-key="CASSANDRA-2749"><del>CASSANDRA-2749</del></a>. 
+
+
+New Comment: 
+<blockquote>we need every writer to be able to see already open
+directories</blockquote>While it doesn't really matter with the current
+directory-per-keyspace, syncing every directory open globally when any sstable is written
+could be problematic with <a href="https://issues.apache.org/jira/browse/CASSANDRA-2749"
+title="fine-grained control over data directories" class="issue-link"
+data-issue-key="CASSANDRA-2749"><del>CASSANDRA-2749</del></a> (especially with leveled
+compaction, which does lots of small sstable writes).  What's the problem with just having
+writers sync directories for files they're writing? 
+
+
+New Comment: 
+No problem with that, here is the version where SequentialWriter syncs only directory for
+file it writes. 
+
+
+New Comment: 
+re-attached v2 which does only one directory sync per file (after first file sync). 
+
+
+New Comment: 
+v2 looks a lot simpler, I like it.Is there a reason to limit this to Linux-only?  If open
++ fsync + close exist, it should work.  (And if they don't, we already have the link error
+to tell us that.) 
+
+
+New Comment: 
+The reason is O_DIRECTORY is a Linux-specific flag. 
+
+
+New Comment: 
+Is O_DIRECTORY necessary for the sync to work?  Or is that just a "make sure this path is
+actually a directory" flag?  If the latter, then we can leave it out, since we know the
+path is a directory by construction. 
+
+
+New Comment: 
+Ok, v3 O_DIRECTORY changed to O_RDONLY and checks for linux are removed from
+CLibrary.O_DIRECTORY just causes open to fail if given path is not a directory, so it
+seems we can live without it <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+... actually, can you back this out of 1.0 and put it in 1.1 instead?  It <b>should</b> be
+fine but let's not take chances with regressions. 
+
+

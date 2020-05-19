@@ -1,0 +1,89 @@
+Pattern changes caused by commit: bda0f39cef98f9eefc8105ed19169188ff716263
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3779.txt 
+
+commit bda0f39cef98f9eefc8105ed19169188ff716263
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Allow pig to use multiple schemas, fix BytesTypes cast during storage.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2465
+
+
+
+==================================
+ Issue CASSANDRA-2465 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2465] Pig load/storefunc loads only one schema and BytesType validation class needs fix
+-----------------
+
+-----------------
+Summary: Pig load/storefunc loads only one schema and BytesType validation class needs fix
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 13 Apr 2011 01:39:53 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Apr 2011 17:42:17 +0000
+-----------------
+
+-----------------
+Assigned to: Jeremy Hanna
+-----------------
+
+-----------------
+Description: 
+
+With a recent optimization, it appears that the Pig load/store func gets only one schema
+from Cassandra and tries to apply it to all CFs in the pig script.  Also, the BytesType
+validation tries to cast the object in putNext as a DataByteArray and wrap it as a
+ByteBuffer.  Instead it should just call objToBB which should take care of it.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching patch to make the udf context key specific to the keyspace and column family so
+it doesn't get overwritten.  Also changed the putNext case where the validation class is
+BytesType to use objToBB the way it should to handle things like Strings. 
+
+
+New Comment: 
+Tested with basic row count pig script as well as multiple join/cogroup operations against
+multiple column families.  Tested input and output. 
+
+

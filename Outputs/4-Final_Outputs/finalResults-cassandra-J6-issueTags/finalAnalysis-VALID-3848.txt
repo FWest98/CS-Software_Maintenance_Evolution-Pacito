@@ -1,0 +1,90 @@
+Pattern changes caused by commit: 23706164f6e1495f2e2a21a454fd07ef0c7164a5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3848.txt 
+
+commit 23706164f6e1495f2e2a21a454fd07ef0c7164a5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    count a row deletionas one operation towards memtable threshold
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2519
+
+
+
+==================================
+ Issue CASSANDRA-2519 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2519] row deletions do not add to memtable op count
+-----------------
+
+-----------------
+Summary: row deletions do not add to memtable op count
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 20 Apr 2011 10:45:54 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Apr 2011 15:54:22 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+from discussion <a
+href="http://www.mail-archive.com/user@cassandra.apache.org/msg12531.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg12531.html</a>
+
+Memtable.resolve()
+uses the count of columns in the CF to bump the op count however RowMutation.delete() does
+not add any columns to the CF when an entire row is deleted. If a super column or column
+is deleted it adds 1 towards the op count. Deleting many named columns will add many to
+the op count. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch 0001 adds one to the memtable op count if the CF contains zero columns and
+cf.isMarkedForDeletion() 
+
+
+New Comment: 
+committed, thanks! 
+
+

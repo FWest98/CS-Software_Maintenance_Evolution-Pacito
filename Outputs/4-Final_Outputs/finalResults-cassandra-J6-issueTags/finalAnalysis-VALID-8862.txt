@@ -1,0 +1,105 @@
+Pattern changes caused by commit: ffc9bece4854c8f6aae7f672e262897d06fce50d
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8862.txt 
+
+commit ffc9bece4854c8f6aae7f672e262897d06fce50d
+Author: Yuki Morishita <yukim@apache.org>
+
+    Fix race when opening ColumnFamilyStore; patch by yukim reviewed by jbellis for CASSANDRA-5350
+
+
+
+==================================
+ Issue CASSANDRA-5350 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5350] Fix ColumnFamily opening race
+-----------------
+
+-----------------
+Summary: Fix ColumnFamily opening race
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 14 Mar 2013 18:45:57 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Mar 2013 21:02:19 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+(Moving from <a href="https://issues.apache.org/jira/browse/CASSANDRA-5151"
+title="Implement better way of eliminating compaction left overs." class="issue-link"
+data-issue-key="CASSANDRA-5151"><del>CASSANDRA-5151</del></a>)
+
+Currently, MeteredFlusher
+is scheduled inside static block of ColumnFamilyStore,  and it accesses all
+ColumnFamilyStore when it runs every 1 sec. Scheduling is done when JVM first load
+ColumnFamilyStore class, so after that, there is always a chance to open SSTables before
+doing scrub directory/remove compaction left overs.<br/>We should move the content of
+static block at the end of CassandraDaemon setup.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch for 1.2 branch attached. 
+
+
+New Comment: 
+Patch is for 1.2, but 1.1.x has the same problem, so maybe it is good to patch that as
+well. 
+
+
+New Comment: 
+LGTM. +1 for 1.1.x and 1.2.x. 
+
+

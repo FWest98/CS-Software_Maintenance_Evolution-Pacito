@@ -1,0 +1,167 @@
+Pattern changes caused by commit: 3f71a98aac5bcf1c3e4ce506ffa5fa513f2a0c40
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3819.txt 
+
+commit 3f71a98aac5bcf1c3e4ce506ffa5fa513f2a0c40
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    move some INFO log messages in HH and tcp to DEBUG
+    patch by jbellis; reviewed by Joaquin Casares for CASSANDRA-2429
+
+
+
+==================================
+ Issue CASSANDRA-2429 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2429] Silence non-errors while reconnecting
+-----------------
+
+-----------------
+Summary: Silence non-errors while reconnecting
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 6 Apr 2011 21:59:05 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 19 Apr 2011 00:06:12 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+This is from 0.6.3:<br/> INFO <span class="error">&#91;Timer-0&#93;</span> 2010-10-28
+18:49:08,714 Gossiper.java (line 181) InetAddress /192.168.80.17 is now dead.<br/> INFO
+<span class="error">&#91;WRITE-/192.168.80.17&#93;</span> 2010-10-28 18:49:48,719
+OutboundTcpConnection.java (line 102) error writing to /192.168.80.17<br/> INFO <span
+class="error">&#91;GC inspection&#93;</span> 2010-10-28 18:50:18,425 GCInspector.java
+(line 110) GC for ConcurrentMarkSweep: 3463 ms, 77366288 reclaimed leaving 1006804528
+used; max is 1207828480<br/> INFO <span class="error">&#91;GC inspection&#93;</span>
+2010-10-28 18:50:29,792 GCInspector.java (line 110) GC for ConcurrentMarkSweep: 3465 ms,
+71343920 reclaimed leaving 1013965608 used; max is 1207828480<br/> INFO <span
+class="error">&#91;GMFD:1&#93;</span> 2010-10-28 18:50:32,713 Gossiper.java (line 593)
+Node /192.168.80.17 has restarted, now UP again<br/> INFO <span
+class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-10-28 18:50:32,713
+HintedHandOffManager.java (line 153) Started hinted handoff for endPoint
+/192.168.80.17<br/> INFO <span class="error">&#91;GMFD:1&#93;</span> 2010-10-28
+18:50:32,713 StorageService.java (line 548) Node /192.168.80.17 state jump to normal
+
+This
+is from 0.7.1:
+
+ INFO <span class="error">&#91;ScheduledTasks:1&#93;</span> 2011-02-25
+17:54:41,445 Gossiper.java (line 224) InetAddress /10.240.17.235 is now dead.<br/> INFO
+<span class="error">&#91;GossipStage:1&#93;</span> 2011-02-25 17:54:41,449 Gossiper.java
+(line 605) InetAddress /10.240.17.235 is now UP<br/> INFO <span
+class="error">&#91;GossipStage:1&#93;</span> 2011-02-25 17:55:05,570 Gossiper.java (line
+619) Node /10.241.103.223 has restarted, now UP again<br/> INFO <span
+class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25 17:55:20,581
+HintedHandOffManager.java (line 286) Started hinted handoff for endpoint
+/10.240.17.235<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:55:20,583 HintedHandOffManager.java (line 342) Finished hinted handoff of 0 rows to
+endpoint /10.240.17.235<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span>
+2011-02-25 17:55:20,583 HintedHandOffManager.java (line 266) Checking remote schema before
+delivering hints<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:55:20,583 HintedHandOffManager.java (line 272) Sleeping 56493ms to stagger hint
+delivery<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:56:17,077 HintedHandOffManager.java (line 286) Started hinted handoff for endpoint
+/10.253.202.128<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:56:17,077 HintedHandOffManager.java (line 342) Finished hinted handoff of 0 rows to
+endpoint /10.253.202.128<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span>
+2011-02-25 17:56:17,078 HintedHandOffManager.java (line 266) Checking remote schema before
+delivering hints<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:56:17,078 HintedHandOffManager.java (line 272) Sleeping 8680ms to stagger hint
+delivery<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:56:25,758 HintedHandOffManager.java (line 286) Started hinted handoff for endpoint
+/10.241.103.223<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:56:25,759 HintedHandOffManager.java (line 342) Finished hinted handoff of 0 rows to
+endpoint /10.241.103.223<br/> INFO <span class="error">&#91;GossipStage:1&#93;</span>
+2011-02-25 17:58:30,021 Gossiper.java (line 619) Node /10.253.183.111 has restarted, now
+UP again<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:58:30,022 HintedHandOffManager.java (line 266) Checking remote schema before delivering
+hints<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:58:30,022 HintedHandOffManager.java (line 272) Sleeping 43058ms to stagger hint
+delivery<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:59:13,080 HintedHandOffManager.java (line 286) Started hinted handoff for endpoint
+/10.253.183.111<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+17:59:13,081 HintedHandOffManager.java (line 342) Finished hinted handoff of 0 rows to
+endpoint /10.253.183.111<br/> INFO <span class="error">&#91;GossipStage:1&#93;</span>
+2011-02-25 18:00:27,827 Gossiper.java (line 619) Node /10.194.249.140 has restarted, now
+UP again<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+18:00:27,827 HintedHandOffManager.java (line 266) Checking remote schema before delivering
+hints<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+18:00:27,827 HintedHandOffManager.java (line 272) Sleeping 43035ms to stagger hint
+delivery<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+18:01:10,863 HintedHandOffManager.java (line 286) Started hinted handoff for endpoint
+/10.194.249.140<br/> INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-02-25
+18:01:10,863 HintedHandOffManager.java (line 342) Finished hinted handoff of 0 rows to
+endpoint /10.194.249.140
+
+They are all over most logs and are very apparent when searching
+for "error".
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+According to Brandon, this is just normal behavior when a node is restarted or telnetting
+to a port and then killing the connection.But perhaps there is a cleaner way to report
+this? 
+
+
+New Comment: 
+We should probably investigate why this happens when you restart a node, but I'm fine with
+ignoring it for the 'trash sent to storage port' case since people like to monitor it for
+some reason. 
+
+
+New Comment: 
+patch to move the socket error and a couple of the HH lines to debug level 
+
+
+New Comment: 
+It compiles and runs in standalone mode and in a cluster, but I couldn't get it to print
+out the same errors using a few runs of the stress tool.I don't know if I've actually ever
+seen these statements on my own cluster, just in many other logs.+1 based on logic, code,
+and compilation. 
+
+
+New Comment: 
+committed 
+
+

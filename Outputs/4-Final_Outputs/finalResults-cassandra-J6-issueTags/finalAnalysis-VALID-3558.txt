@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 3f885885b49968917af12cc0830ce482fa2b2ce7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3558.txt 
+
+commit 3f885885b49968917af12cc0830ce482fa2b2ce7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix CliTest on Windows
+    patch by Ben Coverston; reviewed by jbellis for CASSANDRA-2337
+
+
+
+==================================
+ Issue CASSANDRA-2337 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2337] Windows: CliTest broken because of /r/n
+-----------------
+
+-----------------
+Summary: Windows: CliTest broken because of /r/n
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 16 Mar 2011 01:53:21 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Mar 2011 02:38:48 +0000
+-----------------
+
+-----------------
+Assigned to: Benjamin Coverston
+-----------------
+
+-----------------
+Description: 
+
+Somebody thought that windows should emulate a telex machine and we ended up with /r/n.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Fixes newline substituting environment variable. 
+
+
+New Comment: 
+fixed 
+
+

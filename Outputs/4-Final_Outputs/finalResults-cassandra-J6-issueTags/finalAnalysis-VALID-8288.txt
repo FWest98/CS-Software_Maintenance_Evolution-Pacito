@@ -1,0 +1,152 @@
+Pattern changes caused by commit: 1a66ee9a94d67ae475ae287b280517aa9e3cc318
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8288.txt 
+
+commit 1a66ee9a94d67ae475ae287b280517aa9e3cc318
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    fix specifying and altering crc_check_chance;
+    patch by Marcus Eriksson and Aleksey Yeschenko, reviewed by Aleksey
+    Yeschenko for CASSANDRA-5053
+
+
+
+==================================
+ Issue CASSANDRA-5053 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5053] not possible to change crc_check_chance
+-----------------
+
+-----------------
+Summary: not possible to change crc_check_chance
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 11 Dec 2012 12:02:01 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Dec 2012 13:11:09 +0000
+-----------------
+
+-----------------
+Assigned to: Marcus Eriksson
+-----------------
+
+-----------------
+Description: 
+
+It is not possible to change crc_check_chance using a schema modification after <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4266" title="Validate compression
+parameters" class="issue-link"
+data-issue-key="CASSANDRA-4266"><del>CASSANDRA-4266</del></a>
+
+This patch fixes that and
+moves the setting out into a configuration parameter instead, you dont want to
+upgrade/scrub/.. all your sstables to change the crc_check_chance.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<ul>	<li>Move crc_check_chance from schema definition to config file</li>	<li>Support if
+someone has actually managed to set the crc_check_chance in a CompressionMetadata file -
+pre 1.1.1 maybe?</li></ul> 
+
+
+New Comment: 
+Moving it from per-CF to global seems kind of backwards, don't you think?  The
+overwhelming tendency has been for people to push for more fine-grained control over
+things. 
+
+
+New Comment: 
+for this i actually prefer a config, then i can tweak it on one machine at a timeand since
+it has been broken since 1.1.1 i doubt anyone is actually using it 
+
+
+New Comment: 
+Let's fix the schema code then, and we can add a JMX interface for testing it
+machine-at-a-time, which is our usual convention for these things. 
+
+
+New Comment: 
+ok, sure, that worksi'll get it fixed 
+
+
+New Comment: 
+let me know if the double brace initialization in CompressionParameters is not allowed,
+then i'll remove itpatch against 1.1 
+
+
+New Comment: 
+LGTM and works.Attaching v2 with minor tweaks:<ul class="alternate"
+type="square">	<li>renamed CFS#crcCheckChance() to
+CFS#setCrcCheckChance()</li>	<li>renamed CompressionParameters.globalOptions to
+CompressionParameters.GLOBAL_OPTIONS and made it an ImmutableSet instead of a
+HashSet</li>	<li>CompressionParameters#parseCrcCheckChance() throws CE now - just logging
+the error and returning default is not enough (Cassandra will save invalid
+crc_check_chance and you'll get that NumberFormatException every time you start
+Cassandra)</li>	<li>added crc_check_chance range validation to parseCrcCheckChance,
+otherwise we get the same issue as above with valid doubles, but out of range
+values</li>	<li>very minor formatting tweaks for consistency</li></ul>Will commit
+tomorrow. 
+
+
+New Comment: 
+uh my mbean/jmx skills fail me here, but seems when naming the method *set*CrcCheckChance
+it is not exposed via JMX, naming it crcCheckChance does, any clue why? naming convention
+rules i guess 
+
+
+New Comment: 
+No idea. But all other setters in that mbean start with 'set'. Are they not exposed
+either? 
+
+
+New Comment: 
+ah!they end up under the attributes tab in jconsole 
+
+

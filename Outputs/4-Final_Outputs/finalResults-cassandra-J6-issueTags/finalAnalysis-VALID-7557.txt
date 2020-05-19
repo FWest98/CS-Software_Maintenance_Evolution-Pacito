@@ -1,0 +1,122 @@
+Pattern changes caused by commit: c7ce11f0031c81311a359de03380860fa4e366a5
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7557.txt 
+
+commit c7ce11f0031c81311a359de03380860fa4e366a5
+Author: Yuki Morishita <yukim@apache.org>
+
+    display elapsed time in 2 fraction digits in cli; patch by Radim Kolar, reviewed by yukim for CASSANDRA-3460
+
+
+
+==================================
+ Issue CASSANDRA-3460 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3460] Increase precision of elapsed time in casandra-cli
+-----------------
+
+-----------------
+Summary: Increase precision of elapsed time in casandra-cli
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 6 Nov 2011 19:51:41 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 27 Sep 2012 22:03:34 +0000
+-----------------
+
+-----------------
+Assigned to: Radim Kolar
+-----------------
+
+-----------------
+Description: 
+
+Cassandra often return response in less then &lt; 1 ms
+
+from another datacenter<br/><span
+class="error">&#91;default@test&#93;</span> get sipdb<span
+class="error">&#91;23&#93;</span>;<br/>Returned 0 results.<br/>Elapsed time: 219
+msec(s).
+
+from own dataceter<br/><span class="error">&#91;default@test&#93;</span> get
+sipdb<span class="error">&#91;13&#93;</span>;<br/>Returned 0 results.<br/>Elapsed time: 0
+msec(s).
+
+Precession of this timer needs to be increased a bit, while looking at network
+latency adding 1 number should be enough like : 0.2 ms should be sufficient. 
+
+It would be
+good to display sub milliseconds only if time elapsed is &lt; 1 ms.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+In what scenario are you planning to use sub-millisecond precision information 
+
+
+New Comment: 
+To estimate local network lags and server latency. Actually 2 digits would be betterFor
+example 0.15 ms -&gt; standard<br/>            0.35 ms -&gt; LAN lags<br/>            0.85
+ms -&gt; sever lags 
+
+
+New Comment: 
+during latency testing i discovered that ideal will be to have sub millisecond latency
+rounded to 2 digits displayed if result is &lt; 10 ms. Because after cassandra heap gets
+more full, its latency is increased about 0.5 ms making result &gt; 1 ms in most common
+cases for rows not found. Cassandra flush push latency under 1 ms again. 
+
+
+New Comment: 
+while you are at it add support for timing row deletion too:<span
+class="error">&#91;default@rapidshare&#93;</span> del querycache<span
+class="error">&#91;&#39;test&#39;&#93;</span>;<br/>row removed.<br/><span
+class="error">&#91;default@rapidshare&#93;</span> get querycache<span
+class="error">&#91;&#39;test&#39;&#93;</span>; 
+
+
+New Comment: 
+Display eta in 2 fraction digits, if total time is less then 10 ms. 
+
+
+New Comment: 
++1 and committed.<br/>Thanks! 
+
+

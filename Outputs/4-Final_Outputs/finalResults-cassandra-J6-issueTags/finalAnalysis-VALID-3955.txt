@@ -1,0 +1,89 @@
+Pattern changes caused by commit: c473679a233ba60e18be3daeb327becc439939cd
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3955.txt 
+
+commit c473679a233ba60e18be3daeb327becc439939cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add liveOnly flag to SSTable.componentsFor
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2602
+
+
+
+==================================
+ Issue CASSANDRA-2602 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2602] Add check in SSTable.componentsFor() for temp files
+-----------------
+
+-----------------
+Summary: Add check in SSTable.componentsFor() for temp files
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 4 May 2011 09:36:53 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 4 May 2011 22:16:35 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+alternative to <a href="https://issues.apache.org/jira/browse/CASSANDRA-2588"
+title="Descriptor.equals() ignores the temporary flag" class="issue-link"
+data-issue-key="CASSANDRA-2588"><del>CASSANDRA-2588</del></a>
+
+Add overload for
+SSTable.componentsFor() to only return temporary files. The current implementation will
+return all files for the SSTable Descriptor. 
+
+Will be used from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2468" title="Clean up after failed
+compaction" class="issue-link"
+data-issue-key="CASSANDRA-2468"><del>CASSANDRA-2468</del></a> so it can delete only temp
+files.  
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch adds a liveOnly param to componentsFor(). Default behaviour remains to all
+live and temp files for the SSTable. Includes tests. 
+
+

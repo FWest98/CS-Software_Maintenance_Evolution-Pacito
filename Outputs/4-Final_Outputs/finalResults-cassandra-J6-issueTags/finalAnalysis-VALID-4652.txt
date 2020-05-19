@@ -1,0 +1,131 @@
+Pattern changes caused by commit: 41d83e0157e8d51787d5db2925c9e86f51bf77b7
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4652.txt 
+
+commit 41d83e0157e8d51787d5db2925c9e86f51bf77b7
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Make cleanup and normal compaction able to skip empty rows (rows containing nothing but expired tombstones).
+    patch by Jonathan Ellis; reviewed by Pavel Yaskevich for CASSANDRA-3039
+
+
+
+==================================
+ Issue CASSANDRA-3039 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3039] AssertionError on nodetool cleanup
+-----------------
+
+-----------------
+Summary: AssertionError on nodetool cleanup
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 15 Aug 2011 19:18:47 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Aug 2011 19:23:22 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+While doing a cleanup I got the following AssertionError, I have tried a scrub and a
+major compaction before the cleanup which has not helped.
+
+ST:
+
+ INFO 18:49:58,540
+Scrubbing SSTableReader(path='/vol/cassandra/data/system/LocationInfo-g-93-Data.db')<br/>
+INFO 18:49:58,834 Scrub of
+SSTableReader(path='/vol/cassandra/data/system/LocationInfo-g-93-Data.db') complete: 4
+rows in new sstable and 0 empty (tombstoned) rows dropped<br/> INFO 18:49:58,913 Scrubbing
+SSTableReader(path='/vol/cassandra/data/system/Migrations-g-56-Data.db')<br/> INFO
+18:49:59,218 Scrub of
+SSTableReader(path='/vol/cassandra/data/system/Migrations-g-56-Data.db') complete: 1 rows
+in new sstable and 0 empty (tombstoned) rows dropped<br/> INFO 18:49:59,256 Scrubbing
+SSTableReader(path='/vol/cassandra/data/system/Schema-g-58-Data.db')<br/> INFO
+18:49:59,323 Scrub of SSTableReader(path='/vol/cassandra/data/system/Schema-g-58-Data.db')
+complete: 34 rows in new sstable and 0 empty (tombstoned) rows dropped<br/> INFO
+18:49:59,416 Scrubbing
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5074-Data.db')<br/> INFO
+18:50:50,137 Scrub of
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5074-Data.db') complete:
+91735 rows in new sstable and 32 empty (tombstoned) rows dropped<br/> INFO 18:50:50,137
+Scrubbing
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5075-Data.db')<br/> INFO
+18:50:53,075 Scrub of
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5075-Data.db') complete:
+27940 rows in new sstable and 0 empty (tombstoned) rows dropped<br/> INFO 18:50:53,089
+Scrubbing SSTableReader(path='/vol/cassandra/data/SpiderServices/Content-g-238-Data.db')
+
+
+INFO 18:51:10,302 Scrub of
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content-g-238-Data.db') complete:
+70815 rows in new sstable and 0 empty (tombstoned) rows dropped<br/> INFO 18:53:05,420
+Cleaning up
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5078-Data.db')<br/> INFO
+18:53:13,266 Cleaned up to /vol/cassandra/data/SpiderServices/Content2-tmp-g-5079-Data.db.
+ 198,705,176 to 198,705,176 (~100% of original) bytes for 27,940 keys.  Time:
+7,846ms.<br/> INFO 18:53:13,267 Cleaning up
+SSTableReader(path='/vol/cassandra/data/SpiderServices/Content2-g-5077-Data.db')<br/>ERROR
+18:53:33,913 Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:21,1,RMI
+Runtime&#93;</span><br/>java.lang.AssertionError<br/>	at
+org.apache.cassandra.db.compaction.PrecompactedRow.write(PrecompactedRow.java:107)<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter.append(SSTableWriter.java:132)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.doCleanupCompaction(CompactionManager.java:866)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.access$500(CompactionManager.java:65)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$2.call(CompactionManager.java:204)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:662)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to make cleanup and normal compaction able to skip empty rows (rows containing
+nothing but expired tombstones).Scrub can already handle these, so you can workaround by
+scrubbing frequently, but if your workload results in a lot of these rows you probably
+want to apply this patch sooner than later. 
+
+
+New Comment: 
+committed. 
+
+

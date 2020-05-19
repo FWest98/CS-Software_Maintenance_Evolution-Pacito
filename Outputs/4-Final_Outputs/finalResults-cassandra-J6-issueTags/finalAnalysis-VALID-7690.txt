@@ -1,0 +1,141 @@
+Pattern changes caused by commit: e400d0eca27f3c00e36e3871a30ac5c97891abbe
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7690.txt 
+
+commit e400d0eca27f3c00e36e3871a30ac5c97891abbe
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix possible stackoverflow when compacting 1000s of sstables
+    patch by jbellis; reviewed by yukim for CASSANDRA-4765
+
+
+
+==================================
+ Issue CASSANDRA-4765 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4765] StackOverflowError in CompactionExecutor thread
+-----------------
+
+-----------------
+Summary: StackOverflowError in CompactionExecutor thread
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 4 Oct 2012 18:17:14 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 18 Oct 2012 20:20:39 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Seeing the following error:
+
+Exception in thread Thread<span
+class="error">&#91;CompactionExecutor:21,1,RMI
+Runtime&#93;</span><br/>java.lang.StackOverflowError<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)<br/>        at
+com.google.common.collect.Sets$1.iterator(Sets.java:578)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Which java version is this on?  You might be able to increase the Xss flag as a
+workaround. 
+
+
+New Comment: 
+This is from the SetView returned by Sets.union:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">. 
+   @Override <span class="code-keyword">public</span> Iterator&lt;E&gt; iterator() {      
+ <span class="code-keyword">return</span> Iterators.unmodifiableIterator(           
+Iterators.concat(set1.iterator(), set2minus1.iterator()));      }</pre></div></div>I don't
+think we're taking 100s of unions so increasing Xss is unlikely to help. 
+
+
+New Comment: 
+Actually we do take union in a loop in getOverlappingSSTables.  Give this patch a try. 
+
+
+New Comment: 
+I just got a similar StackOverflowError but on Iterators.java:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">2012-10-17_14:35:09.95258 ERROR 14:35:09,942 Exception in thread <span
+class="code-object">Thread</span>[CompactionExecutor:2773,1,main]2012-10-17_14:35:09.95260
+java.lang.StackOverflowError2012-10-17_14:35:09.95261 	at
+java.util.AbstractList$Itr.hasNext(Unknown Source)2012-10-17_14:35:09.95269 	at
+com.google.common.collect.Iterators$5.hasNext(Iterators.java:517)2012-10-17_14:35:09.95281
+	at
+com.google.common.collect.Iterators$3.hasNext(Iterators.java:114)2012-10-17_14:35:09.95293
+	at
+com.google.common.collect.Iterators$5.hasNext(Iterators.java:517)2012-10-17_14:35:09.95305
+	at
+com.google.common.collect.Iterators$3.hasNext(Iterators.java:114)2012-10-17_14:35:09.95320
+	at
+com.google.common.collect.Iterators$5.hasNext(Iterators.java:517)2012-10-17_14:35:09.95331
+	at com.google.common.collect.Iterators$3.hasNext(Iterators.java:114)</pre></div></div>And
+iterators.java:517 and :514 belong to concat call that appears on the SetView returned by
+Sets::union. 
+
+
+New Comment: 
+I could only reproduce the error by mistakenly running size tiered compaction in test
+environment on originally LCS-compacted data and the patch fixes the stack overflow. 
+
+
+New Comment: 
++1 
+
+

@@ -1,0 +1,282 @@
+Pattern changes caused by commit: eaca5341522a079dcecc181d229728da418ff2d6
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5572.txt 
+
+commit eaca5341522a079dcecc181d229728da418ff2d6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Optimize componentsFor method for compaction and startup time
+    patch by jbellis and Eric Parusel; reviewed by slebresne for CASSANDRA-3532
+
+
+
+==================================
+ Issue CASSANDRA-3532 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3532] Compaction cleanupIfNecessary costly when many files in data dir
+-----------------
+
+-----------------
+Summary: Compaction cleanupIfNecessary costly when many files in data dir
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 25 Nov 2011 22:58:24 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 21:01:44 +0000
+-----------------
+
+-----------------
+Assigned to: Eric Parusel
+-----------------
+
+-----------------
+Description: 
+
+From what I can tell SSTableWriter.cleanupIfNecessary seems increasingly costly as the
+number of files in the data dir increases.<br/>It calls SSTable.componentsFor(descriptor,
+Descriptor.TempState.TEMP) which lists all files in the data dir to find matching
+components.
+
+Am I roughly correct that   (cleanupCost = SSTable count * data dir
+size)?
+
+We had been doing write load testing with default compaction throttling (16MB/s)
+and LeveledCompaction.<br/>Unfortunately we haven't been keeping tabs on sstable counts
+and it grew out of control.
+
+On a system with 300,000 sstables <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/warning.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> here is an example of our compaction
+rate.  Note that as you're probably aware cleanupIfNecessary is included in the timing:
+
+
+INFO <span class="error">&#91;CompactionExecutor:48&#93;</span> 2011-11-25 22:25:30,353
+CompactionTask.java (line 213) Compacted to <span
+class="error">&#91;/data1/cassandra/data/MA_DDR/indexes_03-hc-5369-Data.db,&#93;</span>. 
+5,821,590 to 5,306,354 (~91% of original) bytes for 123 keys at 0.163755MB/s.  Time:
+30,903ms.
+
+Here's a slightly larger one:<br/> INFO <span
+class="error">&#91;CompactionExecutor:43&#93;</span> 2011-11-25 22:23:28,956
+CompactionTask.java (line 213) Compacted to <span
+class="error">&#91;/data1/cassandra/data/MA_DDR/indexes_03-hc-5336-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5337-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5338-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5339-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5340-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5341-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5342-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5343-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5344-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5345-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5346-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5347-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5348-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5349-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5350-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5351-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5352-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5353-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5354-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5355-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5356-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5357-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5358-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5359-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5360-Data.db,/data1/cassandra/data/MA_DDR/indexes_03-hc-5361-Data.db,&#93;</span>.
+ 140,706,512 to 137,990,868 (~98% of original) bytes for 2,181 keys at 0.338627MB/s. 
+Time: 388,623ms.
+
+This is with compaction throttling set to 0 (Off).
+
+So I believe because
+of this it's going to take a very long time to recover from having so many small sstables.
+<br/>It might be notable that we're using Solaris 10, possibly listFiles() is faster on
+other platforms?
+
+Is it feasible to keep track of the temp files and just delete them
+rather than searching for them for each SSTable using SSTable.componentsFor()?
+
+Here's the
+stack trace for the CompactionExecutor:14 thread that appears to be occupying the majority
+of the cpu time on this node:
+
+Name: CompactionExecutor:14<br/>State: RUNNABLE<br/>Total
+blocked: 3  Total waited: 1,610,714
+
+Stack trace: <br/>
+java.io.UnixFileSystem.getBooleanAttributes0(Native
+Method)<br/>java.io.UnixFileSystem.getBooleanAttributes(Unknown
+Source)<br/>java.io.File.isDirectory(Unknown
+Source)<br/>org.apache.cassandra.io.sstable.SSTable$3.accept(SSTable.java:204)<br/>java.io.File.listFiles(Unknown
+Source)<br/>org.apache.cassandra.io.sstable.SSTable.componentsFor(SSTable.java:200)<br/>org.apache.cassandra.io.sstable.SSTableWriter.cleanupIfNecessary(SSTableWriter.java:289)<br/>org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:189)<br/>org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:57)<br/>org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:134)<br/>org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:114)<br/>java.util.concurrent.FutureTask$Sync.innerRun(Unknown
+Source)<br/>java.util.concurrent.FutureTask.run(Unknown
+Source)<br/>java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown
+Source)<br/>java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown
+Source)<br/>java.lang.Thread.run(Unknown Source)
+
+No matter where I click in the busy
+Compaction thread timeline in YourKit it's in Running state and showing this above trace,
+except for short periods of time where it's actually compacting <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>
+
+Thanks,<br/>Eric
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Looks like leveled compaction means that sstable creation can be part of the critical path
+now:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>.   /**     * Discovers existing components
+for the descriptor. Slow: only intended for use outside the critical path.     */   
+static Set&lt;Component&gt; componentsFor(final Descriptor desc, final
+Descriptor.TempState matchState)</pre></div></div><blockquote>Is it feasible to keep track
+of the temp files and just delete them rather than searching for them for each SSTable
+using SSTable.componentsFor()?</blockquote>Simplest would be to just check File.exists on
+the limited set of possible temp file names.  Next simplest and slightly more performant
+would be to move the cleanup out of the finally blocks, and into a catch block: the
+cleanup is a no-op if everything went well. 
+
+
+New Comment: 
+Thanks.<br/>Do I need to try to delete <sub>all</sub> components, for that
+descriptor.asTemporary()?  Or just specific ones?<br/>A Component of type BITMAP_INDEX
+requires an id, so I'm not sure how I'd find this out without listing the directory
+contents. 
+
+
+New Comment: 
+BITMAP_INDEX type was never completed (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1472" title="Add bitmap secondary
+indexes" class="issue-link" data-issue-key="CASSANDRA-1472"><del>CASSANDRA-1472</del></a>)
+so I'm fine with removing that code and doing whatever is simplest.  We can get more
+sophisticated if/when we get back to working on 1472. 
+
+
+New Comment: 
+Here's a small patch, and a few notes:<ul class="alternate" type="square">	<li>I wasn't
+sure how to best document the interaction with BITMAP_INDEX, hope a TODO there is
+ok.</li>	<li>I created a copy of descriptor.asTemporary(true).  Is descriptor always
+guaranteed to be temporary==true?  It left me a little uneasy.</li>	<li>I used
+SSTable.delete (while checking ahead of time that the file exists), because I wasn't sure
+if ordering of deletes was important.</li>	<li>SSTableReader.open() is the other method
+that calls SSTable.componentsFor, I only mention this because it may be a suboptimal call
+as well.</li></ul> 
+
+
+New Comment: 
+I applied the patch in our test environment against the 1.0.4 revision, and compaction is
+humming along nicely now.<br/>On the (otherwise idle) node I'm watching that had 250000
+data/ files, file count is decreasing by 1000-1900/minute. 
+
+
+New Comment: 
+v2 attached, with the new approach moved into componentsFor, so that open() can take
+advantage of the improvement too. Also, componentsFor now respects the temporary-ness of
+the descriptor passed, so a separate TempState enum is unnecessary.Also renamed
+cleanupIfNecessary to abort, and moved to catch block as discussed above. 
+
+
+New Comment: 
+Thank you Jonathan &#8211; I applied the patch and it works for me.<br/>Cheers 
+
+
+New Comment: 
+<ul>	<li>Wrapping exceptions into RuntimeException() blindly will confuse the catcher of
+UserInterruptedException in DTPE.logExceptionsAfterExecute. We could make make that
+catcher unwrap the full exception, but truth is I'm not a fan of wrapping exception
+needlessly. Maybe we could just add a silence method somewhere:<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>public void silence(Exception e){    if (e instanceof RuntimeException)
+       throw (RuntimeException) e;    else        throw new
+RuntimeException(e);}</pre></div></div>and use that (as we already do in WrappedRunnable
+actually).</li>	<li>We could remove the bitmap indexes type while were at it (it'd be one
+less type to check).</li></ul> 
+
+
+New Comment: 
+added FBUtilities.unchecked(Exception) as suggested, and removed BITMAP component. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Patch 3532-v3.txt applied here, works for me.  Thanks again! 
+
+
+New Comment: 
+Hmm, I might have spoken too soon.  This could also be a separate bug however.The nodes in
+my cluster are using a lot of file descriptors, holding open tmp files.  A few are using
+50K+, nearing their limit (on Solaris, of 64K).Here's a small snippet of lsof:<br/>java   
+    828 appdeployer *146u  VREG          181,65540          0     333376
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776429-Data.db<br/>java        828
+appdeployer *147u  VREG          181,65540          0     332952
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776359-Data.db<br/>java        828
+appdeployer *148u  VREG          181,65540          0     333079
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776380-Index.db<br/>java        828
+appdeployer *149u  VREG          181,65540          0     333080
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776380-Data.db<br/>java        828
+appdeployer *150u  VREG          181,65540          0     333224
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776403-Index.db<br/>java        828
+appdeployer *151u  VREG          181,65540          0     333025
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776372-Data.db<br/>java        828
+appdeployer *152u  VREG          181,65540          0     333225
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776403-Data.db<br/>java        828
+appdeployer *154u  VREG          181,65540          0     333858
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776514-Index.db<br/>java        828
+appdeployer *155u  VREG          181,65540          0     333426
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776438-Data.db<br/>java        828
+appdeployer *156u  VREG          181,65540          0     333326
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776421-Data.db<br/>java        828
+appdeployer *157u  VREG          181,65540          0     333553
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776460-Data.db<br/>java        828
+appdeployer *158u  VREG          181,65540          0     333501
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776452-Index.db<br/>java        828
+appdeployer *159u  VREG          181,65540          0     333597
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776468-Index.db<br/>java        828
+appdeployer *160u  VREG          181,65540          0     333598
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776468-Data.db<br/>java        828
+appdeployer *162u  VREG          181,65540          0     333884
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776518-Data.db<br/>java        828
+appdeployer *163u  VREG          181,65540          0     333502
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776452-Data.db<br/>java        828
+appdeployer *165u  VREG          181,65540          0     333929
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776527-Index.db<br/>java        828
+appdeployer *166u  VREG          181,65540          0     333859
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776514-Data.db<br/>java        828
+appdeployer *167u  VREG          181,65540          0     333663
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776480-Data.db<br/>java        828
+appdeployer *168u  VREG          181,65540          0     333812
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776506-Index.dbI spot checked a few and
+found they still exist on the filesystem too:<br/><del>rw-r</del><del>r</del>-   1
+appdeployer appdeployer       0 Dec 12 07:16
+/data1/cassandra/data/MA_DDR/messages_meta-tmp-hb-776506-Index.db 
+
+
+New Comment: 
+That does sound like a separate problem.  What do you see when you grep the log for
+messages_meta-tmp-hb-776506? 
+
+
+New Comment: 
+Sure.  Let me know if you'd prefer a separate ticket.I don't see anything in the logs
+matching "776506".  Any suggestions as to which class(es) I could turn on DEBUG log level
+for (via JMX), if that would help troubleshoot? 
+
+
+New Comment: 
+Yes, separate ticket.org.apache.cassandra.db.compaction, org.apache.cassandra.db.Memtable,
+org.apache.cassandra.db.DataTracker to start with 
+
+

@@ -1,0 +1,296 @@
+Pattern changes caused by commit: 1bb2947dd58101ae185d7f2fe309c5dd5f6a44df
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5408.txt 
+
+commit 1bb2947dd58101ae185d7f2fe309c5dd5f6a44df
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add next-gen cqlsh
+    patch by Paul Cannon; reviewed by jbellis for CASSANDRA-3188
+
+
+
+==================================
+ Issue CASSANDRA-3188 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3188] cqlsh 2.0
+-----------------
+
+-----------------
+Summary: cqlsh 2.0
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 12 Sep 2011 21:18:42 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 10 Nov 2011 20:37:24 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+I'd like to see some improvements to cqlsh to bring it to feature parity w/ the old
+cli:
+<ul class="alternate" type="square">	<li>describe <span class="error">&#91;&lt;KS&gt;
+| &lt;CF&gt; | cluster | schema&#93;</span></li>	<li>assume</li>	<li>connect / don't crap
+out w/ stacktrace if C* isn't currently running on localhost</li>	<li>help</li></ul>
+It
+may be easier to do this by forking the cli and replacing its one-off api with CQL, or it
+may be easier to add these features to cqlsh.
+
+Either is fine, but if it's a close call my
+inclination would be to build it in Java for the reasoning over on <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3010" title="Java CQL command-line
+shell" class="issue-link" data-issue-key="CASSANDRA-3010"><del>CASSANDRA-3010</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+For the sake of the potential set of features, I'd lean heavily toward Python on this one:
+much more easily integrated with readline (when available) and curses-type capabilities in
+general, plus more flexible/powerful in parsing input, formatting output, and responding
+to error situations.Would it address the concerns of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3010" title="Java CQL command-line
+shell" class="issue-link" data-issue-key="CASSANDRA-3010"><del>CASSANDRA-3010</del></a> if
+we built the Windows releases with py2exe or something like it? You'd just get a clicky or
+command-line executable, no manual Python or Thrift installing to worry about...On the
+other hand, cassandra-cli uses JMX for a few of its cluster-inspection duties; are those
+things that might be important in cqlsh 2.0? Guess I should find out what they are. 
+
+
+New Comment: 
+<blockquote>Would it address the concerns of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3010" title="Java CQL command-line
+shell" class="issue-link" data-issue-key="CASSANDRA-3010"><del>CASSANDRA-3010</del></a> if
+we built the Windows releases with py2exe or something like it?</blockquote>I think the
+concerns there are (1) Windows, and py2exe would be great, and (2) anywhere else that
+building Thrift or other prerequisites is a bitch.But I think (2) is mostly taken care of
+by pypi now, so yeah, if Python makes more sense as an implementation language then let's
+go for it. 
+
+
+New Comment: 
+<blockquote>cassandra-cli uses JMX for a few of its cluster-inspection
+duties</blockquote>If this is important, we can look at making mx4j an official dependency
+instead of just supported-if-you-happen-to-have-it-around. 
+
+
+New Comment: 
+I'm super -1 on making mx4j an official dependency, btw. Would not want for it to become
+the de facto standard for non-java jmx access, when it's really only useful with a
+browser. Screen scraping sucks. Maybe some more appropriate jmx adapter, though. 
+
+
+New Comment: 
+This doesn't have any awesome help text in it yet, but I'm uploading this to get some
+review.It does have a working ASSUME, DESCRIBE, and SHOW, much (imo) improved controls for
+determining where to connect, a config file, much better error handling, and smarter tab
+completion in a lot of areas.Some of the working new commands:<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>ASSUME mycolumnfam NAMES ARE uuid;ASSUME mycolumnfam VALUES ARE
+int;ASSUME mycolumnfam(somecol) VALUES ARE ascii;DESCRIBE KEYSPACE foo;DESCRIBE
+COLUMNFAMILY bar;DESCRIBE CLUSTER;DESCRIBE SCHEMA;SHOW VERSIONS;SHOW HOST;SHOW
+ASSUMPTIONS;</pre></div></div>Downside: the ASSUME stuff all depends on a patch to the
+python CQL driver. See:<a
+href="http://code.google.com/a/apache-extras.org/p/cassandra-dbapi2/source/detail?r=d31c412df1a66d0c8b99ba313a19855f1ef8106b&amp;name=override-decoder"
+class="external-link"
+rel="nofollow">http://code.google.com/a/apache-extras.org/p/cassandra-dbapi2/source/detail?r=d31c412df1a66d0c8b99ba313a19855f1ef8106b&amp;name=override-decoder</a>The
+tab completion could still be improved a lot, which I think would greatly aid usability,
+together with some good help text. 
+
+
+New Comment: 
+"import readline" breaks on Windows 
+
+
+New Comment: 
+As I recall, we weren't going to make an effort to support windows here yet- just making
+sure we didn't paint ourselves into a corner for when we do.But yeah, a missing readline
+should probably be caught and handled regardless. 
+
+
+New Comment: 
+I think we can assume readline is present on non-Windows platforms (that is the only
+exception the python stdlib docs makes). 
+
+
+New Comment: 
+Autocomplete is tasty. Thanks for including examples of the different token counts in the
+comments.Does it make sense to try to recover from thrift not being installed? I think I'd
+rather raise a fatal error explaining the problem and how to fix it. Or just leave it as a
+bare import and assume that if you're not installing from a package you can deal with it. 
+(pypi does allow specifiying dependencies right?)I'm not a fan of adding another layer of
+default options besides the ones in the server and in the Thrift CfDef.  I also think the
+use case here is misguided. (It's used to provide a "minimal" schema dump, skipping
+options that are unchanged from the default.)  If we change the defaults next release, we
+want schemas being imported there to preserve their existing settings. So I think
+verbosity is a good thing in this case.cql_type_to_apache_class feels like it might belong
+in the driver's cql.marshal. (Shame on you Python stdlib for still not including a BiMap.
+BiDict?)(I do think that ASSUME belongs in cqlsh as you have it here and not as a part of
+the CQL language itself: programmatic clients are free to unpack bytestrings any way they
+please, the problem is how to solve this for human consumption in an interactive session.) 
+
+
+New Comment: 
+<blockquote>Does it make sense to try to recover from thrift not being installed? I think
+I'd rather raise a fatal error explaining the problem and how to fix it. Or just leave it
+as a bare import and assume that if you're not installing from a package you can deal with
+it. (pypi does allow specifiying dependencies right?)</blockquote>It doesn't help anything
+right now to try and recover- it's just a bit of future-proofing for when we no longer
+need Thrift. I just tried to make the Thrift parts easy to identify and excise when
+appropriate.<blockquote>I'm not a fan of adding another layer of default options besides
+the ones in the server and in the Thrift CfDef. I also think the use case here is
+misguided. (It's used to provide a "minimal" schema dump, skipping options that are
+unchanged from the default.) If we change the defaults next release, we want schemas being
+imported there to preserve their existing settings. So I think verbosity is a good thing
+in this case.</blockquote>Fair enough- I've found that a bunch of defaults are different
+between existing c* versions already. It does bother me, though, that you get a big wall
+of text from the DESCRIBE commands, even when you only want to see the meatiest parts.
+Maybe that can be eased with some coloring, or maybe a different version of DESCRIBE-
+something like <tt>DESCRIBE whatever SHORT</tt> to leave off display of the options which
+are generally less interesting for everyday use?<blockquote>cql_type_to_apache_class feels
+like it might belong in the driver's cql.marshal. (Shame on you Python stdlib for still
+not including a BiMap. BiDict?)</blockquote>I agree. I tried to keep driver changes to a
+minimum so I wouldn't have to depend on the very-newest cassandra-dbapi2 release, but
+perhaps that's not very useful.I have a new version with some fixes, additions, and lots
+of nice help to upload later today. 
+
+
+New Comment: 
+I think dbapi2 users are already living on the bleeding edge enough that we can make them
+upgrade. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+3188.patch2.txt: lots more docs, both in the cqlsh online help and a revamped CQL.textile. 
+
+
+New Comment: 
+3188.patch3.txt: Fixes everything I can find which isn't probably an issue with the dbapi2
+driver itself. 
+
+
+New Comment: 
+Now needs a bit of change to support <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3130" title="CQL queries should alow
+talbe names to be qualified by keyspace" class="issue-link"
+data-issue-key="CASSANDRA-3130"><del>CASSANDRA-3130</del></a>. 
+
+
+New Comment: 
+We tried to keep 3130 encapsulated in the server, what went wrong? 
+
+
+New Comment: 
+It was encapsulated. But cqlsh needs to do elementary CQL parsing on the input in order to
+provide the ASSUME functionality, context-sensitive tab completion, and tracking of the
+current keyspace. 
+
+
+New Comment: 
+Ready to rock 
+
+
+New Comment: 
+Can you update build.xml to include it in the tarball? 
+
+
+New Comment: 
+Wow, this looks nice; Great work Paul!We should publish the doc on the website (I can do
+that when it's committed if someone doesn't beat me to it).Also, since this requires the
+Python module, will it be going into that tree, or into Cassandra's?  Either way, we
+should probably include some kind of installer. 
+
+
+New Comment: 
+I'd like cqlsh in the C* tree, but I'm totally fine with saying "to run this, easy_install
+cassandra-dbapi."  If you want to get fancy, we can even print that on an import
+exception. 
+
+
+New Comment: 
+<blockquote>I'd like cqlsh in the C* tree, but I'm totally fine with saying "to run this,
+easy_install cassandra-dbapi." If you want to get fancy, we can even print that on an
+import exception.</blockquote>For curiosity sake, why is that?  Is it just to make it
+obvious what we expect people to use? 
+
+
+New Comment: 
+Why put it in the tree?  Because it's a core part of the distribution, or will be.  By
+analogy, it would feel wrong for psql to be a separate project from postgresql core. 
+
+
+New Comment: 
+<blockquote>Because it's a core part of the distribution, or will be. By analogy, it would
+feel wrong for psql to be a separate project from postgresql core.</blockquote>So it
+sounds like you're saying that we need it to satisfy the "ships with a client shell"
+requirement.  That's fine with me, but brace yourself for the impending criticism that the
+requirement isn't met, (because it requires separate installation of the module). <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Right. I see cqlsh (this new version) as strictly superior to the old cli and I want it to
+become the default thing people reach for.So noted that You Told Me So. <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+patch5 rearranges things a bit for tarball inclusion, adds the Apache License headers to
+the remaining files, fixes a small tab-completion bug, adds a --version option to cqlsh,
+and moves cqlsh to bin/. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Somehow this seems to have been committed without the empty
+pylib/cqlshlib/_<em>init</em>_.py file. Without that, cqlsh fails to import from the
+cqlshlib package. 
+
+
+New Comment: 
+added empty file. 
+
+
+New Comment: 
+Looks like, also, bin/cqlsh doesn't have svn:executable set. 
+
+

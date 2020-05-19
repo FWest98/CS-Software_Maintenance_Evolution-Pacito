@@ -1,0 +1,86 @@
+Pattern changes caused by commit: 77573c59977cdfa55ffbbcbafdac092ae97936be
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7740.txt 
+
+commit 77573c59977cdfa55ffbbcbafdac092ae97936be
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix help topics
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4811
+
+
+
+==================================
+ Issue CASSANDRA-4811 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4811] Some cqlsh help topics don't work (select, create, insert and anything else that is a cql statement)
+-----------------
+
+-----------------
+Summary: Some cqlsh help topics don't work (select, create, insert and anything else that is a cql statement)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 16 Oct 2012 02:37:38 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 25 Oct 2012 10:51:56 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+cqlsh&gt; help select<br/>Improper help command.
+
+Same will happen if you look up a help
+topic for any other cql statement.<br/>38748b43d8de17375c7cc16e7a4969ca4c1a2aa1 broke it
+(#4198) 5 months ago.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There is a deep underlying issue with lexing/parsing, but I gave up trying to fix it. If
+something like this ever happens again, I'll make changes, otherwise it's not worth it.The
+patch is simple, fixes the issue's symptoms perfectly and should be enough. 
+
+

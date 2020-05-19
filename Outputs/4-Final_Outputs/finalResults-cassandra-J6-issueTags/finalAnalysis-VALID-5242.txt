@@ -1,0 +1,115 @@
+Pattern changes caused by commit: c4fabbbb304aa5a01af4674cf1b3a2fa4604a709
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5242.txt 
+
+commit c4fabbbb304aa5a01af4674cf1b3a2fa4604a709
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix CLI `show schema` to include "compression_options"
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3368
+
+
+
+==================================
+ Issue CASSANDRA-3368 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3368] 'show schema' in cli does not show compression_options
+-----------------
+
+-----------------
+Summary: 'show schema' in cli does not show compression_options
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 16 Oct 2011 16:09:10 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 16 Oct 2011 22:43:59 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Hi,
+
+using the cassandra-cli command line tool, I realized that a 'show schema' does not
+print out the compression_options I specified when creating them.<br/>Both, the server and
+the cli tool, where version 1.0.0-rc2.
+
+Example:
+
+<span
+class="error">&#91;default@Test&#93;</span> CREATE COLUMN FAMILY Response2 WITH
+key_validation_class=BytesType AND compression_options
+
+{sstable_compression:DeflateCompressor}
+;
+
+<span
+class="error">&#91;default@Test&#93;</span> show schema;<br/>create keyspace Test<br/> 
+with placement_strategy = 'SimpleStrategy'<br/>  and strategy_options =
+[
+{replication_factor : 2}
+];<br/>use Test;<br/>create column family Response2<br/>  with
+column_type = 'Standard'<br/>  and comparator = 'BytesType'<br/>  and
+default_validation_class = 'BytesType'<br/>  and key_validation_class = 'BytesType'<br/> 
+and rows_cached = 0.0<br/>  and row_cache_save_period = 0<br/>  and keys_cached =
+200000.0<br/>  and key_cache_save_period = 14400<br/>  and read_repair_chance = 1.0<br/> 
+and gc_grace = 864000<br/>  and min_compaction_threshold = 4<br/>  and
+max_compaction_threshold = 32<br/>  and replicate_on_write = true<br/>  and
+row_cache_provider = 'ConcurrentLinkedHashCacheProvider';
+
+Not really critical, but might
+be confusing for some people = me <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>
+
+kind regards,<br/>Christian
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+rebased with the latest cassandra-1.0 branch (last commit
+757e1273c9ea7fd836b7a5cac03f1e7e8128f68b) 
+
+
+New Comment: 
++1 
+
+

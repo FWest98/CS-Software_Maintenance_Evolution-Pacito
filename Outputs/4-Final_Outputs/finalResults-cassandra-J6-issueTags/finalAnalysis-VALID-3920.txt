@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 1303d12acf8d45bfefc59638bb2110a2bb04f1f3
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3920.txt 
+
+commit 1303d12acf8d45bfefc59638bb2110a2bb04f1f3
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cache generateValues in Inserter/IndexedRangeSlicer.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2578
+
+
+
+==================================
+ Issue CASSANDRA-2578 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2578] stress performance is artificially limited
+-----------------
+
+-----------------
+Summary: stress performance is artificially limited
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 28 Apr 2011 22:09:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 29 Apr 2011 01:41:51 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+With stress I only get about 7k inserts/s against a single server, and the load and cpu
+usage from stress is higher than the server.  Pystress gets 15-20k inserts/s against the
+same machine.  Stress isn't cpu-limited however, so there must be something else holding
+it back.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+caching generateValues in Inserter/IndexedRangeSlicer. Patch against trunk but can be
+applied to cassandra-0.8 without any problem. 
+
+
+New Comment: 
+Great! Committed. 
+
+

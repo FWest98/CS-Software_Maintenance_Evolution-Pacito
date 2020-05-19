@@ -1,0 +1,78 @@
+Pattern changes caused by commit: 3c93525db9605c7beb6c6c65de22801c4d933b07
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3842.txt 
+
+commit 3c93525db9605c7beb6c6c65de22801c4d933b07
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m AT.getInstance methods
+    patch by jbellis; reviewed by jhanna for CASSANDRA-2513
+
+
+
+==================================
+ Issue CASSANDRA-2513 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2513] r/m unnecessary AbstractType getInstance methods
+-----------------
+
+-----------------
+Summary: r/m unnecessary AbstractType getInstance methods
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 20 Apr 2011 00:26:21 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Apr 2011 02:19:23 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 - things are working with the latest patch - I think the reason it's because you
+submitted it with the apache license grant <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>.  But looks like it's working with the
+latest. 
+
+

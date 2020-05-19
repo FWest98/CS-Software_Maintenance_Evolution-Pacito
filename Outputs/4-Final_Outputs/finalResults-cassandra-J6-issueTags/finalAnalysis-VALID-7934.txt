@@ -1,0 +1,159 @@
+Pattern changes caused by commit: 60027c4ccabaab390dbf4c4bba83ac3a843b3a48
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7934.txt 
+
+commit 60027c4ccabaab390dbf4c4bba83ac3a843b3a48
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add memtable_flush_period_in_ms
+    patch by yukim; reviewed by jbellis for CASSANDRA-4237
+
+
+
+==================================
+ Issue CASSANDRA-4237 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4237] Add back 0.8-style memtable_lifetime feature
+-----------------
+
+-----------------
+Summary: Add back 0.8-style memtable_lifetime feature
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 10 May 2012 18:41:15 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 15 Nov 2012 16:04:21 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Back in 0.8 we had a memtable_lifetime_in_minutes setting.  We got rid of it in 1.0 when
+we added <a href="https://issues.apache.org/jira/browse/CASSANDRA-2427" title="Heuristic
+or hard cap to prevent fragmented commit logs from bringing down the server"
+class="issue-link" data-issue-key="CASSANDRA-2427"><del>CASSANDRA-2427</del></a>, which is
+a better way to  ensure flushing on low-activity memtables.
+
+However, at the same time we
+also added the ability to disable durable writes.  So it's entirely possible to configure
+a low-activity memtable, that isn't part of the commitlog.  So, we should add back a
+memtable lifetime setting.
+
+An additional motive is pointed out by <a
+href="http://www.fsl.cs.sunysb.edu/~pshetty/socc11-gtssl.pdf:" class="external-link"
+rel="nofollow">http://www.fsl.cs.sunysb.edu/~pshetty/socc11-gtssl.pdf:</a> if you have a
+<b>high</b> activity columnfamily, and don't require absolute durability, the commitlog is
+redundant if you are flushing faster than the commitlog sync period.  So, disabling
+durable writes but setting memtable lifetime to the same as the commitlog sync would be a
+reasonable optimization.
+
+Thus, when we add back memtable lifetime, I think we should
+measure it in seconds or possibly even milliseconds (to match commitlog_sync_period)
+rather than minutes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached to introduce new CF property <b>memtable_flush_period_in_ms</b>, which
+defaults to 0 (means disabled), to control periodic memtable flush in milliseconds. 
+
+
+New Comment: 
+I don't think this is quite what we want, since it will flush the memtable every
+<tt>period</tt> regardless of whether it has already been recently flushed by normal
+request volume.  (FWIW, the 0.8 brute force approach was to loop over each CFS in the KS
+every 10s, and flush it if it was expired &#8211; see callers of CFS.forceFlushIfExpired.) 
+
+
+New Comment: 
+OK, this attached version schedules flush at Memtable creation when
+memtable_flush_period_in_ms is set, and it tries to keep flushing at the same interval
+after memtable is expired. 
+
+
+New Comment: 
+Hmm, I think this means that if perform a scheduled forceFlush but it's clean, we don't
+schedule another flush attempt.Maybe brute force every 10s isn't so bad?  Bonus:
+accomodates changing the period via mbean for free (which we should allow), without having
+to try to retrieve a ScheduledTask and cancel it. 
+
+
+New Comment: 
+<blockquote>Hmm, I think this means that if perform a scheduled forceFlush but it's clean,
+we don't schedule another flush attempt.</blockquote>There is expire check when flushed
+memtable is clean and reschedule another flush.<blockquote>Maybe brute force every 10s
+isn't so bad?</blockquote>10sec brute force would work if memtable_flush_period is set
+longer (seconds or minutes). <blockquote>Bonus: accomodates changing the period via mbean
+for free (which we should allow), without having to try to retrieve a ScheduledTask and
+cancel it</blockquote>Here, you mean the period of brute force flush? 
+
+
+New Comment: 
+<blockquote>There is expire check when flushed memtable is clean and reschedule another
+flush</blockquote>Hmm...  is there a race here where if user manually calls force flush
+while it's expired, we get two scheduled tasks added?Maybe just inlining a simple runnable
+instead of using forceFlush would be cleaner.  (We don't need to worry about indexes being
+dirty independently of the base memtable in this case, either.)<blockquote>10sec brute
+force would work if memtable_flush_period is set longer (seconds or minutes).
+</blockquote>Good point.<blockquote>Here, you mean the period of brute force
+flush?</blockquote>Yes. 
+
+
+New Comment: 
+Attaching rebased and updated version.<blockquote>is there a race here where if user
+manually calls force flush while it's expired, we get two scheduled tasks
+added?</blockquote>You are right, so I moved the rescheduling code from forceFlush to
+scheduleFlush. I just let periodic flush to be scheduled without canceling already
+scheduled ones, and let the task check expiration before running flush. 
+
+

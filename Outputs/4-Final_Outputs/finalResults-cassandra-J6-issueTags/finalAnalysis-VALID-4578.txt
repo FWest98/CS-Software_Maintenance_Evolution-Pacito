@@ -1,0 +1,185 @@
+Pattern changes caused by commit: 5dc93856fd052607bfbfd8c394fbc57ee44e87d9
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4578.txt 
+
+commit 5dc93856fd052607bfbfd8c394fbc57ee44e87d9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    describe_ring returns the interface thrift is bound to instead of the
+    one the storage proto is bound to.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-1777
+
+
+
+==================================
+ Issue CASSANDRA-1777 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1777] The describe_host API method is misleading in that it returns the interface associated with gossip traffic
+-----------------
+
+-----------------
+Summary: The describe_host API method is misleading in that it returns the interface associated with gossip traffic
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 25 Nov 2010 05:06:52 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 3 Aug 2011 21:46:00 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+If the hardware is configured to use separate interfaces for thrift and gossip, the
+gossip interface will be returned, given the results come out of the ReplicationStrategy
+eventually.
+
+I understand the approach, but given this is on the API, it effective
+worthless in situations of host auto discovery via describe_ring from a client. I actually
+see this as the primary use case of this method - why else would I care about the gossip
+iface from the client perspective? It's current form should be relegated to JMX only. 
+
+At
+the same time, we should add port information as well. 
+
+describe_splits probably has
+similar issues.
+
+I see the potential cart-before-horse issues here and that this will
+probably be non-trivial to fix, but I think "give me a set of all the hosts to which I can
+talk" is pretty important from a client perspective.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is actually simple enough to apply to 0.7 if we leave out the rpc port (since that
+would require a thrift api change.)  describe_splits doesn't appear to be affected, just
+describe_ring. 
+
+
+New Comment: 
+gossip is for internal cluster state, we definitely shouldn't be using it for rpc_address
+and rpc_port.90% convinced the answer is "don't use describe_ring for node discovery,
+that's what RRDNS is for." 
+
+
+New Comment: 
+You can't build a routing-aware client from RRDNS though because you'll have no way to map
+the IP to the token.  describe_ring really is useless if the gossip iface isn't the same
+as the rpc address right now (describe_ring is already using gossip for the info it
+returns, it's just the wrong info.) 
+
+
+New Comment: 
+Unless you have a dns server that can understand cassandra membership, RRDNS is actually a
+rough way to do this. I'd prefer to supply something for clients that works correctly. 
+
+
+New Comment: 
+I don't see how you could build a non-Java routing-aware client without replicating the
+partitioner and replica placement client-side. Ick. 
+
+
+New Comment: 
+I don't care about making it routing-aware. I just want to do discovery. 
+
+
+New Comment: 
+Besides just auto_discovery this breaks the pig storage func in contrib if you use
+different interfaces. That class uses describe ring to generate the input splits for map
+tasks to work on, which obviously doesn't work if it returns the gossip interface instead
+of the thrift interface.+1 on fixing this and backporting to 0.7 
+
+
+New Comment: 
+Since the problem is rooted in CFIF, this actually runs deeper than just Pig. 
+
+
+New Comment: 
+Brandon, what is the status here? 
+
+
+New Comment: 
+describe_ring, as is, is completely useless if you don't have thrift bound to the same
+interface as the storage proto, so I stand by the change to advertise the thrift address
+instead. 
+
+
+New Comment: 
+is that what the attached patch does? 
+
+
+New Comment: 
+That's what it did 8 months ago <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  It gets the rpc address/port information
+for each machine via gossip and returns that in describe_ring. 
+
+
+New Comment: 
+oh yeah.  the whole "gossip is for internal cluster state, we definitely shouldn't be
+using it for rpc_address and rpc_port" thing I objected to originally.however, I don't
+have a better solution (asking nodes directly would mean we couldn't include nodes that
+are currently unreachable), so +1 I guess on the general approach.if we're not going to
+expose individual rpc_port can we just require that it be the same cluster-wide and not
+bother gossiping it?  it's kind of a misfeature anyway to allow different ones.the old
+getRangeToEndpointMap is unused and can be removed now right?Committing to 0.8 is probably
+fine but let's leave 0.7 alone. 
+
+
+New Comment: 
+<blockquote>if we're not going to expose individual rpc_port can we just require that it
+be the same cluster-wide and not bother gossiping it? it's kind of a misfeature anyway to
+allow different ones.</blockquote>I agree, I'll remove the port.<blockquote>the old
+getRangeToEndpointMap is unused and can be removed now right?</blockquote>I think I
+originally left it in because it's exposed over JMX and I didn't want to break it if
+anyone was using it for something. 
+
+
+New Comment: 
+v2 only communicate the rpc address over gossip, and fixes a problem in v1 when the rpc
+address is left blank. 
+
+
+New Comment: 
++1, but let's remove getRangeToEndpointMap when you merge to trunk. 
+
+
+New Comment: 
+Committed. 
+
+

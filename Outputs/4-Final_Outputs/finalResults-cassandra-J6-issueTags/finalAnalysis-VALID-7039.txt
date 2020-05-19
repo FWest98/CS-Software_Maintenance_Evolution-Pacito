@@ -1,0 +1,88 @@
+Pattern changes caused by commit: 8a3bb80e0dfff6bfc0fba195a38baf9be7d443ca
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7039.txt 
+
+commit 8a3bb80e0dfff6bfc0fba195a38baf9be7d443ca
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix cleanup not deleting index entries
+    patch by jbellis; reviewed by slebresne for CASSANDRA-4379
+
+
+
+==================================
+ Issue CASSANDRA-4379 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4379] cleanup optimization can delete data but not corresponding index entries
+-----------------
+
+-----------------
+Summary: cleanup optimization can delete data but not corresponding index entries
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 26 Jun 2012 17:18:15 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 27 Jun 2012 16:40:34 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+introduced by <a href="https://issues.apache.org/jira/browse/CASSANDRA-4079" title="Check
+SSTable range before running cleanup" class="issue-link"
+data-issue-key="CASSANDRA-4079"><del>CASSANDRA-4079</del></a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+fix attached 
+
+
+New Comment: 
++1 
+
+

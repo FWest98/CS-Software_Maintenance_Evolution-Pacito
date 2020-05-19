@@ -1,0 +1,77 @@
+Pattern changes caused by commit: a2a2251b371dd7deef3ed1f0516873e894010577
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7750.txt 
+
+commit a2a2251b371dd7deef3ed1f0516873e894010577
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix CREATE COLUMNFAMILY permissions check
+    patch by Aleksey Yeschenko; reviewed by jbellis for CASSANDRA-4864
+
+
+
+==================================
+ Issue CASSANDRA-4864 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4864] CQL2 CREATE COLUMNFAMILY checks wrong permission
+-----------------
+
+-----------------
+Summary: CQL2 CREATE COLUMNFAMILY checks wrong permission
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 26 Oct 2012 00:39:23 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 26 Oct 2012 01:12:36 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+Permission is asked for resource <span class="error">&#91;cassandra, keyspaces,
+&lt;column family name&gt;&#93;</span> instead of <span class="error">&#91;cassandra,
+keyspaces, &lt;keyspace name&gt;&#93;</span>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

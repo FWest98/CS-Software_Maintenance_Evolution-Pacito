@@ -1,0 +1,97 @@
+Pattern changes caused by commit: 5abeecc8b51b896742403d48019300b68caceecb
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8130.txt 
+
+commit 5abeecc8b51b896742403d48019300b68caceecb
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Allow overriding available processors with
+    -Dcassandra.available_processors
+    Patch by brandonwilliams, reviewed by iamaleksey for CASSANDRA-4790
+
+
+
+==================================
+ Issue CASSANDRA-4790 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4790] Allow property override of available processors value
+-----------------
+
+-----------------
+Summary: Allow property override of available processors value
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 10 Oct 2012 21:31:18 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 5 Dec 2012 20:54:24 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Currently, many critical thread pools are sized according to the number of available
+processors i.e. Runtime.getRuntime.availableProcessors() (See StageManager.java)
+
+In a
+multi-instance deployment, multiple Cassandra instances will independently assume that all
+processors are available to it; there should be a mechanism to specify a smaller set of
+processors (and perhaps have affinity).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Adding a -D option to cassandra-env.sh would be cleanest. 
+
+
+New Comment: 
+Patch to override with -Dcassandra.available_processors 
+
+
+New Comment: 
+lgtm, +1 (piconit - IDEA's auto-import misplaced FBUtilities import in StageManager). 
+
+

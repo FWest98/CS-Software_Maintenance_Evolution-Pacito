@@ -1,0 +1,96 @@
+Pattern changes caused by commit: d96b41aee801b75956adc7e78e38513d047e8695
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3418.txt 
+
+commit d96b41aee801b75956adc7e78e38513d047e8695
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Generate column values of average rather than specific size.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2266
+
+
+
+==================================
+ Issue CASSANDRA-2266 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2266] Add standard deviation to column names/values in stress.java
+-----------------
+
+-----------------
+Summary: Add standard deviation to column names/values in stress.java
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 3 Mar 2011 20:42:05 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 4 Mar 2011 23:09:44 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+stress currently produce fixed-size columns and values across rows, leading to unnatural
+problems such as the memtables turning over at the same time on all nodes.  Instead these
+could take standard deviation flags.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+ISTM that we could get 99% of the benefit here w/o too much complexity by decreeing that
+column value sizes go from 0..2*size, i.e., average stays the same but you do get all
+kinds of sizes in there.  I.e., I don't think I'm in favor of adding more options. 
+
+
+New Comment: 
+That sounds reasonable to me. 
+
+
+New Comment: 
+Does that mean that we should skip -S parameter (which sets the size of the value per
+column)? Also, size from 0..2*size should be cardinality right (set by -C option)? 
+
+
+New Comment: 
+No, it means size should be 0..2*-S instead of exactly -S. 
+
+
+New Comment: 
+Doesn't actually help the memtable problem, but that's hard to do with an even cluster and
+atypical anyway.  Committed to help with testing heap fragmentation with the cardinality
+comment clarified. 
+
+

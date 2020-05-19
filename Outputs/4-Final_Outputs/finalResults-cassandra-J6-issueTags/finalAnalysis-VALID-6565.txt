@@ -1,0 +1,98 @@
+Pattern changes caused by commit: b184972b0f83487cb44ce7c211d3ca7cd5dbb3eb
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6565.txt 
+
+commit b184972b0f83487cb44ce7c211d3ca7cd5dbb3eb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix wide row iteration when last row read was deleted
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-4154
+
+
+
+==================================
+ Issue CASSANDRA-4154 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4154] CFRR wide row iterator does not handle tombstones well
+-----------------
+
+-----------------
+Summary: CFRR wide row iterator does not handle tombstones well
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 16 Apr 2012 13:35:35 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 16 Apr 2012 21:24:38 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+If the last row is a tombstone, CFRR's wide row iterator will throw an exception:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>java.util.NoSuchElementException        at
+com.google.common.collect.Iterables.getLast(Iterables.java:663)        at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.maybeInit(ColumnFamilyRecordReader.java:441)
+       at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.computeNext(ColumnFamilyRecordReader.java:467)
+       at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader$WideRowIterator.computeNext(ColumnFamilyRecordReader.java:413)
+       at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:137)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:132)       
+at
+org.apache.cassandra.hadoop.ColumnFamilyRecordReader.nextKeyValue(ColumnFamilyRecordReader.java:188)
+       at
+org.apache.cassandra.hadoop.pig.CassandraStorage.getNextWide(CassandraStorage.java:140)   
+    at org.apache.cassandra.hadoop.pig.CassandraStorage.getNext(CassandraStorage.java:199)
+       at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.nextKeyValue(PigRecordReader.java:187)
+       at
+org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.nextKeyValue(MapTask.java:423)   
+    at org.apache.hadoop.mapreduce.MapContext.nextKeyValue(MapContext.java:67)        at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:143)        at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)        at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)        at
+org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+

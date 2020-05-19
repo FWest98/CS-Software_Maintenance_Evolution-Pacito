@@ -1,0 +1,139 @@
+Pattern changes caused by commit: 3e44d450a344ebad4373f2454d6675aa13f438b0
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3826.txt 
+
+commit 3e44d450a344ebad4373f2454d6675aa13f438b0
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix unit tests for CASSANDRA-2290
+
+
+
+==================================
+ Issue CASSANDRA-2290 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2290] Repair hangs if one of the neighbor is dead
+-----------------
+
+-----------------
+Summary: Repair hangs if one of the neighbor is dead
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 8 Mar 2011 19:09:32 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 19 Apr 2011 12:54:09 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Repair don't cope well with dead/dying neighbors. There is 2 problems:
+<ol>	<li>Repair
+don't check if a node is dead before sending a TreeRequest; this is easily
+fixable.</li>	<li>If a neighbor dies mid-repair, the repair will also hang
+forever.</li></ol>
+The second point is not easy to deal with. The best approach is
+probably <a href="https://issues.apache.org/jira/browse/CASSANDRA-1740" title="Nodetool
+commands to query and stop compaction, repair, cleanup and scrub" class="issue-link"
+data-issue-key="CASSANDRA-1740"><del>CASSANDRA-1740</del></a> however. That is, if we add
+a way to query the state of a repair, and that this query correctly check all neighbors
+and also add a way to cancel a repair, this would probably be enough.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching patch for the first problem above. It checks that all neighbors are alive before
+attempting the repair. If not, it don't start the repair. Another option would be to still
+do the repair with whomever neighbor are alive (if any). But I think that refusing to
+repair is a saner default and I'm fine waiting that someone needs the second option before
+considering adding it. 
+
+
+New Comment: 
+Not sure if this helps. I found a place where AES was hanging while testing failure during
+streaming transfer for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2088"
+title="Clean up after failed (repair) streaming operation" class="issue-link"
+data-issue-key="CASSANDRA-2088"><del>CASSANDRA-2088</del></a> (against 0.7). I broke the
+FileStresmTask to only send one range and close the sending channel. The 
+IncomingStreamReader.readFile() got stuck in an infinite loop because it does not check
+the return from FileChannel.transferFrom(). It was returning 0 bytes read. Also the
+FileStreamTask does not check the bytes sent by transferTo()While stuck in the loop the
+socket it was reading from was (127.0.0.1 was in the loop, .0.2 was sending) <br/>java    
+ 25371 aaron   73u  IPv4 0xffffff8010742ff8      0t0  TCP
+127.0.0.1:7000-&gt;127.0.0.2:52759 (CLOSE_WAIT)When I was debugging the socketChannel was
+still reporting it was open. Update: Modified FileStresmTask to call System.exit() after
+sending the first section and got the same result. 
+
+
+New Comment: 
++1 the check-neighbors patch 
+
+
+New Comment: 
+Committed (to 0.7 and 0.8) the check-neighbor patch. I'm closing this as the rest of this
+issue is a duplicate <a href="https://issues.apache.org/jira/browse/CASSANDRA-2433"
+title="Failed Streams Break Repair" class="issue-link"
+data-issue-key="CASSANDRA-2433"><del>CASSANDRA-2433</del></a> and could go there. 
+
+
+New Comment: 
+oops, need to fix AESTest now 
+
+
+New Comment: 
+Integrated in Cassandra #856 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra/856/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra/856/</a>) 
+
+
+New Comment: 
+Tests fixed, sorry about that. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #19 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.8/19/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.8/19/</a>)<br/>    Fix
+unit tests for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2290"
+title="Repair hangs if one of the neighbor is dead" class="issue-link"
+data-issue-key="CASSANDRA-2290"><del>CASSANDRA-2290</del></a> 
+
+

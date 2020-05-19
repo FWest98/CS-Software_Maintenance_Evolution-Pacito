@@ -1,0 +1,138 @@
+Pattern changes caused by commit: 8b96334a0c107216604d85d59ff50b1edbec89fa
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9361.txt 
+
+commit 8b96334a0c107216604d85d59ff50b1edbec89fa
+Author: Rick Branson <rick@diodeware.com>
+
+    Check only SSTables for the requested range when streaming patch by Rick Branson; reviewed by yukim for CASSANDRA-5569
+
+
+
+==================================
+ Issue CASSANDRA-5569 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5569] Every stream operation requires checking indexes in every SSTable
+-----------------
+
+-----------------
+Summary: Every stream operation requires checking indexes in every SSTable
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 14 May 2013 23:46:15 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 16 May 2013 16:46:08 +0000
+-----------------
+
+-----------------
+Assigned to: Rick Branson
+-----------------
+
+-----------------
+Description: 
+
+It looks like there's a streaming performance issue when leveled compaction and vnodes
+get together. To get the candidate set of chunks to stream, the streaming system gets
+references to every SSTable for a CF. This is probably a perfectly reasonable assumption
+for non-vnode cases, because the data being streamed is likely distributed across the full
+SSTable set. This is also probably a perfectly reasonable assumption for size-tiered
+compaction, because the data is, again, likely distributed across the full SSTable set.
+However, for each vnode repair performed on LCS CF's, this scan across potentially tens of
+thousands of SSTables is wasteful considering that only a small percentage of them will
+actually have data for a given range.
+
+This manifested itself as "hanging" repair
+operations with tasks backing up on the MiscStage thread pool.
+
+The attached patch changes
+the streaming code so that for a given range, only SSTables for the requested range are
+checked to be included in streaming.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This could cause a lot of reference churn, can you make DataTracker.markReferenced take a
+list of Bounds objects instead so we can uniquify the set before acquiring references? 
+
+
+New Comment: 
+How do you feel about the safety of refactoring the markReferenced(RowPosition start,
+RowPosition end) signature call the new markReferenced to cut down on the duplication
+between these methods? 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+v2 patch attached.Decided not to rock the boat a bunch in terms of allocation &amp;
+copying on the markReferenced() for the single range common case, which it looks like is
+the path for a bunch of read operations. This patch contains a refactor that DRYs up the
+markReferenced() calls. 
+
+
+New Comment: 
+It looks like StreamingRepairTask is also suffering this problem. Going to work up a v3 to
+include that as well. 
+
+
+New Comment: 
+<a
+href="http://github.com/apache/cassandra/blob/cassandra-1.2/src/java/org/apache/cassandra/streaming/StreamingRepairTask.java#L133"
+class="external-link"
+rel="nofollow">http://github.com/apache/cassandra/blob/cassandra-1.2/src/java/org/apache/cassandra/streaming/StreamingRepairTask.java#L133</a>^^^
+is there a good reason we're calling StreamOut.transferSSTables directly instead of
+StreamOut.transferRanges? 
+
+
+New Comment: 
+I think we can use transferRanges there even though we do blocking flush before streaming. 
+
+
+New Comment: 
+What I'm working with now is adding a second method signature with a "flush" boolean that
+allows the behavior to be turned off for StreamingRepairTask. 
+
+
+New Comment: 
+v3 patch (rebased against current 1.2 branch).Adds the same optimization to
+StreamingRepairTask. Note that the only apparent difference is that StreamingRepairTask
+wasn't doing a blocking flush, so I made that behavior optional in
+StreamOut.transferRanges(). Also took the opportunity to run through and fix some naming
+irregularities from the v2 patch. 
+
+
+New Comment: 
+FWIW &#8211; we're running the v3 patch in production on our vnodes + LCS cluster, and
+repairs are something like 25x faster. 
+
+

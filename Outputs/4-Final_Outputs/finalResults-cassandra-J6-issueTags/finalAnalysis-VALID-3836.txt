@@ -1,0 +1,96 @@
+Pattern changes caused by commit: 1dd8d37207fcd6abbb9faeebb1708915342d1c15
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3836.txt 
+
+commit 1dd8d37207fcd6abbb9faeebb1708915342d1c15
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    cqlsh fixes
+    patch by thobbs; reviewed by jbellis for CASSANDRA-2507
+
+
+
+==================================
+ Issue CASSANDRA-2507 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2507] Python CQL driver does not decode most values
+-----------------
+
+-----------------
+Summary: Python CQL driver does not decode most values
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 19 Apr 2011 16:33:59 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 19 Apr 2011 20:02:09 +0000
+-----------------
+
+-----------------
+Assigned to: Tom Hobbs
+-----------------
+
+-----------------
+Description: 
+
+Most keys, and column name/values are not decoded properly.  The attached CQL input can
+be used to demonstrate:
+
+<em>Note: requires the patch from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2505" title="cqlsh can&#39;t decode
+column names/values" class="issue-link"
+data-issue-key="CASSANDRA-2505"><del>CASSANDRA-2505</del></a> to be applied</em>
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>$ drivers/py/cqlsh localhost 9170 &lt; repro.cql  |
+'\x00\x00\x00\x00\x00\x00\x00\x01','\x00\x00\x00\x00\x00\x00\x00\x01' |
+'\x00\x00\x00\x00\x00\x00\x00\x02','\x00\x00\x00\x00\x00\x00\x00\x02'e�#j������ |
+'e\xe2#\x01j\xa2\x11\xe0\x00\x00\xfe\x8e\xbe\xea\xd9\xff','e\xe2#\x02j\xa2\x11\xe0\x00\x00\xfe\x8e\xbe\xea\xd9\xff'</pre></div></div>
+For
+all practical purposes, this renders the driver useless for everything but strings.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch fixes the issue by:1. Not creating a new cursor for every line of
+CQL.<br/>2. Updating the driver's view of the schema after DDL statements instead of
+before them. 
+
+
+New Comment: 
+committed 
+
+

@@ -1,0 +1,92 @@
+Pattern changes caused by commit: e3812748ecb0b02436ebf82b7169c2c1c75b6627
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5178.txt 
+
+commit e3812748ecb0b02436ebf82b7169c2c1c75b6627
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    default hsha thrift server to cpu core count in rpc pool
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3329
+
+
+
+==================================
+ Issue CASSANDRA-3329 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3329] make HSHA the default Thrift server
+-----------------
+
+-----------------
+Summary: make HSHA the default Thrift server
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 7 Oct 2011 03:12:42 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 7 Oct 2011 23:22:02 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+HSHA has been an option since 0.8.3 (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1405" title="Switch to THsHaServer,
+redux" class="issue-link" data-issue-key="CASSANDRA-1405"><del>CASSANDRA-1405</del></a>)
+and has been stable. Besides making possible lots of unpooled connections such as are
+common in some environments (<b>cough</b> PHP), we've seen EC2 in particular have trouble
+with lots of threads (<a href="https://issues.apache.org/jira/browse/CASSANDRA-2170"
+title="Load spikes" class="issue-link"
+data-issue-key="CASSANDRA-2170"><del>CASSANDRA-2170</del></a>).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+testing on Windows, I get 17-18k rows/s with hsha instead of 21-24 with sync. So I'll
+leave the default as sync.patch updates comments and defaults hsha thread pool to # of cpu
+cores. 
+
+
+New Comment: 
+Looks like it defaults to hsha if the config doesn't specify, but +1 otherwise. 
+
+
+New Comment: 
+thanks for catching that.  reverted to sync + committed. 
+
+
+New Comment: 
+It looks like defaulting to the number of cores for hsha isn't quite adequate - I get
+about 20% less throughput on 4 cores with this patch than if I set it explicitly to 16. 
+
+

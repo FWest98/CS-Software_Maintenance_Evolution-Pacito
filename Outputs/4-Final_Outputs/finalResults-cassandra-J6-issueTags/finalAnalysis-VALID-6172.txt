@@ -1,0 +1,94 @@
+Pattern changes caused by commit: 4a49b9dcc05d6f06c3354fb37a4a0199a2c283d5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6172.txt 
+
+commit 4a49b9dcc05d6f06c3354fb37a4a0199a2c283d5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig CounterColumnFamily support.
+    Patch by Janne Jalkanen and brandonwilliams, reviewed by brandonwilliams
+    for CASSANDRA-3973
+
+
+
+==================================
+ Issue CASSANDRA-3973 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3973] Pig CounterColumnFamily support
+-----------------
+
+-----------------
+Summary: Pig CounterColumnFamily support
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 28 Feb 2012 15:08:30 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 28 Feb 2012 15:48:29 +0000
+-----------------
+
+-----------------
+Assigned to: Janne Jalkanen
+-----------------
+
+-----------------
+Description: 
+
+Included a patch to the current test script to demonstrate that CassandraStorage does not
+support counter columns, as well as a patch to fix the issue.
+
+The core reason is that
+CassandraStorage assumes that counters can be unpacked using CounterColumnType, when in
+fact the column value is already a Long.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch for tests; another patch for CassandraStorage. 
+
+
+New Comment: 
+v2 to nip counters directly in parseType so we can catch them in super columns too. 
+
+
+New Comment: 
+V2 patch wasn't working, getDefaultMarshallers() was invoking TypeParser.parse() directly.
+ Here's v3 which fixes that issue (and protects against null reference). 
+
+

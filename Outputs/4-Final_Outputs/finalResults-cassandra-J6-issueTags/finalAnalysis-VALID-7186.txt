@@ -1,0 +1,187 @@
+Pattern changes caused by commit: 6f384c54de567d8d901592f0c32769b6582e50e4
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7186.txt 
+
+commit 6f384c54de567d8d901592f0c32769b6582e50e4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: support for Int32Type.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-4459
+
+
+
+==================================
+ Issue CASSANDRA-4459 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4459] pig driver casts ints as bytearray
+-----------------
+
+-----------------
+Summary: pig driver casts ints as bytearray
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 23 Jul 2012 18:51:51 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 25 Jul 2012 17:09:56 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+we seem to be auto-mapping C* int columns to bytearray in Pig, and farther down I can't
+seem to find a way to cast that to int and do an average.  
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">grunt&gt; cassandra_users = LOAD <span
+class="code-quote">'cassandra:<span class="code-comment">//cqldb/users'</span> USING
+CassandraStorage();</span>grunt&gt; dump
+cassandra_users;(bobhatter,(act,22),(fname,bob),(gender,m),(highSchool,Cal
+High),(lname,hatter),(sat,500),(state,CA),{})(alicesmith,(act,27),(fname,alice),(gender,f),(highSchool,Tuscon
+High),(lname,smith),(sat,650),(state,AZ),{}) <span class="code-comment">// notice sat and
+act columns are bytearray values </span>grunt&gt; describe
+cassandra_users;cassandra_users: {key: chararray,act: (name: chararray,value:
+bytearray),fname: (name: chararray,value: chararray),gender: (name: chararray,value:
+chararray),highSchool: (name: chararray,value: chararray),lname: (name: chararray,value:
+chararray),sat: (name: chararray,value: bytearray),state: (name: chararray,value:
+chararray),columns: {(name: chararray,value: chararray)}}grunt&gt; users_by_state = GROUP
+cassandra_users BY state;grunt&gt; dump
+users_by_state;((state,AX),{(aoakley,(highSchool,Phoenix
+High),(lname,Oakley),state,(act,22),(sat,500),(gender,m),(fname,Anne),{})})((state,AZ),{(gjames,(highSchool,Tuscon
+High),(lname,James),state,(act,24),(sat,650),(gender,f),(fname,Geronomo),{})})((state,CA),{(philton,(highSchool,Beverly
+High),(lname,Hilton),state,(act,37),(sat,220),(gender,m),(fname,Paris),{}),(jbrown,(highSchool,Cal
+High),(lname,Brown),state,(act,20),(sat,700),(gender,m),(fname,Jerry),{})})<span
+class="code-comment">// Error - use explicit <span
+class="code-keyword">cast</span></span>grunt&gt; user_avg = FOREACH users_by_state
+GENERATE cassandra_users.state, AVG(cassandra_users.sat);grunt&gt; dump
+user_avg;2012-07-22 17:15:04,361 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR
+1045: Could not infer the matching function <span class="code-keyword">for</span>
+org.apache.pig.builtin.AVG as multiple or none of them fit. Please use an explicit <span
+class="code-keyword">cast</span>.<span class="code-comment">// Unable to <span
+class="code-keyword">cast</span> as <span class="code-object">int</span></span>grunt&gt;
+user_avg = FOREACH users_by_state GENERATE cassandra_users.state, AVG((<span
+class="code-object">int</span>)cassandra_users.sat);grunt&gt; dump user_avg;2012-07-22
+17:07:39,217 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1052: Cannot <span
+class="code-keyword">cast</span> bag with schema sat: bag({name: chararray,value:
+bytearray}) to <span class="code-object">int</span></pre></div></div>
+<b>Seed data in
+CQL</b>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">CREATE KEYSPACE cqldb with   strategy_class = <span
+class="code-quote">'org.apache.cassandra.locator.SimpleStrategy'</span>   and
+strategy_options:replication_factor=3;	use cqldb;CREATE COLUMNFAMILY users (  KEY text
+PRIMARY KEY,   fname text, lname text, gender varchar,   act <span
+class="code-object">int</span>, sat <span class="code-object">int</span>, highSchool text,
+state varchar);insert into users (KEY, fname, lname, gender, act, sat, highSchool,
+state)values (gjames, Geronomo, James, f, 24, 650, <span class="code-quote">'Tuscon
+High'</span>, <span class="code-quote">'AZ'</span>);insert into users (KEY, fname, lname,
+gender, act, sat, highSchool, state)values (aoakley, Anne, Oakley, m , 22, 500, <span
+class="code-quote">'Phoenix High'</span>, <span class="code-quote">'AX'</span>);insert
+into users (KEY, fname, lname, gender, act, sat, highSchool, state)values (jbrown, Jerry,
+Brown, m , 20, 700, <span class="code-quote">'Cal High'</span>, <span
+class="code-quote">'CA'</span>);insert into users (KEY, fname, lname, gender, act, sat,
+highSchool, state)values (philton, Paris, Hilton, m , 37, 220, <span
+class="code-quote">'Beverly High'</span>, <span class="code-quote">'CA'</span>);select *
+from users;</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+We actually have tests in examples/pig/test that explicitly cover this, but we populate
+that data with the cli which uses IntegerType, but cql uses Int32Type.  Trivial patch to
+cast both to pig's integer type. 
+
+
+New Comment: 
+casting IntegerType to pig's <span class="error">&#91;32bit&#93;</span> int sounds broken
+to me.  shouldn't we fix the population script to use int32 as well? 
+
+
+New Comment: 
+I agree with Jonathan on this, IntegerType could be larger than int32. 
+
+
+New Comment: 
+fwiw - see <a href="https://issues.apache.org/jira/browse/PIG-2764" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/PIG-2764</a> for the addition of
+BigInteger and BigDecimal as built-in pig data types.  Also, I'm not sure how much of an
+issue it is for users to use pig ints for now because I don't know how many users know
+that the cassandra IntegerType is actually a BigInteger and not just a regular Integer. 
+That's not to say that it's not dangerous to try to put a BigInteger value into an Integer
+type.  It's just that I don't know if it's common knowledge that Cassandra uses a
+BigInteger underneath. 
+
+
+New Comment: 
+<blockquote>casting IntegerType to pig's <span class="error">&#91;32bit&#93;</span> int
+sounds broken to me.</blockquote>I agree, but the conundrum we're in now is, I'm almost
+certain someone is relying on the current behavior to work and always using ints under
+2**31, so changing it now would break things for them, and really the only danger is
+exceeding that limit, which I suspect people who create int columns never intend to do (or
+they'd make them longs.)So, I propose that when pig has a BigInteger, we switch to that,
+allowing a smooth transition (unless you're exceeding 2**31 already, which to my knowledge
+no one is.) 
+
+
+New Comment: 
+That's reasonable, but we should still use int32type for cli population <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Update with a comment explaining that IntegerType is wrong, but we're doing it anyway. 
+Also switched all the IntegerTypes to Int32Types in the tests, which pass.  I don't see
+any point in explicitly testing IntegerType as well until pig has a BigInteger. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
++1 
+
+

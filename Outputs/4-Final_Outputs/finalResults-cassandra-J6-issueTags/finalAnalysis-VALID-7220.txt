@@ -1,0 +1,93 @@
+Pattern changes caused by commit: 96075b31c3e2cde777f20367442f1c0cb13c40c1
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7220.txt 
+
+commit 96075b31c3e2cde777f20367442f1c0cb13c40c1
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix typos in cli help.
+    Patch by Tommy Tynjä, reviewed by brandonwilliams for CASSANDRA-4398
+
+
+
+==================================
+ Issue CASSANDRA-4398 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4398] Incorrect english for cassandra-cli help
+-----------------
+
+-----------------
+Summary: Incorrect english for cassandra-cli help
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 30 Jun 2012 18:43:21 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 27 Jul 2012 18:46:35 +0000
+-----------------
+
+-----------------
+Assigned to: Tommy Tynjä
+-----------------
+
+-----------------
+Description: 
+
+Some of the help provided for the CLI is not written correctly.
+
+For
+example:
+
+<tt>describe                Describe a keyspace and it's column families or
+column family in current keyspace.</tt><br/><tt>drop column family      Remove a column
+family and it's data.</tt><br/><tt>drop keyspace           Remove a keyspace and it's
+data.</tt>
+
+Here all the <b>it's</b> should be <b>its</b>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Sent pull request with fix: <a href="https://github.com/apache/cassandra/pull/11"
+class="external-link" rel="nofollow">https://github.com/apache/cassandra/pull/11</a> 
+
+

@@ -1,0 +1,72 @@
+Pattern changes caused by commit: 86d5da8d8ba3971bf1c7d0ad61c9b400937f9505
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5250.txt 
+
+commit 86d5da8d8ba3971bf1c7d0ad61c9b400937f9505
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix computed serialized size by ReadResponseSerializer
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3373
+
+
+
+==================================
+ Issue CASSANDRA-3373 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3373] ReadResponseSerializer doesn't compute serialized size correctly
+-----------------
+
+-----------------
+Summary: ReadResponseSerializer doesn't compute serialized size correctly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 18 Oct 2011 13:42:40 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 18 Oct 2011 14:10:45 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The digest bytes are added twice when it's a digest query. Patch attached. 
+
+
+New Comment: 
++1 
+
+

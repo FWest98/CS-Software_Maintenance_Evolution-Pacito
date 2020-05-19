@@ -1,0 +1,225 @@
+Pattern changes caused by commit: 988ea81d409968614d84dacb3a022dcb156172c3
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7551.txt 
+
+commit 988ea81d409968614d84dacb3a022dcb156172c3
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix re-created keyspace disappering after 1.1.5 upgrade
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4698
+
+
+
+==================================
+ Issue CASSANDRA-4698 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4698] Keyspace disappears when upgrading node from cassandra-1.1.1 to cassandra-1.1.5
+-----------------
+
+-----------------
+Summary: Keyspace disappears when upgrading node from cassandra-1.1.1 to cassandra-1.1.5
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 21 Sep 2012 16:21:03 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 27 Sep 2012 14:18:55 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Here is how I got the problem to happen:
+
+1. Get this zipped data directory (about
+33Mb):<br/>  scp cass@50.57.69.32:/home/cass/cassandra.zip ./ (password cass)<br/>2. Unzip
+it in /var/lib/<br/>3. clone the cassandra git repo<br/>4. git checkout cassandra-1.1.1;
+ant jar;<br/>5. bin/cassandra <br/>6. Run cqlsh -3, then DESC COLUMNFAMILIES; Note the
+presence of Keyspace performance_tests<br/>7. pkill -f cassandra; git checkout
+cassandra-1.1.5; ant realclean; ant jar;<br/>8. bin/cassandra<br/>9. Run cqlsh -3, then
+DESC COLUMNFAMILIES; Note that there is no performance_tests keyspace
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+These are the log files after starting 1.1.1 and 1.1.5 respectively 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=tpatterson"
+class="user-hover" rel="tpatterson">Tyler Patterson</a><br/>Can you try this test out and
+let me know if the keyspace reappears?<ul>	<li>In 1.1.1, show keyspaces to get schema
+definitions</li>	<li>Upgrade to 1.1.5</li>	<li>Recreate table definitions:	<ul>		<li>rm
+data/system/system_schema*</li>		<li>restart</li>		<li>CREATE KEYSPACE + CREATE TABLE as
+necessary</li>	</ul>	</li></ul> 
+
+
+New Comment: 
+It sounds like this reproduces on a single node?  No schema disagreement should be
+necessary/possible. 
+
+
+New Comment: 
+<blockquote>It sounds like this reproduces on a single node? No schema disagreement should
+be necessary/possible.</blockquote>yes, this happened on a single node.<blockquote> Can
+you try this test out and let me know if the keyspace reappears? ...</blockquote>Yes. I
+did those steps on one of the columnfamilies in the keyspace and the data did indeed come
+back. 
+
+
+New Comment: 
+Attaching the patch to fix the problem which was related to fixing timestmaps in
+ColumnSerializer, instead of doing that patch does fixing only schema RowMutation
+timestamps from remote nodes.Tyler, can you please test the scenario when local correct
+schema data are getting overriden by incorrect remote (as seen at <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4561" title="update column family
+fails" class="issue-link" data-issue-key="CASSANDRA-4561"><del>CASSANDRA-4561</del></a>)? 
+
+
+New Comment: 
+ISTM that only fixing remote timestamps is the wrong solution in general &#8211; it fixes
+this particular scenario, but re-introduces "unmodifiable" keyspaces, since the <span
+class="error">&#91;local&#93;</span> timestamp is now permanently left unnaturally high.I
+think that we need to fix it at a higher level than serialization: once the rows <span
+class="error">&#91;from different sstables&#93;</span> have all been deserialized and
+merged, THEN fix the timestamp.  Then we won't have the problem of an adjusted tombstone
+clobbering a value that it didn't, pre-adjustment. 
+
+
+New Comment: 
+<blockquote>ISTM that only fixing remote timestamps is the wrong solution in general – it
+fixes this particular scenario, but re-introduces "unmodifiable" keyspaces, since the
+<span class="error">&#91;local&#93;</span> timestamp is now permanently left unnaturally
+high.</blockquote>The local timestamp fixing didn't go anywhere and still fixed
+<em>before</em> we accept remote schema mutations that it why it's useful to fix only
+schema mutation without touching anything else... 
+
+
+New Comment: 
+<blockquote>Tyler, can you please test the scenario when local correct schema data are
+getting overriden by incorrect remote (as seen at <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4561" title="update column family
+fails" class="issue-link"
+data-issue-key="CASSANDRA-4561"><del>CASSANDRA-4561</del></a>)?</blockquote><a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=xedin"
+class="user-hover" rel="xedin">Pavel Yaskevich</a> Could you explain what you mean by
+local and remote schemas, and how I can go about testing this? Thanks 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=tpatterson"
+class="user-hover" rel="tpatterson">Tyler Patterson</a> By local I mean - definitions from
+system.schema_*, by remote - mutations that could be sent (pushed) to the node from others
+or could be requested if local schema version is different from remote ones. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=xedin"
+class="user-hover" rel="xedin">Pavel Yaskevich</a> I ran this test:I set up a 1-node 1.1.1
+cluster with that broken keyspace mentioned at the beginning of this test, then I
+bootstrapped another 1.1.1 node and verified that the keyspace was visible to the second
+node. The timestamps were 16 digits long on both nodes. Then I took down node 2, upgraded
+it to 1.1.5, and started it back up. The keyspace was not visible. In cassandra-cli I did
+was not able to see the timestamps on node 2, here is what the output looked like:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[<span class="code-keyword">default</span>@system] list
+schema_columns;Using <span class="code-keyword">default</span> limit of 100Using <span
+class="code-keyword">default</span> column limit of 100-------------------RowKey:
+performance_tests1 Row Returned.Elapsed time: 2 msec(s).</pre></div></div>I got the same
+results for list schema_keyspaces and list schema_columnfamilies.On node1 (which was still
+on 1.1.1) the timestamps were still 16-digits long. I don't know how to get the
+now-incorrect remote schema (on node2) to overwrite the local correct schema (on node1). 
+
+
+New Comment: 
+Did you apply patch attached to this issue on top of 1.1.5? 
+
+
+New Comment: 
+Patch LGTM. 
+
+
+New Comment: 
+I hadn't applied the patch, but I just tried it again with the patch. With the patch the
+keyspace disappearing bug didn't happen. The timestamps all were 16-digits long on both
+nodes after upgrading one node. 
+
+
+New Comment: 
+Great! Tyler will be running the last test to confirm that new node correctly handles
+timestamps from old nodes and we are good to go. 
+
+
+New Comment: 
+I re-ran the test like the one described earlier today, but after node2 was upgraded to
+1.1.5 (with the patch), I followed Pavel's instructions:<br/>start first and second, stop
+second, run resetschema on first, stop first, start second, start firstBoth nodes then
+showed 16-digit timestamps with 3 zeros at the end. 
+
+
+New Comment: 
+Per Pavel's request I ran the test again. Everything checked out, here are the steps
+followed:1: get that data onto both nodes in a 1.1.1 cluster<br/>2: upgrade and start
+node2 on 1.1.5+patch<br/>3: stop both nodes<br/>4: start node1 (1.1.1) and verify that
+timestamps are fixed (zero last 3 digits) <br/>5: stop node1 <br/>6: start node2
+(1.1.5+patch), verify that timestamps are fixed (3 zeros)<br/>7: nodetool resetlocalschema
+on node2<br/>8: Verify that the troublesome keyspace is <b>not</b> present on node2<br/>9:
+stop node2<br/>10: start node1<br/>11: start node2 <br/>12: verify that the troublesome
+keyspace appears on node2 and timestamps are fixed (3 zeros) 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra #2190 (See <a href="https://builds.apache.org/job/Cassandra/2190/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/2190/</a>)<br/>    adopt RM code of
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4698" title="Keyspace disappears
+when upgrading node from cassandra-1.1.1 to cassandra-1.1.5" class="issue-link"
+data-issue-key="CASSANDRA-4698"><del>CASSANDRA-4698</del></a> to trunk (Revision
+a0d7d9713d776506ce6c2eea577eea3b7c5099bd)     Result = ABORTED<br/>xedin : <br/>Files :
+<ul>	<li>src/java/org/apache/cassandra/db/RowMutation.java</li></ul> 
+
+

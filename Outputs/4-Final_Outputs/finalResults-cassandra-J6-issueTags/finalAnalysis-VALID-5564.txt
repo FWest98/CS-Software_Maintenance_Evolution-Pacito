@@ -1,0 +1,151 @@
+Pattern changes caused by commit: f0b14509e1e4827f10458d359a46a69983be786f
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5564.txt 
+
+commit f0b14509e1e4827f10458d359a46a69983be786f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix default value validation usage in CLI SET command
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3553
+
+
+
+==================================
+ Issue CASSANDRA-3553 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3553] value validator in the cli does not pick up
+-----------------
+
+-----------------
+Summary: value validator in the cli does not pick up
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Dec 2011 00:49:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 14:39:48 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+the summary is probably confusing, so here is an example:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>[default@testks] describe testcf;    ColumnFamily: testcf      Key
+Validation Class: org.apache.cassandra.db.marshal.UTF8Type      Default column value
+validator: org.apache.cassandra.db.marshal.LongType      Columns sorted by:
+org.apache.cassandra.db.marshal.LongType</pre></div></div>
+notice both column and column
+value are under LongType
+
+in the cli (without assume):
+
+<span
+class="error">&#91;default@testks&#93;</span> set testcf<span
+class="error">&#91;&#39;foo&#39;&#93;</span><span
+class="error">&#91;1293843587&#93;</span>=30;
+<br/>null<br/>InvalidRequestException(why:(Expected 8 or 0 byte long (2)) <span
+class="error">&#91;testks&#93;</span><span class="error">&#91;testcf&#93;</span><span
+class="error">&#91;1293843587&#93;</span> failed validation)<br/>        at
+org.apache.cassandra.thrift.Cassandra$insert_result.read(Cassandra.java:15198)<br/>       
+at org.apache.cassandra.thrift.Cassandra$Client.recv_insert(Cassandra.java:858)<br/>      
+ at org.apache.cassandra.thrift.Cassandra$Client.insert(Cassandra.java:830)<br/>        at
+org.apache.cassandra.cli.CliClient.executeSet(CliClient.java:902)<br/>        at
+org.apache.cassandra.cli.CliClient.executeCLIStatement(CliClient.java:216)<br/>        at
+org.apache.cassandra.cli.CliMain.processStatementInteractive(CliMain.java:220)<br/>       
+at org.apache.cassandra.cli.CliMain.main(CliMain.java:346)
+
+so the above so the value
+cannot be validated, so now lets try to change the column name also:
+
+<span
+class="error">&#91;default@testks&#93;</span> set testcf<span
+class="error">&#91;&#39;foo&#39;&#93;</span><span class="error">&#91;30&#93;</span>=30;   
+           <br/>null<br/>InvalidRequestException(why:(Expected 8 or 0 byte long (2)) <span
+class="error">&#91;testks&#93;</span><span class="error">&#91;testcf&#93;</span><span
+class="error">&#91;30&#93;</span> failed validation)<br/>        at
+org.apache.cassandra.thrift.Cassandra$insert_result.read(Cassandra.java:15198)<br/>       
+at org.apache.cassandra.thrift.Cassandra$Client.recv_insert(Cassandra.java:858)<br/>      
+ at org.apache.cassandra.thrift.Cassandra$Client.insert(Cassandra.java:830)<br/>        at
+org.apache.cassandra.cli.CliClient.executeSet(CliClient.java:902)<br/>        at
+org.apache.cassandra.cli.CliClient.executeCLIStatement(CliClient.java:216)<br/>        at
+org.apache.cassandra.cli.CliMain.processStatementInteractive(CliMain.java:220)<br/>       
+at org.apache.cassandra.cli.CliMain.main(CliMain.java:346)
+
+now lets set value with 8
+characters:
+
+<span class="error">&#91;default@testks&#93;</span> set testcf<span
+class="error">&#91;&#39;foo&#39;&#93;</span><span
+class="error">&#91;30&#93;</span>=12345678;  <br/>Value inserted.
+
+so that shows column is
+fine, only the value part is not fine. put it in assume or long() works:
+
+<span
+class="error">&#91;default@testks&#93;</span> assume testcf validator as
+long;<br/>Assumption for column family 'testcf' added successfully.<br/><span
+class="error">&#91;default@testks&#93;</span> set testcf<span
+class="error">&#91;&#39;foo&#39;&#93;</span><span class="error">&#91;30&#93;</span>=30;   
+   <br/>Value inserted.
+
+or (restart to a new session to un-assume):
+
+<span
+class="error">&#91;default@testks&#93;</span> set testcf<span
+class="error">&#91;&#39;foo&#39;&#93;</span><span
+class="error">&#91;30&#93;</span>=long(30);         <br/>Value inserted.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+it wasn't peaking correct default validation class, just converting everything to bytes... 
+
+
+New Comment: 
+For consistency with the rest of the CLI we should use
+defaultValidator.fromString(columnValue) even for BytesType.  (Which means we should
+probably make this change only in 1.0, since 0.8 users may be relying on the old, broken
+behavior.) 
+
+
+New Comment: 
+I agree, here is patch with 1.0 specific changes. 
+
+
+New Comment: 
++1 
+
+

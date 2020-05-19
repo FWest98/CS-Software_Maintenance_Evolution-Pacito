@@ -1,0 +1,192 @@
+Pattern changes caused by commit: 68032e9409fc4af4135f4958a52711a0ef3db1e4
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6414.txt 
+
+commit 68032e9409fc4af4135f4958a52711a0ef3db1e4
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix for broken auto-merge of CASSANDRA-3612
+
+
+
+==================================
+ Issue CASSANDRA-3612 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3612] CQL inserting blank key.
+-----------------
+
+-----------------
+Summary: CQL inserting blank key.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 11 Dec 2011 18:01:29 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 28 Mar 2012 17:06:08 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+One of our application bug inserted blank key into cluster causing assertion error on
+key. After checking the root cause, I found it is the bug with CQL and reproducible.
+Client cassandra-node and cqlsh-1.0.6.<br/>Blank key only work when one column
+provided.
+
+{}<br/>cqlsh&gt; insert into login (KEY,email)values('','');<br/>cqlsh&gt;
+select * from login;<br/>u'' | u'email',u'' <br/>cqlsh&gt; insert into login
+(KEY,email,verified)values('','','');<br/>Request did not complete within
+rpc_timeout.<br/>cqlsh&gt; insert into login (KEY,verified)values('','');<br/>Request did
+not complete within rpc_timeout.<br/>cqlsh&gt; insert into login
+(KEY,email)values('','');<br/>cqlsh&gt; <br/>cqlsh&gt; select * from login;<br/>u'' |
+u'email',u'' | u'uid',None<br/>cqlsh&gt; select * from login;<br/>u'' | u'email',u'' |
+u'uid',None<br/>cqlsh&gt; select * from login;<br/>u'' | u'email',u'' |
+u'uid',None<br/>cqlsh&gt; <br/>cqlsh&gt; select * from login;<br/>u'' | u'email',u'' |
+u'uid',None<br/>u'samalgorai@gmail.com' | u'email',u'samalgorai@gmail.com' |
+u'password',u'388ad1c312a488ee9e12998fe097f2258fa8d5ee' |
+u'uid',UUID('05ea41dc-241f-11e1-8521-3da59237b189') | u'verified',u'0'<br/>cqlsh&gt;
+quit;
+{/}
+<a href="http://pastebin.com/HJn5fHhH" class="external-link"
+rel="nofollow">http://pastebin.com/HJn5fHhH</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Adding the exception from pastebin for posterity.<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>s.  Time:
+292ms.ERROR 22:39:02,137 Fatal exception in thread
+Thread[MutationStage:1,5,main]java.lang.AssertionError	at
+org.apache.cassandra.db.ColumnFamilyStore.markReferenced(ColumnFamilyStore.java:1236)	at
+org.apache.cassandra.db.CollationController.collectTimeOrderedData(CollationController.java:83)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:62)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1275)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1161)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1123)	at
+org.apache.cassandra.db.Table.readCurrentIndexedColumns(Table.java:504)	at
+org.apache.cassandra.db.Table.apply(Table.java:441)	at
+org.apache.cassandra.db.RowMutation.apply(RowMutation.java:256)	at
+org.apache.cassandra.service.StorageProxy$6.runMayThrow(StorageProxy.java:440)	at
+org.apache.cassandra.service.StorageProxy$DroppableRunnable.run(StorageProxy.java:1258)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)ERROR 22:42:02,786 Fatal exception in thread
+Thread[MutationStage:34,5,main]java.lang.AssertionError	at
+org.apache.cassandra.db.ColumnFamilyStore.markReferenced(ColumnFamilyStore.java:1236)	at
+org.apache.cassandra.db.CollationController.collectTimeOrderedData(CollationController.java:83)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:62)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1275)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1161)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1123)	at
+org.apache.cassandra.db.Table.readCurrentIndexedColumns(Table.java:504)	at
+org.apache.cassandra.db.Table.apply(Table.java:441)	at
+org.apache.cassandra.db.RowMutation.apply(RowMutation.java:256)	at
+org.apache.cassandra.service.StorageProxy$6.runMayThrow(StorageProxy.java:440)	at
+org.apache.cassandra.service.StorageProxy$DroppableRunnable.run(StorageProxy.java:1258)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)ERROR 22:45:40,752 Fatal exception in thread
+Thread[MutationStage:36,5,main]java.lang.AssertionError	at
+org.apache.cassandra.db.ColumnFamilyStore.markReferenced(ColumnFamilyStore.java:1236)	at
+org.apache.cassandra.db.CollationController.collectTimeOrderedData(CollationController.java:83)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:62)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1275)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1161)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1123)	at
+org.apache.cassandra.db.Table.readCurrentIndexedColumns(Table.java:504)	at
+org.apache.cassandra.db.Table.apply(Table.java:441)	at
+org.apache.cassandra.db.RowMutation.apply(RowMutation.java:256)	at
+org.apache.cassandra.service.StorageProxy$6.runMayThrow(StorageProxy.java:440)	at
+org.apache.cassandra.service.StorageProxy$DroppableRunnable.run(StorageProxy.java:1258)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)ERROR 22:46:02,674 Fatal exception in thread
+Thread[MutationStage:37,5,main]java.lang.AssertionError	at
+org.apache.cassandra.db.ColumnFamilyStore.markReferenced(ColumnFamilyStore.java:1236)	at
+org.apache.cassandra.db.CollationController.collectTimeOrderedData(CollationController.java:83)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:62)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1275)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1161)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1123)	at
+org.apache.cassandra.db.Table.readCurrentIndexedColumns(Table.java:504)	at
+org.apache.cassandra.db.Table.apply(Table.java:441)	at
+org.apache.cassandra.db.RowMutation.apply(RowMutation.java:256)	at
+org.apache.cassandra.service.StorageProxy$6.runMayThrow(StorageProxy.java:440)	at
+org.apache.cassandra.service.StorageProxy$DroppableRunnable.run(StorageProxy.java:1258)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)</pre></div></div> 
+
+
+New Comment: 
+We shouldn't allow blank keys at all, so there's a validation failure in QueryProcessor
+here.  Unsure why markReferenced doesn't fail the assert for the first insert though.(If
+the fix is involved let's push to 1.1.) 
+
+
+New Comment: 
+Ok, finally reproduced.  This isn't because there is more than one column with the blank
+key, it's because your second column ("verified") must have an index on it. It's the "read
+mutated indexes" code path here that invokes the assertion for non-empty keys. You'll also
+see a similar traceback when trying to DELETE the row with the empty key.And yes,
+QueryProcessor is missing validation for these write operations here (INSERT, UPDATE,
+DELETE, and each of those inside BATCH statements (would take a different validation
+path). QueryProcessor does have validation for most everything else, though. 
+
+
+New Comment: 
+This particular problem is fixed in my github fork, in the 3612-1.0 and 3612-1.1
+branches.<a href="https://github.com/thepaul/cassandra/commit/5dc73e765f"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/commit/5dc73e765f</a> -
+3612-1.0<br/><a href="https://github.com/thepaul/cassandra/commit/eab19b0979"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/commit/eab19b0979</a> -
+3612-1.1However, it looks like problems of a similar nature still exist in cql3, in the
+1.1 series. I'll fix that and include those changes along with this ticket. 
+
+
+New Comment: 
+ok, 3612-1.1 branch updated (now at <a
+href="https://github.com/thepaul/cassandra/commit/d921a395ae" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/commit/d921a395ae</a>). 
+
+
+New Comment: 
++1 
+
+

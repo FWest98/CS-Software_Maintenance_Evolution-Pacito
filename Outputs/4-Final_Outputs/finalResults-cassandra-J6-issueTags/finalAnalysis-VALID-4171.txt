@@ -1,0 +1,107 @@
+Pattern changes caused by commit: 2ae4267b531422b372f289039566dd5dcb93264e
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4171.txt 
+
+commit 2ae4267b531422b372f289039566dd5dcb93264e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    throttle migration replay
+    patch by jbellis; reviewed by gdusbabek for CASSANDRA-2714
+
+
+
+==================================
+ Issue CASSANDRA-2714 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2714] Throttle migration replay
+-----------------
+
+-----------------
+Summary: Throttle migration replay
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 26 May 2011 20:01:03 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 26 May 2011 20:49:03 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+As reported on the mailing list,
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>- I have a lot of schema updates
+(there are 2067 rows in the system.Schema CF).- The live node loads migrations 1-1000, and
+sends them to the recovering node (Migration.getLocalMigrations())- Soon afterwards, the
+live node checks the schema version on the recovering node and finds it has moved by a
+little - say it has applied the first 3 migrations. It then loads migrations 3-1003, and
+sends them to the node.- This process is repeated very quickly (sends migrations 6-1006,
+9-1009, etc).</pre></div></div>
+The source of the problem is that
+MigrationManager.onChange will send out a full (up to 1000 migrations) replay, every time
+the target's schema version changes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch mitigates this two ways:<ul class="alternate" type="square">	<li>cuts
+chunk-of-migrations-to-push to 100 from 1000</li>	<li>waits for target to apply the last
+set of migrations pushed, before sending it the next</li></ul> 
+
+
+New Comment: 
+<blockquote>else if (theirVersion.timestamp() &gt;=
+lastPushed.get(endpoint).timestamp()</blockquote>I am looking at the patch out of context,
+so I might be missing things.  Is lastPushed protected against NPE? 
+
+
+New Comment: 
+It wasn't.  v2 attached. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

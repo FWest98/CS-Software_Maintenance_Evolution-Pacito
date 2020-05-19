@@ -1,0 +1,265 @@
+Pattern changes caused by commit: 01d81d27651c9608fa1344ea1ca769ea8ec4e4d6
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8899.txt 
+
+commit 01d81d27651c9608fa1344ea1ca769ea8ec4e4d6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Update offline scrub for 1.0-> 1.1 directory structure
+    patch by Omid Aladini; reviewed by Marcus Eriksson for CASSANDRA-5195)
+
+
+
+==================================
+ Issue CASSANDRA-5195 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5195] Offline scrub does not migrate the directory structure on migration from 1.0.x to 1.1.x and causes the keyspace to disappear
+-----------------
+
+-----------------
+Summary: Offline scrub does not migrate the directory structure on migration from 1.0.x to 1.1.x and causes the keyspace to disappear
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 29 Jan 2013 17:08:44 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 22 Mar 2013 14:26:48 +0000
+-----------------
+
+-----------------
+Assigned to: Omid Aladini
+-----------------
+
+-----------------
+Description: 
+
+Due to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4411" title="Assertion
+with LCS compaction" class="issue-link"
+data-issue-key="CASSANDRA-4411"><del>CASSANDRA-4411</del></a>, upon migration from 1.0.x
+to 1.1.x containing LCS-compacted sstables, an offline scrub should be run before
+Cassandra 1.1.x is started. But Cassandra 1.1.x uses a new directory structure (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2749" title="fine-grained control
+over data directories" class="issue-link"
+data-issue-key="CASSANDRA-2749"><del>CASSANDRA-2749</del></a>) that offline scrubber
+doesn't detect or try to migrate.
+
+How to reproduce:
+
+1- Run cassandra 1.0.12.<br/>2- Run
+stress tool, let Cassandra flush Keyspace1 or flush manually.<br/>3- Stop cassandra
+1.0.12<br/>4- Run ./bin/sstablescrub Keyspace1 Standard1<br/>  which returns "Unknown
+keyspace/columnFamily Keyspace1.Standard1" and notice the data directory isn't
+migrated.<br/>5- Run cassandra 1.1.9. Keyspace1 doesn't get loaded and Cassandra doesn't
+try to migrate the directory structure. Also commitlog entries get skipped: "Skipped XXXXX
+mutations from unknown (probably removed) CF with id 1000"
+
+Without the unsuccessful step
+4, Cassandra 1.1.9 loads and migrates the Keyspace correctly.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Ryan, can you reproduce? 
+
+
+New Comment: 
+I tried to fix the issue in offline-scrub but the patch doesn't fully fix the issue.
+Cassandra 1.1.9 with this patch only loads the migrated keyspaces after 2nd restart after
+offine-scrub has applies the migration. 
+
+
+New Comment: 
+2nd try of assign-to-ryan 
+
+
+New Comment: 
+I have reproduced this issue. Omid's patch works as he described: it does not fully fix
+the issue, but does allow the keyspace to be loaded on the 2nd restart of cassandra. Below
+is my verification workflow:<ul>	<li>Checkout/build 1.0.12	<ul>		<li>cd
+$CASSANDRA_DIR</li>		<li>git checkout -b 5195-1.0.12</li>		<li>git reset --hard
+cassandra-1.0.12</li>		<li>git clean -f -d</li>		<li>ant build</li>	</ul>	</li>	<li>Run
+1.0.12 test:	<ul>		<li>sudo rm -rf /var/lib/cassandra</li>		<li>sudo
+cassandra</li>		<li>cd tool/stress</li>		<li>ant
+build</li>		<li>./bin/stress</li>		<li>sudo pkill -f
+CassandraDaemon</li>	</ul>	</li>	<li>Verify the keyspace/cf was created by
+stress:	<ul>		<li>10:20 PM:~/git/datastax/cassandra/tools/stress<span
+class="error">&#91;5195-1.0.12*&#93;</span>$ cqlsh<br/>   Connected to Test Cluster at
+localhost:9160.<br/>   <span class="error">&#91;cqlsh 2.0.0 | Cassandra unknown | CQL spec
+unknown | Thrift protocol 19.20.0&#93;</span><br/>   Use HELP for help.<br/>   cqlsh&gt;
+use Keyspace1 ;<br/>   cqlsh:Keyspace1&gt; select count<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/star_yellow.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> from Standard1;<br/>   count<br/>  
+-------<br/>   10000</li>	</ul>	</li>	<li>Checkout/build 1.1.9	<ul>		<li>cd
+$CASSANDRA_DIR</li>		<li>git checkout -b 5195-1.1.9</li>		<li>git reset --hard
+cassandra-1.1.9</li>		<li>git clean -f -d</li>		<li>ant build</li>	</ul>	</li>	<li>Run
+1.1.9 test:	<ul>		<li>sudo ./bin/sstablescrub Keyspace1 Standard1		<ul>			<li>stdout:
+Unknown keyspace/columnFamily Keyspace1.Standard1</li>		</ul>		</li>		<li>sudo
+cassandra		<ul>			<li>log:  INFO <span class="error">&#91;main&#93;</span> 2013-01-29
+22:28:44,800 CommitLogReplayer.java (line 103) Skipped 585748 mutations from unknown
+(probably removed) CF with id 1000</li>		</ul>		</li>	</ul>	</li>	<li>Verify that
+Keyspace1 does or does not exist:	<ul>		<li>10:30 PM:~/git/datastax/cassandra<span
+class="error">&#91;5195-1.1.9*&#93;</span>$ cqlsh<br/>   Connected to Test Cluster at
+localhost:9160.<br/>   <span class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.9-SNAPSHOT |
+CQL spec 2.0.0 | Thrift protocol 19.33.0&#93;</span><br/>   Use HELP for help.<br/>  
+cqlsh&gt; use Keyspace1 ;<br/>   Bad Request: Keyspace 'Keyspace1' does not
+exist</li>	</ul>	</li>	<li>Run 1.1.9 test again without the sstablescrub (restoring
+/var/lib/cassandra from before):	<ul>		<li>sudo pkill -f CassandraDaemon</li>		<li>sudo
+cassandra		<ul>			<li>log:  INFO 22:33:01,240 Replaying
+/var/lib/cassandra/commitlog/CommitLog-1359515707503.log,
+/var/lib/cassandra/commitlog/CommitLog-1359515946450.log<br/>    INFO 22:33:01,244
+Replaying /var/lib/cassandra/commitlog/CommitLog-1359515707503.log<br/>    INFO
+22:33:02,318 CFS(Keyspace='Keyspace1', ColumnFamily='Standard1') liveRatio is
+4.55084790673026 (just-counted was 4.55084790673026).  calculation took 866ms for 4590
+columns<br/>    INFO 22:33:02,930 CFS(Keyspace='Keyspace1', ColumnFamily='Standard1')
+liveRatio is 5.226616220760892 (just-counted was 5.226616220760892).  calculation took
+357ms for 11635 columns<br/>    INFO 22:33:04,186 CFS(Keyspace='Keyspace1',
+ColumnFamily='Standard1') liveRatio is 5.094053078093754 (just-counted was
+4.9614899354266155).  calculation took 859ms for 26720
+columns</li>		</ul>		</li>	</ul>	</li>	<li>Verify that Keyspace1 does or does not
+exist:	<ul>		<li>10:36 PM:~/git/datastax/cassandra<span
+class="error">&#91;5195-1.1.9*&#93;</span>$ cqlsh<br/>   Connected to Test Cluster at
+localhost:9160.<br/>   <span class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.9-SNAPSHOT |
+CQL spec 2.0.0 | Thrift protocol 19.33.0&#93;</span><br/>   Use HELP for help.<br/>  
+cqlsh&gt; use Keyspace1;<br/>   cqlsh:Keyspace1&gt; select count<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/star_yellow.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> from Standard1;<br/>   count<br/>  
+-------<br/>   10000</li>	</ul>	</li>	<li>Apply patch and retest:	<ul>		<li>cd
+$CASSANDRA_DIR</li>		<li>git apply ~/Downloads/5195.patch</li>		<li>ant clean
+build</li>		<li>sudo rm -rf /var/lib/cassandra</li>		<li>(restore /var/lib/cassandra from
+1.0.12)</li>		<li>sudo pkill -f CassandraDaemon</li>		<li>sudo ./bin/sstablescrub
+Keyspace1 Standard1		<ul>			<li>stdout:<br/>    Pre-scrub sstables snapshotted into
+snapshot pre-scrub-1359517364042<br/>    Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-17-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-17-Data.db')
+complete: 63608 rows in new sstable and 0 empty (tombstoned) rows dropped<br/>   
+Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-10-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-10-Data.db')
+complete: 258153 rows in new sstable and 0 empty (tombstoned) rows dropped<br/>   
+Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-18-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-18-Data.db')
+complete: 65207 rows in new sstable and 0 empty (tombstoned) rows dropped<br/>   
+Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-15-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-15-Data.db')
+complete: 254487 rows in new sstable and 0 empty (tombstoned) rows dropped<br/>   
+Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-5-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-5-Data.db')
+complete: 243561 rows in new sstable and 0 empty (tombstoned) rows dropped<br/>   
+Scrubbing
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-16-Data.db')<br/>
+   Scrub of
+SSTableReader(path='/var/lib/cassandra/data/Keyspace1/Standard1/Keyspace1-Standard1-hd-16-Data.db')
+complete: 64230 rows in new sstable and 0 empty (tombstoned) rows
+dropped</li>		</ul>		</li>	</ul>	</li>	<li>Verify that Keyspace1 does or does not
+exist:	<ul>		<li>sudo cassandra</li>		<li>10:44 PM:~/git/datastax/cassandra<span
+class="error">&#91;5195-1.1.9*&#93;</span>$ cqlsh<br/>   Connected to Test Cluster at
+localhost:9160.<br/>   <span class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.9-SNAPSHOT |
+CQL spec 2.0.0 | Thrift protocol 19.33.0&#93;</span><br/>   Use HELP for help.<br/>  
+cqlsh&gt; use Keyspace1;<br/>   Bad Request: Keyspace 'Keyspace1' does not
+exist</li>	</ul>	</li>	<li>Restart cassandra as suggested:	<ul>		<li>sudo pkill -f
+CassandraDaemon</li>		<li>sudo cassandra</li>	</ul>	</li>	<li>Verify that Keyspace1 does
+or does not exist:	<ul>		<li>10:47 PM:~/git/datastax/cassandra<span
+class="error">&#91;5195-1.1.9*&#93;</span>$ cqlsh<br/>   Connected to Test Cluster at
+localhost:9160.<br/>   <span class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.9-SNAPSHOT |
+CQL spec 2.0.0 | Thrift protocol 19.33.0&#93;</span><br/>   Use HELP for help.<br/>  
+cqlsh&gt; use Keyspace1;<br/>   cqlsh:Keyspace1&gt; select count<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/star_yellow.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> from Standard1;<br/>   count<br/>  
+-------<br/>   10000</li>	</ul>	</li></ul> 
+
+
+New Comment: 
+One other interesting aspect: Removing the patch, resetting /var/lib/cassandra to the
+1.0.12 state, re-running sstablescrub, restarting cassandra (1,1.9) TWICE allows the
+keyspace to be read, but the table is empty! :<ul>	<li>11:03
+PM:~/git/datastax/cassandra<span class="error">&#91;5195-1.1.9*&#93;</span>$ cqlsh<br/> 
+Connected to Test Cluster at localhost:9160.<br/>  <span class="error">&#91;cqlsh 2.2.0 |
+Cassandra 1.1.9-SNAPSHOT | CQL spec 2.0.0 | Thrift   protocol 19.33.0&#93;</span><br/> 
+Use HELP for help.<br/>  cqlsh&gt; use Keyspace1;<br/>  cqlsh:Keyspace1&gt; select
+count<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/star_yellow.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> from Standard1;<br/>   count<br/>  
+-------<br/>        0</li></ul> 
+
+
+New Comment: 
+New patch to fix the condition that CFs show up after second restart. 
+
+
+New Comment: 
+I think upon loading the schema via offline scrubber, DefsTable.loadFromStorage migrates
+the old system tables to the new format. Therefore it drops the old ones but doesn't flush
+the commitlogs of new ones. Offline scrubber exits and on the next start,
+schema_keyspaces, schema_columnfamilies and schema_columns CFs have no persisted sstables,
+and the commitlog only gets replayed after Cassandra tries to load CF schemas, therefore
+finds none. This explains why after second restart, column families appear again
+(something force-flushes system CFs?).A new patch
+(0001-Flush-newly-migrated-system-CFs.patch) is attached to fix the problem (although I'm
+not sure if there is a more proper fix for this or if there is a better place to put the
+foced flush.) 
+
+
+New Comment: 
+<span class="error">&#91;~krummas&#93;</span>, can you review? 
+
+
+New Comment: 
+looks good to me and verified it works as expectedbug very similar to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5061" title="Upgraded cassandra
+loses all cfs on restart" class="issue-link"
+data-issue-key="CASSANDRA-5061"><del>CASSANDRA-5061</del></a> 
+
+

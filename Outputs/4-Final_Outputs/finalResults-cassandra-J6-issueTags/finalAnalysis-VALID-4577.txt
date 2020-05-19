@@ -1,0 +1,209 @@
+Pattern changes caused by commit: c715b6d9be15c637dddd156456616bb4cf598c47
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4577.txt 
+
+commit c715b6d9be15c637dddd156456616bb4cf598c47
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Reduce copies on read/write paths.
+    Patch by jbellis reviewed by brandonwilliams for CASSANDRA-1788
+
+
+
+==================================
+ Issue CASSANDRA-1788 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1788] reduce copies on read, write paths
+-----------------
+
+-----------------
+Summary: reduce copies on read, write paths
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 30 Nov 2010 01:07:09 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 3 Aug 2011 21:40:41 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Currently, we do <em>three</em> unnecessary copies (that is, writing to the socket is
+necessary; any other copies made are overhead) for each message:
+<ul class="alternate"
+type="square">	<li>constructing the Message body byte[] (this is typically a call to a
+ICompactSerializer<span class="error">&#91;2&#93;</span> serialize method, but sometimes
+we cheat e.g. in SchemaCheckVerbHandler's reply)</li>	<li>which is copied to a buffer
+containing the entire Message (i.e. including Header) when sendOneWay calls
+Message.serializer.serialize()</li>	<li>which is copied to a newly-allocated ByteBuffer
+when sendOneWay calls packIt</li>	<li>which is what we write to the socket</li></ul>
+For
+deserialize we perform a similar orgy of copies:
+<ul class="alternate"
+type="square">	<li>IncomingTcpConnection reads the Message length, allocates a byte[], and
+reads the serialized Message into it</li>	<li>ITcpC then calls
+Message.serializer().deserialize, which allocates a new byte[] for the body and copies
+that part</li>	<li>finally, the verbHandler (determined by the now-deserialized Message
+header) deserializes the actual object represented by the body</li></ul>
+Most of these are
+out of scope for 0.7 but I think we can at least elide the last copy on the write path and
+the first on the read.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+As planned, removes last copy on write and first on read.  Message.serializer calls are
+inlined and MessageSerializer is removed to avoid implying that it actually makes sense to
+call outside of sendOneWay / IncomingTcpConnection.Bonus fix: removed copying
+DataOutputBuffer.asByteArray, replacing with wrap() of existing buffer with appropriate
+limit. 
+
+
+New Comment: 
+Could you save another copy on send if packIt returned a Message augmented with header
+information that would then be placed in the OutboundTcpConnection queue?  The consumer
+there would then take the message and serialize it directly to the stream.  The obvious
+disadvantage I see is that it shifts the serialization work onto the writer thread, which
+might be undesirable. 
+
+
+New Comment: 
+Excellent!  v2 attached.Question is, is it worth breaking compatibility with rc1?  (v1
+does not.)  I would lean towards yes personally. 
+
+
+New Comment: 
+v3 w/ Gary's trick of copying just the Header part to maintain compatibility. 
+
+
+New Comment: 
+v4 removes a bogus write(-1) call left over from v1.  With that fix I have a 0.7 + v4 node
+working with a rc1 node, I can direct stress.py at either one and have writes go through
+to the other correctly. 
+
+
+New Comment: 
+with v4 I still see errors on the rc1 node.INFO 09:10:43,847 <span
+class="error">&#91;WRITE-/127.0.0.2&#93;</span>
+org.apache.cassandra.net.OutboundTcpConnection.writeConnected(OutboundTcpConnection.java:115)
+error writing to /127.0.0.2 
+
+
+New Comment: 
+Rebooted v4 by first adding MessageSerializerTest with a bytesToHex string of the
+old-style bytes-on-wire to make sure I'm not breaking it.  Then when I add the new code
+I'm testing that new code can read old bytes, as well as old code reading new bytes. 
+Everything comes up clean.  I think I need another set of eyes on this.(01 is large
+because I encapculated MS.instance in a getter to break an initialization-cycle problem.) 
+
+
+New Comment: 
+rebased, this time committing the MS.instance encapsulation separately 
+
+
+New Comment: 
+v5 attached for trunk.Message format should be identical to
+before:<br/>&lt;MAGIC&gt;&lt;packheader&gt;&lt;length of
+packbody&gt;&lt;packbody&gt;packbody:<br/>&lt;id&gt;&lt;serialized header&gt;&lt;body
+length&gt;&lt;body&gt;This does NOT require a message version bump. 
+
+
+New Comment: 
+Part of the old sendOneWay (the "packbody" copy) looks like this:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+         DataOutputBuffer buffer = <span class="code-keyword">new</span>
+DataOutputBuffer();            buffer.writeUTF(id);           
+Message.serializer().serialize(message, buffer, message.getVersion());            data =
+buffer.getData();</pre></div></div>byte[] data is NOT restricted to just the serialized
+bytes in the buffer &#8211; it will include any unused bytes at the end, as well.v5 skips
+garbage bytes like this for backwards compatibility. 
+
+
+New Comment: 
+With v5 (#2) I'm still periodically receiving bad magic in a mixed cluster (on the node
+with the patch applied):<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>ERROR 19:54:07,747 Fatal exception in thread
+Thread[Thread-13,5,main]java.io.IOError: java.io.IOException: invalid protocol header     
+  at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:125)Caused
+by: java.io.IOException: invalid protocol header        at
+org.apache.cassandra.net.MessagingService.validateMagic(MessagingService.java:467)       
+at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:107)</pre></div></div> 
+
+
+New Comment: 
+Here's a clue: the bad magic being passed is always zero. 
+
+
+New Comment: 
+Hmm. Not skipping enough "garbage bytes" would cause this (since Java zeros out all arrays
+on creation).  But the node-with-patch-applied is getting lengths generated by
+nodes-without-patch-applied, which should be fine.So, still baffled. 
+
+
+New Comment: 
+rebased to v6 
+
+
+New Comment: 
+So, rebased v6 is even rarer now.  I now have to do reads/writes to the cluster to trigger
+it, where before it looked like the occasional gossip message would cause it.  And even
+doing reads/writes, it's still quite rare: out of the 333k (three node cluster, rf=1, 1M
+total) inserts/reads to the patched node, only 16 occurrences.  When the patched node is
+the only coordinator, it never produces an exception on reads, however for writes it
+increases the amount of exceptions, nearly 60 out of 1M inserts.  I suspect there is a
+problem in ITC or Message where it's not reading something correctly, but difficult to
+trigger. I confirmed with wireshark the other nodes are sending correct messages. 
+
+
+New Comment: 
+v7 rebased for trunk again.  Now mysteriously has no errors.  My guess is that something
+in <a href="https://issues.apache.org/jira/browse/CASSANDRA-1405" title="Switch to
+THsHaServer, redux" class="issue-link"
+data-issue-key="CASSANDRA-1405"><del>CASSANDRA-1405</del></a> fixed it. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

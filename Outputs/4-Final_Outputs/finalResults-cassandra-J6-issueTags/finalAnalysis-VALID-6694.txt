@@ -1,0 +1,122 @@
+Pattern changes caused by commit: 48a22695f471f7477bc015db8113d777a36406c1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6694.txt 
+
+commit 48a22695f471f7477bc015db8113d777a36406c1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix maxTimestamp to include row tombstones
+    patch by Sam Tunnicliffe and jbellis for CASSANDRA-4116
+
+
+
+==================================
+ Issue CASSANDRA-4116 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4116] check most recent TS values in SSTables when a row tombstone has already been encountered
+-----------------
+
+-----------------
+Summary: check most recent TS values in SSTables when a row tombstone has already been encountered
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 4 Apr 2012 20:27:21 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 2 May 2012 15:02:09 +0000
+-----------------
+
+-----------------
+Assigned to: Sam Tunnicliffe
+-----------------
+
+-----------------
+Description: 
+
+once C* comes across a row tombstone, C* should check the TS on the tombstone against all
+SSTables.  If the most recent TS in an SST is older than the row tombstone, that entire
+SST (or the remainder of it) can be safely ignored.
+
+There are two drivers for
+this.
+<ul>	<li>avoid checking column values that could not possibly be in the result
+set</li></ul><ul>	<li>avoid OOMing because all the tombstones are temporarily kept in
+memory.</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+While I was working through this &amp; testing with tiny amounts of data, I found that if
+the last (or only) update to a CF before a flush is a Row level delete then the
+maxTimeStamp on the resulting SSTable is incorrect. The second patch includes a fix + test
+for that - I included it as a separate patch as I was a bit less confident about screwing
+around with the SSTable metadata although all existing tests are still passing. 
+
+
+New Comment: 
+Updated patches because I realised the license header was missing from the new test source 
+
+
+New Comment: 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">.               <span class="code-keyword">if</span>
+(sstable.getMaxTimestamp() &lt; mostRecentRowTombstone)                    <span
+class="code-keyword">continue</span>;</pre></div></div>For
+<tt>collectTimeOrderedData</tt>, I think that can be a "break" since we're scanning in
+reverse chronological order.For <tt>collectAllData</tt>, I think it might be worth making
+(potentially) two passes: if we find a deletion marker on the first pass, we should do a
+second pass, so we can strip out sstables that we saw the first time before we knew about
+the marker.  This would improve the deletion case, without imposing the overhead of a sort
+or two passes on workloads with no deletes. 
+
+
+New Comment: 
+Updated patches as per comments. In <tt>collectAllData</tt>, collect the eligible
+iterators in a multimap with key = maxTimestamp (I guess that its pretty unlikely for two
+sstables to have the exact same timestamp, but using a Multimap doesn't really add any
+cost). Then, if we did find a row tombstone, only keep the iterators from younger
+sstables. Otherwise, keep all that we collected. 
+
+
+New Comment: 
+Committed patch 0001 to 1.1.1, with some cleanup.  (Main one was to use a Map&lt;iterator,
+timestamp&gt; instead of a multimap the other direction.)I suspect 0002 is needed for
+earlier releases as well, can you post a version against the 1.0 branch? 
+
+
+New Comment: 
+Added version of patch 0002 with fix to sstable maxTimeStamp against 1.0 branch 
+
+

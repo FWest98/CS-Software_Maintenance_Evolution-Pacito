@@ -1,0 +1,151 @@
+Pattern changes caused by commit: b553e773310deb0f17a0ded6424fac1e03614859
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3791.txt 
+
+commit b553e773310deb0f17a0ded6424fac1e03614859
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix duplicate results from CFS.scan
+    patch by Pavel Yaskevich and jbellis for CASSANDRA-2406
+
+
+
+==================================
+ Issue CASSANDRA-2406 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2406] Secondary index and index expression problems
+-----------------
+
+-----------------
+Summary: Secondary index and index expression problems
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 31 Mar 2011 03:18:46 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 18 Apr 2011 13:28:47 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+When I iteratively get data with secondary index and index clause, result of data
+acquired by consistency level "one" is different from the one by consistency level
+"quorum".  The one by consistecy level "one" is correct result.  But the one by consistecy
+level "quorum" is incorrect and is dropped by Cassandra.  
+
+You can reproduce the bug by
+executing attached programs.
+<ul class="alternate" type="square">	<li>1. Start Cassandra
+cluster.  It consists of 3 cassandra nodes and distributes data by ByteOrderedPartitioner.
+ Initial tokens of those nodes are <span class="error">&#91;&quot;31&quot;,
+&quot;32&quot;, &quot;33&quot;&#93;</span>.</li>	<li>2. Create keyspace and column family,
+according to "create_table.cli",</li>	<li>3. Execute "secondary_index_insertv2.py",
+inserting a few hundred columns to cluster</li>	<li>4. Execute
+"secondary_index_checkv2.py" and get data with secondary index and index clause
+iteratively.  "secondary_index_insertv2.py" and "secondary_index_checkv2.py" require
+pycassa.</li></ul>
+You will be able to execute  4th "secondary_index_checkv2.py" script
+with following option so that <br/>you get data with consistency level "one".  
+
+% python
+"secondary_index_checkv2.py" -one
+
+On the other hand, to acquire data with consistency
+level "quorum", you will need to use following option.  
+
+% python
+"secondary_index_checkv2.py" -quorum
+
+You can check that result of data acquired by
+consistency level "one" is different from one by consistency level "quorum".  
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+an experimental patch 
+
+
+New Comment: 
+I've attached an experimental patch. The problem is gone with this patch. But it's
+inefficient when a large number of rows are requested.The main problem was that the rows
+collected in ColumnFamilyStore.scan() can have duplicates. So, it returns less unique rows
+than requested. Then, StorageProxy.scan() asks more results from next range. That means
+the last returned row gets wrong.As for inefficiency of the patch, if the rows are added
+in order, the uniqueness check should be done only for the last row. But I don't known if
+I can assume the order or not. So, please improve the patch if so. 
+
+
+New Comment: 
+Hmm. There are two ways we could get duplicate rows:1. the ranges we iterate through
+overlap.  but if that were the bug, we would see it on ONE as well as QUORUM<br/>2. the
+ReadCallback/RangeSliceResponseResolver object (probably the resolver) returns duplicates
+from incorrect merging of the quorum repliesIf 2. is the problem we should fix it in
+callback/resolver instead of in StorageProxy.Even with it narrowed down there the problem
+is not obvious to me &#8211; each response should come back in sorted (token) order, and
+RSRR uses a collating + reducing iterator to merge duplicates, in theory. 
+
+
+New Comment: 
+I forgot to say, but 1. is right. The duplicate problem is visible on CL.ONE as
+well.<br/>The above test script returns rows of "173", "174", "174" (duplicate), "175",
+"176" in the first iteration. It has duplicate.<br/>And if you see my debug log attached,
+ColumnFamilyStore collects the row "174" twice in CL.ONE.The only case it works correcly
+is when I specify start_key. In the above script, set start_key = "173". The result is
+"173", "174", "175", "176", "177" in the first iteration. It is correct, no duplicate. 
+
+
+New Comment: 
+I've attached debug log (node-1.system.log) with various debug prints. This is debug log
+in running the first iteration of test script with CL.ONE. The result has duplicate. 
+
+
+New Comment: 
+Pavel, can you take a stab at figuring out why the ranges overlap?  They are not supposed
+to.(I am using <a href="https://github.com/pcmanus/ccm" class="external-link"
+rel="nofollow">https://github.com/pcmanus/ccm</a> for testing, it saves a lot of time.) 
+
+
+New Comment: 
+Pavel's patch fixes a 3rd kind of bug: CFS.scan itself can return duplicate rows, even for
+a single node and range.  Added a unit test and committed.Shotaro, does this fix what you
+are seeing? 
+
+

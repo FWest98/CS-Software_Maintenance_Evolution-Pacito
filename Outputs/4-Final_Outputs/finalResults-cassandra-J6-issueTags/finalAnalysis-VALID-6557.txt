@@ -1,0 +1,108 @@
+Pattern changes caused by commit: 67b340becd1aa369c71af10e5b76570e73809e2e
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6557.txt 
+
+commit 67b340becd1aa369c71af10e5b76570e73809e2e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    sstableloader detects and reports failures.
+    Patch by brandonwilliams reviewed by Yuki Morishita for CASSANDRA-4146
+
+
+
+==================================
+ Issue CASSANDRA-4146 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4146] sstableloader should detect and report failures
+-----------------
+
+-----------------
+Summary: sstableloader should detect and report failures
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 13 Apr 2012 12:09:58 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 16 Apr 2012 16:52:14 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+There are three cases where we have observed the abnormal termination<br/>1) In case of
+exception while loading.<br/>2) User terminates the loading process.<br/>3) If some node
+is down OR un-reachable then sstableloader get stucked.In this case user have to terminate
+the process in between.
+
+In case of abnormal termination, sstables (which are added in
+this session) remains as it is on the cluster.In case user starts the process all over
+again by fixing the exception, it results in duplication of the data till Major compaction
+is triggered.
+
+sstableloader can maintain the session while loading the sstables in
+cluster.So in case of abnormal termination sstableloader triggers the event that will
+delete the sstables loaded in that session.
+
+Also It would be great to have timeout in
+case of sstableloader.That can be kept configurable.<br/>So if sstableloader process got
+stucked for period longer than timeout, it can terminate itself.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I don't think deleting the sstables is the right thing to do, since the loader didn't
+create those files, and they are potentially very expensive to recreate.  However, I do
+understand that the loader not failing, nor being able to give any indication of failure
+is a problem, and now that we have <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4051" title="Stream sessions can
+only fail via the FailureDetector" class="issue-link"
+data-issue-key="CASSANDRA-4051"><del>CASSANDRA-4051</del></a> we can address that. 
+
+
+New Comment: 
+Patch to detect and report failures, as well as exit with a non-zero return code if this
+happens.  Also cuts the FST attempts to 4, which causes about 28s of delay, instead of 8
+which results in a ridiculous 8+ minutes. 
+
+
+New Comment: 
++1 
+
+

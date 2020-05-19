@@ -1,0 +1,269 @@
+Pattern changes caused by commit: 5923d32959ff419821dbb7fb36114a0604324498
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6508.txt 
+
+commit 5923d32959ff419821dbb7fb36114a0604324498
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add commitlog archiving and pitr
+    patch by Vijay and jbellis for CASSANDRA-3690
+
+
+
+==================================
+ Issue CASSANDRA-3690 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3690] Streaming CommitLog backup
+-----------------
+
+-----------------
+Summary: Streaming CommitLog backup
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 3 Jan 2012 00:39:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 9 Apr 2012 16:24:43 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+Problems with the current SST backups<br/>1) The current backup doesn't allow us to
+restore point in time (within a SST)<br/>2) Current SST implementation needs the backup to
+read from the filesystem and hence additional IO during the normal operational
+Disks<br/>3) in 1.0 we have removed the flush interval and size when the flush will be
+triggered per CF, <br/>          For some use cases where there is less writes it becomes
+increasingly difficult to time it right.<br/>4) Use cases which needs BI which are
+external (Non cassandra), needs the data in regular intervals than waiting for longer or
+unpredictable intervals.
+
+Disadvantages of the new solution<br/>1) Over head in processing
+the mutations during the recover phase.<br/>2) More complicated solution than just copying
+the file to the archive.
+
+Additional advantages:<br/>Online and offline restore.<br/>Close
+to live incremental backup.
+
+Note: If the listener agent gets restarted, it is the agents
+responsibility to Stream the files missed or incomplete.
+
+There are 3 Options in the
+initial implementation:<br/>1) Backup -&gt; Once a socket is connected we will switch the
+commit log and send new updates via the socket.<br/>2) Stream -&gt; will take the absolute
+path of the file and will read the file and send the updates via the socket.<br/>3)
+Restore -&gt; this will get the serialized bytes and apply's the mutation.
+
+Side NOTE:
+(Not related to this patch as such) The agent which will take incremental backup is
+planned to be open sourced soon (Name: Priam).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The socket business sounds complicated.  <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1602" title="Commit Log archivation
+and rolling forward utility (AKA Retaining commit logs)" class="issue-link"
+data-issue-key="CASSANDRA-1602"><del>CASSANDRA-1602</del></a> is a lot more
+straightforward, I'd recommend starting with that. 
+
+
+New Comment: 
+Hi Jonathan, But there is additional IO which the server has to do to copy the archive
+logs to a different location (not locally)... <br/>While streaming the Commit log back to
+the server we have to copy it first and then read it back which is also a over head in
+recovery. Something like copying the data to S3 in amazon and copying right back for the
+node for recovery. (this backup will also be used for test cluster refresh for prod data
+and BI which is completely a different system)<br/>Recovery in most case are loose of
+instance or the whole cluster (Virtual machines). 
+
+
+New Comment: 
+0001 =&gt; Adds a configuration so we can avoid recycling in case some one wants to copy
+the files across to another location like a archive logs<br/>0002 =&gt; Adds
+CommitLogListener, implementation can recive the updates to the commitlogs.<br/>0003 =&gt;
+helper JMX in case the user wants to query the active CL's<br/>0004 =&gt; this can go to
+the tools folder/we dont need to commit it to the core. 
+
+
+New Comment: 
+<blockquote>But there is additional IO which the server has to do to copy the archive logs
+to a different location (not locally)... While streaming the Commit log back to the server
+we have to copy it first and then read it back which is also a over head in
+recovery.</blockquote>What if you mounted the archive logs via s3fs? 
+
+
+New Comment: 
+We spent some time looking into s3fs, and ran into problems between fuse (which s3fs
+depends on) and mmap. I put together a small java app to simulate writing to local disc
+vs. s3fs using mmapp'ed and non-mmap'ed files. (Note most of my java sample code is based
+on CommitLogSegment's implementation.) We found the non-mmap'ed files wrote to s3fs
+without a hitch, but writing to the mmap'ed S3 mount failed. The failure was different
+between OpenJDK 6 vs. Sun JDK, but they were both SIGBUS errors. Also, I ran the tests on
+my local ubuntu box running Linux 3.0.0-12, fuse version (fusermount --version) at 2.8.4.
+At this point, it seems like s3fs isn't as viable as one would hope. 
+
+
+New Comment: 
+That does rule out using s3fs in read/write mode, but I imagine that would be a pretty bad
+idea from a latency standpoint anyway.  But in the context of just mounting log files for
+replay/recover, CommitLog uses RandomAccessReader which is ordinary buffered i/o. 
+
+
+New Comment: 
+Starting to think... What we really want is a Async Triggers <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1311" title="Triggers"
+class="issue-link" data-issue-key="CASSANDRA-1311"><del>CASSANDRA-1311</del></a> which
+listens for all the updates + a way to restore the data with mutation before starting the
+node. In someways thats what the original patch was trying to do will it make sense to
+merge these two efforts? 
+
+
+New Comment: 
+I'm skeptical of trying to do this on top of triggers.  First, <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1311" title="Triggers"
+class="issue-link" data-issue-key="CASSANDRA-1311"><del>CASSANDRA-1311</del></a> seems to
+lean towards coordinator-level triggers rather than replica-level.  Second, I don't think
+it makes sense for a Trigger-level API to deal with raw bytes, which would mean losing
+efficiency from having to re-serialize RowMutations.I like the postgresql approach: <a
+href="http://www.postgresql.org/docs/9.1/static/continuous-archiving.html"
+class="external-link"
+rel="nofollow">http://www.postgresql.org/docs/9.1/static/continuous-archiving.html</a>
+&#8211; briefly, you configure an <tt>archive_command</tt> that tells it how you want it
+to copy full log segments off-server when full, and set up a recovery.conf file when you
+want to recover, which includes a <tt>restore_command</tt> that is the inverse of the
+archive command.The main difference is that postgresql's default wal segment size is 16MB,
+which gives them a finer resolution than our 128MB.  I can't think of a reason we can't
+lower ours, though. 
+
+
+New Comment: 
+Hi Jonathan,Attached patch does exactly what we discussed here. Its almost the same as
+PostgreSQL <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> In addition we can start the node with
+-Dcassandra.join_ring=false and then use JMX to restore files one by one via JMX.Plz let
+me know. 
+
+
+New Comment: 
+I don't see any uses of CommitLogRecover outside of CommitLog, which makes me think this
+is an unrelated refactoring.  Is that correct?  If so, let's split that out of this
+ticket. 
+
+
+New Comment: 
+Hi Jonathan, The refactor is mainly for the following:&gt;&gt;&gt; In addition we can
+start the node with -Dcassandra.join_ring=false and then use JMX to restore files one by
+one via JMX.<br/>This allows us to start the recovery process before all the files are
+downloaded from S3/External source. I can do that it in another ticket, let me know.
+Thanks! 
+
+
+New Comment: 
+I've made a bunch of minor changes and pushed to <a
+href="https://github.com/jbellis/cassandra/branches/3690-v3" class="external-link"
+rel="nofollow">https://github.com/jbellis/cassandra/branches/3690-v3</a>.I noticed that we
+need to wait for the archive to finish whether we end up recycling or not.  Seems to me it
+would be simpler to continue to always recycle, but (as we have here) wait for the archive
+first.  So archive can copy off to s3 or whatever directly, instead of ln somewhere else
+as an intermediate step.  Total i/o will be lower and commitlog will create extra segments
+if needed in the meantime.Maybe we should also have a restore_list_segments command as
+well, so we can query s3 (again for instance) directly and have restore_command pull from
+there, rather than requiring a local directory? 
+
+
+New Comment: 
+Also: would be nice to get rid of the new Thread / busywait archive dance.  If we used an
+ExecutorService instead, we could add the Future to the segment and just say
+segment.waitForArchive(), no looping. 
+
+
+New Comment: 
+Hi Jonathan, Attached patch incorporates all the recommended changes....
+except&gt;&gt;&gt; Maybe we should also have a restore_list_segments command as well, so
+we can query s3 (again for instance) directly and have restore_command pull from there,
+rather than requiring a local directory?<br/>IMHO. It might be better if we have a
+streaming API to list and stream the data in... otherwise we need have to download to the
+local FS anyways, So it will be better to incrementally download and use the JMX to
+restore the files independently (example: A external agent), that may be a simple solution
+for now..... If the user has a NFS mount it will work even better all he needs to do is to
+"ln -s" location and he is done <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Plz note that i also removed the
+requirement to turn off recycling for backup (as recommended), but i left that as
+configurable because it will good to have unique names in the backup sometimes so we dont
+overwrite <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<blockquote>it will good to have unique names in the backup sometimes so we dont overwrite
+</blockquote>If you think about it, "target filename" is just a suggestion... you'd be
+free to ignore it and generate a different filename (incorporating timestamp for instance,
+or even a uuid) in the archive script. 
+
+
+New Comment: 
+Hi Jonathan, Agree, would you like to remove the configuration to disable recycle (which
+this patch added)? let me know... Thanks! 
+
+
+New Comment: 
+I do think we should make recycling always-on; it's a non-negligible performance win and
+so far we don't have a use case that requires disabling it. 
+
+
+New Comment: 
+Hi Jonathan, <br/>v5 removes the recycle related changes and<br/>Added 2 JMX
+(getActiveSegmentNames and getArchivingSegmentNames)(list all files) -
+(getActiveSegmentNames) will provide a view of orphan files which failed archiving... 
+
+
+New Comment: 
+v6 attached.  The primary changes made are fixes to the Future logic: the only way you'll
+get a null Future back is if no archive tack was submitted; if it errors out, you'll get
+an ExecutionException when you call get(), but never a null.Updated
+getArchivingSegmentNames javadoc to emphasize that it does NOT include failed archive
+attempts. Not sure if this is what was intended. 
+
+
+New Comment: 
++1 
+
+

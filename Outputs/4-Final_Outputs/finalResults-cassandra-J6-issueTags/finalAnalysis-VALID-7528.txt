@@ -1,0 +1,81 @@
+Pattern changes caused by commit: 05a5ede91ac558998f93024439185fdd1e04345e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7528.txt 
+
+commit 05a5ede91ac558998f93024439185fdd1e04345e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    amend error messages to include possibility of invalid characters
+    patch by jbellis for CASSANDRA-4721
+
+
+
+==================================
+ Issue CASSANDRA-4721 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4721] Have Cassandra return the right error for keyspaces with dots
+-----------------
+
+-----------------
+Summary: Have Cassandra return the right error for keyspaces with dots
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 25 Sep 2012 21:02:26 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 25 Sep 2012 21:51:56 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+cqlsh&gt; CREATE KEYSPACE 'solr.test' WITH strategy_class = 'SimpleStrategy' AND
+strategy_options:replication_factor = 1;<br/>Bad Request: Invalid keyspace name: shouldn't
+be empty nor more than 48 characters long (got "solr.test")
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Not a cqlsh issue. 
+
+

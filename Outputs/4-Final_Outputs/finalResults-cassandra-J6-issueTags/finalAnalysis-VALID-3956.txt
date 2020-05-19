@@ -1,0 +1,91 @@
+Pattern changes caused by commit: d719e5787cfbae2201384cb94290f673879fc56f
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3956.txt 
+
+commit d719e5787cfbae2201384cb94290f673879fc56f
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix merkle tree splitting exiting early
+    patch by slebresne; reviewed by stuhood for CASSANDRA-2605
+
+
+
+==================================
+ Issue CASSANDRA-2605 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2605] Merkle tree splitting can exit early
+-----------------
+
+-----------------
+Summary: Merkle tree splitting can exit early
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 4 May 2011 15:51:01 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 5 May 2011 08:53:32 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+There was a small bug introduced by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2324" title="Repair transfers more
+data than necessary" class="issue-link"
+data-issue-key="CASSANDRA-2324"><del>CASSANDRA-2324</del></a> that, depending on the key
+sample token, can make the merkle tree splitting process exit early, potentially resulting
+in a unnecessary imprecise tree.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #93 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.8/93/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.8/93/</a>) 
+
+

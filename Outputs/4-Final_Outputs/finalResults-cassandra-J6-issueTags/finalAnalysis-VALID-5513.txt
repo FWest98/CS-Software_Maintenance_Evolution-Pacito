@@ -1,0 +1,289 @@
+Pattern changes caused by commit: dc342de3711a5000be536cae6a661bbd44733398
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5513.txt 
+
+commit dc342de3711a5000be536cae6a661bbd44733398
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid dropping tombstones when they might still be needed to shadow data in another sstable
+    patch by slebresne and jbellis for CASSANDRA-2786
+
+
+
+==================================
+ Issue CASSANDRA-2786 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2786] After a minor compaction, deleted key-slices are visible again
+-----------------
+
+-----------------
+Summary: After a minor compaction, deleted key-slices are visible again
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 17 Jun 2011 12:42:37 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Nov 2011 15:39:16 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+After a minor compaction, deleted key-slices are visible again.
+
+Steps to reproduce:
+
+1)
+Insert a row named "test".<br/>2) Insert 500000 rows. During this step, row "test" is
+included in a major compaction:<br/>   file-1, file-2, file-3 and file-4 compacted to
+file-5 (includes "test").<br/>3) Delete row named "test".<br/>4) Insert 500000 rows.
+During this step, row "test" is included in a minor compaction:<br/>   file-6, file-7,
+file-8 and file-9 compacted to file-10 (should include tombstoned "test").<br/>After step
+4, row "test" is live again.
+
+Test environment:
+
+Single node with empty
+database.
+
+Standard configured super-column-family (I see this behavior with several
+gc_grace settings (big and small values):<br/>create column family Customers with
+column_type = 'Super' and comparator = 'BytesType;
+
+In Cassandra 0.7.6 I observe the
+expected behavior, i.e. after step 4, the row is still deleted.
+
+I've included a .NET
+program to reproduce the problem. I will add a Java version later on.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The java version would be really cool <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+I included the Java version. You have to play a little bit with the numbers of rows to
+insert in order to get the correct compaction timings. 
+
+
+New Comment: 
+We were wrongfully skipping deleted rows with no columns during compaction. This indeed
+don't affect 0.7 since this was due to a refactor of PrecompactedRow in 0.8. Patch
+attached with a unit test to catch the error. 
+
+
+New Comment: 
++1(can we make the "testing" constructor package-local?) 
+
+
+New Comment: 
+Committed, thanks.I did not made the "testing" constructor package-local because it is
+used in the AntiEntropyTests which are not on the same package. But I agree it's not the
+cleanest thing ever. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #182 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/182/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/182/</a>)<br/>    Fix wrong
+purge of deleted cf during compaction<br/>patch by slebresne; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2786" title="After a minor
+compaction, deleted key-slices are visible again" class="issue-link"
+data-issue-key="CASSANDRA-2786"><del>CASSANDRA-2786</del></a>slebresne : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1137984"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1137984</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/db/compaction/CompactionsTest.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/compaction/PrecompactedRow.java</li></ul> 
+
+
+New Comment: 
+Tested with 0.8.1 but still doesn't work 
+
+
+New Comment: 
+Yeah, turns out EchoedRow is also handling Row tombstones with no columns inside
+badly.Attaching patch with fix and unit test. 0.7 is not really impacted because it uses
+EchoedRow only for cleanup and don't use its isEmpty() function there (but I suppose we
+could make it throw an UnsupporteOperationException to be on the safe side).The patch
+actually ship with two changes that are not strictly related to the issue:<ol>	<li>It
+fixes testEchoedRow in CompactionsTest. It wasn't using EchoedRow anymore (i.e, the test
+was useless).</li>	<li>It always forces deserialization for user submitted compaction (by
+opposition to only when the user submits only 1 sstable). It is done because exposing the
+forceDeserialization flag was necessary to write the test for this issue. Following that
+change, it was trivial to do the user submitted compaction change. It also fix a bad
+comment (forcing deserialization is only useful for forcing expired column to become
+tombstones, not for purging since purging will happen without force deserialization if it
+can).</li></ol> 
+
+
+New Comment: 
+Nit: wouldn't it be cleaner to just pass gcBefore rather than the entire controller to
+EchoedRow constructor?+1 otherwise. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #205 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/205/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/205/</a>)<br/>    Handle row
+tombstones correctly in EchoedRow<br/>patch by slebresne; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2786" title="After a minor
+compaction, deleted key-slices are visible again" class="issue-link"
+data-issue-key="CASSANDRA-2786"><del>CASSANDRA-2786</del></a>slebresne : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143352"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143352</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/test/unit/org/apache/cassandra/db/compaction/CompactionsTest.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/compaction/CompactionController.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/EchoedRow.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/compaction/CompactionManager.java</li></ul> 
+
+
+New Comment: 
+Committed, thanks.<blockquote>Nit: wouldn't it be cleaner to just pass gcBefore rather
+than the entire controller to EchoedRow constructor?</blockquote>I passed the controller
+because Precompacted and LazilyCompacted do that too, so it felt slightly cleaner, and if
+we happen to need more info from the controller in the future, it'll be there. But really
+at the end I did not change it before committing out of laziness <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<blockquote>Precompacted and LazilyCompacted do that too</blockquote>That makes sense. 
+
+
+New Comment: 
+Tested with 0.8.2 and 0.8.7, but still does not work. On 0.7.x it works fine. 
+
+
+New Comment: 
+One note: I tested with several grace-periods. With a grace-period of one minute, it is
+easier to reproduce. On our production site (with grace-priod of 24 hours), the data
+resurrects after several days. 
+
+
+New Comment: 
+<blockquote>With a grace-period of one minute, it is easier to reproduce.</blockquote>This
+seems to me to suggest you aren't running repair often enough and are encountering the
+same effect as <a href="https://issues.apache.org/jira/browse/CASSANDRA-1316" title="Read
+repair does not always work correctly" class="issue-link"
+data-issue-key="CASSANDRA-1316"><del>CASSANDRA-1316</del></a>. 
+
+
+New Comment: 
+<blockquote>This seems to me to suggest you aren't running repair often enough
+</blockquote>If you can only reproduce on multiple nodes, that is probably the issue here. 
+
+
+New Comment: 
+With the attached program I'm able to reproduce it on a single node. 
+
+
+New Comment: 
+Per previous phone conversation, I tested this against 0.8.7 twice.Both times the attached
+java test ran to completion against a single node and output "Done".When was this last
+reproduced? 
+
+
+New Comment: 
+I should mention that I did change one line in the test.  I changed <div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>column.timestamp = getTimestamp();</pre></div></div> to <div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>column.setTimestamp(getTimestamp());</pre></div></div> because
+otherwise thrift complained that the timestamp wasn't set. 
+
+
+New Comment: 
+Could you please check again with grace_period of 60.I use the following to
+reproduce:create column family Customers<br/>    with column_type = 'Super' <br/>    and
+comparator = 'BytesType'<br/>	and memtable_flush_after = 60<br/>	and gc_grace = 60;On my
+system, it crashes every time:C:\Temp\JavaIssue&gt;java -jar CassandraIssue.jar 127.0.0.1
+Traxis<br/>Exception in thread "main" java.lang.Exception: test row should be empty<br/>  
+     at cassandraissue.Main.start(Main.java:88)<br/>        at
+cassandraissue.Main.main(Main.java:178)Thanks 
+
+
+New Comment: 
+I had to tweak the variables a little bit but I'm able to reproduce. Will look into it. 
+
+
+New Comment: 
+Hopefully we get this right that time. The problem was that we were calling removeDeleted
+even in case where we shouldn't have been purging. Attaching 'part3' patch to fix, along
+with an updated unit test for that. 
+
+
+New Comment: 
+This is a little subtle so I'm going to spell it out:The purpose of
+AbstractCompactedRow.isEmpty  is to skip rows that consist only of expired tombstones:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">.           writer = cfs.createCompactionWriter(expectedBloomFilterSize,
+compactionFileLocation, sstables);            <span class="code-keyword">while</span>
+(nni.hasNext())            {                AbstractCompactedRow row = nni.next();        
+       <span class="code-keyword">if</span> (row.isEmpty())                    <span
+class="code-keyword">continue</span>;                ...           
+}</pre></div></div>However, we can't skip tombstones if we're only compacting some of the
+sstables for a row (<a href="https://issues.apache.org/jira/browse/CASSANDRA-1074"
+title="check bloom filters to make minor compaction able to delete (some) tombstones"
+class="issue-link" data-issue-key="CASSANDRA-1074"><del>CASSANDRA-1074</del></a>).  The
+bug here is that the isEmpty test doesn't check the CompactionController.shouldPurge,
+which is how the controller lets us know it's okay to drop tombstones.  (In the PR case
+the shouldPurge check was done correctly during creation of compactedCf, but then we
+ignored it when checking a second time for isEmpty.)Sylvain's patch fixes the bug.  Here
+is a v2 that simplifies isEmpty further:<ul class="alternate"
+type="square">	<li>ER.isEmpty is actually trivial</li>	<li>PR doesn't need to do a second
+check of no columns + no row level tombstone (i.e.: there were expired column tombstones);
+this case would be taken care of by the removeDeleted in compactedCf creation</li></ul> 
+
+
+New Comment: 
++1 on v2 
+
+
+New Comment: 
+committed 
+
+

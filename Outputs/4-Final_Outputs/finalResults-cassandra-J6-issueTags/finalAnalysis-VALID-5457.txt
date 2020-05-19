@@ -1,0 +1,165 @@
+Pattern changes caused by commit: 5771a1c836d2251e2b7acc5c8c88704f53ea7d40
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5457.txt 
+
+commit 5771a1c836d2251e2b7acc5c8c88704f53ea7d40
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix pattern for windows for CASSANDRA-3456
+
+
+
+==================================
+ Issue CASSANDRA-3456 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3456] Automatically create SHA1 of new sstables
+-----------------
+
+-----------------
+Summary: Automatically create SHA1 of new sstables
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 4 Nov 2011 18:52:17 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Nov 2011 17:47:35 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Compressed sstables have block checksums which is great but non-compressed sstables don't
+for technical/compatibility reasons that I'm not criticizing. It's a bit annoying because
+when someone comes up with a corrupted file, we really have nothing to help discarding it
+as bitrot or not. However, it would be fairly trivial/cheap to compute the SHA1 (or other)
+of whole sstables when creating them. And if it's a new, separate, sstable component, we
+don't even have to implement anything to check the hash. It would only be there to
+(manually) check for bitrot when corruption is suspected by the user, or to say check the
+integrity of backups.
+
+I'm absolutely not pretending that it's a perfect solution, and for
+compressed sstables the block checksums are clearly more fine grained, but it's easy to
+add and could prove useful for non compressed files.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I'm a little torn about adding another component &#8211; leveled compaction will eat up
+fds really quickly and adding more components will make that worse.  Putting it in the
+metadata/statistics component is <b>almost</b> as user friendly (scrub can check it, or we
+can provide a standalone sstablesha tool to extract it).  What do you think? 
+
+
+New Comment: 
+I don't think the fd thing is a real problem, because we won't need to open this component
+very much, and even if we do it for scrub, we will open-read-close very quickly. I would
+agree though that having too many components can get annoying. But that being said, I kind
+of think this is one where having it separate does make sense for the purpose of external
+checking. It is true we can have a simple external tool, but that add something to
+maintain that we could avoid. So I guess I'm also a little torn though I'm leaning toward
+'having a separate component is the better choice' (but putting it in -Statistics is not
+much more work so if there is preference for that, so be it). 
+
+
+New Comment: 
+Okay, I'm in for a separate component. 
+
+
+New Comment: 
+Some nits:<ul class="alternate" type="square">	<li>duplicated comment line:<br/>{{ +      
+ // a bitmap secondary index: many of these may exist per sstable}}</li>	<li>Guava
+provides MessageDigestAlgorithm so you don't have to do the try/catch business for
+built-ins</li>	<li>"This can only be called before any data is written to this write"
+sounds like "this should be a constructor parameter" to me</li></ul> 
+
+
+New Comment: 
+Patch attached. It creates a new component, say Standard1-h-16-Digest.sha1, that is can be
+directly checked by sha1sum ({{ sha1sum -c Standard1-h-16-Digest.sha1 }}).Not that the
+sha1 is only created for non-compressed files since compressed files have more
+fine-grained checksums, but we could change it easily. I also didn't added anything in
+Cassandra itself that check the sha1 sum. We can add it to say scrub, but we would have to
+read entirely the file before the scrub to compute the sha1, and I don't see the point of
+adding that time to scrub (at least until <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3406" title="Create a nodetool
+upgrade_sstables to avoid using scrubs for tasks it wasn&#39;t intended to."
+class="issue-link" data-issue-key="CASSANDRA-3406"><del>CASSANDRA-3406</del></a> while
+scrub is used for much more that corruption detection/correction). Besides, sha1sum does
+that well already. 
+
+
+New Comment: 
+That was fast <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><blockquote>Guava provides
+MessageDigestAlgorithm so you don't have to do the try/catch business for
+built-ins</blockquote>Nice, I'll update<blockquote>"This can only be called before any
+data is written to this write" sounds like "this should be a constructor parameter" to
+me</blockquote>It does, but given that we don't want to compute a digest for say the
+commit log or other uses of SequentialWriter, pushing this in the constructor required
+creating a bunch of new 'constructors' and/or have the creation SequentialWriter takes one
+more boolean flag. I started with that, but it didn't felt so beautiful. 
+
+
+New Comment: 
+Hum, apparently that Guava thing is not there yet (and doesn't seem it will be added): <a
+href="http://code.google.com/p/guava-libraries/issues/detail?id=758" class="external-link"
+rel="nofollow">http://code.google.com/p/guava-libraries/issues/detail?id=758</a>So if you
+strongly feel the digest should be created in the constructor, I'll update but if there is
+nothing else, I'll just update the duplicated comment line while committing. 
+
+
+New Comment: 
+Doh.  +1, then. 
+
+
+New Comment: 
+Committed 
+
+
+New Comment: 
+Got the attached errors when starting my test node (with pre-existing, non-sha'd data). 
+It looks like there may be problems creating new files as well as with old ones. 
+
+
+New Comment: 
+Note sure about the deletion problem but it's likely related to the other exception. I was
+using a split(File.separator), which won't work well on windows. Attaching patch to use
+Pattern.quote. 
+
+
+New Comment: 
++1 
+
+

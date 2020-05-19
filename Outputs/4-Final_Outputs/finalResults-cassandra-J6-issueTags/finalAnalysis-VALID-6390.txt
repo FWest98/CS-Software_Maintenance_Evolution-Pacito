@@ -1,0 +1,94 @@
+Pattern changes caused by commit: 9fc1d5c23a58e06e104b94271b25fdf2eb048ed4
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6390.txt 
+
+commit 9fc1d5c23a58e06e104b94271b25fdf2eb048ed4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix col. width in presence of wide unicode glyphs
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4033
+
+
+
+==================================
+ Issue CASSANDRA-4033 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4033] cqlsh: double wide unicode chars cause incorrect padding in select output
+-----------------
+
+-----------------
+Summary: cqlsh: double wide unicode chars cause incorrect padding in select output
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 9 Mar 2012 17:59:20 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 27 Mar 2012 18:53:14 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">CREATE COLUMNFAMILY cf3 (KEY text primary key);INSERT
+INTO cf3 (KEY, col1, col2) VALUES (<span class="code-quote">'a'</span>, <span
+class="code-quote">'1234 1234 1234 1234'</span>, <span
+class="code-quote">'abcd'</span>);INSERT INTO cf3 (KEY, col1, col2) VALUES (<span
+class="code-quote">'b'</span>, <span class="code-quote">'愛愛愛愛 愛愛愛愛 愛愛愛愛 愛愛愛愛'</span>,
+<span class="code-quote">'abcd'</span>);SELECT * FROM cf3 WHERE key in (<span
+class="code-quote">'a'</span>, <span
+class="code-quote">'b'</span>);</pre></div></div>
+produces this output:
+<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"> KEY | col1                                                |
+col2-----+-----------------------------------------------------+------   a |              
+                  1234 1234 1234 1234 | abcd   b |                       愛愛愛愛 愛愛愛愛 愛愛愛愛
+愛愛愛愛 | abcd</pre></div></div>
+note the extra spaces before the "love" glyphs.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+good call. fix pushed to <a href="https://github.com/thepaul/cassandra/tree/pending/4033"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4033</a> (4033 branch and
+pending/4033 tag in my github repo) 
+
+

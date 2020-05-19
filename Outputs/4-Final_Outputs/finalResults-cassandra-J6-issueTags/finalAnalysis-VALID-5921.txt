@@ -1,0 +1,85 @@
+Pattern changes caused by commit: ea3b8da8fb69cb7db665435f07305bdc3c5af6f1
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5921.txt 
+
+commit ea3b8da8fb69cb7db665435f07305bdc3c5af6f1
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    fix broadcastAddress and fix for Ec2MultiRegionSnitch.reconnect
+    patch by Vijay; reviewed by Brandon Williams for CASSANDRA-3835
+
+
+
+==================================
+ Issue CASSANDRA-3835 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3835] FB.broadcastAddress fixes and Soft reset on Ec2MultiRegionSnitch.reconnect
+-----------------
+
+-----------------
+Summary: FB.broadcastAddress fixes and Soft reset on Ec2MultiRegionSnitch.reconnect
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 2 Feb 2012 00:41:57 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 2 Feb 2012 03:59:00 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+looks like OutboundTcpConnectionPool.reset will clear the queue which might not be ideal
+for Ec2Multiregion snitch.<br/>there is additional cleanup needed for
+FB.broadCastAddress.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1, looks like most of the BCA cleanup came from merges from 0.8 fixes. 
+
+
+New Comment: 
+Fixed on 1.0.8, 1.1 and trunk, Thanks! 
+
+

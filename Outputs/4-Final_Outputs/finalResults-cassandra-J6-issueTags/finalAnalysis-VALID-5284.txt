@@ -1,0 +1,167 @@
+Pattern changes caused by commit: ece371588db88ebfafaadcc090437a8330def90a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5284.txt 
+
+commit ece371588db88ebfafaadcc090437a8330def90a
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Correctly serialize key_validation_class for avro
+    patch by amorton; reviewed by slebresne for CASSANDRA-3391
+
+
+
+==================================
+ Issue CASSANDRA-3391 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3391] CFM.toAvro() incorrectly serialises key_validation_class defn
+-----------------
+
+-----------------
+Summary: CFM.toAvro() incorrectly serialises key_validation_class defn
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 20 Oct 2011 22:26:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 21 Oct 2011 13:43:00 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+see <a href="http://www.mail-archive.com/user@cassandra.apache.org/msg18132.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg18132.html</a>
+
+Repo
+with 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">create keyspace Stats with placement_strategy = <span
+class="code-quote">'org.apache.cassandra.locator.SimpleStrategy'</span> and
+strategy_options={replication_factor:1};use Stats;create column family Sample_Stats with
+default_validation_class=CounterColumnType    and key_validation_class=<span
+class="code-quote">'CompositeType(UTF8Type,UTF8Type)'</span>    and comparator=<span
+class="code-quote">'CompositeType(UTF8Type, UTF8Type)'</span>    and
+replicate_on_write=<span class="code-keyword">true</span>;[<span
+class="code-keyword">default</span>@Stats] describe cluster;Cluster Information:   Snitch:
+org.apache.cassandra.locator.SimpleSnitch   Partitioner:
+org.apache.cassandra.dht.RandomPartitioner   Schema versions:
+	1d39bbf0-fb60-11e0-0000-242d50cf1ffd: [127.0.0.1]</pre></div></div>
+Stop and restart the
+node
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR 10:12:22,729 Exception encountered during
+startupjava.lang.RuntimeException: Could not inflate CFMetaData <span
+class="code-keyword">for</span> {<span class="code-quote">"keyspace"</span>: <span
+class="code-quote">"Stats"</span>, <span class="code-quote">"name"</span>: <span
+class="code-quote">"Sample_Stats"</span>, <span class="code-quote">"column_type"</span>:
+<span class="code-quote">"Standard"</span>, <span
+class="code-quote">"comparator_type"</span>: <span
+class="code-quote">"org.apache.cassandra.db.marshal.CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type)"</span>,
+<span class="code-quote">"subcomparator_type"</span>: <span
+class="code-keyword">null</span>, <span class="code-quote">"comment"</span>: <span
+class="code-quote">"", "</span>row_cache_size<span class="code-quote">": 0.0,
+"</span>key_cache_size<span class="code-quote">": 200000.0,
+"</span>read_repair_chance<span class="code-quote">": 1.0, "</span>replicate_on_write<span
+class="code-quote">": <span class="code-keyword">true</span>,
+"</span>gc_grace_seconds<span class="code-quote">": 864000,
+"</span>default_validation_class<span class="code-quote">":
+"</span>org.apache.cassandra.db.marshal.CounterColumnType<span class="code-quote">",
+"</span>key_validation_class<span class="code-quote">":
+"</span>org.apache.cassandra.db.marshal.CompositeType<span class="code-quote">",
+"</span>min_compaction_threshold<span class="code-quote">": 4,
+"</span>max_compaction_threshold<span class="code-quote">": 32,
+"</span>row_cache_save_period_in_seconds<span class="code-quote">": 0,
+"</span>key_cache_save_period_in_seconds<span class="code-quote">": 14400,
+"</span>row_cache_keys_to_save<span class="code-quote">": 2147483647,
+"</span>merge_shards_chance<span class="code-quote">": 0.1, "</span>id<span
+class="code-quote">": 1000, "</span>column_metadata<span class="code-quote">": [],
+"</span>row_cache_provider<span class="code-quote">":
+"</span>org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider<span
+class="code-quote">", "</span>key_alias<span class="code-quote">": <span
+class="code-keyword">null</span>, "</span>compaction_strategy<span class="code-quote">":
+"</span>org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy<span
+class="code-quote">", "</span>compaction_strategy_options<span class="code-quote">": {},
+"</span>compression_options": {}}	at
+org.apache.cassandra.config.CFMetaData.fromAvro(CFMetaData.java:362)	at
+org.apache.cassandra.config.KSMetaData.fromAvro(KSMetaData.java:193)	at
+org.apache.cassandra.db.DefsTable.loadFromStorage(DefsTable.java:99)	at
+org.apache.cassandra.config.DatabaseDescriptor.loadSchemas(DatabaseDescriptor.java:502)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:161)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:337)	at
+org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:106)Caused by:
+org.apache.cassandra.config.ConfigurationException: Invalid definition <span
+class="code-keyword">for</span> comparator
+org.apache.cassandra.db.marshal.CompositeType.	at
+org.apache.cassandra.db.marshal.TypeParser.getRawAbstractType(TypeParser.java:319)	at
+org.apache.cassandra.db.marshal.TypeParser.getAbstractType(TypeParser.java:247)	at
+org.apache.cassandra.db.marshal.TypeParser.parse(TypeParser.java:83)	at
+org.apache.cassandra.db.marshal.TypeParser.parse(TypeParser.java:92)	at
+org.apache.cassandra.config.CFMetaData.fromAvro(CFMetaData.java:358)	... 6 moreCaused by:
+org.apache.cassandra.config.ConfigurationException: Nonsensical empty parameter list <span
+class="code-keyword">for</span> CompositeType	at
+org.apache.cassandra.db.marshal.CompositeType.getInstance(CompositeType.java:67)	at
+org.apache.cassandra.db.marshal.CompositeType.getInstance(CompositeType.java:61)	at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)	at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)	at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)	at
+java.lang.reflect.Method.invoke(Method.java:597)	at
+org.apache.cassandra.db.marshal.TypeParser.getRawAbstractType(TypeParser.java:307)	... 10
+more</pre></div></div>
+Will post the patch in a minute. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Use AbstractType.toString() when serialising key_validator_class to Avro.Checked other
+places to CFMD.toAvro() and CFMD.fromAvro() they seemed ok. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks 
+
+

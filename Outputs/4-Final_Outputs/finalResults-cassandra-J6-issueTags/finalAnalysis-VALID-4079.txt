@@ -1,0 +1,145 @@
+Pattern changes caused by commit: 2dd17718d250e9c1c53cbd7ae8e6ed8105887dae
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4079.txt 
+
+commit 2dd17718d250e9c1c53cbd7ae8e6ed8105887dae
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    mark BRAF buffer invalid post-flush so we don't re-flush partial buffers again
+    patch by Peter Schuller; reviewed by jbellis for CASSANDRA-2660
+
+
+
+==================================
+ Issue CASSANDRA-2660 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2660] BRAF.sync() bug can cause massive commit log write magnification
+-----------------
+
+-----------------
+Summary: BRAF.sync() bug can cause massive commit log write magnification
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 17 May 2011 12:22:00 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 17 May 2011 14:55:04 +0000
+-----------------
+
+-----------------
+Assigned to: Peter Schuller
+-----------------
+
+-----------------
+Description: 
+
+This was discovered, fixed and tested on 0.7.5. Cursory examination shows it should still
+be an issue on trunk/0.8. If people otherwise agree with the patch I can rebase if
+necessary.
+
+Problem:
+
+BRAF.flush() is actually broken in the sense that it cannot be
+called without close co-operation with the caller. rebuffer() does the co-op by adjusting
+bufferOffset and validateBufferBytes appropriately, by sync() doesn't. This means sync()
+is broken, and sync() is used by the commit log.
+
+The attached patch moves the
+bufferOffset/validateBufferBytes handling out into resetBuffer() and has both flush() and
+rebuffer() call that. This makes sync() safe.
+
+What happened was that for batched commit
+log mode, every time sync() was called the data buffered so far would get written to the
+OS and fsync():ed. But until rebuffer() is called for other reasons as part of the write
+path, all subsequent sync():s would result in the very same data (plus whatever was
+written since last time) being re-written and fsync():ed again. So first you write+fsync N
+bytes, then N+N1, then N+N1+N2... (each N being a batch), until at some point you trigger
+a rebuffer() and it starts all over again.
+
+The result is that you see <b>a lot</b> more
+writes to the commit log than are in fact written to the BRAF. And these writes translate
+into actual real writes to the underlying storage device due to fsync(). We had crazy
+numbers where we saw spikes upwards of 80 mb/second where the actual throughput was more
+like ~ 1 mb second of data to the commit log.
+
+(One can make a possibly weak argument that
+it is also functionally incorrect as I can imagine implementations where re-writing the
+same blocks does copy-on-write in such a way that you're not necessarily guaranteed to see
+before-or-after data, particularly in case of partial page writes. However that's probably
+not a practical issue.)
+
+Worthy of noting is that this probably causes added difficulties
+in fsync() latencies since the average fsync() will contain a lot more data. Depending on
+I/O scheduler and underlying device characteristics, the extra writes <b>may</b> not have
+a detrimental effect, but I think it's pretty easy to point to cases where it will be
+detrimental - in particular if the commit log is on a non-battery backed drive. Even with
+a nice battery backed RAID with the commit log on, the size of the writes probably
+contributes to difficulty in making the write requests propagate down without being
+starved by reads (but this is speculation, not tested, other than that I've observed
+commit log writer starvation that seemed excessive).
+
+This isn't the first subtle BRAF
+bug. What are people's thoughts on creating separate abstractions for streaming I/O that
+can perhaps be a lot more simple, and use BRAF only for random reads in response to live
+traffic? (Not as part of this JIRA, just asking in general.)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<blockquote>What are people's thoughts on creating separate abstractions for streaming I/O
+that can perhaps be a lot more simple, and use BRAF only for random reads in response to
+live traffic? (Not as part of this JIRA, just asking in general.)</blockquote>Every time
+I've looked at doing this I've put it aside because making all writes two-pass (first pass
+to compute size, so we don't have to seek back after serializing the row itself) is such a
+pain. 
+
+
+New Comment: 
+Ideally we wouldn't wipe out the buffer for read purposes but since we are mixing rw in
+the same buffer (see comments above) this is the best option.  Committed. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #487 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/487/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/487/</a>)<br/>    mark
+BRAF buffer invalid post-flush so we don't re-flush partial buffers again<br/>patch by
+Peter Schuller; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2660" title="BRAF.sync() bug can
+cause massive commit log write magnification" class="issue-link"
+data-issue-key="CASSANDRA-2660"><del>CASSANDRA-2660</del></a> 
+
+

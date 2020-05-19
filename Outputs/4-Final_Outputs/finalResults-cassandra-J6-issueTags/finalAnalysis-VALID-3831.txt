@@ -1,0 +1,98 @@
+Pattern changes caused by commit: a3ab11865b0e1cdea2af376625e00b65cc043261
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3831.txt 
+
+commit a3ab11865b0e1cdea2af376625e00b65cc043261
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix backslash substitutions in CLI
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2492
+
+
+
+==================================
+ Issue CASSANDRA-2492 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2492] add an escapeSQLString function and fix unescapeSQLString
+-----------------
+
+-----------------
+Summary: add an escapeSQLString function and fix unescapeSQLString
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 17 Apr 2011 02:37:53 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 19 Apr 2011 13:42:27 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+CliUtils.unescapeSqlString repeats the escape character e.g. 
+<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>"my
+\\t tab" becomes "my \tt"</pre></div></div>
+because <tt>i</tt> is not bumped when an
+escape is processed.
+
+Also for Cassandra-2221 I need a function to escape strings back so
+they will work if processed by the cli again. 
+
+There are a number of non <a
+href="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#101089"
+class="external-link" rel="nofollow">standard escapes</a> which I assume is a hang over
+from is original source <a
+href="https://github.com/apache/cassandra/blob/1aeca2b6257b0ad6680080b1756edf7ee9acf8c8/src/java/org/apache/cassandra/cli/CliUtils.java"
+class="external-link"
+rel="nofollow">https://github.com/apache/cassandra/blob/1aeca2b6257b0ad6680080b1756edf7ee9acf8c8/src/java/org/apache/cassandra/cli/CliUtils.java</a>
+
+Will
+change to use the <a
+href="http://commons.apache.org/lang/api-2.5/org/apache/commons/lang/StringEscapeUtils.html"
+class="external-link" rel="nofollow">StringEscapeUtils</a> class  
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch to use StringEscapeUtils to escape and unescape cli strings, includes unit
+test. 
+
+

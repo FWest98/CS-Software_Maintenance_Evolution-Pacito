@@ -1,0 +1,160 @@
+Pattern changes caused by commit: 4d5c1325d5f92e1674bce232ecb94e1329a7002a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5617.txt 
+
+commit 4d5c1325d5f92e1674bce232ecb94e1329a7002a
+Merge: 09a6ee1 2b0859f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    turn off string interning in json2sstable, take 2
+    patch by jbellis; tested by George Ciubotaru for CASSANDRA-2189
+
+
+
+==================================
+ Issue CASSANDRA-2189 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2189] json2sstable fails due to OutOfMemory
+-----------------
+
+-----------------
+Summary: json2sstable fails due to OutOfMemory
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 18 Feb 2011 02:53:57 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Dec 2011 16:39:54 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+I have a json file created with sstable2json for a column family of super column type.
+Its size is about 1.9GB. (It's a dump of all keys because I cannot find out how to specify
+keys to dump in sstable2json.)<br/>When I tried to create sstable from the json file, it
+failed with OutOfMemoryError as follows.
+
+ WARN 00:31:58,595 Schema definitions were
+defined both locally and in cassandra.yaml. Definitions in cassandra.yaml were
+ignored.<br/>Exception in thread "main" java.lang.OutOfMemoryError: PermGen space<br/>    
+   at java.lang.String.intern(Native Method)<br/>        at
+org.codehaus.jackson.util.InternCache.intern(InternCache.java:40)<br/>        at
+org.codehaus.jackson.sym.BytesToNameCanonicalizer.addName(BytesToNameCanonicalizer.java:471)<br/>
+       at
+org.codehaus.jackson.impl.Utf8StreamParser.addName(Utf8StreamParser.java:893)<br/>       
+at org.codehaus.jackson.impl.Utf8StreamParser.findName(Utf8StreamParser.java:773)<br/>    
+   at
+org.codehaus.jackson.impl.Utf8StreamParser.parseLongFieldName(Utf8StreamParser.java:379)<br/>
+       at
+org.codehaus.jackson.impl.Utf8StreamParser.parseMediumFieldName(Utf8StreamParser.java:347)<br/>
+       at
+org.codehaus.jackson.impl.Utf8StreamParser._parseFieldName(Utf8StreamParser.java:304)<br/>
+       at
+org.codehaus.jackson.impl.Utf8StreamParser.nextToken(Utf8StreamParser.java:140)<br/>      
+ at
+org.codehaus.jackson.map.deser.UntypedObjectDeserializer.mapObject(UntypedObjectDeserializer.java:93)<br/>
+       at
+org.codehaus.jackson.map.deser.UntypedObjectDeserializer.deserialize(UntypedObjectDeserializer.java:65)<br/>
+       at
+org.codehaus.jackson.map.deser.MapDeserializer._readAndBind(MapDeserializer.java:197)<br/>
+       at
+org.codehaus.jackson.map.deser.MapDeserializer.deserialize(MapDeserializer.java:145)<br/> 
+      at
+org.codehaus.jackson.map.deser.MapDeserializer.deserialize(MapDeserializer.java:23)<br/>  
+     at org.codehaus.jackson.map.ObjectMapper._readValue(ObjectMapper.java:1261)<br/>     
+  at org.codehaus.jackson.map.ObjectMapper.readValue(ObjectMapper.java:517)<br/>        at
+org.codehaus.jackson.JsonParser.readValueAs(JsonParser.java:897)<br/>        at
+org.apache.cassandra.tools.SSTableImport.importUnsorted(SSTableImport.java:208)<br/>      
+ at org.apache.cassandra.tools.SSTableImport.importJson(SSTableImport.java:197)<br/>      
+ at org.apache.cassandra.tools.SSTableImport.main(SSTableImport.java:421)
+
+So, what I had
+to is that split the json file with "split" command and modify them to be correct json
+file. Create sstable for each small json files.
+
+Could you change json2sstable to avoid
+OutOfMemory?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+That kind of looks like a jackson bug to me.  I'll ask Tatu. 
+
+
+New Comment: 
+patch to disable interning.  (Thanks to Tatu for pointing me at the right Feature.) 
+
+
+New Comment: 
+Shotaro, can you test the patch? 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #313 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/313/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/313/</a>)<br/>   
+turnoff string interning in json2sstable<br/>patch by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2189" title="json2sstable fails due
+to OutOfMemory" class="issue-link"
+data-issue-key="CASSANDRA-2189"><del>CASSANDRA-2189</del></a> 
+
+
+New Comment: 
+This didn't actually fix the problem.  Tatu again:"This calls configure on parser; but at
+that point the symbol table has already been created. So configure must be called on the
+factory first (and only need to be called once, really), and then settings will be passed
+as expected." 
+
+
+New Comment: 
+Patch attached to move configuration to the factory. 
+
+
+New Comment: 
+Customer testing indicates that this is a big improvement, especially when combined with
+an upgrade to Jackson 1.9.2.  I'll commit this patch to 0.8.9 and 1.0.6, and upgrade
+Jackson in trunk. 
+
+

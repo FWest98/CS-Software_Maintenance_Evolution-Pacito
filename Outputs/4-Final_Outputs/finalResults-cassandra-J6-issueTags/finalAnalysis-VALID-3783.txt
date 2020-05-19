@@ -1,0 +1,124 @@
+Pattern changes caused by commit: 8f7fb46e5c1aa2b7a7ee637ea5943c756b87f09a
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Flyweight-5
+To:   Flyweight-6
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3783.txt 
+
+commit 8f7fb46e5c1aa2b7a7ee637ea5943c756b87f09a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update LongCompactionSpeedTest.java for uuid counters
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2461
+
+
+
+==================================
+ Issue CASSANDRA-2461 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2461] LongCompactionSpeedTest fails
+-----------------
+
+-----------------
+Summary: LongCompactionSpeedTest fails
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 12 Apr 2011 15:02:47 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Apr 2011 18:20:22 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+ant long-test -Dtest.name=LongCompactionSpeedTest fails.
+
+There are several errors. Here
+is the first:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>    [junit]
+java.lang.IllegalArgumentException    [junit] 	at
+java.nio.ByteBuffer.allocate(ByteBuffer.java:311)    [junit] 	at
+org.apache.cassandra.db.context.CounterContext.clearAllDelta(CounterContext.java:444)   
+[junit] 	at
+org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:100)    [junit]
+	at org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:36)   
+[junit] 	at
+org.apache.cassandra.io.sstable.SSTableIdentityIterator.next(SSTableIdentityIterator.java:158)
+   [junit] 	at
+org.apache.cassandra.io.sstable.SSTableIdentityIterator.next(SSTableIdentityIterator.java:41)
+   [junit] 	at
+org.apache.commons.collections.iterators.CollatingIterator.set(CollatingIterator.java:284)
+   [junit] 	at
+org.apache.commons.collections.iterators.CollatingIterator.least(CollatingIterator.java:326)
+   [junit] 	at
+org.apache.commons.collections.iterators.CollatingIterator.next(CollatingIterator.java:230)
+   [junit] 	at
+org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:69)   
+[junit] 	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)   
+[junit] 	at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135) 
+  [junit] 	at com.google.common.collect.Iterators$7.computeNext(Iterators.java:614)   
+[junit] 	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)   
+[junit] 	at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135) 
+  [junit] 	at
+org.apache.cassandra.db.ColumnIndexer.serializeInternal(ColumnIndexer.java:76)    [junit]
+	at org.apache.cassandra.db.ColumnIndexer.serialize(ColumnIndexer.java:50)    [junit] 	at
+org.apache.cassandra.io.LazilyCompactedRow.&lt;init&gt;(LazilyCompactedRow.java:87)   
+[junit] 	at
+org.apache.cassandra.io.sstable.SSTableWriter$CommutativeRowIndexer.doIndexing(SSTableWriter.java:462)
+   [junit] 	at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:364)   
+[junit] 	at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:317)   
+[junit] 	at org.apache.cassandra.db.CompactionManager$9.call(CompactionManager.java:1089) 
+  [junit] 	at
+org.apache.cassandra.db.CompactionManager$9.call(CompactionManager.java:1080)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+That was not updated correctly with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1938" title="Use UUID as node
+identifiers in counters instead of IP addresses" class="issue-link"
+data-issue-key="CASSANDRA-1938"><del>CASSANDRA-1938</del></a>, sorry. Patch attached. 
+
+

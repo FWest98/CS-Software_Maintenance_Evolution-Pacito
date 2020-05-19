@@ -1,0 +1,73 @@
+Pattern changes caused by commit: 14139455a5f88b1d64a0686f1d02162293f0d8c9
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9341.txt 
+
+commit 14139455a5f88b1d64a0686f1d02162293f0d8c9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    sstablescrub respects MAX_HEAP_SIZE
+    Patch by Mina Naguib, reviewed by brandonwilliams for CASSANDRA-5562
+
+
+
+==================================
+ Issue CASSANDRA-5562 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5562] sstablescrub should respect MAX_HEAP_SIZE
+-----------------
+
+-----------------
+Summary: sstablescrub should respect MAX_HEAP_SIZE
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 13 May 2013 16:47:16 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 14 May 2013 19:10:45 +0000
+-----------------
+
+-----------------
+Assigned to: Mina Naguib
+-----------------
+
+-----------------
+Description: 
+
+sstablescrub has Xmx hardcoded to 256MB.  This is not enough in my installation and
+causes an OOM.
+
+Since it's meant to be run offline, the memory usually allocated to the
+daemon can be safely given to the tool.
+
+Attached is a patch that makes it respect
+$MAX_HEAP_SIZE (with fallback to 256MB if not defined)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

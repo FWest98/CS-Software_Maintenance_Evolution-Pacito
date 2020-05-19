@@ -1,0 +1,145 @@
+Pattern changes caused by commit: 4806ef91f3da007378657852f103a4551d52b6ff
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5475.txt 
+
+commit 4806ef91f3da007378657852f103a4551d52b6ff
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix "liveSize" stat when sstables are removed
+    patch by Jackson Chung; reviewed by jbellis and slebresne for CASSANDRA-3496
+
+
+
+==================================
+ Issue CASSANDRA-3496 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3496] Load from `nodetool ring` does not update after cleanup.
+-----------------
+
+-----------------
+Summary: Load from `nodetool ring` does not update after cleanup.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 15 Nov 2011 20:18:33 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 16 Nov 2011 18:10:07 +0000
+-----------------
+
+-----------------
+Assigned to: Jackson Chung
+-----------------
+
+-----------------
+Description: 
+
+Repro:<br/>Bring up a node.
+
+Insert 1M rows:<br/>127.0.0.1       datacenter1 rack1      
+Up     Normal  406.92 MB       100.00% 77747037169725419723056812679314618801<br/>(Already
+looks wrong, 406.92 is higher than I'm used to seeing from a single run of
+stress)
+
+Bootstrap a second node into the
+cluster:
+
+162877269496252595336256012556853953561<br/>127.0.0.1       datacenter1 rack1   
+   Up     Normal  407.03 MB       49.96% 
+77747037169725419723056812679314618801<br/>127.0.0.2       datacenter1 rack1       Up    
+Normal  157.91 MB       50.04% 
+162877269496252595336256012556853953561
+
+Cleanup<br/>162877269496252595336256012556853953561<br/>127.0.0.1
+      datacenter1 rack1       Up     Normal  551.2 MB       49.96% 
+77747037169725419723056812679314618801<br/>127.0.0.2       datacenter1 rack1       Up    
+Normal  157.91 MB       50.04%  162877269496252595336256012556853953561
+
+Looks like each
+operation that adds and removes SSTables only adds to the total and doesn't remove the old
+sstables from the total size count.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Jackson pointed out that doing it in the current order, the data will be removed by the
+time we call length() on it:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">.          
+sstable.markCompacted();            sstable.releaseReference();           
+liveSize.addAndGet(-sstable.bytesOnDisk());</pre></div></div> 
+
+
+New Comment: 
+patch to reduce size before releasing reference 
+
+
+New Comment: 
+my test case (which seems difference from Ben's?):<br/>1) put a break between the
+releaseReference and releaseReference<br/>2) insert to a CF, flush, insert again, flush,
+now you have 2 sstables<br/>3) force major compactionwith the following break/sleep in the
+test:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">            sstable.releaseReference();           
+<span class="code-keyword">try</span>            {                logger.debug(<span
+class="code-quote">"xxxxxxxxxxxx zz <span class="code-keyword">for</span> 10s"</span>);   
+            <span class="code-object">Thread</span>.sleep(7000);            }             
+          <span class="code-keyword">catch</span> (InterruptedException e)            {   
+            <span class="code-comment">// TODO Auto-generated <span
+class="code-keyword">catch</span> block</span>                e.printStackTrace();        
+   }            <span class="code-object">long</span> bytesOnDisk = sstable.bytesOnDisk();
+           logger.debug(<span class="code-quote">"xxxxxxxxxx wake up -------- size to
+remove from livesize"</span> +
+bytesOnDisk);liveSize.addAndGet(-bytesOnDisk);</pre></div></div>the following is observed
+in the log:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>DEBUG [CompactionExecutor:6] 2011-11-15
+12:29:43,050 DataTracker.java (line 345) removing
+/var/lib/cassandra/data/testsize/testcfsize-hb-1 from list of files tracked for
+testsize.testcfsizeDEBUG [CompactionExecutor:6] 2011-11-15 12:29:43,050 SSTableReader.java
+(line 742) Marking /var/lib/cassandra/data/testsize/testcfsize-hb-1-Data.db compactedDEBUG
+[CompactionExecutor:6] 2011-11-15 12:29:43,050 MmappedSegmentedFile.java (line 139) All
+segments have been unmapped successfullyDEBUG [CompactionExecutor:6] 2011-11-15
+12:29:43,051 MmappedSegmentedFile.java (line 139) All segments have been unmapped
+successfullyDEBUG [CompactionExecutor:6] 2011-11-15 12:29:43,051 DataTracker.java (line
+353) xxxxxxxxxxxx zz for 10sDEBUG [NonPeriodicTasks:1] 2011-11-15 12:29:43,051
+FileUtils.java (line 51) Deleting testcfsize-hb-1-Index.dbDEBUG [NonPeriodicTasks:1]
+2011-11-15 12:29:43,051 FileUtils.java (line 51) Deleting testcfsize-hb-1-Filter.dbDEBUG
+[NonPeriodicTasks:1] 2011-11-15 12:29:43,052 FileUtils.java (line 51) Deleting
+testcfsize-hb-1-Digest.sha1DEBUG [NonPeriodicTasks:1] 2011-11-15 12:29:43,052
+FileUtils.java (line 51) Deleting testcfsize-hb-1-Statistics.dbDEBUG [NonPeriodicTasks:1]
+2011-11-15 12:29:43,052 SSTable.java (line 144) Deleted
+/var/lib/cassandra/data/testsize/testcfsize-hb-1DEBUG [CompactionExecutor:6] 2011-11-15
+12:29:50,051 DataTracker.java (line 363) xxxxxxxxxx wake up -------- size to remove from
+livesize0</pre></div></div>cfstats:<br/>                Column Family: testcfsize<br/>    
+           SSTable count: 1<br/>                Space used (live): 14395<br/>             
+  Space used (total): 5491 
+
+
+New Comment: 
+patch lgtm, +1 
+
+

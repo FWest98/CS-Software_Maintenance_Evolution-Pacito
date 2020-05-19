@@ -1,0 +1,80 @@
+Pattern changes caused by commit: d484e28d191f60069550648cb735517eb1c62f37
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6917.txt 
+
+commit d484e28d191f60069550648cb735517eb1c62f37
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Minor correction in pig readme/example.
+    Patch by Fabian Rousseau, reviewed by brandonwilliams for CASSANDRA-4301
+
+
+
+==================================
+ Issue CASSANDRA-4301 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4301] minor changes in pig examples
+-----------------
+
+-----------------
+Summary: minor changes in pig examples
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 31 May 2012 14:00:45 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 31 May 2012 14:49:38 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+Two minor changes in pig examples
+<ul class="alternate" type="square">	<li>in README.txt,
+the url has a small typo</li>	<li>the example getting the top column names should sort in
+descending order</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+

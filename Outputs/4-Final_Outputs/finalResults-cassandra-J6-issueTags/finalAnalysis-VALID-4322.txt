@@ -1,0 +1,94 @@
+Pattern changes caused by commit: 90ebcbe23bbba2226bff432b71d4e6668d4b74fa
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4322.txt 
+
+commit 90ebcbe23bbba2226bff432b71d4e6668d4b74fa
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add ant-optional debian Build-Depends
+    patch by Peter Schuller; reviewed by Paul Cannon for CASSANDRA-2164
+
+
+
+==================================
+ Issue CASSANDRA-2164 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2164] debian build dep on ant-optional is missing
+-----------------
+
+-----------------
+Summary: debian build dep on ant-optional is missing
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 15 Feb 2011 14:46:28 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 21 Jun 2011 17:24:54 +0000
+-----------------
+
+-----------------
+Assigned to: Peter Schuller
+-----------------
+
+-----------------
+Description: 
+
+Without the ant-optional package installed in Debian, builds fail (on lenny) with:
+
+   
+Could not create type regexpmapper due to No supported regular expression matcher found:
+java.lang.ClassNotFoundException: org.apache.tools.ant.util.regexp.Jdk14RegexpMatcher
+
+The
+attached patch makes it build. Tested on lenny and squeeze.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+(Ok, I hope the patch got uploaded alright. Not yet used to the new JIRA. I attached it
+separately as a file, as the 'submit patch' action didn't seem to offer an actual file
+upload facility.) 
+
+
+New Comment: 
++1 this from me, fwiw 
+
+
+New Comment: 
+committed, thanks! 
+
+
+New Comment: 
++1 again, but this time With Authority!  The extra dependency is both necessary and
+satisfiable on all debian/ubuntu releases since 2008 (Lenny/Hardy or later), and it's
+doubtful that Cassandra builds, runs correctly, and is properly supportable on older
+releases anyway. 
+
+

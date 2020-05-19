@@ -1,0 +1,113 @@
+Pattern changes caused by commit: 97e82b194dcd1fe585923978169fcd8fc66f4a81
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3473.txt 
+
+commit 97e82b194dcd1fe585923978169fcd8fc66f4a81
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add ant.test.failure.ignore property to optionally allow codecoverage to complete even if tests error out
+    patch by Stephen Connolly; tested by jbellis for CASSANDRA-2298
+
+
+
+==================================
+ Issue CASSANDRA-2298 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2298] Allow running the build with test failures ignored
+-----------------
+
+-----------------
+Summary: Allow running the build with test failures ignored
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 9 Mar 2011 12:12:48 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 9 Mar 2011 20:45:15 +0000
+-----------------
+
+-----------------
+Assigned to: Stephen Connolly
+-----------------
+
+-----------------
+Description: 
+
+When trying to get code coverage results, if there are failing tests the ANT build will
+fail.
+
+Need to expose a property to allow ignoring test failures so that code coverage can
+be recorded despite test failures (as a result of the code being instrumented)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch will effect the request if the property "ant.test.failure.ignore" is
+defined 
+
+
+New Comment: 
+duplicates <a href="https://issues.apache.org/jira/browse/CASSANDRA-2258"
+title="service.SerializationsTest failes under cobertura" class="issue-link"
+data-issue-key="CASSANDRA-2258"><del>CASSANDRA-2258</del></a> 
+
+
+New Comment: 
+shouldn't codecoverage task automatically define ant.test.failure.ignore? 
+
+
+New Comment: 
+perhaps... but i prefer not to force the issue and let the CI build define whether it
+wants the test failures to be ignored. That way you can have a set of different
+criteria.Instrumented tests failing can actually be indicative of a number of threading
+issues.I just want something that lets the CI build get code coverage... some people
+(including me depending on the way the wind is blowing) feel that code coverage when tests
+are failing is invalid as you are executing code paths that are not actually covered by
+the tests.  We had a system which had about 3% higher coverage if 3 of the test cases were
+failing than if they were passing... so in general you only trust test coverage when the
+tests pass 
+
+
+New Comment: 
+@Gary.Nope it does not duplicate <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2258"
+title="service.SerializationsTest failes under cobertura" class="issue-link"
+data-issue-key="CASSANDRA-2258"><del>CASSANDRA-2258</del></a>.2258 is a legitimate bug,
+this is required to support tracking and trending code coverage from the CI build server
+in the light of issues such as 2258 arising 
+
+
+New Comment: 
+committed 
+
+

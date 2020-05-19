@@ -1,0 +1,86 @@
+Pattern changes caused by commit: 963ac09aa22ec48246073c97f60c11e4d7b6c5a4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4912.txt 
+
+commit 963ac09aa22ec48246073c97f60c11e4d7b6c5a4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix CFMetata.getMergeShardChance returning readRepairChance
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3202
+
+
+
+==================================
+ Issue CASSANDRA-3202 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3202] CFMetata.getMergeShardChance returns readRepairChance
+-----------------
+
+-----------------
+Summary: CFMetata.getMergeShardChance returns readRepairChance
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Sep 2011 15:39:34 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 13 Sep 2011 17:00:49 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The summary says it all. Note that <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3178" title="Counter shard merging
+is not thread safe" class="issue-link"
+data-issue-key="CASSANDRA-3178"><del>CASSANDRA-3178</del></a> will hopefully make that
+option useless. But in the meantime, this breaks the tests in 1.0.0 since read repair
+chance was set to 0.1 by default (while the test assumes merge_shard_chance is 1), so
+let's fix that quickly.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks 
+
+

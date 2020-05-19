@@ -1,0 +1,144 @@
+Pattern changes caused by commit: cc0be1b40007ef4b653e4ad6bc4dbe0438b97785
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7191.txt 
+
+commit cc0be1b40007ef4b653e4ad6bc4dbe0438b97785
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix nodetool's setcompactionthreshold command
+    patch by Aleksey Yeschenko; reviewed by Pavel Yaskevich for CASSANDRA-4455
+
+
+
+==================================
+ Issue CASSANDRA-4455 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4455] Nodetool fail to setcompactionthreshold
+-----------------
+
+-----------------
+Summary: Nodetool fail to setcompactionthreshold
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 21 Jul 2012 10:17:12 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 25 Jul 2012 19:03:34 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+first change compaction threshold from 4/32 to 2/2<br/>/opt/dve/cassandra/bin/nodetool -h
+127.0.0.1 -p 7199 setcompactionthreshold ks cf 2 2<br/>It
+successful<br/>/opt/dve/cassandra/bin/nodetool -h 127.0.0.1 -p 7199 setcompactionthreshold
+ks cf 4 32<br/>Exception in thread "main" java.lang.RuntimeException: The
+min_compaction_threshold cannot be larger than the max.<br/>        at
+org.apache.cassandra.db.ColumnFamilyStore.setMinimumCompactionThreshold(ColumnFamilyStore.java:1697)<br/>
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>        at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br/>       
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>
+       at java.lang.reflect.Method.invoke(Method.java:597)<br/>        at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:93)<br/>
+       at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:27)<br/>
+       at
+com.sun.jmx.mbeanserver.MBeanIntrospector.invokeSetter(MBeanIntrospector.java:238)<br/>   
+    at com.sun.jmx.mbeanserver.PerInterface.setAttribute(PerInterface.java:84)<br/>       
+at com.sun.jmx.mbeanserver.MBeanSupport.setAttribute(MBeanSupport.java:240)<br/>        at
+com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.setAttribute(DefaultMBeanServerInterceptor.java:762)<br/>
+       at
+com.sun.jmx.mbeanserver.JmxMBeanServer.setAttribute(JmxMBeanServer.java:699)<br/>       
+at
+javax.management.remote.rmi.RMIConnectionImpl.doOperation(RMIConnectionImpl.java:1450)<br/>
+       at
+javax.management.remote.rmi.RMIConnectionImpl.access$200(RMIConnectionImpl.java:72)<br/>  
+     at
+javax.management.remote.rmi.RMIConnectionImpl$PrivilegedOperation.run(RMIConnectionImpl.java:1265)<br/>
+       at
+javax.management.remote.rmi.RMIConnectionImpl.doPrivilegedOperation(RMIConnectionImpl.java:1360)<br/>
+       at
+javax.management.remote.rmi.RMIConnectionImpl.setAttribute(RMIConnectionImpl.java:683)<br/>
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>        at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br/>       
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>
+       at java.lang.reflect.Method.invoke(Method.java:597)<br/>        at
+sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:303)<br/>        at
+sun.rmi.transport.Transport$1.run(Transport.java:159)<br/>        at
+java.security.AccessController.doPrivileged(Native Method)<br/>        at
+sun.rmi.transport.Transport.serviceCall(Transport.java:155)<br/>        at
+sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:535)<br/>        at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:790)<br/>     
+  at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:649)<br/> 
+      at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)
+
+The tool first try to set min then max, so it
+failed, since orign max is smaller the new min.<br/>The work around
+is:<br/>/opt/dve/cassandra/bin/nodetool -h 127.0.0.1 -p 7199 setcompactionthreshold ks cf
+2 32<br/>/opt/dve/cassandra/bin/nodetool -h 127.0.0.1 -p 7199 setcompactionthreshold ks cf
+4 32
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching alternative version which adds setCompactionThresholds(int, int) method instead
+of doing branch checking for old min/max values in nodetool. What do you think, Aleksey? 
+
+
+New Comment: 
+I think mine is acceptable, but your version is preferable.<br/>The only thing I don't
+like is the inconsistency in the argument names between the old setters and the new one -
+min, max, minCompationThreshold and maxCompationThreshold. The latter ones are redundant
+in the context - I'd just use 'threshold'.<br/>But this is bikeshedding on my part,
+doesn't really matter.<br/>Go with v2. 
+
+

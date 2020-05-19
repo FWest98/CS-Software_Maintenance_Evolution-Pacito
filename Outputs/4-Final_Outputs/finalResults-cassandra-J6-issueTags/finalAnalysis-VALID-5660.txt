@@ -1,0 +1,204 @@
+Pattern changes caused by commit: 0860058edaa8c07dc9bf627601e5580132a00110
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5660.txt 
+
+commit 0860058edaa8c07dc9bf627601e5580132a00110
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Prevent new nodes from thinking down nodes are up forever.
+    Patch by brandonwilliams, reviewed by Peter Schuller for CASSANDRA-3626
+
+
+
+==================================
+ Issue CASSANDRA-3626 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3626] Nodes can get stuck in UP state forever, despite being DOWN
+-----------------
+
+-----------------
+Summary: Nodes can get stuck in UP state forever, despite being DOWN
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Dec 2011 23:18:23 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 15 Dec 2011 19:15:05 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+This is a proposed phrasing for an upstream ticket named "Newly discovered nodes that are
+down get stuck in UP state forever" (will edit w/ feedback until done):
+
+We have a
+observed a problem with gossip which, when you are bootstrapping a new node (or replacing
+using the replace_token support), any node in the cluster which is Down at the time the
+node is started, will be assumed to be Up and then <b>never ever</b> flapped back to Down
+until you restart the node.
+
+This has at least two implications to replacing or
+bootstrapping new nodes when there are nodes down in the ring:
+<ul>	<li>If the new node
+happens to select a node listed as (UP but in reality is DOWN) as a stream source,
+streaming will sit there hanging forever.</li>	<li>If that doesn't happen (by picking
+another host), it will instead finish bootstrapping correctly, and begin servicing
+requests all the while thinking DOWN nodes are UP, and thus routing requests to them,
+generating timeouts.</li></ul>
+The way to get out of this is to restart the node(s) that
+you bootstrapped.
+
+I have tested and confirmed the symptom (that the bootstrapped node
+things other nodes are Up) using a fairly recent 1.0. The main debugging effort happened
+on 0.8 however, so all details below refer to 0.8 but are probably similar in 1.0.
+
+Steps
+to reproduce:
+<ul>	<li>Bring up a cluster of &gt;= 3 nodes. <b>Ensure RF is &lt; N</b>, so
+that the cluster is operative with one node removed.</li>	<li>Pick two random nodes A, and
+B. Shut them <b>both</b> off.</li>	<li>Wait for everyone to realize they are both off (for
+good measure).</li>	<li>Now, take node A and nuke it's data directories and re-start it,
+such that it comes up w/ normal bootstrap (or use replace_token; didn't test that but
+should not affect it).</li>	<li>Watch how node A starts up, all the while believing node B
+is down, even though all other nodes in the cluster agree that B is down and B is in fact
+still turned off.</li></ul>
+The mechanism by which it initially goes into Up state is that
+the node receives a gossip response from any other node in the cluster, and
+GossipDigestAck2VerbHandler.doVerb() calls
+Gossiper.applyStateLocally().
+
+Gossiper.applyStateLocally() doesn't have any local
+endpoint state for the cluster, so the else statement at the end ("it's a new node") gets
+triggered and handleMajorStateChange() is called. handleMajorStateChange() always calls
+markAlive(), unless the state is a dead state (but "dead" here does not mean "not up", but
+refers to joining/hibernate etc).
+
+So at this point the node is up in the mind of the node
+you just bootstrapped.
+
+Now, in each gossip round doStatusCheck() is called, which
+iterates over all nodes (including the one falsly Up) and among other things, calls
+FailureDetector.interpret() on each node.
+
+FailureDetector.interpret() is meant to update
+its sense of Phi for the node, and potentially convict it. However there is a
+short-circuit at the top, whereby if we do not yet have any arrival window for the node,
+we simply return immediately.
+
+Arrival intervals are only added as a result of a
+FailureDetector.report() call, which never happens in this case because the initial
+endpoint state we added, which came from a remote node that was up, had the latest version
+of the gossip state (so Gossiper.reportFailureDetector() will never call report()).
+
+The
+result is that the node can never ever be convicted.
+
+Now, let's ignore for a moment the
+problem that a node that is actually Down will be thought to be Up temporarily for a
+little while. That is sub-optimal, but let's aim for a fix to the more serious problem in
+this ticket - which is that is stays up forever.
+
+Considered solutions:
+<ul>	<li>When
+interpret() gets called and there is no arrival window, we could add a faked arrival
+window far back in time to cause the node to have history and be marked down. This "works"
+in the particular test case. The problem is that since we are not ourselves actively
+trying to gossip to these nodes with any particular speed, it might take a significant
+time before we get any kind of confirmation from someone else that it's actually Up in
+cases where the node actually <b>is</b> Up, so it's not clear that this is a good
+idea.</li></ul><ul>	<li>When interpret() gets called and there is no arrival window, we
+can simply convict it immediately. This has roughly similar behavior as the previous
+suggestion.</li></ul><ul>	<li>When interpret() gets called and there is no arrival window,
+we can add a faked arrival window at the current time, which will allow it to be treated
+as Up until the usual time has passed before we exceed the Phi conviction
+threshold.</li></ul><ul>	<li>When interpret() gets called and there is no arrival window,
+we can immediately convict it, <b>and</b> schedule it for immediate gossip on the next
+round in order to try to ensure they go Up quickly if they are indeed up. This has an
+effect of O<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/thumbs_down.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> gossip traffic, as a special case once
+during node start-up. While theoretically a problem, I personally thing we can ignore it
+for now since it won't be a significant problem any time soon. However, this is more
+complicated since the way we queue up messages is asynchronously to background connection
+attempts. We'd have to make sure the initial gossip message actually gets sent on an open
+TCP connection (I haven't confirmed whether this will be the case or not).</li></ul>
+The
+first three are simple to implement, possibly the fourth. But in all cases, I am worried
+about potential negative consequences that I am not seeing.
+
+Thoughts?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<blockquote>Now, let's ignore for a moment the problem that a node that is actually Down
+will be thought to be Up temporarily for a little while.</blockquote>This is perfectly
+fine since this is what the SS.RING_DELAY stabilization period is designed to suss out -
+the correct ring state.<blockquote>Steps to reproduce:</blockquote>This can be simplified
+to "start two nodes, shut one down, add a third."<blockquote>Considered
+solutions:</blockquote>ISTM the simplest and most correct thing to do in this case is
+report() new nodes.  Patch to do so. 
+
+
+New Comment: 
+FWIW I went back to 0.7 to repro this and the bug is there - so we've had this for quite
+some time. 
+
+
+New Comment: 
+I agree off the top of my head, but I'm kinda suspicious as to why I didn't already arrive
+at that conclusion... I'll have another look at the code tomorrow and see if I can figure
+out some reason why this is not a good idea, but right now it seems like a +1 to me. 
+
+
+New Comment: 
++1. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Committed. 
+
+

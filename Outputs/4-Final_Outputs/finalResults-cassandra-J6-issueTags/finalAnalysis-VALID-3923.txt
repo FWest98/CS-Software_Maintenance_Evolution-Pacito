@@ -1,0 +1,152 @@
+Pattern changes caused by commit: d24d7ce6c47637512864892c222f396dd6eaa6e7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3923.txt 
+
+commit d24d7ce6c47637512864892c222f396dd6eaa6e7
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Reject queries with missing mandatory super column and always validate super column name
+    patch by jbellis and slebresne for CASSANDRA-2571
+
+
+
+==================================
+ Issue CASSANDRA-2571 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2571] Check for null super column for SC CF in ThriftValidation (and always validate the sc key)
+-----------------
+
+-----------------
+Summary: Check for null super column for SC CF in ThriftValidation (and always validate the sc key)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 26 Apr 2011 22:53:30 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 29 Apr 2011 17:11:40 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Run the following via cli:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[default@test] use
+test;Authenticated to keyspace: test[default@test] create column family super with
+column_type=Super and
+default_validation_class=CounterColumnType;d41df8e0-7055-11e0-0000-242d50cf1fbfWaiting for
+schema agreement...... schemas agree across the cluster[default@test] incr
+super['0']['0'];Value incremented.[default@test] incr
+super['0']['0']['0'];null</pre></div></div>
+Obviously the first incr call is invalid, even
+though it reports otherwise, as well as generates this exception:
+<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>ERROR
+17:38:05,871 Fatal exception in thread
+Thread[COMMIT-LOG-WRITER,5,main]java.lang.RuntimeException: java.lang.ClassCastException:
+org.apache.cassandra.db.CounterColumn cannot be cast to
+org.apache.cassandra.db.SuperColumn        at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)        at
+java.lang.Thread.run(Thread.java:636)Caused by: java.lang.ClassCastException:
+org.apache.cassandra.db.CounterColumn cannot be cast to
+org.apache.cassandra.db.SuperColumn        at
+org.apache.cassandra.db.SuperColumnSerializer.serialize(SuperColumn.java:353)        at
+org.apache.cassandra.db.SuperColumnSerializer.serialize(SuperColumn.java:337)        at
+org.apache.cassandra.db.ColumnFamilySerializer.serializeForSSTable(ColumnFamilySerializer.java:88)
+       at
+org.apache.cassandra.db.ColumnFamilySerializer.serialize(ColumnFamilySerializer.java:74)  
+     at
+org.apache.cassandra.db.RowMutation$RowMutationSerializer.serialize(RowMutation.java:353) 
+      at org.apache.cassandra.db.RowMutation.getSerializedBuffer(RowMutation.java:236)    
+   at org.apache.cassandra.db.commitlog.CommitLogSegment.write(CommitLogSegment.java:111) 
+      at
+org.apache.cassandra.db.commitlog.CommitLog$LogRecordAdder.run(CommitLog.java:480)       
+at
+org.apache.cassandra.db.commitlog.PeriodicCommitLogExecutorService$1.runMayThrow(PeriodicCommitLogExecutorService.java:49)
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)       
+... 1 more</pre></div></div>
+But the second, proper incr call results in a bunch of
+exceptions and not a real increment.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Turns out this is not a counter related bug. We just don't check when doing a (single)
+insert (and thus a add) on a super CF that the super column is not null.Attached patch add
+a system test and fix it. It also fix another hole in ThriftValidation where the sc key
+was not validated. The patch is against 0.7 because it's not 0.8 specific.Note that in 0.8
+the cli "hides" this error for non counter column, but it is still not counter specific.
+The fact that the cluster is then "in a bad state", is because since we don't refuse the
+insert, some insert with a 'null' key is inserted in the column family map and thus messed
+up following insert (I think at least, haven't check super closely). 
+
+
+New Comment: 
+I find boolean (or other <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> flags that change method behavior subtly
+confusing.  Attached is a version that inlines the new check into insert(), which is the
+only place that wants it. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #463 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/463/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/463/</a>)<br/>    Reject
+queries with missing mandatory super column and always validate super column
+name<br/>patch by jbellis and slebresne for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2571" title="Check for null super
+column for SC CF in ThriftValidation (and always validate the sc key)" class="issue-link"
+data-issue-key="CASSANDRA-2571"><del>CASSANDRA-2571</del></a> 
+
+
+New Comment: 
+Committed 
+
+
+New Comment: 
+Integrated in Cassandra #872 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra/872/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra/872/</a>)<br/>    merge <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2571" title="Check for null super
+column for SC CF in ThriftValidation (and always validate the sc key)" class="issue-link"
+data-issue-key="CASSANDRA-2571"><del>CASSANDRA-2571</del></a> from 0.8 
+
+

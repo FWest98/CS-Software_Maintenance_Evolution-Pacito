@@ -1,0 +1,110 @@
+Pattern changes caused by commit: 0b54c99e22f53042d04df449d38ae91548df752d
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5448.txt 
+
+commit 0b54c99e22f53042d04df449d38ae91548df752d
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    report compression ratio in CFSMBean
+    patch by Vijay; reviewed by Pavel Yaskevich for CASSANDRA-3393
+
+
+
+==================================
+ Issue CASSANDRA-3393 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3393] report compression ratio in CFSMBean
+-----------------
+
+-----------------
+Summary: report compression ratio in CFSMBean
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 21 Oct 2011 02:51:50 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 10 Nov 2011 10:07:57 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+(should expose in nodetool cfstats as well)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+wasted a lot of time trying to plot the compression ratio's in cfhistogram finally trashed
+that implementation for a simple cfstat output which will be average of compression
+ratio's.In the output anything over 1.x is bad. 
+
+
+New Comment: 
+Looks just fine but needs rebase so I can test everything - 0001 patch does not apply... 
+
+
+New Comment: 
+rebased with the latest trunk. Thanks! 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Reverting temporarily until we can get <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3470" title="Add a second letter to
+Descriptor version" class="issue-link"
+data-issue-key="CASSANDRA-3470"><del>CASSANDRA-3470</del></a> in.  Bumping a "full"
+revision would break streaming within a minor release series and we don't want to do that. 
+
+
+New Comment: 
+Realized <a href="https://issues.apache.org/jira/browse/CASSANDRA-3470" title="Add a
+second letter to Descriptor version" class="issue-link"
+data-issue-key="CASSANDRA-3470"><del>CASSANDRA-3470</del></a> isn't sufficient by itself,
+added <a href="https://issues.apache.org/jira/browse/CASSANDRA-3478" title="Add support
+for sstable forwards-compatibility" class="issue-link"
+data-issue-key="CASSANDRA-3478"><del>CASSANDRA-3478</del></a>. 
+
+
+New Comment: 
+Okay, those are both committed to 1.0 branch.  Can you rebase with a new sstable version
+of "hb"? 
+
+
+New Comment: 
+Rebased... Thanks! 
+
+

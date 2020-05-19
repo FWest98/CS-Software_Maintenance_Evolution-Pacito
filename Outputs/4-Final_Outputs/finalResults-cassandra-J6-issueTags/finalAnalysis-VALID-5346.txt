@@ -1,0 +1,86 @@
+Pattern changes caused by commit: eba903a2fa6ec3484868dbf8e3d6f806485831c9
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5346.txt 
+
+commit eba903a2fa6ec3484868dbf8e3d6f806485831c9
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Avoid large array allocation for compressed chunk offsets
+    patch by Sylvain Lebresne; reviewed by Pavel Yaskevich for CASSANDRA-3432
+
+
+
+==================================
+ Issue CASSANDRA-3432 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3432] Avoid large array allocation for compressed chunk offsets
+-----------------
+
+-----------------
+Summary: Avoid large array allocation for compressed chunk offsets
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 31 Oct 2011 17:28:13 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 31 Oct 2011 19:36:03 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+For each compressed file we keep the chunk offsets in memory (a long[]). The size of this
+array is directly proportional to the sstable file and the chunk_length_kb used, but say
+for a 64GB sstable, we're talking ~8MB in memory by default.
+
+Without being absolutely
+huge, this probably makes the life of the GC harder than necessary for the same reasons
+than <a href="https://issues.apache.org/jira/browse/CASSANDRA-2466" title="bloom filters
+should avoid huge array allocations to avoid fragmentation concerns" class="issue-link"
+data-issue-key="CASSANDRA-2466"><del>CASSANDRA-2466</del></a>, and this ticket proposes
+the same solution, i.e. to break down those big array into smaller ones to ease
+fragmentation.
+
+Note that this is only a concern for size tiered compaction. But until
+leveled compaction is battle tested, the default and we know nobody uses size tiered
+anymore, it's probably worth making the optimization.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching patch to do this. I suppose in a perfect world we could reuse the added
+BigLongArray class in our OpenBitSet implementation, but I didn't bothered for now (it
+wouldn't save much). 
+
+

@@ -1,0 +1,89 @@
+Pattern changes caused by commit: 38757c4b2782bbfc837faee00199d373b645cb76
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8314.txt 
+
+commit 38757c4b2782bbfc837faee00199d373b645cb76
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Minimize byte array allocation by AbstractData{Input,Output}
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-5090
+
+
+
+==================================
+ Issue CASSANDRA-5090 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5090] Minimize byte array allocation by AbstractData{Input, Output}.
+-----------------
+
+-----------------
+Summary: Minimize byte array allocation by AbstractData{Input, Output}.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 26 Dec 2012 03:29:07 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 26 Dec 2012 03:57:34 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+read/write methods for short, char and long could do without byte array allocation
+especially as we do custom buffering or mmap for readers and writers.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Good idea!  LGTM, ship it (in 1.2 branch + trunk) 
+
+

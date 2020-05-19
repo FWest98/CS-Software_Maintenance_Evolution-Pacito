@@ -1,0 +1,139 @@
+Pattern changes caused by commit: f9d1f93f0ffb788600ee83df58850f1830d1df07
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7242.txt 
+
+commit f9d1f93f0ffb788600ee83df58850f1830d1df07
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Update #4447 to be dash-compatible.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4447
+
+
+
+==================================
+ Issue CASSANDRA-4447 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4447] enable jamm for OpenJDK >= 1.6.0.23
+-----------------
+
+-----------------
+Summary: enable jamm for OpenJDK >= 1.6.0.23
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 19 Jul 2012 06:37:27 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 30 Jul 2012 20:34:37 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+we tested jamm with OpenJDK, it works well starting at 1.6.0.23, so I suggest
+
+&#8212;
+cassandra-env.sh.dist       2012-07-19 12:24:44.938886154 +0600<br/>+++ cassandra-env.sh  
+ 2012-07-19 12:28:34.913886847 +0600<br/>@@ -119,8 +119,10 @@
+<ol>	<li>add the jamm
+javaagent<br/> check_openjdk=`"${JAVA:-java}" -version 2&gt;&amp;1 | awk '{if (NR == 2)
+{print $1}}'`<br/>-if [ "$check_openjdk" != "OpenJDK"
+]<br/>+check_openjdk_is_good_for_jamm=`"${JAVA:-java}" -version 2&gt;&amp;1 | awk -F
+"_|\"" '/1\.6\.0/ &amp;&amp; $3 &lt; 23 {print "bad" }
+'`<br/>+if [ "$check_openjdk" =
+"OpenJDK" ] &amp;&amp; [ "$check_openjdk_is_good_for_jamm" = "bad" ]<br/> then<br/>+else
+<br/>     JVM_OPTS="$JVM_OPTS -javaagent:$CASSANDRA_HOME/lib/jamm-0.2.5.jar"<br/>
+fi
+</li></ol> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+&#8212; cassandra-env.sh.dist       2012-07-19 12:24:44.938886154 +0600<br/>+++
+cassandra-env.sh    2012-07-19 12:28:34.913886847 +0600<br/>@@ -119,8 +119,10
+@@<ol>	<li>add the jamm javaagent<br/> check_openjdk=`"${JAVA:-java}" -version 2&gt;&amp;1
+| awk '{if (NR == 2) {print $1}}'`<br/>-if [ "$check_openjdk" != "OpenJDK"
+]<br/>+check_openjdk_is_good_for_jamm=`"${JAVA:-java}" -version 2&gt;&amp;1 | awk -F
+"_|\"" '/1\.6\.0/ &amp;&amp; $3 &lt; 23 {print "bad" }'`<br/>+if [ "$check_openjdk" =
+"OpenJDK" ] &amp;&amp; [ "$check_openjdk_is_good_for_jamm" = "bad" ]<br/> then<br/>+else
+<br/>     JVM_OPTS="$JVM_OPTS -javaagent:$CASSANDRA_HOME/lib/jamm-0.2.5.jar"<br/>
+fi</li></ol> 
+
+
+New Comment: 
+Can you attach this diff to the ticket? 
+
+
+New Comment: 
+Attaching a slightly different approach with cleaner logic. 
+
+
+New Comment: 
+ok, it's better 
+
+
+New Comment: 
+lgtm, +1 
+
+
+New Comment: 
+I was going to recommend something like this instead, since at least on a few of my
+machines, java -version is pretty slow, and this would be cleaner. 
+
+
+New Comment: 
+v3 rewritten to be lots more explicit and save the vendor, arch, and version numbers for
+later code to use. 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Looks like we need to make this sh-compatible. 
+
+
+New Comment: 
+v4 is dash-friendly (not completely sure if it's all the way POSIX-compatible, cause it
+looks like dash is no longer sticking to POSIX only?) 
+
+

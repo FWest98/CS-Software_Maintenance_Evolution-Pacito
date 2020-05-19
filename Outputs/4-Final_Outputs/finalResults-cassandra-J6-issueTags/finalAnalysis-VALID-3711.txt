@@ -1,0 +1,92 @@
+Pattern changes caused by commit: 2e7ecdb6819d5e6f087097680ef4f60de41c8067
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3711.txt 
+
+commit 2e7ecdb6819d5e6f087097680ef4f60de41c8067
+Author: Chris Goffinet <goffinet@apache.org>
+
+    Support a byte[] key for getNaturalEndpoints so clustertool get_endpoints does not throw exception
+    patch by goffinet; reviewed by stuhood for CASSANDRA-2437
+
+
+
+==================================
+ Issue CASSANDRA-2437 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2437] ClusterTool throws exception for get_endpoints
+-----------------
+
+-----------------
+Summary: ClusterTool throws exception for get_endpoints
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Apr 2011 19:21:19 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 7 Apr 2011 19:41:36 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Goffinet
+-----------------
+
+-----------------
+Description: 
+
+ByteBuffer is not serializable over JMX.
+
+Exception in thread "main"
+java.lang.reflect.UndeclaredThrowableException<br/>	at $Proxy0.getNaturalEndpoints(Unknown
+Source)<br/>	at
+org.apache.cassandra.tools.NodeProbe.getEndpoints(NodeProbe.java:446)<br/>	at
+org.apache.cassandra.tools.ClusterCmd.printEndpoints(ClusterCmd.java:146)<br/>	at
+org.apache.cassandra.tools.ClusterCmd.main(ClusterCmd.java:240)<br/>Caused by:
+java.io.NotSerializableException: java.nio.HeapByteBuffer<br/>	at
+java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1156)<br/>	at
+java.io.ObjectOutputStream.writeArray(ObjectOutputStream.java:1338)<br/>	at
+java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1146)<br/>	at
+java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:326)<br/>	at
+java.rmi.MarshalledObject.&lt;init&gt;(MarshalledObject.java:101)<br/>	at
+javax.management.remote.rmi.RMIConnector$RemoteMBeanServerConnection.invoke(RMIConnector.java:990)<br/>	at
+javax.management.MBeanServerInvocationHandler.invoke(MBeanServerInvocationHandler.java:288)<br/>	...
+4 more
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+

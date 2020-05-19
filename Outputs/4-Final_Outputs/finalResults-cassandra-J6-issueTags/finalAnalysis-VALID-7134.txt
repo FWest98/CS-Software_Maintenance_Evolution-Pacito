@@ -1,0 +1,121 @@
+Pattern changes caused by commit: 962b23ba0cb9c2dbb655fdd609561125b2856546
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7134.txt 
+
+commit 962b23ba0cb9c2dbb655fdd609561125b2856546
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add a token generator to standard tools.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3709
+
+
+
+==================================
+ Issue CASSANDRA-3709 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3709] Add a token generator to standard tools
+-----------------
+
+-----------------
+Summary: Add a token generator to standard tools
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 Jan 2012 18:30:25 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 12 Jul 2012 17:42:01 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+We recommend spacing nodes in a new cluster evenly around the ring; we should provide a
+tool to generate appropriate tokens for a cluster of size X.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here's the one we have in the DataStax docs.  It could stand a little improvement, e.g.
+adding a help section, being more graceful w/ non integer input.<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">#!
+/usr/bin/python<span class="code-keyword">import</span> sys<span
+class="code-keyword">if</span> (len(sys.argv) &gt; 1):    num=<span
+class="code-object">int</span>(sys.argv[1])<span class="code-keyword">else</span>:   
+num=<span class="code-object">int</span>(raw_input(<span class="code-quote">"How many
+nodes are in your cluster? "</span>))<span class="code-keyword">for</span> i in range(0,
+num):    print <span class="code-quote">'token %d: %d'</span> % (i,
+(i*(2**127)/num))</pre></div></div> 
+
+
+New Comment: 
+We should probably include multi-dc support as well, as that commonly confuses people. 
+
+
+New Comment: 
+This utility is roughly based on Joaquin's tokentoolv2.py in the Datastax AMI repository
+at <a href="https://github.com/riptano/ComboAMI/blob/4305bb1db0/tokentoolv2.py"
+class="external-link"
+rel="nofollow">https://github.com/riptano/ComboAMI/blob/4305bb1db0/tokentoolv2.py</a> . It
+allows specification of an arbitrary number of datacenters and an arbitrary number of
+nodes per each, and does a best effort to spread out same-DC nodes as much as possible,
+even when the DC sizes vary greatly.Use with no arguments for an interactive mode, and use
+<tt>--graph</tt> to send a rendering of the generated cluster to your browser. The
+<tt>&#45;-help</tt> option explains the rest.Patch attached; changes also available via
+git in the 3709 branch in my github, tagged as pending/3709:<a
+href="https://github.com/thepaul/cassandra/tree/pending/3709" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/3709</a> 
+
+
+New Comment: 
+Apparently this implementation is optimizing topography for ONTS, and not NTS. Guess it
+needs another mode of operation, at the least. 
+
+
+New Comment: 
+New version prefers to optimize for NTS, but keeps the mode for ONTS behind an option.My
+3709 branch is updated at github; new tag is pending/3709-2. 
+
+

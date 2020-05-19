@@ -1,0 +1,946 @@
+Pattern changes caused by commit: ce368f812cc494e13221a208aba20f91019716e8
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7275.txt 
+
+commit ce368f812cc494e13221a208aba20f91019716e8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix offline scrub to catch >= out of order rows
+    patch by Omid Aladini; reviewed by jbellis for CASSANDRA-4411
+
+
+
+==================================
+ Issue CASSANDRA-4411 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4411] Assertion with LCS compaction
+-----------------
+
+-----------------
+Summary: Assertion with LCS compaction
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 5 Jul 2012 04:52:18 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 16 Jul 2012 15:33:08 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+As instructed in <a href="https://issues.apache.org/jira/browse/CASSANDRA-4321"
+title="stackoverflow building interval tree &amp; possible sstable corruptions"
+class="issue-link" data-issue-key="CASSANDRA-4321"><del>CASSANDRA-4321</del></a> I have
+raised this issue as a continuation of that issue as it appears the problem still
+exists.
+
+I have repeatedly run sstablescrub across all my nodes after the 1.1.2 upgrade
+until sstablescrub shows no errors.  The exceptions described in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4321" title="stackoverflow building
+interval tree &amp; possible sstable corruptions" class="issue-link"
+data-issue-key="CASSANDRA-4321"><del>CASSANDRA-4321</del></a> do not occur as frequently
+now but the integrity check still throws exceptions on a number of nodes.  Once those
+exceptions occur compactionstats shows a large number of pending tasks with no progression
+afterwards.
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [CompactionExecutor:150] 2012-07-05
+04:26:15,570 AbstractCassandraDaemon.java (line 134) Exception in thread <span
+class="code-object">Thread</span>[CompactionExecutor:150,1,main]java.lang.AssertionError  
+     at
+org.apache.cassandra.db.compaction.LeveledManifest.promote(LeveledManifest.java:214)      
+ at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.handleNotification(LeveledCompactionStrategy.java:158)
+       at org.apache.cassandra.db.DataTracker.notifySSTablesChanged(DataTracker.java:531) 
+      at
+org.apache.cassandra.db.DataTracker.replaceCompactedSSTables(DataTracker.java:254)       
+at
+org.apache.cassandra.db.ColumnFamilyStore.replaceCompactedSSTables(ColumnFamilyStore.java:978)
+       at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:200)       
+at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)
+       at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)       
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)        at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:166)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:636)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I got the same AssertionError on a 1.1.2 version cluster which I did not upgrade from an
+earlier version. 
+
+
+New Comment: 
+Would one of your guys have the log leading to that exception? If you have it at DEBUG,
+even better. 
+
+
+New Comment: 
+I could reproduce the problem on a 3-node testcluster with 1.1.2 and LCS.<br/>Replication
+factor is 3 and number of total keys is 24m.<br/>I added SSTables from a previous backup
+to node1.<br/>Then running on node1:  nodetool repair -pr <br/>Result:  INFO <span
+class="error">&#91;CompactionExecutor:7&#93;</span> 2012-07-11 10:06:57,632
+CompactionTask.java (line 109) Compacting <span
+class="error">&#91;SSTableReader(path=&#39;/mnt/cassandra/data/highscores/highscore/highscores-highscore-hd-4937-Data.db&#39;)&#93;</span><br/>
+INFO <span class="error">&#91;CompactionExecutor:7&#93;</span> 2012-07-11 10:06:58,601
+CompactionTask.java (line 221) Compacted to <span
+class="error">&#91;/mnt/cassandra/data/highscores/highscore/highscores-highscore-hd-5591-Data.db,&#93;</span>.
+ 5,252,617 to 5,252,617 (~100% of original) bytes for 51,419 keys at 5.174882MB/s.  Time:
+968ms.<br/> INFO <span class="error">&#91;CompactionExecutor:6&#93;</span> 2012-07-11
+10:06:58,602 CompactionTask.java (line 109) Compacting <span
+class="error">&#91;SSTableReader(path=&#39;/mnt/cassandra/data/highscores/highscore/highscores-highscore-hd-5590-Data.db&#39;),
+SSTableReader(path=&#39;/mnt/cassandra/data/highscores/highscore/highscores-highscore-hd-5571-Data.db&#39;)&#93;</span><br/>ERROR
+<span class="error">&#91;CompactionExecutor:6&#93;</span> 2012-07-11 10:06:59,655
+AbstractCassandraDaemon.java (line 134) Exception in thread Thread<span
+class="error">&#91;CompactionExecutor:6,1,main&#93;</span><br/>java.lang.AssertionError<br/>	at
+org.apache.cassandra.db.compaction.LeveledManifest.promote(LeveledManifest.java:214)<br/>	at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.handleNotification(LeveledCompactionStrategy.java:158)<br/>	at
+org.apache.cassandra.db.DataTracker.notifySSTablesChanged(DataTracker.java:531)<br/>	at
+org.apache.cassandra.db.DataTracker.replaceCompactedSSTables(DataTracker.java:254)<br/>	at
+org.apache.cassandra.db.ColumnFamilyStore.replaceCompactedSSTables(ColumnFamilyStore.java:978)<br/>	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:200)<br/>	at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)<br/>	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:166)<br/>	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br/>	at
+java.lang.Thread.run(Thread.java:636)The next repair command throws the following
+assertion:ERROR <span class="error">&#91;ValidationExecutor:2&#93;</span> 2012-07-11
+10:31:28,020 AbstractCassandraDaemon.java (line 134) Exception in thread Thread<span
+class="error">&#91;ValidationExecutor:2,1,main&#93;</span><br/>java.lang.AssertionError:
+row DecoratedKey(162957119114255422766928006879345246467,
+c9e91cfb77634f32b9399dd4ad6b784e93dec9d0b11f431dad58a35e9f623de9) received out of order
+wrt DecoratedKey(165755005851296361665897424577644629314,
+ac63200da3fb452ca0b57a648b90c8a427a3d45b2d2146e089c6d04b959bb207)<br/>	at
+org.apache.cassandra.service.AntiEntropyService$Validator.add(AntiEntropyService.java:349)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.doValidationCompaction(CompactionManager.java:712)<br/>
+        ...etc...Let me know if you need more from the log.<br/>Thanks, -Rudolf. 
+
+
+New Comment: 
+Didn't have the old log, but I created a new keyspace and started using it until I hit the
+error. See attached file. 
+
+
+New Comment: 
+I could also reproduce it from the data I had:<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">DEBUG 12:47:37,353
+adding /home/omid/data/KSP/CF/KSP-CF-hd-121136 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121137 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121138 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121139 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121140 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121141 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,354 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121142 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121143 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121144 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121145 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121146 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121147 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121148 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,355 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121149 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121150 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121151 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121152 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121153 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121154 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121155 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,356 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121156 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121157 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121158 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121159 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121160 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121161 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,357 GC <span
+class="code-keyword">for</span> ParNew: 14 ms <span class="code-keyword">for</span> 1
+collections, 5438330152 used; max is 8506048512DEBUG 12:47:37,357 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121162 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121163 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121164 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121165 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121166 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121167 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121168 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,358 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121169 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121170 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121171 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121172 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121173 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121174 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 adding
+/home/omid/data/KSP/CF/KSP-CF-hd-121175 to list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,359 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121068 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,360 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121068-Data.db compactedDEBUG 12:47:37,360 All segments
+have been unmapped successfullyDEBUG 12:47:37,360 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120844 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,360 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120844-Data.db compactedDEBUG 12:47:37,360 All segments
+have been unmapped successfullyDEBUG 12:47:37,360 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121051 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,361 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121051-Data.db compactedDEBUG 12:47:37,361 All segments
+have been unmapped successfullyDEBUG 12:47:37,361 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120830 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,361 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120830-Data.db compactedDEBUG 12:47:37,361 All segments
+have been unmapped successfullyDEBUG 12:47:37,361 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121050 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,362 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121050-Data.db compactedDEBUG 12:47:37,362 All segments
+have been unmapped successfullyDEBUG 12:47:37,362 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120843 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,362 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120843-Data.db compactedDEBUG 12:47:37,362 All segments
+have been unmapped successfullyDEBUG 12:47:37,362 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120847 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,362 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120847-Data.db compactedDEBUG 12:47:37,363 Deleting
+KSP-CF-hd-121068-CompressionInfo.dbDEBUG 12:47:37,363 All segments have been unmapped
+successfullyDEBUG 12:47:37,363 Deleting KSP-CF-hd-121068-Statistics.dbDEBUG 12:47:37,363
+removing /home/omid/data/KSP/CF/KSP-CF-hd-120834 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,363 Deleting
+KSP-CF-hd-121068-Index.dbDEBUG 12:47:37,363 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120834-Data.db compactedDEBUG 12:47:37,363 Deleting
+KSP-CF-hd-121068-Filter.dbDEBUG 12:47:37,363 All segments have been unmapped
+successfullyDEBUG 12:47:37,363 Deleted /home/omid/data/KSP/CF/KSP-CF-hd-121068DEBUG
+12:47:37,364 removing /home/omid/data/KSP/CF/KSP-CF-hd-120840 from list of files tracked
+<span class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,364 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120840-Data.db compactedDEBUG 12:47:37,364 All segments
+have been unmapped successfullyDEBUG 12:47:37,364 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121047 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,364 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121047-Data.db compactedDEBUG 12:47:37,364 All segments
+have been unmapped successfullyDEBUG 12:47:37,364 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120816 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,365 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120816-Data.db compactedDEBUG 12:47:37,365 All segments
+have been unmapped successfullyDEBUG 12:47:37,365 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121133 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,365 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121133-Data.db compactedDEBUG 12:47:37,365 All segments
+have been unmapped successfullyDEBUG 12:47:37,365 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120821 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,366 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120821-Data.db compactedDEBUG 12:47:37,366 All segments
+have been unmapped successfullyDEBUG 12:47:37,366 Deleting
+KSP-CF-hd-120844-CompressionInfo.dbDEBUG 12:47:37,366 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120831 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,366 Deleting
+KSP-CF-hd-120844-Statistics.dbDEBUG 12:47:37,366 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120831-Data.db compactedDEBUG 12:47:37,366 Deleting
+KSP-CF-hd-120844-Index.dbDEBUG 12:47:37,366 All segments have been unmapped
+successfullyDEBUG 12:47:37,366 Deleting KSP-CF-hd-120844-Filter.dbDEBUG 12:47:37,367
+removing /home/omid/data/KSP/CF/KSP-CF-hd-120856 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,367 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120844DEBUG 12:47:37,367 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120856-Data.db compactedDEBUG 12:47:37,367 All segments
+have been unmapped successfullyDEBUG 12:47:37,367 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120842 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,367 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120842-Data.db compactedDEBUG 12:47:37,367 All segments
+have been unmapped successfullyDEBUG 12:47:37,368 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120849 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,368 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120849-Data.db compactedDEBUG 12:47:37,368 All segments
+have been unmapped successfullyDEBUG 12:47:37,368 Deleting
+KSP-CF-hd-121051-CompressionInfo.dbDEBUG 12:47:37,368 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120848 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,368 Deleting
+KSP-CF-hd-121051-Statistics.dbDEBUG 12:47:37,368 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120848-Data.db compactedDEBUG 12:47:37,368 Deleting
+KSP-CF-hd-121051-Index.dbDEBUG 12:47:37,369 All segments have been unmapped
+successfullyDEBUG 12:47:37,369 Deleting KSP-CF-hd-121051-Filter.dbDEBUG 12:47:37,369
+removing /home/omid/data/KSP/CF/KSP-CF-hd-120851 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,369 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121051DEBUG 12:47:37,369 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120851-Data.db compactedDEBUG 12:47:37,369 All segments
+have been unmapped successfullyDEBUG 12:47:37,369 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120855 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,369 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120855-Data.db compactedDEBUG 12:47:37,370 All segments
+have been unmapped successfullyDEBUG 12:47:37,370 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120815 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,370 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120815-Data.db compactedDEBUG 12:47:37,370 All segments
+have been unmapped successfullyDEBUG 12:47:37,370 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120836 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,370 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120836-Data.db compactedDEBUG 12:47:37,371 All segments
+have been unmapped successfullyDEBUG 12:47:37,371 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120841 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,371 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120841-Data.db compactedDEBUG 12:47:37,371 All segments
+have been unmapped successfullyDEBUG 12:47:37,371 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120814 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,371 Deleting
+KSP-CF-hd-120830-CompressionInfo.dbDEBUG 12:47:37,371 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120814-Data.db compactedDEBUG 12:47:37,371 Deleting
+KSP-CF-hd-120830-Statistics.dbDEBUG 12:47:37,372 All segments have been unmapped
+successfullyDEBUG 12:47:37,372 Deleting KSP-CF-hd-120830-Index.dbDEBUG 12:47:37,372
+removing /home/omid/data/KSP/CF/KSP-CF-hd-120819 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,372 Deleting
+KSP-CF-hd-120830-Filter.dbDEBUG 12:47:37,372 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120819-Data.db compactedDEBUG 12:47:37,372 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120830DEBUG 12:47:37,372 All segments have been unmapped
+successfullyDEBUG 12:47:37,372 removing /home/omid/data/KSP/CF/KSP-CF-hd-121048 from list
+of files tracked <span class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,372 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121048-Data.db compactedDEBUG 12:47:37,373 All segments
+have been unmapped successfullyDEBUG 12:47:37,373 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120860 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,373 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120860-Data.db compactedDEBUG 12:47:37,373 All segments
+have been unmapped successfullyDEBUG 12:47:37,373 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120818 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,373 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120818-Data.db compactedDEBUG 12:47:37,374 All segments
+have been unmapped successfullyDEBUG 12:47:37,374 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120832 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,374 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120832-Data.db compactedDEBUG 12:47:37,374 All segments
+have been unmapped successfullyDEBUG 12:47:37,374 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120846 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,374 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120846-Data.db compactedDEBUG 12:47:37,374 Deleting
+KSP-CF-hd-121050-CompressionInfo.dbDEBUG 12:47:37,374 All segments have been unmapped
+successfullyDEBUG 12:47:37,375 Deleting KSP-CF-hd-121050-Statistics.dbDEBUG 12:47:37,375
+removing /home/omid/data/KSP/CF/KSP-CF-hd-120853 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,375 Deleting
+KSP-CF-hd-121050-Index.dbDEBUG 12:47:37,375 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120853-Data.db compactedDEBUG 12:47:37,375 Deleting
+KSP-CF-hd-121050-Filter.dbDEBUG 12:47:37,375 All segments have been unmapped
+successfullyDEBUG 12:47:37,375 Deleted /home/omid/data/KSP/CF/KSP-CF-hd-121050DEBUG
+12:47:37,375 removing /home/omid/data/KSP/CF/KSP-CF-hd-120857 from list of files tracked
+<span class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,376 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120857-Data.db compactedDEBUG 12:47:37,376 All segments
+have been unmapped successfullyDEBUG 12:47:37,376 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120854 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,376 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120854-Data.db compactedDEBUG 12:47:37,376 All segments
+have been unmapped successfullyDEBUG 12:47:37,376 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120850 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,376 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120850-Data.db compactedDEBUG 12:47:37,377 All segments
+have been unmapped successfullyDEBUG 12:47:37,377 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120820 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,377 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120820-Data.db compactedDEBUG 12:47:37,377 All segments
+have been unmapped successfullyDEBUG 12:47:37,377 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-121049 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,377 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121049-Data.db compactedDEBUG 12:47:37,377 All segments
+have been unmapped successfullyDEBUG 12:47:37,378 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120817 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,378 Deleting
+KSP-CF-hd-120843-CompressionInfo.dbDEBUG 12:47:37,378 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120817-Data.db compactedDEBUG 12:47:37,378 Deleting
+KSP-CF-hd-120843-Statistics.dbDEBUG 12:47:37,378 All segments have been unmapped
+successfullyDEBUG 12:47:37,378 Deleting KSP-CF-hd-120843-Index.dbDEBUG 12:47:37,378
+removing /home/omid/data/KSP/CF/KSP-CF-hd-121123 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,378 Deleting
+KSP-CF-hd-120843-Filter.dbDEBUG 12:47:37,378 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-121123-Data.db compactedDEBUG 12:47:37,379 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120843DEBUG 12:47:37,379 All segments have been unmapped
+successfullyDEBUG 12:47:37,379 removing /home/omid/data/KSP/CF/KSP-CF-hd-120845 from list
+of files tracked <span class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,379 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120845-Data.db compactedDEBUG 12:47:37,379 All segments
+have been unmapped successfullyDEBUG 12:47:37,379 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120823 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,379 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120823-Data.db compactedDEBUG 12:47:37,380 All segments
+have been unmapped successfullyDEBUG 12:47:37,380 removing
+/home/omid/data/KSP/CF/KSP-CF-hd-120838 from list of files tracked <span
+class="code-keyword">for</span> KSP.CFDEBUG 12:47:37,380 Marking
+/home/omid/data/KSP/CF/KSP-CF-hd-120838-Data.db compactedDEBUG 12:47:37,380 All segments
+have been unmapped successfullyDEBUG 12:47:37,381 L0 contains 6413 SSTables (12319161290
+bytes) in Manifest@1395029065DEBUG 12:47:37,381 Deleting
+KSP-CF-hd-120847-CompressionInfo.dbDEBUG 12:47:37,381 L1 contains 15 SSTables (145544851
+bytes) in Manifest@1395029065DEBUG 12:47:37,381 Deleting
+KSP-CF-hd-120847-Statistics.dbDEBUG 12:47:37,381 L2 contains 108 SSTables (1045242822
+bytes) in Manifest@1395029065DEBUG 12:47:37,381 Deleting KSP-CF-hd-120847-Index.dbDEBUG
+12:47:37,381 L3 contains 212 SSTables (2066259940 bytes) in Manifest@1395029065DEBUG
+12:47:37,382 Replacing [CF-121068(L2), CF-120844(L2), CF-121051(L2), CF-120830(L2),
+CF-121050(L2), CF-120843(L2), CF-120847(L2), CF-120834(L2), CF-120840(L2), CF-121047(L2),
+CF-120816(L2), CF-121133(L2), CF-120821(L2), CF-120831(L2), CF-120856(L2), CF-120842(L2),
+CF-120849(L2), CF-120848(L2), CF-120851(L2), CF-120855(L2), CF-120815(L2), CF-120836(L2),
+CF-120841(L2), CF-120814(L2), CF-120819(L2), CF-121048(L2), CF-120860(L2), CF-120818(L2),
+CF-120832(L2), CF-120846(L2), CF-120853(L2), CF-120857(L2), CF-120854(L2), CF-120850(L2),
+CF-120820(L2), CF-121049(L2), CF-120817(L2), CF-121123(L1), CF-120845(L2), CF-120823(L2),
+CF-120838(L2), ]DEBUG 12:47:37,382 Deleting KSP-CF-hd-120847-Filter.dbDEBUG 12:47:37,382
+Adding [CF-121136(L-1), CF-121137(L-1), CF-121138(L-1), CF-121139(L-1), CF-121140(L-1),
+CF-121141(L-1), CF-121142(L-1), CF-121143(L-1), CF-121144(L-1), CF-121145(L-1),
+CF-121146(L-1), CF-121147(L-1), CF-121148(L-1), CF-121149(L-1), CF-121150(L-1),
+CF-121151(L-1), CF-121152(L-1), CF-121153(L-1), CF-121154(L-1), CF-121155(L-1),
+CF-121156(L-1), CF-121157(L-1), CF-121158(L-1), CF-121159(L-1), CF-121160(L-1),
+CF-121161(L-1), CF-121162(L-1), CF-121163(L-1), CF-121164(L-1), CF-121165(L-1),
+CF-121166(L-1), CF-121167(L-1), CF-121168(L-1), CF-121169(L-1), CF-121170(L-1),
+CF-121171(L-1), CF-121172(L-1), CF-121173(L-1), CF-121174(L-1), CF-121175(L-1), ] at
+L2DEBUG 12:47:37,382 Deleted /home/omid/data/KSP/CF/KSP-CF-hd-120847ERROR 12:47:37,383
+Exception in thread <span
+class="code-object">Thread</span>[CompactionExecutor:577,1,main]java.lang.AssertionError	at
+org.apache.cassandra.db.compaction.LeveledManifest.promote(LeveledManifest.java:214)	at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.handleNotification(LeveledCompactionStrategy.java:158)	at
+org.apache.cassandra.db.DataTracker.notifySSTablesChanged(DataTracker.java:531)	at
+org.apache.cassandra.db.DataTracker.replaceCompactedSSTables(DataTracker.java:254)	at
+org.apache.cassandra.db.ColumnFamilyStore.replaceCompactedSSTables(ColumnFamilyStore.java:978)	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:200)	at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)	at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)DEBUG 12:47:37,384 Deleting
+KSP-CF-hd-120834-CompressionInfo.dbDEBUG 12:47:37,385 Deleting
+KSP-CF-hd-120834-Statistics.dbDEBUG 12:47:37,385 Deleting KSP-CF-hd-120834-Index.dbDEBUG
+12:47:37,386 Deleting KSP-CF-hd-120834-Filter.dbDEBUG 12:47:37,386 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120834DEBUG 12:47:37,388 Deleting
+KSP-CF-hd-120840-CompressionInfo.dbDEBUG 12:47:37,388 Deleting
+KSP-CF-hd-120840-Statistics.dbDEBUG 12:47:37,388 Deleting KSP-CF-hd-120840-Index.dbDEBUG
+12:47:37,389 Deleting KSP-CF-hd-120840-Filter.dbDEBUG 12:47:37,389 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120840DEBUG 12:47:37,391 Deleting
+KSP-CF-hd-121047-CompressionInfo.dbDEBUG 12:47:37,391 Deleting
+KSP-CF-hd-121047-Statistics.dbDEBUG 12:47:37,392 Deleting KSP-CF-hd-121047-Index.dbDEBUG
+12:47:37,392 Deleting KSP-CF-hd-121047-Filter.dbDEBUG 12:47:37,392 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121047DEBUG 12:47:37,394 Deleting
+KSP-CF-hd-120816-CompressionInfo.dbDEBUG 12:47:37,395 Deleting
+KSP-CF-hd-120816-Statistics.dbDEBUG 12:47:37,395 Deleting KSP-CF-hd-120816-Index.dbDEBUG
+12:47:37,395 Deleting KSP-CF-hd-120816-Filter.dbDEBUG 12:47:37,395 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120816DEBUG 12:47:37,395 Deleting
+KSP-CF-hd-121133-CompressionInfo.dbDEBUG 12:47:37,396 Deleting
+KSP-CF-hd-121133-Statistics.dbDEBUG 12:47:37,396 Deleting KSP-CF-hd-121133-Index.dbDEBUG
+12:47:37,396 Deleting KSP-CF-hd-121133-Filter.dbDEBUG 12:47:37,396 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121133DEBUG 12:47:37,399 Deleting
+KSP-CF-hd-120821-CompressionInfo.dbDEBUG 12:47:37,399 Deleting
+KSP-CF-hd-120821-Statistics.dbDEBUG 12:47:37,399 Deleting KSP-CF-hd-120821-Index.dbDEBUG
+12:47:37,399 Deleting KSP-CF-hd-120821-Filter.dbDEBUG 12:47:37,399 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120821DEBUG 12:47:37,402 Deleting
+KSP-CF-hd-120831-CompressionInfo.dbDEBUG 12:47:37,402 Deleting
+KSP-CF-hd-120831-Statistics.dbDEBUG 12:47:37,402 Deleting KSP-CF-hd-120831-Index.dbDEBUG
+12:47:37,402 Deleting KSP-CF-hd-120831-Filter.dbDEBUG 12:47:37,402 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120831DEBUG 12:47:37,405 Deleting
+KSP-CF-hd-120856-CompressionInfo.dbDEBUG 12:47:37,405 Deleting
+KSP-CF-hd-120856-Statistics.dbDEBUG 12:47:37,405 Deleting KSP-CF-hd-120856-Index.dbDEBUG
+12:47:37,405 Deleting KSP-CF-hd-120856-Filter.dbDEBUG 12:47:37,406 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120856DEBUG 12:47:37,408 Deleting
+KSP-CF-hd-120842-CompressionInfo.dbDEBUG 12:47:37,408 Deleting
+KSP-CF-hd-120842-Statistics.dbDEBUG 12:47:37,408 Deleting KSP-CF-hd-120842-Index.dbDEBUG
+12:47:37,408 Deleting KSP-CF-hd-120842-Filter.dbDEBUG 12:47:37,409 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120842DEBUG 12:47:37,411 Deleting
+KSP-CF-hd-120849-CompressionInfo.dbDEBUG 12:47:37,411 Deleting
+KSP-CF-hd-120849-Statistics.dbDEBUG 12:47:37,411 Deleting KSP-CF-hd-120849-Index.dbDEBUG
+12:47:37,412 Deleting KSP-CF-hd-120849-Filter.dbDEBUG 12:47:37,412 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120849DEBUG 12:47:37,414 Deleting
+KSP-CF-hd-120848-CompressionInfo.dbDEBUG 12:47:37,414 Deleting
+KSP-CF-hd-120848-Statistics.dbDEBUG 12:47:37,414 Deleting KSP-CF-hd-120848-Index.dbDEBUG
+12:47:37,415 Deleting KSP-CF-hd-120848-Filter.dbDEBUG 12:47:37,415 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120848DEBUG 12:47:37,417 Deleting
+KSP-CF-hd-120851-CompressionInfo.dbDEBUG 12:47:37,417 Deleting
+KSP-CF-hd-120851-Statistics.dbDEBUG 12:47:37,418 Deleting KSP-CF-hd-120851-Index.dbDEBUG
+12:47:37,418 Deleting KSP-CF-hd-120851-Filter.dbDEBUG 12:47:37,418 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120851DEBUG 12:47:37,420 Deleting
+KSP-CF-hd-120855-CompressionInfo.dbDEBUG 12:47:37,421 Deleting
+KSP-CF-hd-120855-Statistics.dbDEBUG 12:47:37,421 Deleting KSP-CF-hd-120855-Index.dbDEBUG
+12:47:37,421 Deleting KSP-CF-hd-120855-Filter.dbDEBUG 12:47:37,421 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120855DEBUG 12:47:37,424 Deleting
+KSP-CF-hd-120815-CompressionInfo.dbDEBUG 12:47:37,424 Deleting
+KSP-CF-hd-120815-Statistics.dbDEBUG 12:47:37,424 Deleting KSP-CF-hd-120815-Index.dbDEBUG
+12:47:37,424 Deleting KSP-CF-hd-120815-Filter.dbDEBUG 12:47:37,424 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120815DEBUG 12:47:37,427 Deleting
+KSP-CF-hd-120836-CompressionInfo.dbDEBUG 12:47:37,427 Deleting
+KSP-CF-hd-120836-Statistics.dbDEBUG 12:47:37,427 Deleting KSP-CF-hd-120836-Index.dbDEBUG
+12:47:37,427 Deleting KSP-CF-hd-120836-Filter.dbDEBUG 12:47:37,427 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120836DEBUG 12:47:37,430 Deleting
+KSP-CF-hd-120841-CompressionInfo.dbDEBUG 12:47:37,430 Deleting
+KSP-CF-hd-120841-Statistics.dbDEBUG 12:47:37,430 Deleting KSP-CF-hd-120841-Index.dbDEBUG
+12:47:37,430 Deleting KSP-CF-hd-120841-Filter.dbDEBUG 12:47:37,430 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120841DEBUG 12:47:37,433 Deleting
+KSP-CF-hd-120814-CompressionInfo.dbDEBUG 12:47:37,433 Deleting
+KSP-CF-hd-120814-Statistics.dbDEBUG 12:47:37,433 Deleting KSP-CF-hd-120814-Index.dbDEBUG
+12:47:37,433 Deleting KSP-CF-hd-120814-Filter.dbDEBUG 12:47:37,433 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120814DEBUG 12:47:37,436 Deleting
+KSP-CF-hd-120819-CompressionInfo.dbDEBUG 12:47:37,436 Deleting
+KSP-CF-hd-120819-Statistics.dbDEBUG 12:47:37,436 Deleting KSP-CF-hd-120819-Index.dbDEBUG
+12:47:37,437 Deleting KSP-CF-hd-120819-Filter.dbDEBUG 12:47:37,437 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120819DEBUG 12:47:37,439 Deleting
+KSP-CF-hd-121048-CompressionInfo.dbDEBUG 12:47:37,439 Deleting
+KSP-CF-hd-121048-Statistics.dbDEBUG 12:47:37,440 Deleting KSP-CF-hd-121048-Index.dbDEBUG
+12:47:37,440 Deleting KSP-CF-hd-121048-Filter.dbDEBUG 12:47:37,440 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121048DEBUG 12:47:37,442 Deleting
+KSP-CF-hd-120860-CompressionInfo.dbDEBUG 12:47:37,442 Deleting
+KSP-CF-hd-120860-Statistics.dbDEBUG 12:47:37,443 Deleting KSP-CF-hd-120860-Index.dbDEBUG
+12:47:37,443 Deleting KSP-CF-hd-120860-Filter.dbDEBUG 12:47:37,443 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120860DEBUG 12:47:37,445 Deleting
+KSP-CF-hd-120818-CompressionInfo.dbDEBUG 12:47:37,446 Deleting
+KSP-CF-hd-120818-Statistics.dbDEBUG 12:47:37,446 Deleting KSP-CF-hd-120818-Index.dbDEBUG
+12:47:37,446 Deleting KSP-CF-hd-120818-Filter.dbDEBUG 12:47:37,446 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120818DEBUG 12:47:37,448 Deleting
+KSP-CF-hd-120832-CompressionInfo.dbDEBUG 12:47:37,449 Deleting
+KSP-CF-hd-120832-Statistics.dbDEBUG 12:47:37,449 Deleting KSP-CF-hd-120832-Index.dbDEBUG
+12:47:37,449 Deleting KSP-CF-hd-120832-Filter.dbDEBUG 12:47:37,449 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120832DEBUG 12:47:37,452 Deleting
+KSP-CF-hd-120846-CompressionInfo.dbDEBUG 12:47:37,452 Deleting
+KSP-CF-hd-120846-Statistics.dbDEBUG 12:47:37,452 Deleting KSP-CF-hd-120846-Index.dbDEBUG
+12:47:37,452 Deleting KSP-CF-hd-120846-Filter.dbDEBUG 12:47:37,452 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120846DEBUG 12:47:37,455 Deleting
+KSP-CF-hd-120853-CompressionInfo.dbDEBUG 12:47:37,455 Deleting
+KSP-CF-hd-120853-Statistics.dbDEBUG 12:47:37,455 Deleting KSP-CF-hd-120853-Index.dbDEBUG
+12:47:37,455 Deleting KSP-CF-hd-120853-Filter.dbDEBUG 12:47:37,456 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120853DEBUG 12:47:37,458 Deleting
+KSP-CF-hd-120857-CompressionInfo.dbDEBUG 12:47:37,458 Deleting
+KSP-CF-hd-120857-Statistics.dbDEBUG 12:47:37,459 Deleting KSP-CF-hd-120857-Index.dbDEBUG
+12:47:37,459 Deleting KSP-CF-hd-120857-Filter.dbDEBUG 12:47:37,459 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120857DEBUG 12:47:37,461 Deleting
+KSP-CF-hd-120854-CompressionInfo.dbDEBUG 12:47:37,462 Deleting
+KSP-CF-hd-120854-Statistics.dbDEBUG 12:47:37,462 Deleting KSP-CF-hd-120854-Index.dbDEBUG
+12:47:37,462 Deleting KSP-CF-hd-120854-Filter.dbDEBUG 12:47:37,462 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120854DEBUG 12:47:37,465 Deleting
+KSP-CF-hd-120850-CompressionInfo.dbDEBUG 12:47:37,465 Deleting
+KSP-CF-hd-120850-Statistics.dbDEBUG 12:47:37,465 Deleting KSP-CF-hd-120850-Index.dbDEBUG
+12:47:37,465 Deleting KSP-CF-hd-120850-Filter.dbDEBUG 12:47:37,465 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120850DEBUG 12:47:37,468 Deleting
+KSP-CF-hd-120820-CompressionInfo.dbDEBUG 12:47:37,468 Deleting
+KSP-CF-hd-120820-Statistics.dbDEBUG 12:47:37,468 Deleting KSP-CF-hd-120820-Index.dbDEBUG
+12:47:37,468 Deleting KSP-CF-hd-120820-Filter.dbDEBUG 12:47:37,469 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120820DEBUG 12:47:37,471 Deleting
+KSP-CF-hd-121049-CompressionInfo.dbDEBUG 12:47:37,471 Deleting
+KSP-CF-hd-121049-Statistics.dbDEBUG 12:47:37,471 Deleting KSP-CF-hd-121049-Index.dbDEBUG
+12:47:37,471 Deleting KSP-CF-hd-121049-Filter.dbDEBUG 12:47:37,472 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121049DEBUG 12:47:37,474 Deleting
+KSP-CF-hd-120817-CompressionInfo.dbDEBUG 12:47:37,474 Deleting
+KSP-CF-hd-120817-Statistics.dbDEBUG 12:47:37,474 Deleting KSP-CF-hd-120817-Index.dbDEBUG
+12:47:37,474 Deleting KSP-CF-hd-120817-Filter.dbDEBUG 12:47:37,475 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120817DEBUG 12:47:37,477 Deleting
+KSP-CF-hd-121123-CompressionInfo.dbDEBUG 12:47:37,477 Deleting
+KSP-CF-hd-121123-Statistics.dbDEBUG 12:47:37,477 Deleting KSP-CF-hd-121123-Index.dbDEBUG
+12:47:37,478 Deleting KSP-CF-hd-121123-Filter.dbDEBUG 12:47:37,478 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-121123DEBUG 12:47:37,480 Deleting
+KSP-CF-hd-120845-CompressionInfo.dbDEBUG 12:47:37,480 Deleting
+KSP-CF-hd-120845-Statistics.dbDEBUG 12:47:37,480 Deleting KSP-CF-hd-120845-Index.dbDEBUG
+12:47:37,481 Deleting KSP-CF-hd-120845-Filter.dbDEBUG 12:47:37,481 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120845DEBUG 12:47:37,483 Deleting
+KSP-CF-hd-120823-CompressionInfo.dbDEBUG 12:47:37,483 Deleting
+KSP-CF-hd-120823-Statistics.dbDEBUG 12:47:37,484 Deleting KSP-CF-hd-120823-Index.dbDEBUG
+12:47:37,484 Deleting KSP-CF-hd-120823-Filter.dbDEBUG 12:47:37,484 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120823DEBUG 12:47:37,487 Deleting
+KSP-CF-hd-120838-CompressionInfo.dbDEBUG 12:47:37,487 Deleting
+KSP-CF-hd-120838-Statistics.dbDEBUG 12:47:37,487 Deleting KSP-CF-hd-120838-Index.dbDEBUG
+12:47:37,487 Deleting KSP-CF-hd-120838-Filter.dbDEBUG 12:47:37,487 Deleted
+/home/omid/data/KSP/CF/KSP-CF-hd-120838</pre></div></div> 
+
+
+New Comment: 
+I attached the file assertion.system.log with DEBUG lines around the assertion
+ERROR.<br/>This is just an excerpt from system.log which is much larger. 
+
+
+New Comment: 
+Unfortunately the log doesn't give us much to chew on.I've actually be able to reproduce
+this once (using stress). Unfortunately, I hadn't added more debugging yet and since I
+added more debug info I haven't been able to reproduce (despite having retried from
+scratch like 3 times letting it run for multiple hours each time).So I'm attaching a
+simple patch that adds more debugging. If you guys can try applying the patch and see if
+you can reproduce. If so, the log file produced should be helpful. I'll note that it is
+preferable to <b>not</b> turn DEBUG logging with this patch as this is not useful and
+would only generate awfully large logs. 
+
+
+New Comment: 
+includes extended INFO lines from using 0001 patch 
+
+
+New Comment: 
+The file assertion.moreinfo.system.log has been attached. The assertion ERROR could be
+reproduced by doing the following:<br/>(1) Bulk load 200 SSTables from a snapshot into a
+new 3-node cluster<br/>(2) Run nodetool compact and repair<br/>(3) Add ~500 SSTables from
+the same snapshot<br/>(4) Run nodetool repairRESULT: <ul class="alternate"
+type="square">	<li>we see immediately a StackOverflowError (from the repair
+command)</li>	<li>after 2 minutes compaction starts</li>	<li>after 11 minutes there is the
+AssertionError</li></ul> 
+
+
+New Comment: 
+Attached the log (assertion-w-more-debugging-info-omid.log) with more debugging info that
+leads to AssertionError on LeveledManifest.promote. 
+
+
+New Comment: 
+Thanks a lot for the logs everyone.The problem was with the handling of sstables having
+the same first and last token. More precisely, Bounds.contains uses Range.contains(), but
+while the Range (a, a] selects the whole ring, the Bounds <span
+class="error">&#91;a,a&#93;</span> only selects a. This means sstable with the same first
+and last on level N+1 were included in compaction of any sstable of level N even when
+there wasn't any intersection.Attaching simple patch to fix. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks. 
+
+
+New Comment: 
+Alright, the patch did fix the issue but also introduce a small bug in that the
+Bounds.contains does not handle correctly the special Bounds(min, min) that should include
+everything (rather than nothing). Patch attached to fix that. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Alright, committed, thanks. 
+
+
+New Comment: 
+Awesome. Thanks for the patch. Tested it and it works.Sylvain, regarding your earlier
+comment on <a href="https://issues.apache.org/jira/browse/CASSANDRA-4321"
+title="stackoverflow building interval tree &amp; possible sstable corruptions"
+class="issue-link"
+data-issue-key="CASSANDRA-4321"><del>CASSANDRA-4321</del></a>:<blockquote> This is not
+really a new bug, but I believe that prior to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4142" title="OOM Exception during
+repair session with LeveledCompactionStrategy" class="issue-link"
+data-issue-key="CASSANDRA-4142"><del>CASSANDRA-4142</del></a>, this had less consequences.
+</blockquote>Does it mean LC-compacted SSTables created by 1.1.0 or earlier are as well
+affected and need to be scrubbed? 
+
+
+New Comment: 
+<blockquote>Does it mean LC-compacted SSTables created by 1.1.0 or earlier are as well
+affected and need to be scrubbed?</blockquote>Potentially, yes, unfortunately. 
+
+
+New Comment: 
+HiI'm running cassandra 1.1.2 + the 2 patches in this ticket applied.On one node in my
+cluster I just got the same assertion error - shortly after the node started up and a
+compaction was attempted:    ERROR <span
+class="error">&#91;CompactionExecutor:19&#93;</span> 2012-07-23 14:05:43,312
+AbstractCassandraDaemon.java (line 134) Exception in thread Thread<span
+class="error">&#91;CompactionExecutor:19,1,main&#93;</span><br/>   
+java.lang.AssertionError<br/>            at
+org.apache.cassandra.db.compaction.LeveledManifest.promote(LeveledManifest.java:214)<br/> 
+          at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.handleNotification(LeveledCompactionStrategy.java:158)<br/>
+           at
+org.apache.cassandra.db.DataTracker.notifySSTablesChanged(DataTracker.java:531)<br/>      
+     at
+org.apache.cassandra.db.DataTracker.replaceCompactedSSTables(DataTracker.java:254)<br/>   
+        at
+org.apache.cassandra.db.ColumnFamilyStore.replaceCompactedSSTables(ColumnFamilyStore.java:978)<br/>
+           at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:200)<br/>   
+        at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)<br/>
+           at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)<br/>
+           at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>
+           at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>
+           at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>     
+      at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>            at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+         at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+     at java.lang.Thread.run(Thread.java:662)Does this indicate a problem with a bad
+sstable that's fixable with scrubbing ?  Or does this ticket + patches deserve a second
+look ? 
+
+
+New Comment: 
+The former. 
+
+
+New Comment: 
+Unfortunately the problem did not go away after scrubbing.I scrubbed 2 of the problematic
+nodes.  Immediately after the scrub (5 hours) finished, a compaction was attempted and
+again failed:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [CompactionExecutor:47] 2012-07-23 19:48:52,500
+AbstractCassandraDaemon.java (line 134) Exception in thread <span
+class="code-object">Thread</span>[CompactionExecutor:47,1,main]java.lang.AssertionError   
+    at
+org.apache.cassandra.db.compaction.LeveledManifest.promote(LeveledManifest.java:214)      
+ at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.handleNotification(LeveledCompactionStrategy.java:158)
+       at org.apache.cassandra.db.DataTracker.notifySSTablesChanged(DataTracker.java:531) 
+      at
+org.apache.cassandra.db.DataTracker.replaceCompactedSSTables(DataTracker.java:254)       
+at
+org.apache.cassandra.db.ColumnFamilyStore.replaceCompactedSSTables(ColumnFamilyStore.java:978)
+       at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:200)       
+at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)
+       at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)       
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)        at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>I've verified (using ls and
+the timestamps of *-Data.db sstables) that there are no old sstables and all of the
+sstables in the CF are the ones generated during the 5 hours of scrubbing.I've also
+stopped and restarted one of these nodes, and again shortly after restart the compaction
+failed with a different stack trace:<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre
+class="code-java">java.lang.RuntimeException: Last written key
+DecoratedKey(225595347341523546110318866012608496,
+64313635626665302d333764372d313165302d393933622d303032366239333763386531) &gt;= current
+key DecoratedKey(221078382620949716286900834756484795,
+37303538643361662d616362662d343030312d313565382d633662303030303030336131) writing into
+/<span
+class="code-keyword">var</span>/lib/cassandra/data/MYKS/MYCF/MYKS-MYCF-tmp-hd-520277-Data.db
+       at
+org.apache.cassandra.io.sstable.SSTableWriter.beforeAppend(SSTableWriter.java:134)       
+at org.apache.cassandra.io.sstable.SSTableWriter.append(SSTableWriter.java:153)        at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:159)       
+at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)
+       at
+org.apache.cassandra.db.compaction.CompactionManager$1.runMayThrow(CompactionManager.java:150)
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)       
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)        at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>Is the fix for this ticket
+contained in some other code beyond the 2 posted patches (4411.txt, 4411-followup.txt) ? 
+That's what I'm running with on top of 1.1.2. 
+
+
+New Comment: 
+I can also confirm that after multiple offline sstablescrubs across all nodes that I still
+had several nodes (but not all) spread across multiple DC's still exhibiting this problem
+as described above by Mina.  In an attempt to work around the problem I shut down the
+affected instances, deleted all data and re-bootstrapped them as if they were dead nodes. 
+Since doing so I haven't had the problem return however it is still early days. 
+
+
+New Comment: 
+@Mina Did you run the offline scrub introduced with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4321" title="stackoverflow building
+interval tree &amp; possible sstable corruptions" class="issue-link"
+data-issue-key="CASSANDRA-4321"><del>CASSANDRA-4321</del></a>. Otherwise, it won't fix the
+problem. So you need to 1) shut down the node (this is important before running the
+offline scrub) and 2) run ./bin/sstablescrub. That last step should print some lines
+indicating having corrected some problems (otherwise, something is wrong with the
+scrubbing).If after that you still get an exception, it might be helpful if you could run
+with 0001-Add-debugging-info-for-LCS.txt applied. 
+
+
+New Comment: 
+I ran the scrub in online mode.I just took down a node and am now running it in offline
+mode.  Will report back.BTW, the default "sstablescrub" does not respect the memory limits
+set in cassandra.in.sh, so it failed for me with:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Exception in thread <span class="code-quote">"main"</span>
+java.lang.OutOfMemoryError: Java heap space        at
+sun.security.provider.DigestBase.engineDigest(DigestBase.java:146)        at
+java.security.MessageDigest$Delegate.engineDigest(MessageDigest.java:546)        at
+java.security.MessageDigest.digest(MessageDigest.java:323)        at
+org.apache.cassandra.utils.FBUtilities.hash(FBUtilities.java:229)        at
+org.apache.cassandra.utils.FBUtilities.hashToBigInteger(FBUtilities.java:213)        at
+org.apache.cassandra.dht.RandomPartitioner.getToken(RandomPartitioner.java:154)        at
+org.apache.cassandra.dht.RandomPartitioner.decorateKey(RandomPartitioner.java:47)       
+at org.apache.cassandra.cache.AutoSavingCache.readSaved(AutoSavingCache.java:118)       
+at org.apache.cassandra.db.ColumnFamilyStore.&lt;init&gt;(ColumnFamilyStore.java:230)     
+  at
+org.apache.cassandra.db.ColumnFamilyStore.createColumnFamilyStore(ColumnFamilyStore.java:341)
+       at
+org.apache.cassandra.db.ColumnFamilyStore.createColumnFamilyStore(ColumnFamilyStore.java:313)
+       at org.apache.cassandra.db.Table.initCf(Table.java:371)        at
+org.apache.cassandra.db.Table.&lt;init&gt;(Table.java:304)        at
+org.apache.cassandra.db.Table.open(Table.java:119)        at
+org.apache.cassandra.db.Table.openWithoutSSTables(Table.java:102)        at
+org.apache.cassandra.tools.StandaloneScrubber.main(StandaloneScrubber.java:65)</pre></div></div>I
+edited it to update the hardocded limit of 256MB to a more reasonable value (the same as
+my cassandra.in.sh) to allow it to run without crashing. 
+
+
+New Comment: 
+Things appear better after an offline scrub.  While the scrubbing itself was uneventful,
+at the very end it did "Checking leveled manifest", found 14 sstables in level 3 and level
+4 that were problematic and moved them back to level 0.I started the node back up and all
+(+/- 10) compactions ran successfully.I'll keep an eye on it and if it stays well I'll do
+the same to the other nodes.  Perhaps I'll try my luck with sstablescrub --manifest-check
+to see if I can keep the downtime to a minimum. 
+
+
+New Comment: 
+Quick follow-upAll the problematic nodes have been offline scrubbed (successfully using
+--manifest-check to speed things up).  There are no more compaction errors / pending
+compactions.Like Anton, I'm a bit weary and keeping an eye on things - but so far so
+good.On a tangent, it occurred to me that the amount of time it takes to run (
+sstablescrub --manifest-check ) is mostly reading the sstables - the check itself and
+demoting the bad sstables to L0 appears very cheap - would it be a good idea to perform
+that check automatically on cassandra startup (after the sstables have been read) ?  It
+<b>may</b> be a quick fix for 1.1.3 to help people out who have been bitten by this but
+don't know it yet. 
+
+
+New Comment: 
+@Mina were the sstables created after <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4321" title="stackoverflow building
+interval tree &amp; possible sstable corruptions" class="issue-link"
+data-issue-key="CASSANDRA-4321"><del>CASSANDRA-4321</del></a> patch? Otherwise
+offline-scrub with --manifest-check is unlikely to solve the problem (or at least I don't
+understand how) since there would still be out-of-order sstables existing. 
+
+
+New Comment: 
+I can confirm that the problem is still there. I offline-scrubbed using 1.1.3 (sstables
+were generated by 1.1.0) , but the scrubber did not report any out-of-order sstables, but
+sent some sstables back to L0. On compaction though, I get the
+exception:<blockquote>2012-08-08_18:15:41.85260 java.lang.RuntimeException: Last written
+key DecoratedKey(135076574692378869287086649376333921820, SOME_KEY_1) &gt;= current key
+DecoratedKey(135076574692378869287086649376333921820, SOME_KEY_1) writing into
+/var/lib/cassandra/abcd/data/KSP/CF1/KSP-CF1-tmp-he-178793-Data.db<br/>2012-08-08_18:15:41.85303
+	at
+org.apache.cassandra.io.sstable.SSTableWriter.beforeAppend(SSTableWriter.java:134)<br/>2012-08-08_18:15:41.85314
+	at
+org.apache.cassandra.io.sstable.SSTableWriter.append(SSTableWriter.java:153)<br/>2012-08-08_18:15:41.85326
+	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:159)<br/>2012-08-08_18:15:41.85338
+	at
+org.apache.cassandra.db.compaction.LeveledCompactionTask.execute(LeveledCompactionTask.java:50)<br/>2012-08-08_18:15:41.85351
+	at
+org.apache.cassandra.db.compaction.CompactionManager$6.runMayThrow(CompactionManager.java:288)<br/>2012-08-08_18:15:41.85364
+	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>2012-08-08_18:15:41.85375
+	at java.util.concurrent.Executors$RunnableAdapter.call(Unknown
+Source)<br/>2012-08-08_18:15:41.85385 	at
+java.util.concurrent.FutureTask$Sync.innerRun(Unknown
+Source)<br/>2012-08-08_18:15:41.85395 	at java.util.concurrent.FutureTask.run(Unknown
+Source)<br/>2012-08-08_18:15:41.85403 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown
+Source)<br/>2012-08-08_18:15:41.85414 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown
+Source)<br/>2012-08-08_18:15:41.85424 	at java.lang.Thread.run(Unknown
+Source)</blockquote> 
+
+
+New Comment: 
+Not sure, but from the fact that the two keys are identical and the "Last written
+key"-check checks for greater-or-equal, shouldn't the "&gt;" be "&gt;=" in:<a
+href="https://github.com/apache/cassandra/blob/cassandra-1.1/src/java/org/apache/cassandra/db/compaction/Scrubber.java#L178"
+class="external-link"
+rel="nofollow">https://github.com/apache/cassandra/blob/cassandra-1.1/src/java/org/apache/cassandra/db/compaction/Scrubber.java#L178</a>? 
+
+
+New Comment: 
+I think you're right.  I'll push a fix for that shortly. 
+
+
+New Comment: 
+done in 115f380a86912e5918f534db2ec2935253909fad 
+
+
+New Comment: 
+Thanks!There are two more off-by-ones. One is the Scrubber to detect out-of-order keys
+(similar to the one already patched). The other one is in manifestCheck to send
+overlapping sstables back to L0 (which has causes assertion errors in
+LeveledManifest::promote)Patch is attached. 
+
+
+New Comment: 
+committed, thanks! 
+
+

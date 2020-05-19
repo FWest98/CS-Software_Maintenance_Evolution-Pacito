@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 2bb862c320987bcc696765f4f5d8e3029db44371
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5773.txt 
+
+commit 2bb862c320987bcc696765f4f5d8e3029db44371
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add help for INSERT to cqlsh.
+    Patch by Paul Cannon, reviewed by brandonwilliams for CASSANDRA-3718.
+
+
+
+==================================
+ Issue CASSANDRA-3718 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3718] cqlsh missing help for INSERT
+-----------------
+
+-----------------
+Summary: cqlsh missing help for INSERT
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 10 Jan 2012 18:03:10 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 10 Jan 2012 20:23:07 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+this must have been overlooked.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Fixed in <a
+href="https://github.com/thepaul/cassandra/commit/25f5a63dc3f0a34266d041bcb66a0e2a5ab7c7d9"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/commit/25f5a63dc3f0a34266d041bcb66a0e2a5ab7c7d9</a>
+; patch attached here. 
+
+

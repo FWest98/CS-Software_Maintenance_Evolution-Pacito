@@ -1,0 +1,144 @@
+Pattern changes caused by commit: 170e14ab97c5bbdaa3f75d85316e290a72e38959
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6996.txt 
+
+commit 170e14ab97c5bbdaa3f75d85316e290a72e38959
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    CFMetaData.fromThrift to throw ConfigurationException upon error
+    patch by Sam Overton; reviewed by Pavel Yaskevich for CASSANDRA-4353
+
+
+
+==================================
+ Issue CASSANDRA-4353 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4353] no error propagated to client when updating a column family with an invalid column def
+-----------------
+
+-----------------
+Summary: no error propagated to client when updating a column family with an invalid column def
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 18 Jun 2012 17:31:57 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 19 Jun 2012 00:00:05 +0000
+-----------------
+
+-----------------
+Assigned to: Sam Overton
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-3761" title="CQL 3.0"
+class="issue-link" data-issue-key="CASSANDRA-3761"><del>CASSANDRA-3761</del></a> appears
+to have introduced a regression which is exposed by test_system_column_family_operations
+in test/system/test_thrift_server.py
+
+The test fails with this stack trace:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>======================================================================ERROR:
+system.test_thrift_server.TestMutations.test_system_column_family_operations----------------------------------------------------------------------Traceback
+(most recent call last):  File "/usr/lib/python2.6/site-packages/nose/case.py", line 183,
+in runTest    self.test(*self.arg)  File
+"/opt/acunu/tests/cassandra-tests.hg/thrift/system/test_thrift_server.py", line 1469, in
+test_system_column_family_operations    _expect_exception(fail_invalid_field,
+InvalidRequestException)  File
+"/opt/acunu/tests/cassandra-tests.hg/thrift/system/test_thrift_server.py", line 209, in
+_expect_exception    r = fn()  File
+"/opt/acunu/tests/cassandra-tests.hg/thrift/system/test_thrift_server.py", line 1468, in
+fail_invalid_field    client.system_update_column_family(modified_cf)  File
+"/usr/lib/python2.6/site-packages/cassandra/Cassandra.py", line 1892, in
+system_update_column_family    return self.recv_system_update_column_family()  File
+"/usr/lib/python2.6/site-packages/cassandra/Cassandra.py", line 1903, in
+recv_system_update_column_family    (fname, mtype, rseqid) =
+self._iprot.readMessageBegin()  File
+"/usr/lib64/python2.6/site-packages/thrift/protocol/TBinaryProtocol.py", line 126, in
+readMessageBegin    sz = self.readI32()  File
+"/usr/lib64/python2.6/site-packages/thrift/protocol/TBinaryProtocol.py", line 203, in
+readI32    buff = self.trans.readAll(4)  File
+"/usr/lib64/python2.6/site-packages/thrift/transport/TTransport.py", line 58, in readAll  
+ chunk = self.read(sz-have)  File
+"/usr/lib64/python2.6/site-packages/thrift/transport/TTransport.py", line 272, in read   
+self.readFrame()  File
+"/usr/lib64/python2.6/site-packages/thrift/transport/TTransport.py", line 276, in
+readFrame    buff = self.__trans.readAll(4)  File
+"/usr/lib64/python2.6/site-packages/thrift/transport/TTransport.py", line 58, in readAll  
+ chunk = self.read(sz-have)  File
+"/usr/lib64/python2.6/site-packages/thrift/transport/TSocket.py", line 108, in read   
+raise TTransportException(type=TTransportException.END_OF_FILE, message='TSocket read 0
+bytes')TTransportException: TSocket read 0
+bytes----------------------------------------------------------------------</pre></div></div>
+The
+logs have the following stack trace:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>ERROR [Thrift:1] 2012-06-18
+18:17:27,865 CustomTThreadPoolServer.java (line 204) Error occurred during processing of
+message.org.apache.cassandra.db.marshal.MarshalException: A long is exactly 8 bytes: 16   
+    at org.apache.cassandra.db.marshal.LongType.getString(LongType.java:72)        at
+org.apache.cassandra.cql3.ColumnIdentifier.&lt;init&gt;(ColumnIdentifier.java:47)       
+at org.apache.cassandra.cql3.CFDefinition.&lt;init&gt;(CFDefinition.java:115)        at
+org.apache.cassandra.config.CFMetaData.updateCfDef(CFMetaData.java:1303)        at
+org.apache.cassandra.config.CFMetaData.columnMetadata(CFMetaData.java:228)        at
+org.apache.cassandra.config.CFMetaData.fromThrift(CFMetaData.java:648)        at
+org.apache.cassandra.thrift.CassandraServer.system_update_column_family(CassandraServer.java:1061)
+       at
+org.apache.cassandra.thrift.Cassandra$Processor$system_update_column_family.getResult(Cassandra.java:3520)
+       at
+org.apache.cassandra.thrift.Cassandra$Processor$system_update_column_family.getResult(Cassandra.java:3508)
+       at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:32)        at
+org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:34)        at
+org.apache.cassandra.thrift.CustomTThreadPoolServer$WorkerProcess.run(CustomTThreadPoolServer.java:186)
+       at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110) 
+      at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)  
+     at java.lang.Thread.run(Thread.java:636)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch which re-throws MarshalException as InvalidRequestException in
+CFMetaData.fromThrift 
+
+

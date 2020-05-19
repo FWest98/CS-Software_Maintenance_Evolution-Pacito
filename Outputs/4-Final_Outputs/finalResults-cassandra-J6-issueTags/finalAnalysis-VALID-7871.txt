@@ -1,0 +1,101 @@
+Pattern changes caused by commit: a05f6766e292769fde3b7536e5586cf324a1cb17
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7871.txt 
+
+commit a05f6766e292769fde3b7536e5586cf324a1cb17
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    expunge row cache post-truncate
+    patch by jbellis; reviewed by slebresne for CASSANDRA-4940
+
+
+
+==================================
+ Issue CASSANDRA-4940 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4940] Truncate doesn't clear row cache
+-----------------
+
+-----------------
+Summary: Truncate doesn't clear row cache
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 9 Nov 2012 20:25:21 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 12 Nov 2012 14:29:48 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Truncate doesn't clear the row cache.  select * from &lt;table&gt; which skips the row
+cache returns no data, but selecting by key does.
+
+cqlsh:temp&gt; select v1..v3 from temp2
+where k in (3,2,1);<br/> v1 | v2 | v3<br/>---<del><ins></del>--<del></ins></del>---<br/>
+16 | 17 | 18<br/> 12 | 13 | 14<br/>  8 |  9 | 10
+
+cqlsh:temp&gt; truncate
+temp2;<br/>cqlsh:temp&gt; select v1..v3 from temp2 where k in (3,2,1);<br/> v1 | v2 |
+v3<br/>---<del><ins></del>--<del></ins></del>---<br/> 16 | 17 | 18<br/> 12 | 13 | 14<br/> 
+8 |  9 | 10
+
+cqlsh:temp&gt; select * from temp2;<br/>cqlsh:temp&gt; select v1..v3 from
+temp2 where k in (3,2,1);<br/> v1 | v2 |
+v3<br/>---<del><ins></del>--<del></ins></del>---<br/> 16 | 17 | 18<br/> 12 | 13 | 14<br/> 
+8 |  9 | 10
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch attached. 
+
+
+New Comment: 
++1 (I've pushed a test in dtest for this) 
+
+

@@ -1,0 +1,120 @@
+Pattern changes caused by commit: 35d8f534270f6d78e4242082174214769a88e272
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4059.txt 
+
+commit 35d8f534270f6d78e4242082174214769a88e272
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Make help and validation types match in cassandra-cli.
+    Patch by Pavel Yaskevich, revewied by Jackson Chung for CASSANDRA-2615
+
+
+
+==================================
+ Issue CASSANDRA-2615 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2615] in cassandra-cli, the help command output on validation types should be updated
+-----------------
+
+-----------------
+Summary: in cassandra-cli, the help command output on validation types should be updated
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 May 2011 20:45:17 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 12 May 2011 22:27:35 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+from cassandra-cli, say type "help assume"
+
+you will find:<br/>  Supported values
+are:
+<ul class="alternate"
+type="square">	<li>AsciiType</li>	<li>BytesType</li>	<li>CounterColumnType (distributed
+counter column)</li>	<li>IntegerType (a generic variable-length integer
+type)</li>	<li>LexicalUUIDType</li>	<li>LongType</li>	<li>UTF8Type</li></ul>
+ok
+now:<br/><span class="error">&#91;default@cfs&#93;</span> assume inode comparator as
+UTF8Type;   <br/>Type 'UTF8Type' was not found. Available: bytes, integer, long,
+lexicaluuid, timeuuid, utf8, ascii.
+
+so looks like the "supported type list should be
+update by taking away the "Type" post-fix..
+
+however, on the other hand, you can't really
+use it:
+
+<span class="error">&#91;default@cfs&#93;</span> update column family inode;     
+                   <br/>Unable to find abstract-type class
+'org.apache.cassandra.db.marshal.utf8'
+
+looks like from the update, you still need the
+"Type" (case insensitive?)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Added CounterColumnType to functions + fixed doc and assume function. 
+
+
+New Comment: 
++1<span class="error">&#91;default@testks&#93;</span> assume Super4 comparator as
+ascii<br/>...     ;<br/>Assumption for column family 'Super4' added
+successfully.<br/><span class="error">&#91;default@testks&#93;</span> update column family
+Super4;     <br/> INFO 15:20:59,545 Applying migration
+1d332bd0-7ce6-11e0-0000-fd7033aa10e7 Update column family to
+org.apache.cassandra.config.CFMetaData@6e72d873[cfId=1000,ksName=testks,cfName=Super4,cfType=Super,comparator=org.apache.cassandra.db.marshal.AsciiType,subcolumncomparator=org.apache.cassandra.db.marshal.BytesType,comment=,rowCacheSize=10000.0,keyCacheSize=200000.0,readRepairChance=1.0,replicateOnWrite=false,gcGraceSeconds=864000,defaultValidator=org.apache.cassandra.db.marshal.UTF8Type,keyValidator=org.apache.cassandra.db.marshal.BytesType,minCompactionThreshold=4,maxCompactionThreshold=32,rowCacheSavePeriodInSeconds=0,keyCacheSavePeriodInSeconds=14400,memtableFlushAfterMins=1440,memtableThroughputInMb=242,memtableOperationsInMillions=1.134375,mergeShardsChance=0.1,keyAlias=java.nio.HeapByteBuffer<span
+class="error">&#91;pos=475 lim=478 cap=480&#93;</span>,column_metadata={}]<br/> INFO
+15:20:59,546 Enqueuing flush of Memtable-Migrations@903913131(7137/8921 serialized/live
+bytes, 1 ops)<br/> INFO 15:20:59,547 Writing Memtable-Migrations@903913131(7137/8921
+serialized/live bytes, 1 ops)<br/> INFO 15:20:59,547 Enqueuing flush of
+Memtable-Schema@1257515479(2960/3700 serialized/live bytes, 3 ops)<br/> INFO 15:20:59,737
+Completed flushing /var/lib/cassandra/data/system/Migrations-g-3-Data.db (7201 bytes)<br/>
+INFO 15:20:59,739 Writing Memtable-Schema@1257515479(2960/3700 serialized/live bytes, 3
+ops)<br/> INFO 15:20:59,912 Completed flushing
+/var/lib/cassandra/data/system/Schema-g-3-Data.db (3110
+bytes)<br/>1d332bd0-7ce6-11e0-0000-fd7033aa10e7<br/>Waiting for schema
+agreement...<br/>... schemas agree across the cluster 
+
+

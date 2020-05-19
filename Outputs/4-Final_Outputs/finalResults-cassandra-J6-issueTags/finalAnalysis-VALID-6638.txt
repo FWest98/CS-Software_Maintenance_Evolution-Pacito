@@ -1,0 +1,82 @@
+Pattern changes caused by commit: cb67c98d574d941819a127bb60033fbbf34e511f
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6638.txt 
+
+commit cb67c98d574d941819a127bb60033fbbf34e511f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix stress tool that hangs forever on timeout or error
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-4128
+
+
+
+==================================
+ Issue CASSANDRA-4128 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4128] stress tool hangs forever on timeout or error
+-----------------
+
+-----------------
+Summary: stress tool hangs forever on timeout or error
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 5 Apr 2012 21:42:03 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 6 Apr 2012 20:35:02 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+The stress tool hangs forever if it encounters a timeout or exception. CTRL-C will kill
+it if run from a terminal, but when running it from a script (like a dtest) it hangs the
+script forever. It would be great for scripting it if a reasonable error code was returned
+when things go wrong.
+
+To duplicate, clear out /var/lib/cassandra and then run "stress
+--operation=READ".
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+

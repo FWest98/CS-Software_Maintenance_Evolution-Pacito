@@ -1,0 +1,74 @@
+Pattern changes caused by commit: acde48fb3db47e3c523b9e2b5fddb1517d7d9f64
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3660.txt 
+
+commit acde48fb3db47e3c523b9e2b5fddb1517d7d9f64
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    stress.java rejects arbitrary arguments.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2323
+
+
+
+==================================
+ Issue CASSANDRA-2323 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2323] stress.java should not allow arbitrary arguments
+-----------------
+
+-----------------
+Summary: stress.java should not allow arbitrary arguments
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 14 Mar 2011 17:01:32 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 30 Mar 2011 16:56:26 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+This doesn't seem like a big deal, until you accidentally insert a space between a dash
+and it's flag, and it's at the point where the line wraps in your terminal.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Committed 
+
+

@@ -1,0 +1,289 @@
+Pattern changes caused by commit: b065aac226069077d265801e18dc20a6f2b964e6
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3383.txt 
+
+commit b065aac226069077d265801e18dc20a6f2b964e6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid aquiring (and contending with flush for) flusherlock on each write
+    patch by slebresne; reviewed by jbellis and stuhood for CASSANDRA-1954
+
+
+
+==================================
+ Issue CASSANDRA-1954 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1954] Double-check or replace RRW memtable lock
+-----------------
+
+-----------------
+Summary: Double-check or replace RRW memtable lock
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 8 Jan 2011 03:34:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 11 Jun 2011 14:08:46 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+<blockquote>
+...when a Memtable reaches its threshold, up to (all) N write threads will
+often notice, and race to acquire the writeLock in order to freeze the memtable. This
+means that we do way more writeLock acquisitions than we need to...
+</blockquote>
+See <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1930" title="db.Table flusherLock
+write lock fairness policy is sub-optimal" class="issue-link"
+data-issue-key="CASSANDRA-1930"><del>CASSANDRA-1930</del></a> for backstory, but adding
+double checking inside a read lock before trying to re-entrantly acquire the writelock
+would eliminate most of these excess writelock acquisitions.
+
+Alternatively, we should
+explore removing locking from these structures entirely, and replacing the writeLock
+acquisition with a per-memtable counter of active threads.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+flusherlock is part of how we make sure we update commitlog headers post-flush in the
+correct order, it's not just to keep writes out of being-flushed memtables.  so replacing
+w/ a counter isn't as simple as it might look at first. 
+
+
+New Comment: 
+We're really not gaining all of the benefit of a RRW lock if N threads are going to
+acquire it in write mode, but suit yourself. 
+
+
+New Comment: 
+The benefit is that we can have multiple writers acquire the readlock (yes, that's
+confusing <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>, but they will all be blocked on flush
+while the writelock is acquired. 
+
+
+New Comment: 
+Apparently I was confused about what "reentrant" means, oi. Nonetheless, we can still
+perform the double checking to cut back on writeLock acquisitions. Attached. 
+
+
+New Comment: 
+if we made Memtable.isFrozen volatile, I think we wouldn't even need to acquire the
+readlock for the first check 
+
+
+New Comment: 
+Yea, that should work. 
+
+
+New Comment: 
+Also, it looks like we increment the memtableswitch count outside the writeLock, so it is
+being incremented far too many times. 
+
+
+New Comment: 
+An idea to replace this lock was proposed in IRC yesterday: if the list of memtables and
+sstables was stored in a single immutable, cas'able structure, you could atomically swap a
+memtable from active to flushing, and then from flushing into an sstable. Example
+structure:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-keyword">class </span>View {  <span
+class="code-keyword">final</span> List&lt;Memtable&gt; active;  <span
+class="code-keyword">final</span> List&lt;Memtable&gt; flushing;  <span
+class="code-keyword">final</span> List&lt;SSTableReader&gt; sstables;}</pre></div></div>So
+a writing thread noticing an active Memtable past its threshold would attempt to CAS in a
+new Memtable while moving the current memtable to flushing. A thread finishing a flush
+would attempt to CAS the memtable it flushed out of flushing and into the sstable
+list.EDIT: Bah... this doesn't actually remove the necessity of the write lock, since we
+need to ensure that writers are not looking at a memtable that has been moved to flushing.
+We'd need another solution to that problem. 
+
+
+New Comment: 
+Correct me if I am wrong but I think there is a 2 things:<ul>	<li>We need to ensure that
+we call the discard of the commmit context post-flush in the same order that we got the
+context pre-flush.</li></ul>A lock is fine, especially if we diminish contention on it
+with double-checking or with an atomic boolean. That this block all writes however seems
+unnecessary. Why lock the read-lock during write (for that purpose I mean)?  As long as we
+get the commit log context and schedule the post-flush task before changing the active
+memtable, we should be right. We may have to replay a tiny bit more, since a few write
+will go into the being flushed memtable after we got the context, but we won't lose any.On
+a related note, why I understand why we want to preserve this 'pre-flush/post-flush' order
+er column family, I'm not sure I understand why it must be global since the commit log
+header distinguishes between the different CFs ?<ul>	<li>We need to keep writes out of
+being-flushed memtables.</li></ul>For that, we can use per-memtable counters and make
+flush start by waiting on the counter to reach 0.Am I missing something obvious here ?As
+for the View structure proposed by Stu in the previous comment, this could actually be a
+quite reasonable solution for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2105" title="Fix the read race
+condition in CFStore for counters " class="issue-link"
+data-issue-key="CASSANDRA-2105"><del>CASSANDRA-2105</del></a> so I'll probably give that a
+shot too in this context. 
+
+
+New Comment: 
+Attached patch implements what's hinted in my previous comment. Mainly it keeps the
+flusher lock to unsure we discard commit log segment in the order we read them, but remove
+the readLock on writes, so flush don't block writes anymore.It passes unit test but that
+doesn't say much. 
+
+
+New Comment: 
+I like it.  I renamed Frozen in v2 to PendingFlush (since with the new design we accept
+writes to the old memtable even while maybeSwitch is running, so the old implication of
+"once it's frozen nothing new gets added" is no longer true).I do think we should move
+this to trunk though. 
+
+
+New Comment: 
+I like this.Nitpick: rather than nesting most of the body of <tt>maybeSwitchMemtable</tt>
+inside <tt>if (oldMemtable.markPendingFlush())</tt>, you could negate and return early. 
+
+
+New Comment: 
+I agree with the change of frozen to pendingFlush, as well as that this should probably go
+to trunk (given it's in a fairly critical path). 
+
+
+New Comment: 
+Attaching the v2 patch rebased against trunk. 
+
+
+New Comment: 
+Sorry, I was too slow &#8211; already needs rebase 
+
+
+New Comment: 
+Rebased (replaced 1954_trunk.patch) 
+
+
+New Comment: 
+Integrated in Cassandra #751 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra/751/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra/751/</a>)<br/>    avoid
+aquiring (and contending with flush for) flusherlock on each write<br/>patch by slebresne;
+reviewed by jbellis and stuhood for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1954" title="Double-check or replace
+RRW memtable lock" class="issue-link"
+data-issue-key="CASSANDRA-1954"><del>CASSANDRA-1954</del></a> 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+double-checked locking patch for 0.7 
+
+
+New Comment: 
++1 on the double-checkd locking patch for 0.7. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
++1 but a invalid check which was not created by this patch though... "assert memtable ==
+oldMemtable;" if it is really needed... 
+
+
+New Comment: 
+are you saying that the assert is obviously correct and hence redundant, or the assert is
+incorrect and will throw exceptions under some conditions? 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #391 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/391/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/391/</a>) 
+
+
+New Comment: 
+I think we forgot a 3rd goal of the Big Lock: make sure that when a memtable is full, all
+the flush threads are busy, and the flush queue is full, we <em>want to</em> block writes
+so we don't OOM from shoving more data into the heap before we can finish freeing what is
+being flushed.Ideas? 
+
+
+New Comment: 
+<blockquote>Ideas?</blockquote>Can't we just have some volatile boolean that we check
+before writing (and wait on some simpleCondition if the boolean is set). We could set that
+flag (and the condition) whenever we detect that we're over capacity, and release the flag
+and condition when a flush thread gets available. 
+
+
+New Comment: 
+reopening to address this.  will revert the 0.7 change. 
+
+
+New Comment: 
+Sylvain points out, "<span class="error">&#91;the 0.7 patch&#93;</span> just avoids too
+much contention on the write lock. There will still be one thread that will acquire it in
+write mode; all other writes will be blocked on the read lock."  So reverting that is not
+necessary. 
+
+
+New Comment: 
+<blockquote>Can't we just have some volatile boolean that we check before writing (and
+wait on some simpleCondition if the boolean is set). We could set that flag (and the
+condition) whenever we detect that we're over capacity, and release the flag and condition
+when a flush thread gets available</blockquote>Now we are talking about:volatile
+boolean<br/>condition variable<br/>writer atomic counter<br/>Table.lock for switchingIs
+this really simpler/better than the old approach? 
+
+
+New Comment: 
+The main advantages in my opinion is that write don't have to acquire the flush read lock
+anymore. This means that you avoid the stop-the-world behavior each time a memtable is
+switched. The idea of the volatile boolean for writes is that it will be set only if while
+scheduling a flush we detect a over capacity problem. This may not be less code that we
+had before, but I do believe this will help getting much uniform latencies for writes. 
+
+
+New Comment: 
+Reverted until we can fix this (r1087919).I also think we should measure the benefits of
+the volatile + writer count approach in smoothing latency.  If it is not reproducibly
+better let's stick with the approach that's been debugged longer. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I'm fine with leaving this until post-0.8
+fwiw. 
+
+

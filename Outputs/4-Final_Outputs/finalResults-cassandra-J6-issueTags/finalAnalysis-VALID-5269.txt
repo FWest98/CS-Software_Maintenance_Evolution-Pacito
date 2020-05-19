@@ -1,0 +1,154 @@
+Pattern changes caused by commit: cf81df7ac50068772c15ae9f302af5534f14b573
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5269.txt 
+
+commit cf81df7ac50068772c15ae9f302af5534f14b573
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    CLI `describe keyspace <ks>` to show "Row Cache Provider"
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3384
+
+
+
+==================================
+ Issue CASSANDRA-3384 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3384] it would be nice if "describe keyspace" in cli shows "Cache Provider"
+-----------------
+
+-----------------
+Summary: it would be nice if "describe keyspace" in cli shows "Cache Provider"
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 19 Oct 2011 16:55:34 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Oct 2011 19:45:06 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Describe keyspace in the cli doesn't show the cache provider it would be nice to show it
+to verify the settings.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+In the latest 0.8 branch I see "row_cache_provider" showing, can you clarify what else do
+you want to see there? 
+
+
+New Comment: 
+I too see this in 0.8. 
+
+
+New Comment: 
+I dont see it in 0.8.6 may be in the later version?<span
+class="error">&#91;default@unknown&#93;</span> use Keyspace2;<br/>Authenticated to
+keyspace: Keyspace2<br/><span class="error">&#91;default@Keyspace2&#93;</span> update
+column family Standard2 with rows_cached=1000 and
+row_cache_provider=SerializingCacheProvider;<br/>bf5faf90-fa7d-11e0-0000-90ba79db4aff<br/>Waiting
+for schema agreement...<br/><span class="error">&#91;default@Keyspace2&#93;</span>
+describe keyspace Keyspace2;                                WARNING: Could not connect to
+the JMX on 0.0.0.0:7199, information won't be shown.Keyspace: Keyspace2:<br/>  Replication
+Strategy: org.apache.cassandra.locator.NetworkTopologyStrategy<br/>  Durable Writes:
+true<br/>    Options: <span class="error">&#91;us-east:2&#93;</span><br/>  Column
+Families:<br/>    ColumnFamily: Standard2<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.BytesType<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.BytesType<br/>      Row cache size / save period in
+seconds: 1000.0/0<br/>      Key cache size / save period in seconds: 1.0/14400<br/>     
+Memtable thresholds: 3.5390625/120/128 (millions of ops/minutes/MB)<br/>      GC grace
+seconds: 864000<br/>      Compaction min/max thresholds: 4/32<br/>      Read repair
+chance: 1.0<br/>      Replicate on write: true<br/><span
+class="error">&#91;default@Keyspace2&#93;</span> 
+
+
+New Comment: 
+cassandra-0.8 branch has it. 
+
+
+New Comment: 
+Pavel, I dont see it... are you seeing it by doing "show keyspaces/describe keyspace
+&lt;name&gt;"? i dont see in 1.0 or the latest 0.8 build.<span
+class="error">&#91;default@vj&#93;</span> update column family Standard1 with
+rows_cached=1000 and
+row_cache_provider=SerializingCacheProvider;<br/>7ed92090-fa88-11e0-0000-242d50cf1ffe<br/>Waiting
+for schema agreement...<br/>... schemas agree across the cluster<br/><span
+class="error">&#91;default@vj&#93;</span> describe keyspace vj;<br/>Keyspace: vj:<br/> 
+Replication Strategy: org.apache.cassandra.locator.NetworkTopologyStrategy<br/>  Durable
+Writes: true<br/>    Options: <span class="error">&#91;datacenter1:1&#93;</span><br/> 
+Column Families:<br/>    ColumnFamily: Standard1<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.BytesType<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.BytesType<br/>      Row cache size / save period in
+seconds: 1000.0/0<br/>      Key cache size / save period in seconds: 200000.0/14400<br/>  
+   Memtable thresholds: 0.29062499999999997/1440/62 (millions of ops/minutes/MB)<br/>     
+GC grace seconds: 864000<br/>      Compaction min/max thresholds: 4/32<br/>      Read
+repair chance: 1.0<br/>      Replicate on write: true<br/>      Built indexes:
+[]<br/><span class="error">&#91;default@vj&#93;</span> 
+
+
+New Comment: 
+Take a look at the title, it states that command is "show schema;" and open
+CliClient.java:1673 under cassandra-0.8, let me check if "describe keyspace" shows it. 
+
+
+New Comment: 
+Here is one-line patch to show it in "describe keyspace &lt;keyspace&gt;;" and "show
+keyspaces" 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Sorry for the confusion... Thanks +1 
+
+

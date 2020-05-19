@@ -1,0 +1,82 @@
+Pattern changes caused by commit: bddfa9e120bdafc204bde97bb51de1f86bf9695b
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8187.txt 
+
+commit bddfa9e120bdafc204bde97bb51de1f86bf9695b
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Update IAuthenticator to match the new IAuthorizer;
+    patch by Aleksey Yeschenko, reviewed by Jonathan Ellis for CASSANDRA-5003
+
+
+
+==================================
+ Issue CASSANDRA-5003 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5003] Update IAuthenticator to allow dynamic user creation and removal
+-----------------
+
+-----------------
+Summary: Update IAuthenticator to allow dynamic user creation and removal
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 29 Nov 2012 20:22:41 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 8 Dec 2012 15:44:06 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+<ul class="alternate" type="square">	<li>add new methods to IAuthenticator (createUser,
+alterUser, dropUser)</li>	<li>add CREATE USER, ALTER USER, DROP USER and LIST USERS CQL3
+statements</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Ship it! 
+
+

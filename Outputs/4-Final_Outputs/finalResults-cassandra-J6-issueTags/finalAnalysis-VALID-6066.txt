@@ -1,0 +1,108 @@
+Pattern changes caused by commit: cd36f9757150db6a369d70f633971dadd571509a
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6066.txt 
+
+commit cd36f9757150db6a369d70f633971dadd571509a
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: handle deserialization errors.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3874
+
+
+
+==================================
+ Issue CASSANDRA-3874 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3874] cqlsh: handle situation where data can't be deserialized as expected
+-----------------
+
+-----------------
+Summary: cqlsh: handle situation where data can't be deserialized as expected
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 8 Feb 2012 00:36:01 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 16 Feb 2012 15:43:05 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+When cqlsh tries to deserialize data which doesn't match the expected type (either
+because the validation type for the column/key alias was changed, or ASSUME has been
+used), it just fails completely and in most cases won't show any results at all. When
+there is only one misbehaving value out of a large number, this can be frustrating.
+
+cqlsh
+should either show some failure marker in place of the bad value, or simply show the bytes
+along with some indicator of a failed deserialization.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Changes made in my 3874-1.0 branch at github: <a
+href="https://github.com/thepaul/cassandra/tree/3874-1.0" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/3874-1.0</a>Since the merge
+forward is not completely trivial, my 3874-1.1 branch has those commits already merged to
+1.1: <a href="https://github.com/thepaul/cassandra/tree/3874-1.1" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/3874-1.1</a> , and it will be an
+easy merge from that to your updated cassandra-1.1, whatever it is.I'll attach patch
+versions too, in case you still prefer those. 
+
+
+New Comment: 
+Is this a big enough change that we should keep it to 1.1 only? 
+
+
+New Comment: 
+I think it's worth having in 1.0, especially if it's going to live for a few more
+releases. It's technically only a bugfix. But I don't mind much, whichever. 
+
+
+New Comment: 
+updated the 3874-1.1 branch just now to add the 1.0.9 version of the python-cql library,
+since that is required for this fix to work. 1.0 doesn't have an embedded python-cql lib,
+so it's fine. 
+
+

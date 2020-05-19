@@ -1,0 +1,147 @@
+Pattern changes caused by commit: 6139767e9095fecabf38cade374a3817f9858be8
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4665.txt 
+
+commit 6139767e9095fecabf38cade374a3817f9858be8
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Validate that column names in column_metadata does not equal to key_alias on create/update of the ColumnFamily and CQL 'ALTER' statement.
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3036
+
+
+
+==================================
+ Issue CASSANDRA-3036 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3036] Vague primary key references in CQL
+-----------------
+
+-----------------
+Summary: Vague primary key references in CQL
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 14 Aug 2011 19:24:31 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 17 Aug 2011 22:18:34 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+create columnfamily wonk (id 'utf8' primary key, id int)<br/>update wonk set id=1 where
+id='test'<br/>create index wonk_id on wonk (id)
+
+This does what you would expect but then
+the results are unclear when using 'id' in a where clause.
+
+"select * from wonk where
+id=1" returns nothing and "select * from wonk where id='test'" works fine.
+
+Perhaps
+secondary indexes should not be allowed on columns that have the same name as the
+key_alias? At least a warning or something should be thrown to indicate you've just made a
+useless index.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+We should validate that column_metadata does not get created with the key_alias, or column
+insertions where the column name is the key_alias.  (For both CQL and "old" paths.) 
+
+
+New Comment: 
+That is impossible to validate when comparator is not AsciiType because we force key_alias
+to be ascii 
+
+
+New Comment: 
+Well, there's two ways we can compare them anyway:<ul class="alternate"
+type="square">	<li>compare the native bytes</li>	<li>compare the human-readable
+strings</li></ul>I think I'd prefer #1, because 99.9% of the time these are going to give
+the same answer for names/aliases that do not conflict, and String creation is relatively
+expensive so I'd rather not do that. 
+
+
+New Comment: 
+Sorry this is my bad because it thought that AsciiType.decompose and UTF8Type.decompose
+won't produce the same bytes, tested now. So yes, we can just check for default/column
+comparator and if it is Ascii/UTF8/Bytes we can just compare native bytes. 
+
+
+New Comment: 
+My point is we can <b>always</b> just compare native bytes. 
+
+
+New Comment: 
+ok 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>let's name the ColumnDef variable in
+validateCfDef something other than "column" (which usually means an IColumn or
+similar)</li>	<li>when we throw an invalid column name error, we should use the CF's
+comparator rather than AsciiType (which will error out on many binary column
+names)</li>	<li>CCFS calls getByteBuffer which catches MarshallException and turns it into
+IRE.  Suggest doing the validation ones from CCFS.validate, that way we don't have to do
+it again in CCFS.getColumns.  (Can just call AbstractType.fromString directly)</li>	<li>go
+ahead and commit the println removal separately <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/></li></ul> 
+
+
+New Comment: 
+<blockquote>let's name the ColumnDef variable in validateCfDef something other than
+"column" (which usually means an IColumn or similar)</blockquote>Renamed to
+columnDef<blockquote>when we throw an invalid column name error, we should use the CF's
+comparator rather than AsciiType (which will error out on many binary column
+names)</blockquote>I use cf.key_alias in there which we force to be AsciiType so it should
+be fine<blockquote>CCFS calls getByteBuffer which catches MarshallException and turns it
+into IRE. Suggest doing the validation ones from CCFS.validate, that way we don't have to
+do it again in CCFS.getColumns. (Can just call AbstractType.fromString
+directly)</blockquote>changed CCFS.getColumns to use comparator.fromString and changed
+validate method as you mentioned. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

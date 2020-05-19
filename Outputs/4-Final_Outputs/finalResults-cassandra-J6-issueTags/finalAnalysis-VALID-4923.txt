@@ -1,0 +1,88 @@
+Pattern changes caused by commit: 71ebcafb49033dc895db971ddf7b702bed55a8cd
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4923.txt 
+
+commit 71ebcafb49033dc895db971ddf7b702bed55a8cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix divide by zero error in GCInspector
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3164
+
+
+
+==================================
+ Issue CASSANDRA-3164 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3164] GCInspector still not avoiding divide by zero
+-----------------
+
+-----------------
+Summary: GCInspector still not avoiding divide by zero
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 8 Sep 2011 20:59:38 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 13 Sep 2011 20:17:46 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+This is because Long objects need to be compared with .equals, not ==.
+
+<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3076" title="AssertionError in new
+GCInspector log" class="issue-link"
+data-issue-key="CASSANDRA-3076"><del>CASSANDRA-3076</del></a> is the original issue but we
+should use a new ticket for this since 0.7.9 and 0.8.5 are both released already.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+curse you autoboxing! 
+
+
+New Comment: 
+obvious patch is obvious 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

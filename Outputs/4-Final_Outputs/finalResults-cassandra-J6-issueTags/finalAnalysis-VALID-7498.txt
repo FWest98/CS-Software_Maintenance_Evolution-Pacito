@@ -1,0 +1,194 @@
+Pattern changes caused by commit: 117d91ae2f13b5f6e602c754820973a5ce47d888
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7498.txt 
+
+commit 117d91ae2f13b5f6e602c754820973a5ce47d888
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    rename permission USE to DESCRIBE
+    patch by Pavel Yaskevich; reviewed by Yuki Morishita for CASSANDRA-4664
+
+
+
+==================================
+ Issue CASSANDRA-4664 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4664] Rename permission USE to DESCRIBE.
+-----------------
+
+-----------------
+Summary: Rename permission USE to DESCRIBE.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 13 Sep 2012 16:11:42 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 19 Oct 2012 02:50:24 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+We should change USE permission to DESCRIBE as it better reflects it's meaning.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra #2135 (See <a href="https://builds.apache.org/job/Cassandra/2135/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/2135/</a>)<br/>    1.2 specific
+changes related to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4664"
+title="Rename permission USE to DESCRIBE." class="issue-link"
+data-issue-key="CASSANDRA-4664"><del>CASSANDRA-4664</del></a> (Revision
+ebae28ec27e14083026cc9006381a0fe3e7c703f)<br/>grant internal components ability to modify
+system keyspace, related to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4664"
+title="Rename permission USE to DESCRIBE." class="issue-link"
+data-issue-key="CASSANDRA-4664"><del>CASSANDRA-4664</del></a>. (Revision
+98eb543a9829c1e857612edc6376a192f7ce4cff)     Result = ABORTED<br/>xedin : <br/>Files :
+<ul>	<li>src/java/org/apache/cassandra/thrift/CassandraServer.java</li>	<li>src/java/org/apache/cassandra/cql/QueryProcessor.java</li></ul>xedin
+: <br/>Files :
+<ul>	<li>src/java/org/apache/cassandra/cql3/QueryProcessor.java</li>	<li>src/java/org/apache/cassandra/service/ClientState.java</li></ul> 
+
+
+New Comment: 
+Prior to this commit connecting clients were not allowed to modify <tt>system</tt>
+keyspace schema, after this change, writes of any kind are disallowed.  Was this
+intentional?This breaks the design of <tt>shuffle</tt> (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4443" title="shuffle utility for
+vnodes" class="issue-link" data-issue-key="CASSANDRA-4443"><del>CASSANDRA-4443</del></a>). 
+
+
+New Comment: 
+I would like to preserve ability for clients to write to <tt>system</tt> in general. 
+Better than messing about with sstable2json when you need to change things manually. 
+
+
+New Comment: 
+ok sure, I will add posibility to update/delete and truncate. 
+
+
+New Comment: 
+<blockquote>I would like to preserve ability for clients to write to system in
+general</blockquote>Not sure I follow, did we ever allow that? Cause messing with the
+system tables feels like a very good way to shoot oneself in the foot. 
+
+
+New Comment: 
+I agree with Sylvain on this because it was actually a bug which allowed system keyspace
+to be modified which I fixed in this issue, if you want to modify system keyspace it could
+be done using CQL3's processInternal call on server-side, as Brandon suggested shuffle
+could be moved to use JMX+processInternal for insertes and CQL for retrieval. 
+
+
+New Comment: 
+I'm pretty sure we've never disallowed system keyspace writes intentionally.  The
+alternative, when you need to do something manually, is sstable2json or otherwise manually
+messing with sstable files.  I'd much rather advise someone to TRUNCATE system.hints, than
+to get his hands dirty with the filesystem, to pick a non-hypothetical example. 
+
+
+New Comment: 
+patch allows to make modifications to system keyspace's data but not to it's schema. 
+
+
+New Comment: 
+<blockquote>I'm pretty sure we've never disallowed system keyspace writes
+intentionally</blockquote>I don't know who exactly added that code but I would have opened
+a bug report if it wasn't there. I really think allowing write in the system table in
+general is really really bad idea. You can very easily mess us your node in subtle way.
+And I couldn't swear there isn't ways to mess up a good part of your cluster by writing
+something you should in the schema tables or in some value propagated by gossip.This is
+not saying no user interaction should ever translate to a write in the system table, and
+I'm all for adding a jmx call to truncate hints (doesn't that exist already?), but
+unrestricted writes feels like way to much power to give by default. 
+
+
+New Comment: 
+Unlike some tools, I think users intuitively get that "writing stuff to system keyspace
+when I don't know what I'm doing is very dangerous."  We've allowed that in every major
+release and I don't remember a single instance of someone blowing his leg off. 
+
+
+New Comment: 
+<blockquote>We've allowed that in every major release</blockquote>I though we weren't
+allowing it but that's my bad, the only thing we forbid is to modify the system schema. I
+still don't think it's wise per se (and I think the fact that CQL3 exposes the system
+table in a human readable way will make it more tempting/easy for some to try to be smart
+though I may well be wrong) but I do lift my objections. 
+
+
+New Comment: 
+This patch doesn't work, I believe  you need to remove the
+<tt>preventSystemKSModification()</tt> call from <tt>hasColumnFamilyAccess()</tt>.<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>@@ -228,9 +228,6 @@ public class ClientState         resourceClear();  
+      resource.add(keyspace); -        if (!internalCall)-           
+preventSystemKSModification(keyspace, perm);-         // check if keyspace access is set
+to Permission.FULL_ACCESS         // (which means that user has all access on keyspace and
+it's underlying elements)         if (DatabaseDescriptor.getAuthority().authorize(user,
+resource).contains(Permission.FULL_ACCESS))</pre></div></div> 
+
+
+New Comment: 
+Scratch my last.  When I applied that patch, 2/3 hunks failed, and I think I must have
+made some mistake in rebasing the changes.  I've rerebased it (updated patch attached),
+and it seems fine.Pavel: If I don't hear anything from you in the next day or so, I'll go
+ahead and commit this so that <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4443" title="shuffle utility for
+vnodes" class="issue-link" data-issue-key="CASSANDRA-4443"><del>CASSANDRA-4443</del></a>
+can move forward. 
+
+
+New Comment: 
++1 from me if we have settled on the point that we want to allow users to make
+modifications to the system keyspace's data. 
+
+

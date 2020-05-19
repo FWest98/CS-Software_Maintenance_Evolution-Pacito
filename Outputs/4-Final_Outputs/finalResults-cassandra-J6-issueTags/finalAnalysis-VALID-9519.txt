@@ -1,0 +1,910 @@
+Pattern changes caused by commit: 56e0ad1be2c3d7a2eb56b361e021668b8f22c095
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9519.txt 
+
+commit 56e0ad1be2c3d7a2eb56b361e021668b8f22c095
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Add CQL3 input/output formats
+    patch by Alex Liu; reviewed by jbellis and Mike Schrag for CASSANDRA-4421
+
+
+
+==================================
+ Issue CASSANDRA-4421 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4421] Support cql3 table definitions in Hadoop InputFormat
+-----------------
+
+-----------------
+Summary: Support cql3 table definitions in Hadoop InputFormat
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 Jul 2012 13:50:20 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 26 Jun 2013 15:02:22 +0000
+-----------------
+
+-----------------
+Assigned to: Alex Liu
+-----------------
+
+-----------------
+Description: 
+
+Hello,
+
+i faced a bug while writing composite column values and following validation on
+server side.
+
+This is the setup for reproduction:
+
+1. create a keyspace
+
+create keyspace
+test with strategy_class = 'SimpleStrategy' and strategy_options:replication_factor =
+1;
+
+2. create a cf via cql (3.0)
+
+create table test1 (<br/>    a int,<br/>    b int,<br/> 
+  c int,<br/>    primary key (a, b)<br/>);
+
+If i have a look at the schema in cli i
+noticed that there is no column metadata for columns not part of primary key.
+
+create
+column family test1<br/>  with column_type = 'Standard'<br/>  and comparator =
+'CompositeType(org.apache.cassandra.db.marshal.Int32Type,org.apache.cassandra.db.marshal.UTF8Type)'<br/>
+ and default_validation_class = 'UTF8Type'<br/>  and key_validation_class =
+'Int32Type'<br/>  and read_repair_chance = 0.1<br/>  and dclocal_read_repair_chance =
+0.0<br/>  and gc_grace = 864000<br/>  and min_compaction_threshold = 4<br/>  and
+max_compaction_threshold = 32<br/>  and replicate_on_write = true<br/>  and
+compaction_strategy =
+'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'<br/>  and caching =
+'KEYS_ONLY'<br/>  and compression_options = 
+{'sstable_compression' :
+'org.apache.cassandra.io.compress.SnappyCompressor'}
+;
+
+Please notice the default
+validation class: UTF8Type
+
+Now i would like to insert value &gt; 127 via cassandra client
+(no cql, part of mr-jobs). Have a look at the attachement.
+
+Batch mutate
+fails:
+
+InvalidRequestException(why:(String didn't validate.) <span
+class="error">&#91;test&#93;</span><span class="error">&#91;test1&#93;</span><span
+class="error">&#91;1:c&#93;</span> failed validation)
+
+A validator for column value is
+fetched in ThriftValidation::validateColumnData which returns always the default validator
+which is UTF8Type as described above (The ColumnDefinition for given column name "c" is
+always null)
+
+In UTF8Type there is a check for
+
+if (b &gt; 127)<br/>   return
+false;
+
+Anyway, maybe i'm doing something wrong, but i used cql 3.0 for table creation. I
+assigned data types to all columns, but i can not set values for a composite column
+because the default validation class is used.
+
+I think the schema should know the correct
+validator even for composite columns. The usage of the default validation class does not
+make sense.
+
+Best Regards 
+
+Bert Passek
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+You need to use cqlsh to interact with cql3 table definitions. 
+
+
+New Comment: 
+Oh, i got it, so it means we can not use MR-Jobs using ColumnFamilyOutputFormat or
+BulkOutputFormat? 
+
+
+New Comment: 
+I should say: you need to use cqlsh, or cql from the client (see comments on <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4377" title="CQL3 column value
+validation bug" class="issue-link"
+data-issue-key="CASSANDRA-4377"><del>CASSANDRA-4377</del></a>). 
+
+
+New Comment: 
+You can still create appropriate composites from m/r, but the schema design doesn't fit in
+the structures thrift knows about.  So just create a (int, 'c') composite value and an int
+column name and you'll be fine.  The cli can't display this metadata because it only knows
+how to deal with named non-composite columns. 
+
+
+New Comment: 
+Turns out that's not true yet.  Sylvain says:<blockquote>Crrently you do have a problem
+inserting data from thrift to a CQL3 cf, even if you know what to insert exactly. The
+reason is that ThriftValidation would need to be updated to use CQL3 metdata.</blockquote> 
+
+
+New Comment: 
+Ah, well the issue was already closed so i didn't care the attachement. But you are right,
+i had problems inserting data from thrift (via client.batch_mutate) to a cql3 cf. I just
+mentioned in the debugger, that ThriftValidation doesn't know about metadata, so default
+validator is always used which results in rejecting data on server side.Sometimes it can
+be confusing when talking about cql 2, 3, cli,thrift etc. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Thanks. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-3647" title="Support collection
+(list, set, and map) value types in CQL" class="issue-link"
+data-issue-key="CASSANDRA-3647"><del>CASSANDRA-3647</del></a> makes map/reduce from Thrift
+more painful as well.We can either<ul class="alternate" type="square">	<li>Add a
+CqlInputFormat, which is painful (see <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2878?focusedCommentId=13189138&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13189138"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-2878?focusedCommentId=13189138&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13189138</a>)</li>	<li>Add
+collections support to Thrift via String serialization (which has the added benefit of
+allowing clients to support collections w/o doing a full rewrite to cql3)</li></ul> 
+
+
+New Comment: 
+<blockquote>Add collections support to Thrift via String serialization</blockquote>I'm not
+really sure what you have in mind but I'm not sure I'm a fan of that idea. Supporting
+collections on write is one thing, supporting in on reads is another. Do we really want to
+add a new pass over the resulting columns in thrift to group those belonging to the same
+collection? That sound very messy.<blockquote>Add a CqlInputFormat</blockquote>While this
+might be painful, I have a strong feeling that long term this is probably the right
+solution (one reason being if we ever want to support <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2478" title="Custom CQL
+protocol/transport" class="issue-link"
+data-issue-key="CASSANDRA-2478"><del>CASSANDRA-2478</del></a> for the input format). On
+the painful part of this:<ul>	<li>on the short term, can't we use the CQL processor client
+side to convert the select statement to a thrift query (since we know how to do this for
+thrift queries)?</li>	<li>on the slightly longer term, we will need general paging for CQL
+queries for <a href="https://issues.apache.org/jira/browse/CASSANDRA-4415" title="Add
+cursor API/auto paging to the native CQL protocol" class="issue-link"
+data-issue-key="CASSANDRA-4415"><del>CASSANDRA-4415</del></a>. Once that's in, that should
+lift the main difficulty, shouldn't it?</li></ul>But for this specific issue, I suppose
+the patch I've attached to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4377"
+title="CQL3 column value validation bug" class="issue-link"
+data-issue-key="CASSANDRA-4377"><del>CASSANDRA-4377</del></a> should solve Bert's problem. 
+
+
+New Comment: 
+<blockquote>on the short term, can't we use the CQL processor client side to convert the
+select statement to a thrift query (since we know how to do this for thrift
+queries)?</blockquote>Well, we know how to convert select to StorageProxy queries, which
+isn't quite the same thing.  So we'd probably need to shove an abstraction layer in there,
+which is already some pretty thick code.<blockquote>on the slightly longer term, we will
+need general paging for CQL queries for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4415" title="Add cursor API/auto
+paging to the native CQL protocol" class="issue-link"
+data-issue-key="CASSANDRA-4415"><del>CASSANDRA-4415</del></a>. Once that's in, that should
+lift the main difficulty, shouldn't it?</blockquote>Yes, I think it would. 
+
+
+New Comment: 
+Unassigned myself for now because I'm really not an expert of the InputFormat. So if
+someone else want to pick it up, feel free to do it. 
+
+
+New Comment: 
+Is this ticket really planned for 1.2.5? 
+
+
+New Comment: 
+I have done some work on it. The pull is @<a
+href="https://github.com/riptano/cassandra/pull/45" class="external-link"
+rel="nofollow">https://github.com/riptano/cassandra/pull/45</a> 
+
+
+New Comment: 
+Can you explain the approach you took?  In particular, how do you handle paging? 
+
+
+New Comment: 
+There are no auto paging for CQL3, so I use a work around method to page through CQL wide
+rows. Basic idea is to use CQL3 query on the partition key and cluster columns<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">e.g. PRIMARY(m, n , o, p) where partition key is m, cluster columns are
+n, o, p</pre></div></div>for Query<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">Select * from test limit
+1000;</pre></div></div>We store the last values of m, n, o, p to m_end, n_end, O_end and
+p_end after the initial 1000 rowsso the next page query is <div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Select * from test where token(m) = token (m_end)       and n = n_end   
+  and o = o_end      and p &gt; p_endLimit 1000</pre></div></div>If it reach the end of O,
+then the next query is the following query<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">Select * from test
+where token(m) = toekn(m_end)       and n = n_end      and o &gt; o_endLimit
+1000</pre></div></div>otherwise<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">Select * from test where token(m)
+= token (m_end)       and n = n_end      and o = o_end      and p &gt; p_end1Limit
+1000</pre></div></div>until it reach to the next row, the query is<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Select * from test where token(m) &gt; token(m_end) Limit
+1000</pre></div></div>For the table has more than one columns in partition key<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">PRIMARY((m, n) , o, p) where partition key is m and n, cluster columns
+are o, p</pre></div></div>we use the following query<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Select * from test where token(m, n) &gt; token(m_end, n_end) Limit
+1000</pre></div></div> 
+
+
+New Comment: 
+User needs to pass the following settings to the job.<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">1.
+Keyspace and Columnfamily name2. intial host, port and Partitioner2. Column names that
+need to be retrieved (optional), <span class="code-keyword">default</span> are all the
+columns3. the number of CQL rows per page (optional), <span
+class="code-keyword">default</span> is 10004. User defined the where clauses on indexed
+columns (optional)</pre></div></div>The input format is of List&lt;IColumn&gt;,
+Map&lt;ByteBuffer, IColumn&gt;<br/>where List&lt;IColumn&gt; is the keys columns including
+partition keys and clustering keys<br/>Map&lt;ByteBuffer, IColumn&gt; is the map of CQL
+query output column name and columnInternally, we use the following CQL query<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">  SELECT &lt;columns&gt;   FROM   &lt;Column_family_name&gt;   WHERE 
+&lt;where_clause&gt;    AND  &lt;user_defined_WhereClauses_on_indexed_column&gt;   LIMIT 
+&lt;page_row_size&gt;  ALLOW  FILTERING&lt;where_clause&gt; could be any of the following
+format WHERE token(&lt;partition_key&gt;) &gt;= &lt;start_token&gt;    AND
+token(&lt;partition_key&gt;) &lt;= &lt;end_token&gt;or WHERE token(&lt;partition_key&gt;)
+&gt; token(&lt;partition_key_value&gt;)    AND token(&lt;partition_key&gt;) &lt;=
+&lt;end_token&gt;or WHERE token(&lt;partition_key&gt;) =
+token(&lt;partition_key_value&gt;)    AND &lt;clustering_key1&gt; = &lt;key_value1&gt;  
+AND &lt;clustering_key2&gt; &gt; &lt;key_value2&gt;   AND token(&lt;partition_key&gt;)
+&lt;= &lt;end_token&gt;or WHERE token(&lt;partition_key&gt;) =
+token(&lt;partition_key_value&gt;)    AND &lt;clustering_key1&gt; = &lt;key_value1&gt;  
+AND &lt;clustering_key2&gt; = &lt;key_value2&gt;   AND &lt;clustering_key3&gt; &gt;
+&lt;key_value3&gt;   AND token(&lt;partition_key&gt;) &lt;= &lt;end_token&gt;
+</pre></div></div> 
+
+
+New Comment: 
+If we could get the auto paging through native protocol for CQL3, then we can easily
+implement the CQL record reader. Before auto paging is available, we can use this record
+reader to go through the paging. 
+
+
+New Comment: 
+Can we consider this code as functional but not efficient ? 
+
+
+New Comment: 
+Elaborate? 
+
+
+New Comment: 
+I'm talking about the patches provided by Alex Liu. If it works (not tested and it's part
+of the question) can we use it until it's more efficient with the use of native paging ?
+Do I make a bad supposition about the lack of performance of this paging strategy ? 
+
+
+New Comment: 
+It does a few extra CQL requests to get to the next page/CF rows. Other than that it's
+efficient on thrift server. Because that native paging could keep using the same
+connection and internally keep reading the data where page it's, native auto paging could
+be more efficient. I don't know how difficult to implement the native auto paging and the
+time line. When it's available, we can add a new CQL native reader, so user can have
+choice to use this one and the new native reader. 
+
+
+New Comment: 
+Alex, Can you provide a patch that can be applied to cassandra-1.2.3 branch ? I would like
+to test it. Thanks 
+
+
+New Comment: 
+I attach the patch for cassandra-1.2.3 
+
+
+New Comment: 
+thanks but I had an issue when compiling. TClientTransportFactory interface was not found
+so I copied the file src/java/org/apache/cassandra/thrift/TClientTransportFactory.java
+from your DSP-1954 branch and the compilation succeeded. I'll give it a try. Tell me if I
+did an error by doing this copy. 
+
+
+New Comment: 
+you'll probably also need TFramedTransportFactory (the implementation of that) ... I'm
+going through this same exercise now as well. 
+
+
+New Comment: 
+I didn't need that file to compile. Cassandra is starting well. I'll create and load a
+CQL3 CF and test a Hadoop Job in the next hour. 
+
+
+New Comment: 
+yeah, it's not necessary to compile, but it will be necessary to run 
+
+
+New Comment: 
+I didn't have to add it cause it was already there <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=cscetbon"
+class="user-hover" rel="cscetbon">Cyril Scetbon</a> Sorry about the missing file
+TClientTransportFactory. Let me know your testing result. 
+
+
+New Comment: 
+my first trivial test was a one node localhost cass w/ a table with 1 row that has a text
+key and that ended in an infinite loop of:2013-05-07 10:47:41,459 <span
+class="error">&#91;main&#93;</span> DEBUG
+org.apache.cassandra.hadoop.cql3.ColumnFamilyRecordReader - query type: 0<br/>2013-05-07
+10:47:41,459 <span class="error">&#91;main&#93;</span> DEBUG
+org.apache.cassandra.hadoop.cql3.ColumnFamilyRecordReader - set tail to
+null<br/>...repeated...I'm going to try some multi-node clusters, some multi-row tables,
+and some different key types to see how that's impacted 
+
+
+New Comment: 
+i added 10k rows to that simple table, and the infinite loop went away (maybe just a
+problem when you have a single row .. i'll have to dig into that in a little bit). I got a
+few rows out, then:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">Exception in thread <span
+class="code-quote">"main"</span> java.lang.IndexOutOfBoundsException: Index: 0, Size: 0	at
+java.util.ArrayList.RangeCheck(ArrayList.java:547)	at
+java.util.ArrayList.get(ArrayList.java:322)	at
+org.apache.cassandra.hadoop.cql3.ColumnFamilyRecordReader$RowIterator.preparedQueryBindValues(ColumnFamilyRecordReader.java:596)</pre></div></div> 
+
+
+New Comment: 
+Mike Schrag you were right. I have a bad TFramedTransportFactory cause it was not included
+in the patch <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/><br/>Alex Liu Both TFramedTransportFactory and
+TClientTransportFactory were missing. I copy them and retry. 
+
+
+New Comment: 
+This is a stock 1.2.4 cassandra install. For total disclosure, I DID suck your code out of
+cass and into our project, and made a few tweaks to build against newer hadoop libs, but
+I'm actually not even using hadoop here &#8211; i'm just calling the
+ColumnFamilyInputFormat from a simple java main method, so it's possible i'm skewing
+something with a busted test, but i don't THINK so:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+ Configuration conf = <span class="code-keyword">new</span> Configuration();   
+ConfigHelper.setInputInitialAddress(conf, <span class="code-quote">"127.0.0.1"</span>);   
+ConfigHelper.setInputRpcPort(conf, <span class="code-quote">"9160"</span>);   
+ConfigHelper.setInputPartitioner(conf, <span
+class="code-quote">"Murmur3Partitioner"</span>);   
+ConfigHelper.setInputColumnFamily(conf, <span class="code-quote">"whatever"</span>, <span
+class="code-quote">"branch"</span>);    CQLConfigHelper.setInputCQLPageRowSize(conf, <span
+class="code-quote">"3"</span>);    <span
+class="code-comment">//CQLConfigHelper.setInputWhereClauses(conf, <span
+class="code-quote">"title=<span class="code-quote">'A'</span>"</span>);</span>   
+JobContext jobContext = <span class="code-keyword">new</span> JobContextImpl(conf, <span
+class="code-keyword">new</span> JobID());    TaskAttemptContext context = <span
+class="code-keyword">new</span> TaskAttemptContextImpl(conf, <span
+class="code-keyword">new</span> TaskAttemptID());        ColumnFamilyInputFormat
+inputFormat = <span class="code-keyword">new</span> ColumnFamilyInputFormat();   
+List&lt;InputSplit&gt; splits = inputFormat.getSplits(jobContext);    <span
+class="code-keyword">for</span> (InputSplit split : splits) {      ColumnFamilySplit
+columnFamilySplit = (ColumnFamilySplit) split;      <span
+class="code-object">System</span>.out.printf(<span class="code-quote">"split:
+%s\n"</span>, split);      ColumnFamilyRecordReader reader = <span
+class="code-keyword">new</span> ColumnFamilyRecordReader();      reader.initialize(split,
+context);      <span class="code-comment">// now read out all the values...</span>     
+<span class="code-keyword">while</span> (reader.nextKeyValue()) {       
+List&lt;IColumn&gt; keys = reader.getCurrentKey();        <span
+class="code-object">System</span>.out.println(<span
+class="code-quote">"CassandraBulkTest.main: "</span> +
+ByteBufferUtil.string(keys.get(0).value()));        Map&lt;ByteBuffer, IColumn&gt; columns
+= reader.getCurrentValue();        <span class="code-keyword">for</span> (IColumn column :
+columns.values()) {          <span class="code-object">String</span> name  =
+ByteBufferUtil.string(column.name());          <span class="code-object">String</span>
+value = <span class="code-quote">"skipped"</span>;<span
+class="code-comment">//column.value() != <span class="code-keyword">null</span> ?
+ByteBufferUtil.string(column.value()) : <span class="code-quote">"<span
+class="code-keyword">null</span> value"</span>;</span>          <span
+class="code-object">System</span>.out.println(<span
+class="code-quote">"CassandraBulkTest.main: "</span> + name + <span
+class="code-quote">"=&gt;"</span> + value);        }      }    }  }</pre></div></div> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a> Something should be missing too on my new
+cassandra-1.2.3 patched as the column family (CQL3 Storage) is not visible through Thrift
+:15:28:03,073 DEBUG <span class="error">&#91;main&#93;</span> (QueryParserDriver.java:283)
+- Resulting macro AST:<br/>(QUERY (STATEMENT data (LOAD 'cassandra://ks1/t1' (FUNC
+CassandraStorage))))15:28:04,426 ERROR <span class="error">&#91;main&#93;</span>
+(LogUtils.java:125) - ERROR 1200: Column family 't1' not found in keyspace 'ks1' 
+
+
+New Comment: 
+Cyril &#8211; I git past initialization, so that code appears to work. Are you sure you're
+pointing at the right server? 
+
+
+New Comment: 
+Oh, your case is loading data, so that might be different ... I'm only testing fetching
+right now. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=mikeschrag"
+class="user-hover" rel="mikeschrag">Mike Schrag</a> Did you miss the keyspace and column
+family settings? I will do some debugging and testing today. The code hasn't been fully
+tested. It did pass the example in the patch for me. 
+
+
+New Comment: 
+I need to test cassandra 1.2.3, so the method I used :<ul class="alternate"
+type="square">	<li>git checkout cassandra-1.2.3</li>	<li>patch -p0 &lt;
+patch_from_Alex</li>	<li>copy TFramedTransportFactory and TClientTransportFactory from git
+checkout remotes/origin/DSP-1954 (from <a href="https://github.com/riptano/cassandra"
+class="external-link"
+rel="nofollow">https://github.com/riptano/cassandra</a>)</li>	<li>ant and deploy
+everything to my test cluster</li></ul><a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=mikeschrag"
+class="user-hover" rel="mikeschrag">Mike Schrag</a> it's a Pig Load call so it's actually
+fetching data from Cassandra. 
+
+
+New Comment: 
+Alex - In my case, I get 2 rows out of my CF before it blows up with that exception, so my
+basic config is definitely right. That response might have been intended for Cyril,
+though. 
+
+
+New Comment: 
+I'm still digging into this, but one thing I noticed in RowIterator.computeNext, in the
+"if (pageRows &gt;= pageRowSize || !iterator.hasNext())" condition, it looks like if you
+hit the end of the page, and there isn't another iterator (i.e. you're done), you return
+endOfData() there, which I think would mean that you're always losing the last row of
+results, because the final row would be in the Pair.create(keyColumns, valueColumns) that
+you'd ordinarily return from this method? 
+
+
+New Comment: 
+Ah, I think all the clusterKeys.get(0).value == null need to be:clusterKeys.size() == 0 ||
+clusterKeys.get(0).value == nullMy clusterKeys is always empty. 
+
+
+New Comment: 
+and setTailNull needs to return -1 if the values is empty:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+     <span class="code-keyword">private</span> <span class="code-object">int</span>
+setTailNull(List&lt;Key&gt; values)        {            <span
+class="code-keyword">if</span> (values.size() == 0)                <span
+class="code-keyword">return</span> -1;</pre></div></div>that fixes the infinite loop ...
+this lets me get through the rows now. I'm going to check to see if all the rows are
+actually there now, but it's not dying or hanging at least, so that's a start <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+i do get all the rows back in my tests (even when the last row falls on a page barrier).
+so a false alarm on the comment about eating the last row. 
+
+
+New Comment: 
+I attached the fixed version 4421-1.txt. It now fixes the issue with no clustering keys
+and also removes the endOfData() for the condition mentioned by Mike Schrag.BTW it patches
+on C*-1.2.3 version, you can review it at <a
+href="https://github.com/alexliu68/cassandra/pull/1" class="external-link"
+rel="nofollow">https://github.com/alexliu68/cassandra/pull/1</a> 
+
+
+New Comment: 
+Attached the third version 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a> Compilation works like a charm with your
+last patch on cassandra-1.2.3 tag. I'm still having the same issue concerning the
+invisible column family to thrift API : <a href="http://pastebin.com/qGwGMa7r"
+class="external-link" rel="nofollow">http://pastebin.com/qGwGMa7r</a><br/>However as it's
+linked to issue <a href="https://issues.apache.org/jira/browse/CASSANDRA-5234"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-5234</a>, I don't if you're
+code fixed it (seems it didn't). But if CQL3 tables are now working with Hadoop they
+should be returned through thrift describe_keyspace 
+
+
+New Comment: 
+<blockquote>if CQL3 tables are now working with Hadoop they should be returned through
+thrift describe_keyspace</blockquote>That doesn't follow at all. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=cscetbon"
+class="user-hover" rel="cscetbon">Cyril Scetbon</a>The patches is for Hadoop only. For Pig
+to work, we need modify org.apache.cassandra.hadoop.pig.CassandraStorage to support CQL3.
+Unfortunately I only implement it for hadoop. I will implement it later after my other
+assignments are done if no one else have implemented it by that time. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a> Oh, I was thinking that only thrift was
+affected by the CQL3 issue and that it was why pig was not working. If Pig needs to be
+updated too (as you say), I'll wait for that with hope that it will come soon… Can you
+change the status of <a href="https://issues.apache.org/jira/browse/CASSANDRA-5234"
+class="external-link" rel="nofollow">CASSANDRA-5234</a> otherwise it won't be assigned
+unless there is another JIRA for that ?<br/><a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a> I thought it was ONE whole block 
+
+
+New Comment: 
+Alex - would you expect to get duplicate rows out of this code? I wasn't sure if I need to
+dedupe multiple results due to replication factor &gt; 1. I'm seeing some weird stuff with
+a large table (nominally should be about 50 million rows) that has been truncate and
+recreated, and we're up to 500 million rows dumped out of it so far. I'm not quite sure
+what I'm seeing, yet, but just wanted to explore what the expected behavior is. 
+
+
+New Comment: 
+Also curious if there's any way I would get previously deleted rows back from this? 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=mikeschrag"
+class="user-hover" rel="mikeschrag">Mike Schrag</a> If CQL3 statement provided in hadoop
+job doesn't return duplicate rows then the hadoop job shouldn't return duplicate rows. But
+CQL 3 doesn't have DISTINCT key word support, so some CQL3 query returns duplicate
+rows.You can test it at one node to see whether the duplicate rows occur, then test it for
+multiple nodes with rp &gt; 1.RF shouldn't create duplicate rows. Let's trace it or
+reproduce it in a simple way. 
+
+
+New Comment: 
+If you have some snapshot of the nodes, you can restore them, otherwise you will lose the
+deleted rows after compaction. 
+
+
+New Comment: 
+Sorry, i wasn't clear. i'm not trying to recover deleted rows, i'm just trying to explain
+why a table that we THINK should have 50M rows returns far more than that when we iterate
+over them in bulk.One possibly interesting tidbit is that the table has a compound row key
+(text, text), so maybe there's something with that detail.I've attempted a test with a
+small CF, and I don't get dupes. I've tested on a 4.5M row CF, and that doesn't appear to
+get dupes. But this (what we THINK is) 50M row CF does. It takes millions of rows before
+we start seeing them, though. 
+
+
+New Comment: 
+When you mapreduce over the column family, you need to filter out tombstones to get an
+accurate count.  Also, make sure you're setting your consistency level to ensure you have
+a consistent number. 
+
+
+New Comment: 
+I thought CQL3 filtered tombstones automagically? In my case, all the rows I get back
+actually have data in them. A tombstone would manifest as an empty row, right? I'm
+beginning to think I'm hitting an edge case bug in this patch. The row count on this one
+particular inputsplit got up to 400M before i killed it ... It sure looks like it's stuck
+in some sort of infinite loop. It doesn't happen on every split, just this particular one.
+I'm going to try and do some more diagnostics. 
+
+
+New Comment: 
+I've tracked down the bug ... If the token value of the last row of the page == the end
+value of the split, it ends up trying to fetch the next page using the query:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">SELECT * FROM [cf] WHERE token(key) &gt; token(?) AND token(key) &lt;= ?
+LIMIT 1000 ALLOW FILTERING</pre></div></div>If you fill this in ... Assume your split is
+1000-2000, and the last row of the page happened to actually be the max value 2000, that
+would be:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">SELECT * FROM [cf] WHERE token(key) &gt; 2000 AND
+token(key) &lt;= 2000 LIMIT 1000 ALLOW FILTERING</pre></div></div>It looks like Cass
+freaks out here with the impossible predicate, and where it should be returning an empty
+result, it ACTUALLY returns bogus values that fall outside the specified range. Once you
+get a token outside of the split range, you're totally screwed, and everything goes off
+the rails. 
+
+
+New Comment: 
+I've filed <a href="https://issues.apache.org/jira/browse/CASSANDRA-5573"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-5573</a> for the Cass
+issue. 
+
+
+New Comment: 
+Attached the third version which fix the issue when pass the columns to inputformat and
+there are no clustering keys, then the composed query has "null" as one of the column. 
+
+
+New Comment: 
+Mike: you're right, cql3 does filter range ghosts. FWIW, I have seen where if I've used
+the default consistency level of ONE (for the CFRR) when counting rows, that an
+inconsistent number may come back. 
+
+
+New Comment: 
+Version 4 is attached which fix the issue describe at <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5573" title="Querying with an empty
+(impossible) range returns incorrect results" class="issue-link"
+data-issue-key="CASSANDRA-5573"><del>CASSANDRA-5573</del></a> 
+
+
+New Comment: 
+Looks good. Thanks, Alex. 
+
+
+New Comment: 
+I spoke too soon (I accidentally had my override classes still in place). reachEndRange is
+consuming the partition key ByteBuffers, so they're basically empty values every time, so
+the split just keeps repeating starting at the beginning.At the top of reachEndRange, if
+you:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-keyword">for</span> (Key k :
+partitionKeys) k.value.mark();</pre></div></div>and at the bottom, you can reset them:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">for</span> (Key k : partitionKeys)
+k.value.reset();</pre></div></div>that will fix it. 
+
+
+New Comment: 
+Version 5 is attached to add the fix by Mike 
+
+
+New Comment: 
+I dug in and started cleaning things up: <a
+href="https://github.com/jbellis/cassandra/commits/4421" class="external-link"
+rel="nofollow">https://github.com/jbellis/cassandra/commits/4421</a>.  (NB: there's a
+bunch more redundant @Override annotations that I did not clean up.  Those should go too:
+<a href="http://wiki.apache.org/cassandra/CodeStyle" class="external-link"
+rel="nofollow">http://wiki.apache.org/cassandra/CodeStyle</a>.)But when I looked up from
+the code I realized that we have an important discussion to have first: What API should we
+present?  I don't think <tt>RecordReader&lt;List&lt;IColumn&gt;, Map&lt;ByteBuffer,
+IColumn&gt;&gt;</tt> and <tt>RecordWriter&lt;ByteBuffer,
+List&lt;List&lt;ByteBuffer&gt;&gt;&gt;</tt> are it. 
+
+
+New Comment: 
+I think there are two sane alternatives for the reader.  We could expose
+<tt>RecordReader&lt;List&lt;ByteBuffer&gt;, List&lt;ByteBuffer&gt;&gt;</tt> and assume the
+caller can figure out what his PK definition is, and what columns he asked for and
+therefore what the List items correspond to.Alternatively we could expose
+<tt>RecordReader&lt;Map&lt;String, ByteBuffer&gt;, Map&lt;String, ByteBuffer&gt;&gt;</tt>,
+which makes it a lot harder for the caller to screw things up, while also making it more
+convenient.  (The only reason the original CFRR presents a Map as the value is for
+convenience in referring to columns by name.)(The Map should be a LinkedHashMap to
+preserve order as well.)The best argument for sticking with the List is that we're
+basically forced to use a List for the Writer's bind variables, since we don't support
+named parameters in CQL.  Which would imply <tt>RecordWriter&lt;List&lt;ByteBuffer&gt;,
+&lt;List&lt;ByteBuffer&gt;&gt;</tt>.  The key should be a List, since we can have compound
+PKs and we don't want to force people to turn those into a single BB via CompositeType. 
+And the value should just be a single list of bind variables because the list-of-lists is
+a hold over from the original CFRW. (Where TBH I don't think it made sense either but
+we're kind of stuck with it no for backwards compatibility.)Or, we could do
+<tt>RecordWriter&lt;Map&lt;String, ByteBuffer&gt;, &lt;List&lt;ByteBuffer&gt;&gt;</tt>,
+for consistency with a Map-based Reader.Thoughts? 
+
+
+New Comment: 
+RecordReader&lt;Map&lt;String, ByteBuffer&gt;, Map&lt;String, ByteBuffer&gt;&gt; and
+RecordWriter&lt;Map&lt;String, ByteBuffer&gt;, &lt;List&lt;ByteBuffer&gt;&gt; is better
+than RecordReader&lt;List&lt;ByteBuffer&gt;, List&lt;ByteBuffer&gt;&gt; and
+RecordWriter&lt;List&lt;ByteBuffer&gt;, &lt;List&lt;ByteBuffer&gt;&gt;
+RecordReader&lt;List&lt;ByteBuffer&gt;, List&lt;ByteBuffer&gt;&gt; and
+RecordWriter&lt;List&lt;ByteBuffer&gt;, &lt;List&lt;ByteBuffer&gt;&gt; is more concise,
+but user needs be careful not to screw up the order. If we go this route, we should
+document it clearly. 
+
+
+New Comment: 
+All right, let's go with the Map versions then. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a> I attached a patch for PIG CQL3
+support to <a href="https://issues.apache.org/jira/browse/CASSANDRA-5234" title="Table
+created through CQL3 are not accessble to Pig 0.10" class="issue-link"
+data-issue-key="CASSANDRA-5234"><del>CASSANDRA-5234</del></a>. It works on top of the
+patch for <a href="https://issues.apache.org/jira/browse/CASSANDRA-4421" title="Support
+cql3 table definitions in Hadoop InputFormat" class="issue-link"
+data-issue-key="CASSANDRA-4421"><del>CASSANDRA-4421</del></a>. 
+
+
+New Comment: 
+I'm confused, is there a patch w/ updated signatures somewhere for this? 
+
+
+New Comment: 
+The patch is attached to <a href="https://issues.apache.org/jira/browse/CASSANDRA-5234"
+title="Table created through CQL3 are not accessble to Pig 0.10" class="issue-link"
+data-issue-key="CASSANDRA-5234"><del>CASSANDRA-5234</del></a>, which fixes the issue that
+CQL3 table is not supported in CassandraStorage and it also creates CQL3Storage for cql3
+tables only. The patch is built on top of 4421-5.txt. 
+
+
+New Comment: 
+What we need next here is for you to build on the branch I posted, to fix the CFIF/CFOF
+signatures as discussed above.  I don't see that in the 5234 code, but in any case it's
+best to not entangle the two.  (What you can do locally is copy your 4421 branch to work
+on 5234 on top of it, but keep the 4421 branch itself "pure.") 
+
+
+New Comment: 
+Sure. I will work on the branch you posted to change the signatures. 
+
+
+New Comment: 
+If anyone cares, attached is 4421-6.cb.txt which is the 4421-5 patch on top of commit
+2f72f8b in cassandra-1.2 
+
+
+New Comment: 
+I attach patch 4421-6-je.txt to fix the CFIF/CFOF signatures. 
+
+
+New Comment: 
+patch 4421-6-je.txt on top of <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a>'s branch. <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=lanzaa"
+class="user-hover" rel="lanzaa">Colin B.</a> Can you describe what do you fix in your
+patch? 
+
+
+New Comment: 
+Obviously your new patch is better than mine. The major differences between the two are:
+<ul>	<li>lots of little formatting changes, 4421-6-je is better here</li>	<li>4421-6-je
+seems to leave out the example code</li>	<li>the ClientHolder stuff, which 4421-6-je
+doesn't include</li>	<li>fix conflicts with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5536" title="ColumnFamilyInputFormat
+demands OrderPreservingPartitioner when specifying InputRange with tokens"
+class="issue-link"
+data-issue-key="CASSANDRA-5536"><del>CASSANDRA-5536</del></a></li>	<li>fix conflicts with
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-5529"
+title="thrift_max_message_length_in_mb makes long-lived connections error out"
+class="issue-link"
+data-issue-key="CASSANDRA-5529"><del>CASSANDRA-5529</del></a></li></ul>The conflict
+resolution is the only difficulty I noticed while putting the patch onto the head of
+cassandra-1.2 . Overall not a big deal. 
+
+
+New Comment: 
+<blockquote>final class ColumnFamilyRecordWriter extends
+AbstractColumnFamilyRecordWriter&lt;Map&lt;String, ByteBuffer&gt;,
+List&lt;List&lt;ByteBuffer&gt;&gt;&gt;</blockquote>We don't need to have list-of-list for
+values 
+
+
+New Comment: 
+4421-7-je.txt patch is attached to change List&lt;List&lt;ByteBuffer&gt;&gt; to
+List&lt;ByteBuffer&gt; 
+
+
+New Comment: 
+Added to my github branch, with some extra cleanup.  (Noticed I forgot to add the
+examples/ directory before.  This probably needs to be updated.)I think we're ready for
+you to rebase to 1.2 now.  May or may not be easiest to take Colin's rebase and apply the
+patches from my branch on top.  ("git remote add" is probably the easiest way to grab my
+branch.) 
+
+
+New Comment: 
+I just noticed that if executeQuery times out, you just lose rows (along with all the
+other failure conditions), and that doesn't actually bubble the exception up to the
+runtime, so the consumer can't actually respond to the failure, so you end up with a null
+result, which i believe will make the page appear to be done. It would be much better to
+either support retry here, or throw the exception all the way up so that clients can retry
+on their own. I haven't checked the new round of patches to see if this behaves the same
+way. 
+
+
+New Comment: 
+Note that to recover from some of those failures, you have to reconnect the
+ColumnFamilyRecordReader. It would be helpful to have the connection code moved into a
+connect() method and make close() null out the client so you can cycle the underlying
+connection in the event of a more traumatic failure case. Ideally, the iterators and
+tokens would all be left alone so that you can pickup where you left off. 
+
+
+New Comment: 
+Ugh .. Kind of nasty. AbstractIterator (which RowIterator extends) poisons itself on
+failure without any apparent way to recover. It gets stuck in State.FAILED and you can't
+reset it. That seems overly aggressive. 
+
+
+New Comment: 
+Attached is patch 4421-8-cb containing the changes from jbellis's branch. It applies onto
+cassandra-1.2 cleanly (11eb352). 
+
+
+New Comment: 
+Yeah, recycling the RowIterator is probably too complicated. However, I do think the
+Exception should bubble up. I can then catch it and reread the split at the app level to
+pick back up where i left off. 
+
+
+New Comment: 
+I am fixing the new merged code infinite loop issue and make the example work. I will post
+the final merge later. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=mikeschrag"
+class="user-hover" rel="mikeschrag">Mike Schrag</a> For any cql timeout or other uncaught
+exception, we have two choices:1. Catch it at your client code, so you can handle it after
+job is done.2. Write it to log, so you can check it where is wrong.3. Like you said to
+retry at the point where it fails.So choice 1 is a common solution, 2 is the easiest to
+implement. 3 is quite some work to do to make it's reliable and robust. 
+
+
+New Comment: 
+4421-8-je.txt is attached to merge the final code and some fixes on example on top of
+trunk commit 9e8691c26283f2532be3101486a8290ed5128c18 
+
+
+New Comment: 
+Alex - I vote #1, definitely. I need to be able to handle these conditions inline, not
+after the job is done. If you implement #1, the user can choose #2 if s/he wants. If the
+library chooses #2 for you, you're just out-of-luck. Particularly in the case of a
+timeout, that's a relatively straightforward situation to resolve in many cases. 
+
+
+New Comment: 
++1 for #1.We'll want a patch against 1.2 as well as trunk, btw. 
+
+
+New Comment: 
+4421-9-je.txt patch is attached on top 9e8691c26283f2532be3101486a8290ed5128c18 of trunk
+to add exception handling.try three time for TimedOutException and UnavailableException,
+any other exception is thrown back to client as IOException with the original cause
+throwable.Client side can catch it and handle at client side. check this link for
+example<br/><a
+href="http://stackoverflow.com/questions/14920236/how-to-prevent-hadoop-job-to-fail-on-corrupted-input-file"
+class="external-link"
+rel="nofollow">http://stackoverflow.com/questions/14920236/how-to-prevent-hadoop-job-to-fail-on-corrupted-input-file</a> 
+
+
+New Comment: 
+Attach the final version 10 patches for trunk and 1.2 branch. It fixes some issue with
+writer 
+
+
+New Comment: 
+Committed! 
+
+

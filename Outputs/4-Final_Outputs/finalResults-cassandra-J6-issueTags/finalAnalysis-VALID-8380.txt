@@ -1,0 +1,278 @@
+Pattern changes caused by commit: 55f936f1da13dc732da52735f1d1becc18546b0b
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8380.txt 
+
+commit 55f936f1da13dc732da52735f1d1becc18546b0b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Simplify CompressedRandomAccessReader to work around JDK FD bug
+    patch by jbellis; reviewed by Aleksey Yeschenko and tested by Cathy Daw for CASSANDRA-5088
+
+
+
+==================================
+ Issue CASSANDRA-5088 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5088] Major compaction IOException in 1.1.8
+-----------------
+
+-----------------
+Summary: Major compaction IOException in 1.1.8
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 22 Dec 2012 18:38:34 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 7 Jan 2013 22:55:09 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Upgraded 1.1.6 to 1.1.8.
+
+Now I'm trying to do a major compaction, and seeing
+this:
+
+ERROR <span class="error">&#91;CompactionExecutor:129&#93;</span> 2012-12-22
+10:33:44,217 AbstractCassandraDaemon.java (line 135) Exception in thread Thread<span
+class="error">&#91;CompactionExecutor:129,1,RMI Runtime&#93;</span><br/>java.io.IOError:
+java.io.IOException: Bad file descriptor<br/>        at
+org.apache.cassandra.utils.MergeIterator.close(MergeIterator.java:65)<br/>        at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:195)<br/>   
+    at
+org.apache.cassandra.db.compaction.CompactionManager$7.runMayThrow(CompactionManager.java:298)<br/>
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>    
+   at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>       
+at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:619)<br/>Caused by: java.io.IOException: Bad file
+descriptor<br/>        at sun.nio.ch.FileDispatcher.preClose0(Native Method)<br/>       
+at sun.nio.ch.FileDispatcher.preClose(FileDispatcher.java:59)<br/>        at
+sun.nio.ch.FileChannelImpl.implCloseChannel(FileChannelImpl.java:96)<br/>        at
+java.nio.channels.spi.AbstractInterruptibleChannel.close(AbstractInterruptibleChannel.java:97)<br/>
+       at java.io.FileInputStream.close(FileInputStream.java:258)<br/>        at
+org.apache.cassandra.io.compress.CompressedRandomAccessReader.close(CompressedRandomAccessReader.java:131)<br/>
+       at sun.nio.ch.FileChannelImpl.implCloseChannel(FileChannelImpl.java:121)<br/>      
+ at
+java.nio.channels.spi.AbstractInterruptibleChannel.close(AbstractInterruptibleChannel.java:97)<br/>
+       at java.io.RandomAccessFile.close(RandomAccessFile.java:541)<br/>        at
+org.apache.cassandra.io.util.RandomAccessReader.close(RandomAccessReader.java:224)<br/>   
+    at
+org.apache.cassandra.io.compress.CompressedRandomAccessReader.close(CompressedRandomAccessReader.java:130)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableScanner.close(SSTableScanner.java:89)<br/>       
+at org.apache.cassandra.utils.MergeIterator.close(MergeIterator.java:61)<br/>        ... 9
+more
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Jason reported something similar in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5059" title="1.0.11 -&gt; 1.1.7
+upgrade results in unusable compressed sstables" class="issue-link"
+data-issue-key="CASSANDRA-5059"><del>CASSANDRA-5059</del></a>.  Looks like an environment
+problem though since we can't reproduce on the same sstables. 
+
+
+New Comment: 
+What would be helpful to debug?  The same environment worked fine for 1.1.6 - I didn't try
+1.1.7I'm running a bit old of a JDK - I could try upgrading it. 
+
+
+New Comment: 
+I am able to consistently reproduce this running upgrade scenarios for DataStax Enterprise
+(basically C* 1.1.6 to C* 1.1.8).<ul>	<li>I can't reproduce this going from vanilla C*
+1.1.6 to C* 1.1.8 using cassandra-stress</li>	<li>I can reproduce this on my mac using
+DSE.  Java version is: 1.6.0_24</li>	<li>I can't reproduce this on ubuntu precise 64-bit
+using Java 1.6.0_31</li></ul><b>Pre-Upgrade: run on DSE 2.2.1 / Cassandra 1.1.6</b><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">~/dse-2.2.1/demos/portfolio_manager/bin/pricer -o
+INSERT_PRICES~/dse-2.2.1/demos/portfolio_manager/bin/pricer -o
+UPDATE_PORTFOLIOS~/dse-2.2.1/demos/portfolio_manager/bin/pricer -o
+INSERT_HISTORICAL_PRICES -n 100~/dse-2.2.1/bin/dse  hive -f
+~/dse-2.2.1/demos/portfolio_manager/10_day_loss.q~/dse-2.2.1/bin/nodetool drainsudo pkill
+-9 java# then restart using C* 1.1.8</pre></div></div><ins>Below are the different related
+errors</ins><b>Post-Upgrade: read CF created pre-upgrade</b><div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">ERROR [Thrift:3] 2012-12-25 18:53:22,139 AbstractCassandraDaemon.java
+(line 135) Exception in thread <span
+class="code-object">Thread</span>[Thrift:3,5,main]java.io.IOError: java.io.IOException:
+Bad file descriptor	at
+org.apache.cassandra.utils.MergeIterator.close(MergeIterator.java:65)	at
+org.apache.cassandra.db.ColumnFamilyStore$2.close(ColumnFamilyStore.java:1411)	at
+org.apache.cassandra.db.ColumnFamilyStore.filter(ColumnFamilyStore.java:1490)	at
+org.apache.cassandra.db.ColumnFamilyStore.getRangeSlice(ColumnFamilyStore.java:1435)	at
+org.apache.cassandra.service.RangeSliceVerbHandler.executeLocally(RangeSliceVerbHandler.java:50)	at
+org.apache.cassandra.service.StorageProxy.getRangeSlice(StorageProxy.java:876)	at
+org.apache.cassandra.thrift.CassandraServer.get_range_slices(CassandraServer.java:705)	at
+com.datastax.bdp.server.DseServer.get_range_slices(DseServer.java:1087)	at
+org.apache.cassandra.thrift.Cassandra$Processor$get_range_slices.getResult(Cassandra.java:3083)	at
+org.apache.cassandra.thrift.Cassandra$Processor$get_range_slices.getResult(Cassandra.java:3071)	at
+org.apache.thrift.ProcessFunction.process(ProcessFunction.java:32)	at
+org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:34)	at
+com.datastax.bdp.transport.server.ClientSocketAwareProcessor.process(ClientSocketAwareProcessor.java:43)	at
+org.apache.cassandra.thrift.CustomTThreadPoolServer$WorkerProcess.run(CustomTThreadPoolServer.java:192)</pre></div></div><b>Post-Upgrade:
+running upgradesstables</b><div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">Error occured <span
+class="code-keyword">while</span> upgrading the sstables <span
+class="code-keyword">for</span> keyspace
+HiveMetaStorejava.util.concurrent.ExecutionException: java.io.IOError:
+java.io.IOException: Bad file descriptor	at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)	at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)	at
+org.apache.cassandra.db.compaction.CompactionManager.performAllSSTableOperation(CompactionManager.java:226)	at
+org.apache.cassandra.db.compaction.CompactionManager.performSSTableRewrite(CompactionManager.java:242)	at
+org.apache.cassandra.db.ColumnFamilyStore.sstablesRewrite(ColumnFamilyStore.java:983)	at
+org.apache.cassandra.service.StorageService.upgradeSSTables(StorageService.java:1789)</pre></div></div><b>Post-Upgrade:
+running nodetool scrub</b><div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">WARN [CompactionExecutor:23]
+2012-12-25 14:42:50,024 FileUtils.java (line 116) Failed closing /<span
+class="code-keyword">var</span>/lib/cassandra/data/cfs/inode/cfs-inode-hf-1-Data.db -
+chunk length 65536, data length 48193.java.io.IOException: Bad file descriptor	at
+sun.nio.ch.FileDispatcher.preClose0(Native Method)	at
+sun.nio.ch.FileDispatcher.preClose(FileDispatcher.java:59)	at
+sun.nio.ch.FileChannelImpl.implCloseChannel(FileChannelImpl.java:96)	at
+java.nio.channels.spi.AbstractInterruptibleChannel.close(AbstractInterruptibleChannel.java:97)	at
+java.io.FileInputStream.close(FileInputStream.java:258)	at
+org.apache.cassandra.io.compress.CompressedRandomAccessReader.close(CompressedRandomAccessReader.java:131)	at
+sun.nio.ch.FileChannelImpl.implCloseChannel(FileChannelImpl.java:121)	at
+java.nio.channels.spi.AbstractInterruptibleChannel.close(AbstractInterruptibleChannel.java:97)	at
+java.io.RandomAccessFile.close(RandomAccessFile.java:541)	at
+org.apache.cassandra.io.util.RandomAccessReader.close(RandomAccessReader.java:224)	at
+org.apache.cassandra.io.compress.CompressedRandomAccessReader.close(CompressedRandomAccessReader.java:130)	at
+org.apache.cassandra.io.util.FileUtils.closeQuietly(FileUtils.java:112)	at
+org.apache.cassandra.db.compaction.Scrubber.close(Scrubber.java:306)	at
+org.apache.cassandra.db.compaction.CompactionManager.scrubOne(CompactionManager.java:500)	at
+org.apache.cassandra.db.compaction.CompactionManager.doScrub(CompactionManager.java:485)	at
+org.apache.cassandra.db.compaction.CompactionManager.access$300(CompactionManager.java:69)	at
+org.apache.cassandra.db.compaction.CompactionManager$4.perform(CompactionManager.java:235)	at
+org.apache.cassandra.db.compaction.CompactionManager$3.call(CompactionManager.java:205)</pre></div></div> 
+
+
+New Comment: 
+Can you try with compression disabled? 
+
+
+New Comment: 
+... Testing w/o compression won't be necessary, this is clearly a problem with the
+compression code only.This looks like the following JDK bug: <a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6322678" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6322678</a>It is marked
+fixed in JDK7, but inspection of JDK6u38 source looks like the fix is there as well.  Not
+sure how early the fix was made in JDK6.So upgrading to the latest jdk6 or jdk7 should fix
+the problem.  I've also attached a workaround for platforms (basically: Mac OS users
+running DSE) where that isn't an option. 
+
+
+New Comment: 
+v2 removes a redundant channel creation which might also help. 
+
+
+New Comment: 
+Results from testing v2:<ul>	<li>We originally reproduced this with a forked/modified
+version of C* 1.1.8 dropped in to DSE.  When we dropped in the C* 1.1.8 jar file from the
+apache download, we were also to reproduce this as well.</li>	<li>Post-upgrade exception
+running:  list Stocks</li>	<li>Post-upgrade exception running: nodetool
+upgradesstables</li>	<li>Post-upgrade no errors running: nodetool compact or nodetool
+scrub</li></ul><div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [Thrift:3] 2012-12-26 13:42:25,343
+AbstractCassandraDaemon.java (line 135) Exception in thread <span
+class="code-object">Thread</span>[Thrift:3,5,main]java.io.IOError: java.io.IOException:
+Bad file descriptor	at
+org.apache.cassandra.utils.MergeIterator.close(MergeIterator.java:65)	at
+org.apache.cassandra.db.ColumnFamilyStore$2.close(ColumnFamilyStore.java:1411)	at
+org.apache.cassandra.db.ColumnFamilyStore.filter(ColumnFamilyStore.java:1490)	at
+org.apache.cassandra.db.ColumnFamilyStore.getRangeSlice(ColumnFamilyStore.java:1435)	at
+org.apache.cassandra.service.RangeSliceVerbHandler.executeLocally(RangeSliceVerbHandler.java:50)	at
+org.apache.cassandra.service.StorageProxy.getRangeSlice(StorageProxy.java:876)	at
+org.apache.cassandra.thrift.CassandraServer.get_range_slices(CassandraServer.java:703)	at
+com.datastax.bdp.server.DseServer.get_range_slices(DseServer.java:1087)	at
+org.apache.cassandra.thrift.Cassandra$Processor$get_range_slices.getResult(Cassandra.java:3083)	at
+org.apache.cassandra.thrift.Cassandra$Processor$get_range_slices.getResult(Cassandra.java:3071)	at
+org.apache.thrift.ProcessFunction.process(ProcessFunction.java:32)	at
+org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:34)	at
+com.datastax.bdp.transport.server.ClientSocketAwareProcessor.process(ClientSocketAwareProcessor.java:43)	at
+org.apache.cassandra.thrift.CustomTThreadPoolServer$WorkerProcess.run(CustomTThreadPoolServer.java:192)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:680)Caused by: java.io.IOException: Bad file
+descriptor	at sun.nio.ch.FileDispatcher.preClose0(Native Method)	at
+sun.nio.ch.FileDispatcher.preClose(FileDispatcher.java:59)	at
+sun.nio.ch.FileChannelImpl.implCloseChannel(FileChannelImpl.java:96)	at
+java.nio.channels.spi.AbstractInterruptibleChannel.close(AbstractInterruptibleChannel.java:97)	at
+java.io.RandomAccessFile.close(RandomAccessFile.java:541)	at
+org.apache.cassandra.io.util.RandomAccessReader.close(RandomAccessReader.java:224)	at
+org.apache.cassandra.io.compress.CompressedRandomAccessReader.close(CompressedRandomAccessReader.java:131)	at
+org.apache.cassandra.io.sstable.SSTableScanner.close(SSTableScanner.java:89)	at
+org.apache.cassandra.utils.MergeIterator.close(MergeIterator.java:61)</pre></div></div> 
+
+
+New Comment: 
+v3 removes CRAR.source entirely in favor of using the FileChannel handle we already have
+in RAR 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a><br/>three is the charm. the last patch
+worked. 
+
+
+New Comment: 
++1 
+
+

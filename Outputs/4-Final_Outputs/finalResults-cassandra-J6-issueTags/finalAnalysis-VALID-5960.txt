@@ -1,0 +1,159 @@
+Pattern changes caused by commit: 651bf357550c15eddedd762758667443166f3e54
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5960.txt 
+
+commit 651bf357550c15eddedd762758667443166f3e54
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix system tests
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3827
+
+
+
+==================================
+ Issue CASSANDRA-3827 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3827] nosetests / system tests fail
+-----------------
+
+-----------------
+Summary: nosetests / system tests fail
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 1 Feb 2012 21:06:10 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 7 Feb 2012 15:34:01 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+CQL Driver version used: 1.0.8.
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre
+class="code-java">EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE======================================================================ERROR:
+system.test_thrift_server.TestMutations.test_bad_batch_calls----------------------------------------------------------------------Traceback
+(most recent call last):  File <span
+class="code-quote">"/usr/local/lib/python2.7/site-packages/nose/<span
+class="code-keyword">case</span>.py"</span>, line 381, in setUp    try_run(self.inst,
+(<span class="code-quote">'setup'</span>, <span class="code-quote">'setUp'</span>))  File
+<span class="code-quote">"/usr/local/lib/python2.7/site-packages/nose/util.py"</span>,
+line 478, in try_run    <span class="code-keyword">return</span> func()  File <span
+class="code-quote">"/<span
+class="code-keyword">var</span>/lib/jenkins/jobs/Cassandra/workspace/test/system/__init__.py"</span>,
+line 113, in setUp    self.define_schema()  File <span class="code-quote">"/<span
+class="code-keyword">var</span>/lib/jenkins/jobs/Cassandra/workspace/test/system/__init__.py"</span>,
+line 158, in define_schema    Cassandra.CfDef(<span class="code-quote">'Keyspace1'</span>,
+<span class="code-quote">'Super1'</span>, column_type=<span
+class="code-quote">'Super'</span>, subcomparator_type=<span
+class="code-quote">'LongType'</span>, row_cache_size=1000, key_cache_size=0),TypeError:
+__init__() got an unexpected keyword argument <span
+class="code-quote">'key_cache_size'</span></pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+you can just remove key_cache_size and row_cache_size from
+ThriftTester.define_schema(self), we don't support them anymore. 
+
+
+New Comment: 
+removed {row,key}_cache_size as deprecated from ThriftTester.define_schema(self) and fixed
+removed FilterClause to KeyRange for index tests. Now all tests pass for me:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>PYTHONPATH=test nosetests
+--tests=system.test_thrift_server............................................................................................----------------------------------------------------------------------Ran
+92 tests in 626.972sOK</pre></div></div> 
+
+
+New Comment: 
+It still fails for me with the patch applied, though I'm getting a different error
+now:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre
+class="code-java">PYTHONPATH=/Users/mallen/cql-1.0.8:/Users/mallen/git-repos/cassandra/<span
+class="code-keyword">interface</span>/thrift/gen-py/cassandra nosetests -x
+test/system.E======================================================================ERROR:
+system.test_thrift_server.TestMutations.test_bad_calls----------------------------------------------------------------------Traceback
+(most recent call last):  File <span
+class="code-quote">"/Library/Python/2.6/site-packages/nose/<span
+class="code-keyword">case</span>.py"</span>, line 187, in runTest    self.test(*self.arg) 
+File <span
+class="code-quote">"/Users/mallen/dstax/repos/git/cassandra/test/system/test_thrift_server.py"</span>,
+line 710, in test_bad_calls    _expect_exception(lambda: get_range_slice(client,
+ColumnParent(<span class="code-quote">'S'</span>), SlicePredicate(column_names=[<span
+class="code-quote">'', '</span><span class="code-quote">']), '</span><span
+class="code-quote">', '</span>', 5, ConsistencyLevel.ONE), InvalidRequestException)  File
+<span
+class="code-quote">"/Users/mallen/dstax/repos/git/cassandra/test/system/test_thrift_server.py"</span>,
+line 207, in _expect_exception    r = fn()  File <span
+class="code-quote">"/Users/mallen/dstax/repos/git/cassandra/test/system/test_thrift_server.py"</span>,
+line 710, in &lt;lambda&gt;    _expect_exception(lambda: get_range_slice(client,
+ColumnParent(<span class="code-quote">'S'</span>), SlicePredicate(column_names=[<span
+class="code-quote">'', '</span><span class="code-quote">']), '</span><span
+class="code-quote">', '</span>', 5, ConsistencyLevel.ONE), InvalidRequestException)  File
+<span
+class="code-quote">"/Users/mallen/dstax/repos/git/cassandra/test/system/test_thrift_server.py"</span>,
+line 217, in get_range_slice    kr = KeyRange(start, end, count=count,
+row_filter=row_filter)TypeError: __init__() got an unexpected keyword argument <span
+class="code-quote">'row_filter'</span>----------------------------------------------------------------------Ran
+2 tests in 7.296sFAILED (errors=1)</pre></div></div> 
+
+
+New Comment: 
+I forgot to mention that I re-generated Python Thrift bindings using `ant gen-thrift-py`
+before running tests. This is probably what you need because as I can see KeyRange does
+have a `row_filter` parameter. 
+
+
+New Comment: 
+Oh right. Thanks, Pavel.  All tests are passing for me now too. 
+
+
+New Comment: 
+Great! Let's wait up what Jonathan has to say about code. 
+
+
+New Comment: 
+LGTM, +1 
+
+

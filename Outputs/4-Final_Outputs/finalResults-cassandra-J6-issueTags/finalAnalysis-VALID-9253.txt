@@ -1,0 +1,89 @@
+Pattern changes caused by commit: f8567d15fee3bf4251e3324f1809edb29cd75645
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9253.txt 
+
+commit f8567d15fee3bf4251e3324f1809edb29cd75645
+Author: Dave Brosius <dbrosius@apache.org>
+
+    explicitly set java source and target to 1.6 for the ant tasks
+    patch by dbrosius reviewed by slebresne for CASSANDRA-5533
+
+
+
+==================================
+ Issue CASSANDRA-5533 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5533] explicitly set javac source/target attributes to 1.6 (for 1.0/1.1/1.2)
+-----------------
+
+-----------------
+Summary: explicitly set javac source/target attributes to 1.6 (for 1.0/1.1/1.2)
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 2 May 2013 12:43:39 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 2 May 2013 14:11:39 +0000
+-----------------
+
+-----------------
+Assigned to: David Brosius
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1Wouldn't it make sense to also merge to trunk with 1.7 there? This is not necessary I
+suppose, but this would make it clear that it's how the release will be done. And once we
+start using 1.7 only features, maybe it'll provide a more meaningful error message? 
+
+
+New Comment: 
+yes i will.. just that in trunk it will be (eventually) 1.7 
+
+

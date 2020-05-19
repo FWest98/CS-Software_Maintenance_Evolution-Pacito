@@ -1,0 +1,216 @@
+Pattern changes caused by commit: 212fd417f3e622449725d83e8dacab9506318dff
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6051.txt 
+
+commit 212fd417f3e622449725d83e8dacab9506318dff
+Author: Peter Schuller <peter.schuller@infidyne.com>
+
+    Improve MessagingService assertion.
+    patch by scode; reviewed by jbellis for CASSANDRA-3887
+
+
+
+==================================
+ Issue CASSANDRA-3887 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3887] NPE  on start-up due to missing stage
+-----------------
+
+-----------------
+Summary: NPE  on start-up due to missing stage
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 10 Feb 2012 18:00:28 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 15 Feb 2012 07:42:06 +0000
+-----------------
+
+-----------------
+Assigned to: Peter Schuller
+-----------------
+
+-----------------
+Description: 
+
+On 1.1 (with our patches, but fairly sure they aren't involved):
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">
+INFO [main] 2012-02-10 17:57:26,220 StorageService.java (line 768) JOINING: waiting <span
+class="code-keyword">for</span> ring and schema informationERROR [<span
+class="code-object">Thread</span>-6] 2012-02-10 17:57:26,333 AbstractCassandraDaemon.java
+(line 139) Fatal exception in thread <span class="code-object">Thread</span>[<span
+class="code-object">Thread</span>-6,5,main]java.lang.NullPointerException	at
+org.apache.cassandra.net.MessagingService.receive(MessagingService.java:564)	at
+org.apache.cassandra.net.IncomingTcpConnection.receiveMessage(IncomingTcpConnection.java:160)	at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:96)ERROR
+[<span class="code-object">Thread</span>-8] 2012-02-10 17:57:26,334
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread <span
+class="code-object">Thread</span>[<span
+class="code-object">Thread</span>-8,5,main]java.lang.NullPointerException	at
+org.apache.cassandra.net.MessagingService.receive(MessagingService.java:564)	at
+org.apache.cassandra.net.IncomingTcpConnection.receiveMessage(IncomingTcpConnection.java:160)	at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:96)</pre></div></div>
+That
+NPE is after an assertion (not triggered due to lack of -ea). Race on start-up - getting
+messages before stages set up? (not investigating further right now)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Forgot to mention that this was on initial bootstrap into the cluster (but I don't know if
+that is incidental). 
+
+
+New Comment: 
+What line is MS:564 in your build?  In current 1.1 it's the middle of logger.trace. 
+
+
+New Comment: 
+564 is the final line of receive():<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> void receive(Message message, <span
+class="code-object">String</span> id)    {        <span class="code-keyword">if</span>
+(logger_.isTraceEnabled())            logger_.trace(FBUtilities.getBroadcastAddress() +
+<span class="code-quote">" received "</span> + message.getVerb()                         
++ <span class="code-quote">" from "</span> + id + <span class="code-quote">"@"</span> +
+message.getFrom());        message = SinkManager.processServerMessage(message, id);       
+<span class="code-keyword">if</span> (message == <span class="code-keyword">null</span>)  
+         <span class="code-keyword">return</span>;        <span
+class="code-object">Runnable</span> runnable = <span class="code-keyword">new</span>
+MessageDeliveryTask(message, id);        ExecutorService stage =
+StageManager.getStage(message.getMessageType());        <span
+class="code-keyword">assert</span> stage != <span class="code-keyword">null</span> : <span
+class="code-quote">"No stage <span class="code-keyword">for</span> message type "</span> +
+message.getMessageType();        stage.execute(runnable);    }</pre></div></div>FYI, I'm
+including the diff of MessagingService.java in our branch relative to upstream 1.1 (not
+intended for inclusion, just FYI).<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">diff --git
+a/src/java/org/apache/cassandra/net/MessagingService.java
+b/src/java/org/apache/cassandra/net/MessagingService.javaindex 3375b84..d7613cb 100644---
+a/src/java/org/apache/cassandra/net/MessagingService.java+++
+b/src/java/org/apache/cassandra/net/MessagingService.java@@ -366,6 +366,14 @@ <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> <span
+class="code-keyword">class </span>MessagingService <span
+class="code-keyword">implements</span> MessagingServiceMBean         <span
+class="code-keyword">return</span> <span
+class="code-object">Integer</span>.toString(idGen.incrementAndGet());     } +    /*+     *
+@see #sendRR(Message message, InetAddress to, IMessageCallback cb, <span
+class="code-object">long</span> timeout)+     */+    <span
+class="code-keyword">public</span> <span class="code-object">String</span> sendRR(Message
+message, InetAddress to, IMessageCallback cb)+    {+        <span
+class="code-keyword">return</span> sendRR(message, to, cb, DEFAULT_CALLBACK_TIMEOUT);+   
+}+     /**      * Send a message to a given endpoint. This method specifies a callback    
+ * which is invoked with the actual response.@@ -376,11 +384,12 @@ <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> <span
+class="code-keyword">class </span>MessagingService <span
+class="code-keyword">implements</span> MessagingServiceMBean      * @param cb callback
+<span class="code-keyword">interface</span> which is used to pass the responses or      * 
+         suggest that a timeout occurred to the invoker of the send().      *          
+suggest that a timeout occurred to the invoker of the send().+     * @param timeout the
+timeout used <span class="code-keyword">for</span> expiration      * @<span
+class="code-keyword">return</span> an reference to message id used to match with the
+result      */-    <span class="code-keyword">public</span> <span
+class="code-object">String</span> sendRR(Message message, InetAddress to, IMessageCallback
+cb)+    <span class="code-keyword">public</span> <span class="code-object">String</span>
+sendRR(Message message, InetAddress to, IMessageCallback cb, <span
+class="code-object">long</span> timeout)     {-        <span
+class="code-object">String</span> id = addCallback(cb, message, to,
+message.getMessageTimeout());+        <span class="code-object">String</span> id =
+addCallback(cb, message, to, timeout);         sendOneWay(message, id, to);         <span
+class="code-keyword">return</span> id;     }</pre></div></div> 
+
+
+New Comment: 
+I don't know how to make sense out of that, since we just asserted that stage != null on
+the previous line... 
+
+
+New Comment: 
+Like I said that's due to lack of <tt>-ea</tt> on the JVM. 
+
+
+New Comment: 
+Ah, right.Doesn't the StageManager static block mean that stages will be populated, at the
+latest, before the getStage method call?  Which would imply that we asked for a stage for
+a message type that doesn't have one, which is hard to diagnose w/o the assertion. 
+
+
+New Comment: 
+You're right. I will have to try to re-produce again and investigate. 
+
+
+New Comment: 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">java.lang.AssertionError: No stage <span
+class="code-keyword">for</span> message type <span class="code-keyword">null</span>       
+at org.apache.cassandra.net.MessagingService.receive(MessagingService.java:563)        at
+org.apache.cassandra.net.IncomingTcpConnection.receiveMessage(IncomingTcpConnection.java:160)
+       at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:96)</pre></div></div>I'm
+beginning to suspect this is related to schema messages because I'm now having a node in a
+small 3 node cluster refusing to get the proper schema after I nuked data and
+re-bootstrapped with replace, and now seeing the same with a regular bootstrap
+(non-replace). Investigating. 
+
+
+New Comment: 
+Yep. When I fixed the assertion to print the verb it becomes obvious:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">java.lang.AssertionError: No stage <span class="code-keyword">for</span>
+message type MIGRATION_REQUEST        at
+org.apache.cassandra.net.MessagingService.receive(MessagingService.java:563)        at
+org.apache.cassandra.net.IncomingTcpConnection.receiveMessage(IncomingTcpConnection.java:160)
+       at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:96)</pre></div></div>I'll
+submit a patch to fix the assertion and the hopefully the fix, assuming it's not something
+we have introduced in our branch locally. 
+
+
+New Comment: 
++1 on the assertion patch 
+
+
+New Comment: 
+So yeah, this seems like it might be a human (or possibly <tt>git rerere</tt>) merge
+boo-boo. The MIGRATION_REQUEST registration in StorageService had been dropped out. Sorry
+for wasting other people's time; this bug is not in upstream. Will close post-assertion
+commit. 
+
+

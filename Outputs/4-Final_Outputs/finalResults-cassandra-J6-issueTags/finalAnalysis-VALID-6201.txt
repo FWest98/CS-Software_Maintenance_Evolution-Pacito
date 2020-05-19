@@ -1,0 +1,119 @@
+Pattern changes caused by commit: ebafaeba3496769e18dc76ca7a7efde450d9e81b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6201.txt 
+
+commit ebafaeba3496769e18dc76ca7a7efde450d9e81b
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    add CompositeType ref to the CLI doc for create/update column family
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3980
+
+
+
+==================================
+ Issue CASSANDRA-3980 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3980] Cli should be able to define CompositeType comparators
+-----------------
+
+-----------------
+Summary: Cli should be able to define CompositeType comparators
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 29 Feb 2012 14:45:37 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 Feb 2012 18:30:09 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+There is currently no way to define, for instance, CompositeType(UTF8Type,Int32Type) in a
+CF definition.  
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Are we sure of that? At least I'm sure I've create a CF with compositeType with the cli at
+some point, though I suppose it may be broken since then. You do have to use quote though. 
+
+
+New Comment: 
+If we can, we should add an example in the help.  I asked Pavel before creating this
+though and he told me to create it <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+And you can't really use just a CompositeType it returns 'Invalid definition for
+comparator org.apache.cassandra.db.marshal.CompositeType' 
+
+
+New Comment: 
+Hum, what I mean is that on the 1.0 branch, in the cli, you can do:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>[default@test] create column family cf with
+comparator='CompositeType(UTF8Type,
+Int32Type)';53c527f0-62e8-11e1-0000-fe8ebeead9f9Waiting for schema agreement...... schemas
+agree across the cluster[default@test] set cf[a]['foo:3'] = 3;Value inserted.Elapsed time:
+48 msec(s).[default@test] get cf[a];=&gt; (column=foo:3, value=03,
+timestamp=1330528624015000)Returned 1 results.Elapsed time: 43 msec(s).</pre></div></div>I
+agree that an example in the help would be great, and I suppose we could update the CLI so
+that you don't need the quotes at all (though imho it's not worth the trouble), but it
+works. 
+
+
+New Comment: 
+huh, if it works like that I think we can simply document that. 
+
+
+New Comment: 
+updated docs for create/update column family. 
+
+
+New Comment: 
++1 
+
+

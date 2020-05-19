@@ -1,0 +1,95 @@
+Pattern changes caused by commit: 5796542aa45a5defa0cadcb03662c527daa5f634
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6905.txt 
+
+commit 5796542aa45a5defa0cadcb03662c527daa5f634
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix stress classpath and slf4j warnings.
+    Patch by Nick Bailey, reviewed by Kirk True for CASSANDRA-4276
+
+
+
+==================================
+ Issue CASSANDRA-4276 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4276] Multiple SLF4J bindings warning when running stress
+-----------------
+
+-----------------
+Summary: Multiple SLF4J bindings warning when running stress
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 23 May 2012 15:38:15 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 29 May 2012 22:37:37 +0000
+-----------------
+
+-----------------
+Assigned to: Nick Bailey
+-----------------
+
+-----------------
+Description: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>&gt; ./tools/bin/stressSLF4J: Class path contains multiple SLF4J
+bindings.SLF4J: Found binding in
+[jar:file:/path/apache-cassandra-1.1.0/tools/lib/stress.jar!/org/slf4j/impl/StaticLoggerBinder.class]SLF4J:
+Found binding in
+[jar:file:/path/apache-cassandra-1.1.0/lib/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]SLF4J:
+See http://www.slf4j.org/codes.html#multiple_bindings for an
+explanation.</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Also looks like stress no longer works in the binary dist due to a classpath problem. 
+
+
+New Comment: 
+Fixes the slf4j warning as well as allowing running from the tarball dist. 
+
+
+New Comment: 
++1, patch applies and fixes issue against current trunk. 
+
+

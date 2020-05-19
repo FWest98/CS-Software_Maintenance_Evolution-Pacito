@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 309666b4dddd7e0292d8dfc5661901d9cb9fc549
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7935.txt 
+
+commit 309666b4dddd7e0292d8dfc5661901d9cb9fc549
+Author: Yuki Morishita <yukim@apache.org>
+
+    Skip repair on system_trace and keyspaces with RF=1; patch by yukim reviewed by Sylvain Lebresne for CASSANDRA-4956
+
+
+
+==================================
+ Issue CASSANDRA-4956 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4956] exclude system_traces from repair
+-----------------
+
+-----------------
+Summary: exclude system_traces from repair
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Nov 2012 18:04:36 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 15 Nov 2012 17:01:36 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+When a repair is issued, the system ks is skipped but not system_traces.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Can we generalize this to "don't bother doing validation compactions for RF=1?" 
+
+
+New Comment: 
+Patch attached for 1.2.0 branch.<br/>Cassandra already skips repair when there is no
+endpoint to repair with. This patch goes further and makes it skip queueing repair
+session.<br/>I also did refactoring around various repair methods. 
+
+
+New Comment: 
++1 
+
+

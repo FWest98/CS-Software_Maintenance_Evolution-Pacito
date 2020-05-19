@@ -1,0 +1,113 @@
+Pattern changes caused by commit: fff2c085c4cc4b88cfa1d0eb072fedec7a654fe2
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3932.txt 
+
+commit fff2c085c4cc4b88cfa1d0eb072fedec7a654fe2
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Update pig example script to work again.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2487
+
+
+
+==================================
+ Issue CASSANDRA-2487 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2487] Pig example script no longer working
+-----------------
+
+-----------------
+Summary: Pig example script no longer working
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 15 Apr 2011 16:34:19 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 29 Apr 2011 19:28:03 +0000
+-----------------
+
+-----------------
+Assigned to: Jeremy Hanna
+-----------------
+
+-----------------
+Description: 
+
+There is a strange error given when trying to run the
+example-script.pig.
+
+java.io.IOException: Type mismatch in key from map: expected
+org.apache.pig.impl.io.NullableBytesWritable, recieved
+org.apache.pig.impl.io.NullableText<br/>	at
+org.apache.hadoop.mapred.MapTask$MapOutputBuffer.collect(MapTask.java:870)<br/>	at
+org.apache.hadoop.mapred.MapTask$NewOutputCollector.write(MapTask.java:573)<br/>	at
+org.apache.hadoop.mapreduce.TaskInputOutputContext.write(TaskInputOutputContext.java:80)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.collect(PigMapReduce.java:116)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:238)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)<br/>	at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)<br/>	at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:646)<br/>	at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:322)<br/>	at
+org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:210)
+
+Looks like it
+has to do with <a href="https://issues.apache.org/jira/browse/PIG-919" title="Type
+mismatch in key from map: expected org.apache.pig.impl.io.NullableBytesWritable, recieved
+org.apache.pig.impl.io.NullableText when doing simple group" class="issue-link"
+data-issue-key="PIG-919"><del>PIG-919</del></a> and <a
+href="https://issues.apache.org/jira/browse/PIG-1277" title="Pig should give error message
+when cogroup on tuple keys of different inner type" class="issue-link"
+data-issue-key="PIG-1277"><del>PIG-1277</del></a>.  For now we can just cast the var as a
+chararray and it works though.  Will attach a patch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Did the workaround they use in <a href="https://issues.apache.org/jira/browse/PIG-919"
+title="Type mismatch in key from map: expected
+org.apache.pig.impl.io.NullableBytesWritable, recieved org.apache.pig.impl.io.NullableText
+when doing simple group" class="issue-link"
+data-issue-key="PIG-919"><del>PIG-919</del></a> by casting as a chararray for now.  Also
+put the schema in the load.  Made the name of the keyspace and column family not like the
+old 0.6 stuff.  Also updated the readme a bit and included an example of setting env vars
+for running locally since a FAQ. 
+
+
+New Comment: 
+Thanks, committed. 
+
+

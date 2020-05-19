@@ -1,0 +1,88 @@
+Pattern changes caused by commit: 45c8f53a2c42f48317110908734119a7cb24baf1
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6994.txt 
+
+commit 45c8f53a2c42f48317110908734119a7cb24baf1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Raise a meaningful exception instead of NPE when PFS encounters an unconfigured node
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-4349
+
+
+
+==================================
+ Issue CASSANDRA-4349 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4349] PFS should give a friendlier error message when a node has not been configured
+-----------------
+
+-----------------
+Summary: PFS should give a friendlier error message when a node has not been configured
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 16 Jun 2012 03:06:37 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 18 Jun 2012 19:15:45 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+see <a href="https://issues.apache.org/jira/browse/CASSANDRA-4345" title="New
+(bootstrapping) Supplant Healthy Nodes" class="issue-link"
+data-issue-key="CASSANDRA-4345"><del>CASSANDRA-4345</del></a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached. 
+
+
+New Comment: 
++1 
+
+

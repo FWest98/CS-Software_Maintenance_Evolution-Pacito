@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 93aaeba8aff49d2ce98a8fca7911a7e385e089c3
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4372.txt 
+
+commit 93aaeba8aff49d2ce98a8fca7911a7e385e089c3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix CLI parsing of read_repair_chance
+    patch by Jon Hermes; reviewed by jbellis for CASSANDRA-2837
+
+
+
+==================================
+ Issue CASSANDRA-2837 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2837] Setting RR Chance via CliClient results in chance being too low
+-----------------
+
+-----------------
+Summary: Setting RR Chance via CliClient results in chance being too low
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 28 Jun 2011 20:04:39 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 Jun 2011 01:15:19 +0000
+-----------------
+
+-----------------
+Assigned to: Jon Hermes
+-----------------
+
+-----------------
+Description: 
+
+running a command like 
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>"update column family shorturls with
+read_repair_chance=0.4;"</pre></div></div>
+results in the value being set to 0.0040. Was
+expecting it to be 0.4.
+
+Affects 0.7.6.-2; seems to be fixed on trunk/0.8.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Straightforward patch.<br/>If the help says it expects a double from 0.0 to 1.0, it
+shouldn't then divide by 100 as if expecting a percentage. 
+
+
+New Comment: 
+committed, thanks! 
+
+

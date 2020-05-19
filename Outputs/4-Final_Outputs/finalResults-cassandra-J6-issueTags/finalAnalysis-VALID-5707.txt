@@ -1,0 +1,271 @@
+Pattern changes caused by commit: d38aea143338939c887a0bd7c28225f77f310e90
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5707.txt 
+
+commit d38aea143338939c887a0bd7c28225f77f310e90
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow configuring bloom_filter_fp_chance
+    patch by yukim and jbellis for CASSANDRA-3497
+
+
+
+==================================
+ Issue CASSANDRA-3497 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3497] BloomFilter FP ratio should be configurable or size-restricted some other way
+-----------------
+
+-----------------
+Summary: BloomFilter FP ratio should be configurable or size-restricted some other way
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 15 Nov 2011 22:30:04 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 5 Jan 2012 23:10:21 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+When you have a live dc and purely analytical dc, in many situations you can have less
+nodes on the analytical side, but end up getting restricted by having the BloomFilters
+in-memory, even though you have absolutely no use for them.  It would be nice if you could
+reduce this memory requirement by tuning the desired FP ratio, or even just disabling them
+altogether.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hmm, that sounds messy.  How do you propose to distinguish BF configuration per-datacenter
+in the schema? 
+
+
+New Comment: 
+Perhaps as a strategy_option? 
+
+
+New Comment: 
+BF configuration needs to be per CF like in HBASE. This will allow to have CF used for log
+with minimal BF if their rows are rarely read back.See HBASE for example:<br/><a
+href="http://hbase.apache.org/book/blooms.html#d1161e4353" class="external-link"
+rel="nofollow">http://hbase.apache.org/book/blooms.html#d1161e4353</a> 
+
+
+New Comment: 
+It will be good to have ability to shrink bloom filter during loading. Save only standard
+cassandra bloom filters but shrink them during load according to CF settings. 
+
+
+New Comment: 
+The problem is that currently strategy_options for NTS is thoroughly for replication
+setting, for example {DC1:2, DC2:2}.<br/>We can do like strategy_options={DC1:2, DC2:1,
+DC2:fp(0.5)} or strategy_options={DC1:2, DC2:1,fp(0.5)} or something  preserving backward
+compatibility, but I think it's complicated.Maybe easiest fix is to have node-wide setting
+for fp ratio in cassandra.yaml (w/ jmx interface exposed) and have different values for
+each datacenter? 
+
+
+New Comment: 
+<blockquote>Maybe easiest fix is to have node-wide setting for fp ratio in cassandra.yaml
+(w/ jmx interface exposed) and have different values for each datacenter?</blockquote>Yes,
+I think that's good enough for the multi-datacenter scenario, however as Radim mentioned
+we also have a good use case for a per-CF threshold.  We could do both, and then use
+whichever value is the lower, the one in the CF schema or the one in the node's yaml. 
+
+
+New Comment: 
+Let's just go with a per-CF option.  Brandon's right that ideally we'd like to configure
+it differently (ideally leaving them out entirely) in analytical DCs but I don't want to
+invent a totally new concept in 1.0.x, and having it per-CF (which we get via schema) is
+more important than having it per-DC (which we get with strategy_options). 
+
+
+New Comment: 
+I added 2 new Bloom Filter related options  to CFMetadata.<ul class="alternate"
+type="square">	<li>filter_enabled<br/>  if set to false, SSTableReader uses EMPTY bloom
+filter. Default to true.</li></ul><ul class="alternate" type="square">	<li>fp_ratio<br/> 
+if the value is greater than 0, SSTableReader adjusts Bloom Filter based on FP ratio and
+uses it. Default to 0.</li></ul>BloomFilter is created and saved as usual, but when
+opening SSTableReader, you got the one based on the CF setting.One thing to note is that
+the change is effective when next time SSTableReader is opened, so  you need to restart
+node or compact/scrub sstable for existing sstables. 
+
+
+New Comment: 
+Can we do it with a single setting?fp_ratio = null: use current 15-buckets-per-element
+filters<br/>fp_ratio = 0: no filter<br/>fp_ratio &gt; 0: BF based on given FP
+probabilityFurther, I think we should split this up so that for 1.0 we only worry about
+the null and positive cases &#8211; let's do a separate ticket for 1.1 about skipping the
+BF entirely. 
+
+
+New Comment: 
+OK, in attached patch, I removed filter_enabled option. 
+
+
+New Comment: 
+Sorry, I didn't look closely enough the first time.  The BloomFilter#modify approach won't
+work: when we change the BF parameters we change what bits should be set &#8211; there's
+no way to rebuild it with new parameters without re-inserting all the keys.Attached v3
+that just changes the BloomFilter constructor in SSTableWriter.  (So, people will have to
+scrub to rebuild things, but that's the best we can do.)  Also changed the setting to
+bloom_filter_fp_chance and updated cli help.How does that look to you? 
+
+
+New Comment: 
+Jonathan,Yours is what I first tried, but instead I tried to do it in SSTR, and I think
+that is what we can do best for 1.0.x.<br/>One thing to point out is that it NPE when
+fpChance is null and try to convert it to double at SSTableWriter.java#403. 
+
+
+New Comment: 
+v4 attached with unbox-of-null fixed. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+i compiled jars with this patch and cassandra do not boots an existing node Opening
+/var/lib/cassandra/data/system/Migrations-hc-109 (757635 bytes)<br/> INFO <span
+class="error">&#91;SSTableBatchOpen:1&#93;</span> 2011-12-24 18:26:47,326
+SSTableReader.java (line 134) Opening /var/lib/cassandra/data/system/LocationInfo-hc-273
+(647 bytes)<br/> INFO <span class="error">&#91;SSTableBatchOpen:1&#93;</span> 2011-12-24
+18:26:47,338 SSTableReader.java (line 134) Opening
+/var/lib/cassandra/data/system/HintsColumnFamily-hc-1 (275 bytes)<br/> INFO <span
+class="error">&#91;SSTableBatchOpen:2&#93;</span> 2011-12-24 18:26:47,338
+SSTableReader.java (line 134) Opening
+/var/lib/cassandra/data/system/HintsColumnFamily-hc-2 (85 bytes)<br/> INFO <span
+class="error">&#91;main&#93;</span> 2011-12-24 18:26:47,396 DatabaseDescriptor.java (line
+501) Loading schema version ad8d50b0-2cc3-11e1-0000-b1504fb874be<br/>ERROR <span
+class="error">&#91;main&#93;</span> 2011-12-24 18:26:47,555 AbstractCassandraDaemon.java
+(line 372) Exception encountered during startup<br/>org.apache.avro.AvroTypeException:
+Found
+{"type":"record","name":"CfDef","namespace":"org.apache.cassandra.db.migration.avro","fields":[{"name":"keyspace","type":"string"},{"name":"name","type":"string"},{"name":"column_type","type":["string","null"]},{"name":"comparator_type","type":["string","null"]},{"name":"subcomparator_type","type":["string","null"]},{"name":"comment","type":["string","null"]},{"name":"row_cache_size","type":["double","null"]},{"name":"key_cache_size","type":["double","null"]},{"name":"read_repair_chance","type":["double","null"]},{"name":"replicate_on_write","type":"boolean","default":false},{"name":"gc_grace_seconds","type":["int","null"]},{"name":"default_validation_class","type":["null","string"],"default":null},{"name":"key_validation_class","type":["null","string"],"default":null},{"name":"min_compaction_threshold","type":["null","int"],"default":null},{"name":"max_compaction_threshold","type":["null","int"],"default":null},{"name":"row_cache_save_period_in_seconds","type":["int","null"],"default":0},{"name":"key_cache_save_period_in_seconds","type":["int","null"],"default":3600},{"name":"row_cache_keys_to_save","type":["null","int"],"default":null},{"name":"merge_shards_chance","type":["null","double"],"default":null},{"name":"id","type":["int","null"]},{"name":"column_metadata","type":[{"type":"array","items":{"type":"record","name":"ColumnDef","fields":[{"name":"name","type":"bytes"},{"name":"validation_class","type":"string"},{"name":"index_type","type":[{"type":"enum","name":"IndexType","symbols":["KEYS","CUSTOM"],"aliases":["org.apache.cassandra.config.avro.IndexType"]},"null"]},{"name":"index_name","type":["string","null"]},{"name":"index_options","type":["null",{"type":"map","values":"string"}],"default":null}]}},"null"]},{"name":"row_cache_provider","type":["string","null"],"default":"org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider"},{"name":"key_alias","type":["null","bytes"],"default":null},{"name":"compaction_strategy","type":["null","string"],"default":null},{"name":"compaction_strategy_options","type":["null",{"type":"map","values":"string"}],"default":null},{"name":"compression_options","type":["null",{"type":"map","values":"string"}],"default":null}]},
+expecting
+{"type":"record","name":"CfDef","namespace":"org.apache.cassandra.db.migration.avro","fields":[{"name":"keyspace","type":"string"},{"name":"name","type":"string"},{"name":"column_type","type":["string","null"]},{"name":"comparator_type","type":["string","null"]},{"name":"subcomparator_type","type":["string","null"]},{"name":"comment","type":["string","null"]},{"name":"row_cache_size","type":["double","null"]},{"name":"key_cache_size","type":["double","null"]},{"name":"read_repair_chance","type":["double","null"]},{"name":"replicate_on_write","type":"boolean","default":false},{"name":"gc_grace_seconds","type":["int","null"]},{"name":"default_validation_class","type":["null","string"],"default":null},{"name":"key_validation_class","type":["null","string"],"default":null},{"name":"min_compaction_threshold","type":["null","int"],"default":null},{"name":"max_compaction_threshold","type":["null","int"],"default":null},{"name":"row_cache_save_period_in_seconds","type":["int","null"],"default":0},{"name":"key_cache_save_period_in_seconds","type":["int","null"],"default":3600},{"name":"row_cache_keys_to_save","type":["null","int"],"default":null},{"name":"merge_shards_chance","type":["null","double"],"default":null},{"name":"id","type":["int","null"]},{"name":"column_metadata","type":[{"type":"array","items":{"type":"record","name":"ColumnDef","fields":[{"name":"name","type":"bytes"},{"name":"validation_class","type":"string"},{"name":"index_type","type":[{"type":"enum","name":"IndexType","symbols":["KEYS","CUSTOM"],"aliases":["org.apache.cassandra.config.avro.IndexType"]},"null"]},{"name":"index_name","type":["string","null"]},{"name":"index_options","type":["null",{"type":"map","values":"string"}],"default":null}],"aliases":<span
+class="error">&#91;&quot;org.apache.cassandra.config.avro.ColumnDef&quot;&#93;</span>}},"null"]},{"name":"row_cache_provider","type":["string","null"],"default":"org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider"},{"name":"key_alias","type":["null","bytes"],"default":null},{"name":"compaction_strategy","type":["null","string"],"default":null},{"name":"compaction_strategy_options","type":["null",{"type":"map","values":"string"}],"default":null},{"name":"compression_options","type":["null",{"type":"map","values":"string"}],"default":null},{"name":"bloom_filter_fp_chance","type":["double","null"]}],"aliases":<span
+class="error">&#91;&quot;org.apache.cassandra.config.avro.CfDef&quot;&#93;</span>}<br/>   
+    at org.apache.avro.io.ResolvingDecoder.doAction(ResolvingDecoder.java:212)<br/>       
+at org.apache.avro.io.parsing.Parser.advance(Parser.java:88)<br/>        at
+org.apache.avro.io.ResolvingDecoder.readFieldOrder(ResolvingDecoder.java:121)<br/>       
+at org.apache.avro.generic.GenericDatumReader.readRecord(GenericDatumReader.java:138)<br/>
+       at
+org.apache.avro.generic.GenericDatumReader.read(GenericDatumReader.java:114)<br/>       
+at org.apache.avro.generic.GenericDatumReader.readArray(GenericDatumReader.java:192)<br/> 
+      at org.apache.avro.generic.GenericDatumReader.read(GenericDatumReader.java:116)<br/>
+       at
+org.apache.avro.generic.GenericDatumReader.readRecord(GenericDatumReader.java:142)<br/>   
+    at org.apache.avro.generic.GenericDatumReader.read(GenericDatumReader.java:114)<br/>  
+     at org.apache.avro.generic.GenericDatumReader.read(GenericDatumReader.java:105)<br/> 
+      at org.apache.cassandra.io.SerDeUtils.deserialize(SerDeUtils.java:60)<br/>        at
+org.apache.cassandra.db.DefsTable.loadFromStorage(DefsTable.java:98)<br/>        at
+org.apache.cassandra.config.DatabaseDescriptor.loadSchemas(DatabaseDescriptor.java:502)<br/>
+       at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:179)<br/>
+       at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:355)<br/>
+       at org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:107) 
+
+
+New Comment: 
+Radim,Thanks for the report. The problem is that the new bloom_filter_fp_chance in avro
+interface definition does not have proper default.<br/>I attached the patch to fix it. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+FP ratio it is not displayed in output of cli: show schema, describe; 
+
+
+New Comment: 
+We've tried this patch with 1.0.6 with fp_ratio of 0.99 (if I get it correctly, after a
+major compaction and a single albeit large SSTable, bloom filter has very little effect).
+We've found that many records that were inserted counld not be fetched in a multiget_slice
+query. It seemed as if the bloom filters resulted in <b>false negatives</b>.By the way,
+the fix patch (0001-give-default-val-to-fp_chance.patch) works for the 1.1 branch but not
+for 1.0. 
+
+
+New Comment: 
+<blockquote>the fix patch (0001-give-default-val-to-fp_chance.patch) works for the 1.1
+branch but not for 1.0</blockquote>it's already applied to both.  (Note that we've
+switched to git, the old svn repo is no longer maintained.) 
+
+
+New Comment: 
+Patch attached so that cli show schema or describe commands show bloom_filter_fp_chance if
+set. 
+
+
+New Comment: 
+<blockquote>We've found that many records that were inserted counld not be fetched in a
+multiget_slice query. It seemed as if the bloom filters resulted in false
+negatives.</blockquote>I have trouble understanding how this could be the case, because if
+our BF could cause false negatives then surely we'd see that even at today's low default
+FP rates.  This patch didn't change how the BF is used, only the parameters it's created
+with, nor does it try to retrofit the new BF parameters onto existing sstables.You did
+apply the v4 patch and not an earlier one, right? 
+
+
+New Comment: 
+<blockquote>Patch attached so that cli show schema or describe commands show
+bloom_filter_fp_chance if set.</blockquote>committed 
+
+
+New Comment: 
+I actually applied the '<a href="https://issues.apache.org/jira/browse/CASSANDRA-1"
+title="Remove support" class="issue-link"
+data-issue-key="CASSANDRA-1"><del>CASSANDRA-1</del></a>.0-3497' patch, which I can see now
+is not the most updated one. We'll probably revisit this once 1.0.7 is out. 
+
+
+New Comment: 
+Makes sense, that's what I was referring to when I reviewed that patch and said "the
+BloomFilter#modify approach won't work."  v4 / 1.0 branch should be fine. 
+
+

@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 46689e51b4c5479e7875bf918a820c5e74c3b418
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6386.txt 
+
+commit 46689e51b4c5479e7875bf918a820c5e74c3b418
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Shut down thrift on decommission.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-4086
+
+
+
+==================================
+ Issue CASSANDRA-4086 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4086] decom should shut thrift down
+-----------------
+
+-----------------
+Summary: decom should shut thrift down
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 27 Mar 2012 02:12:39 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 27 Mar 2012 17:31:38 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+If you decom a node an then try to use it, you get nothing but timeouts.  Instead let's
+just kill thrift so intelligent clients can move along.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Trivial patch to shut thrift down just before gossip/MS. 
+
+
+New Comment: 
+should we just have it call drain() instead of partially reimplementing it? 
+
+
+New Comment: 
+I've tried that, but it feels like it makes the logic for decom much less clear, and has a
+side effect that drain shuts the node down, which we don't want. 
+
+
+New Comment: 
+Why don't we want that? 
+
+
+New Comment: 
+Historically I think the reasoning is you may have packaging that automatically restarts
+the process, which is something you don't really want with decom, but isn't a huge problem
+for drain.  David apparently ran into this problem on <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1483"
+title="RejectedExecutionException thrown on decommissioned node" class="issue-link"
+data-issue-key="CASSANDRA-1483"><del>CASSANDRA-1483</del></a>. 
+
+
+New Comment: 
+WFM then, +1 
+
+

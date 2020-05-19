@@ -1,0 +1,142 @@
+Pattern changes caused by commit: a6c567ea99ae883afa99b61e4e46463e62b611f6
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7115.txt 
+
+commit a6c567ea99ae883afa99b61e4e46463e62b611f6
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    change nanoTime() to currentTimeInMillis() in schema related code
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4432
+
+
+
+==================================
+ Issue CASSANDRA-4432 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4432] Change nanoTime() to currentTimeInMillis() in schema related code.
+-----------------
+
+-----------------
+Summary: Change nanoTime() to currentTimeInMillis() in schema related code.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 10 Jul 2012 16:51:58 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 10 Jul 2012 17:17:48 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+From nanoTime() description:
+
+"The value returned represents nanoseconds since some fixed
+but arbitrary time (perhaps in the future, so values may be negative). This method
+provides nanosecond precision, but not necessarily nanosecond accuracy. No guarantees are
+made about how frequently values change."
+
+Also see <a
+href="http://www.mail-archive.com/dev@cassandra.apache.org/msg04992.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/dev@cassandra.apache.org/msg04992.html</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+In order to be consistent with timestamps elsewhere, shouldn't the changes read
+System.currentTimeMills * 1000? 
+
+
+New Comment: 
+We have millis * 1000 for columns but I don't see a reason to do that for schema as all
+columns would be created with the same millis resolution by all migrations. 
+
+
+New Comment: 
+Its a consideration for existing users.  Any user who would have created a keyspace before
+this fix, will have timestamps in whatever System.nanoTime() returns.  The bigger you make
+the timestamp, the less users will be stuck attempting to fix their timestamps so they can
+update their schema (I guess using sstable2json?).  Plus, its consistent with columns <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+I suppose that since we'll access the system table (including the schema) directly in
+CQL3, it might be worth using micro-seconds. 
+
+
+New Comment: 
+Good point. 
+
+
+New Comment: 
+Ok, I will add * 1000 there. 
+
+
+New Comment: 
+nit: we have a FBUtilities.timestampMicros() 
+
+
+New Comment: 
+Right, this is what I was thinking about <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Committed change to timestampMicros(). 
+
+

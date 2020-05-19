@@ -1,0 +1,92 @@
+Pattern changes caused by commit: 6cdbb2d7b16fdd783c7bb93b9b40b79d526f342d
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7959.txt 
+
+commit 6cdbb2d7b16fdd783c7bb93b9b40b79d526f342d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix WITH compaction_strategy -> WITH compaction
+    patch by jbellis for CASSANDRA-4968
+
+
+
+==================================
+ Issue CASSANDRA-4968 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4968] CQL3 Descrepancies
+-----------------
+
+-----------------
+Summary: CQL3 Descrepancies
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 16 Nov 2012 21:19:19 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 17 Nov 2012 17:30:36 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+I upgraded an environment from 1.1.6 to 1.2 beta
+
+We found the following differences
+between cql3 versions:
+
+The CLUSTERING ORDER BY requires all columns be specified in 1.2
+whereas 1.1 defaulted to ASC
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">CREATE TABLE table1(   col1 text, 
+ classtype ascii,   kt bigint,   id uuid,   PRIMARY KEY (col1,classtype,kt)) WITH COMPACT
+STORAGEAND CLUSTERING ORDER BY(classtype ASC, kt DESC)</pre></div></div>
+1.1 didn't
+require classtype in the ORDER BY, 1.2 does.
+
+----------
+
+In docs/cql3.textile there is
+mention of 'compaction_strategy' CREATE option but the actual option is
+'compaction'
+
+----------
+
+cqlsh for some reason renders all bytes fields as strings in 1.2
+whereas in 1.1 they were hex.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

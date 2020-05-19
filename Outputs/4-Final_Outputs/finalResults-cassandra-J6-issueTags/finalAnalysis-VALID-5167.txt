@@ -1,0 +1,157 @@
+Pattern changes caused by commit: 6fa1eaacc7c7bbacffbef264b2120dce1901400f
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5167.txt 
+
+commit 6fa1eaacc7c7bbacffbef264b2120dce1901400f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    off-heap cache to use sun.misc.Unsafe instead of JNA
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3271
+
+
+
+==================================
+ Issue CASSANDRA-3271 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3271] off-heap cache to use sun.misc.Unsafe instead of JNA
+-----------------
+
+-----------------
+Summary: off-heap cache to use sun.misc.Unsafe instead of JNA
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 28 Sep 2011 22:06:17 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 5 Oct 2011 23:00:45 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Instead of requiring JNA for off-heap caches we should try to use sun.misc.Unsafe.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+If we're rolling our own Memory, why do we need FreeableMemory subclassing it? 
+
+
+New Comment: 
+... I guess we might want a Memory object that we don't reference count around.  Although
+I can't see any benefit there vs just keeping it on-heap. 
+
+
+New Comment: 
+<blockquote>If we're rolling our own Memory, why do we need FreeableMemory subclassing
+it?</blockquote>FreeableMemory is already subclassing o.a.c.io.util.Memory. <blockquote>I
+guess we might want a Memory object that we don't reference count around. Although I can't
+see any benefit there vs just keeping it on-heap.</blockquote>I don't see it either. But
+anyway - if we will need that in the future o.a.c.io.util.Memory can be changed
+appropriately. 
+
+
+New Comment: 
+can you verify that this works w/ jdk 7 as well as 6? 
+
+
+New Comment: 
+Sure. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>might as well use UtilUnsafe.getUnsafe since we
+already use high_scale_lib</li>	<li>i think it's fine to leave off the super.finalize +
+throwable declaration on Memory.finalize</li></ul>otherwise, lgtm. 
+
+
+New Comment: 
+Also: bounds checking for <b>each byte</b> seems pretty heavyweight.  Feels like we'd want
+to add setBytes/getBytes for arrays (that just does one bounds check outside the inner
+loop), and update MemoryOutputStream to use that.  (I realize this is not a new problem
+for the Unsafe Memory per se.) 
+
+
+New Comment: 
+After thinking about it - it maybe not such a good idea to buffer memory contents
+comparing to boundary checks. 
+
+
+New Comment: 
+? 
+
+
+New Comment: 
+If we will move to setBytes/getBytes that means that we will need to make
+BufferedMemory{Output/Input}Stream and on my opinion it kind of breaks idea of off-heap
+caches because we create such streams on each serialization/deserialization of the cache
+value so this re-buffering of the memory will be done all the time. 
+
+
+New Comment: 
+After <a href="https://issues.apache.org/jira/browse/CASSANDRA-3275" title="Make Cassandra
+compile under JDK 7" class="issue-link"
+data-issue-key="CASSANDRA-3275"><del>CASSANDRA-3275</del></a> is committed I can now
+confirm that patch works under JDK 7. 
+
+
+New Comment: 
+v2 attached.  fixes an off-by-one in checkPosition, and adds the multibyte methods I
+described. 
+
+
+New Comment: 
+Oh, I misunderstood you - I thought that you wanted to make Memory{Input/Output}Stream
+classes buffered... your patch looks good +1 
+
+
+New Comment: 
+validation of the buffer added to setBytes/getBytes Memory methods. In checkPosition(...)
+IllegalArgumentException changed to IndexOutOfBoundsException 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>+        else if (bufferOffset &lt; 0+                 || bufferOffset
+&gt; buffer.length+                 || count &lt; 0+                 || bufferOffset +
+count &gt; buffer.length+                 || bufferOffset + count &lt;
+0)</pre></div></div>I think the 2nd and 5th predicates there are redundant &#8211; e.g.,
+if we know bufferOffset and count are both positive, then we also know bufferOffset +
+count is positive w/o needing to test it explicitly.other than that, +1 
+
+
+New Comment: 
+removed 2 redundant predicates for Memory.setBytes(...) and committed. 
+
+

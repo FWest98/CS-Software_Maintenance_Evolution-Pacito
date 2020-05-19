@@ -1,0 +1,131 @@
+Pattern changes caused by commit: 1e5f900646ab3e30de807e2f512cc6eec3ad4ae0
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3746.txt 
+
+commit 1e5f900646ab3e30de807e2f512cc6eec3ad4ae0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    re-set bootstrapped flag after move finishes
+    patch by jbellis; reviewed by Peter Schuller and Nick Bailey for CASSANDRA-2435
+
+
+
+==================================
+ Issue CASSANDRA-2435 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2435] auto bootstrap happened on already bootstrapped nodes
+-----------------
+
+-----------------
+Summary: auto bootstrap happened on already bootstrapped nodes
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Apr 2011 17:29:40 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 11 Apr 2011 03:10:06 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+I believe the following was observed on 0.7.2. I meant to dig deeper, but never had the
+time, and now I want to at least file this even if I don't have extremely helpful
+information.
+
+A piece of background is that we consciously made the decision to have the
+default configuration on nodes have auto_bootstrap set to true. The logic was that if one
+accidentally were to start a new node, we'd rather have it join with data than join
+<b>without</b> data and cause bogus read results in the cluster.
+
+We executed this policy
+(by way of having the puppet managed config have auto_bootstrap set to true).
+
+On one of
+our clusters with 5 nodes, we did some moves. All looked well; the moves completed. For
+unrelated reasons, we wanted to restart nodes after they had been moved. When we did,
+three of the 5, specifically those 3 that were <b>NOT</b> seed nodes, initiated a
+bootstrap procedure! Before the moves the cluster had been running for several days at
+least.
+
+The logs indicated the automatic token selection, and they joined the ring under a
+new automatically selected token.
+
+Presumably, this violated consistency but at the time
+there was no live traffic to the cluster and we didn't confirm (put traffic on it after
+repair+cleanup).
+
+I did look a little bit at the code in light of this but didn't see
+anything obvious, so I don't really know what the likely culprit is.
+
+A potential
+complication was that seed nodes were moved without using the correct procedure of
+de-seeding them first. This was clearly wrong, but it is not obvious to me that it would
+cause other nodes to incorrectly bootstrap since a node should <b>never</b> bootstrap more
+than once if the local system tables say it's been bootstrapped.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+recall that move (until 0.8) consists of<ul class="alternate"
+type="square">	<li>unbootstrap</li>	<li>bootstrap to new location</li></ul>unbootstrap
+calls storageservice.leavering (same as decommission), which marks the node as
+not-bootstrapped with setBootstrapped(false).  in one of the refactorings during 0.7
+development we removed the call to setBootstrapped(true) from finishBootstrapping.  So
+next restart it will indeed autobootstrap if that is enabled in the config file. 
+
+
+New Comment: 
+patch to fix. 
+
+
+New Comment: 
+FWIW, looks good to me (but I only did visual inspection and some code jumping in the 0.7
+branch; haven't tested it). 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

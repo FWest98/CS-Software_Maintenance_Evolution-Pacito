@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 6d13ce69b68a0f88fc2b13b2302c70294e078223
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7624.txt 
+
+commit 6d13ce69b68a0f88fc2b13b2302c70294e078223
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    LCS will merge up to 32 L0 sstables as intended
+    patch by jbellis; reviewed by yukim for CASSANDRA-4778
+
+
+
+==================================
+ Issue CASSANDRA-4778 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4778] leveled compaction does less work in L0 than intended
+-----------------
+
+-----------------
+Summary: leveled compaction does less work in L0 than intended
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 8 Oct 2012 22:40:28 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 9 Oct 2012 03:49:30 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+We have this code in the candidate loop:
+<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">.               <span
+class="code-keyword">if</span> (SSTable.getTotalBytes(candidates) &gt;
+maxSSTableSizeInBytes)                {                    <span class="code-comment">//
+add sstables from L1 that overlap candidates</span>                   
+candidates.addAll(overlapping(candidates, generations[1]));                    <span
+class="code-keyword">break</span>;                }</pre></div></div>
+thus, as soon as we
+have enough to compact to make one L1 sstable's worth of data, we stop collecting
+candidates.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to move combine-with-L1 logic outside the candidates loop 
+
+
+New Comment: 
+(introduced by <a href="https://issues.apache.org/jira/browse/CASSANDRA-4341" title="Small
+SSTable Segments Can Hurt Leveling Process" class="issue-link"
+data-issue-key="CASSANDRA-4341"><del>CASSANDRA-4341</del></a>) 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

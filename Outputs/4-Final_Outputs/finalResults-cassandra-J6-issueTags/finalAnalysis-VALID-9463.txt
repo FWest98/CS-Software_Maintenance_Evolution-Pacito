@@ -1,0 +1,287 @@
+Pattern changes caused by commit: 6d7404bc2eec2c34feb6e2b9db938f9e0e5ae208
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9463.txt 
+
+commit 6d7404bc2eec2c34feb6e2b9db938f9e0e5ae208
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: disable split combination, add split size param
+    Patch by Alex Liu, reviewed by brandonwilliams for CASSANDRA-5544
+
+
+
+==================================
+ Issue CASSANDRA-5544 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5544] Hadoop jobs assigns only one mapper in task
+-----------------
+
+-----------------
+Summary: Hadoop jobs assigns only one mapper in task
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 7 May 2013 07:00:42 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 May 2013 17:55:41 +0000
+-----------------
+
+-----------------
+Assigned to: Alex Liu
+-----------------
+
+-----------------
+Description: 
+
+We have got very strange beheviour of hadoop cluster after upgrading <br/>Cassandra from
+1.1.5 to Cassandra 1.2.1. We have 5 nodes cluster of Cassandra, where three of them are
+hodoop slaves. Now when we are submitting job through Pig script, only one map assigns in
+task running on one of the hadoop slaves regardless of <br/>volume of data (already tried
+with more than million rows).<br/>Configure of pig as follows:<br/>export
+PIG_HOME=/oracle/pig-0.10.0<br/>export PIG_CONF_DIR=${HADOOP_HOME}/conf<br/>export
+PIG_INITIAL_ADDRESS=192.168.157.103<br/>export PIG_RPC_PORT=9160<br/>export
+PIG_PARTITIONER=org.apache.cassandra.dht.Murmur3Partitioner
+
+Also we have these following
+properties in hadoop:<br/> &lt;property&gt;<br/>
+&lt;name&gt;mapred.tasktracker.map.tasks.maximum&lt;/name&gt;<br/>
+&lt;value&gt;10&lt;/value&gt;<br/> &lt;/property&gt;<br/> &lt;property&gt;<br/>
+&lt;name&gt;mapred.map.tasks&lt;/name&gt;<br/> &lt;value&gt;4&lt;/value&gt;<br/>
+&lt;/property&gt;
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+same issue with Cassandra 1.2.3. I've tested with both RandomPartitioner and
+Murmur3Partitioner 
+
+
+New Comment: 
+For more information, here is some threads from mail archive<br/>1) <a
+href="http://www.mail-archive.com/user@cassandra.apache.org/msg29663.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg29663.html</a><br/>2)
+<a href="http://www.mail-archive.com/user@cassandra.apache.org/msg28016.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg28016.html</a><br/>3)
+<a href="http://www.mail-archive.com/user@cassandra.apache.org/msg29425.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg29425.html</a> 
+
+
+New Comment: 
+Does 1.1.11 have the same problem? 
+
+
+New Comment: 
+Cassandra version 1.1.11 have no such problem. I have test in single node cluster and it's
+created 15 map. <br/>See attach please. 
+
+
+New Comment: 
+So something goes wrong with 1.2.x version 
+
+
+New Comment: 
+Can you take a look, Alex?  Nothing changed in pig as far I know. 
+
+
+New Comment: 
+<span class="error">&#91;~shamim&#93;</span> How many splits do you get for each hadoop
+node? You can set ConfigHelper.setInputSplitSize to a smaller number to get more mappers
+for your pig job. The existing CassandraStorage class doesn't set it, so it uses the
+defualt value of 64k. So if your nodes has less than 64k rows, it will have only one
+mapper. 
+
+
+New Comment: 
+Some changes had been made to CassandraColumnInputFormat class since 1.1.5e.g.<br/>add
+describe_splits_ex providing improved split size estimate<br/>patch by Piotr Kolaczkowski;
+reviewed by jbellis for <a href="https://issues.apache.org/jira/browse/CASSANDRA-4803"
+title="CFRR wide row iterators improvements" class="issue-link"
+data-issue-key="CASSANDRA-4803"><del>CASSANDRA-4803</del></a> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a> I did some tests with more than 64k row
+and had only one mapper for the whole cluster. Even if we have less than 64k rows, why
+don't we have at least one mapper per node (in my case replication_factor=1) to work on
+rows using data locality. Vnodes are enabled on my cluster, can there be a relation with
+this option ? 
+
+
+New Comment: 
+Yes, if vnode is enale, it creates a lot of smaller splits (which is not preferred, we
+will fix the vnode hadoop too many small splits issue later), so can you test it with
+vnode disable. 
+
+
+New Comment: 
+But if there are many small splits it doesn't mean that we should have more mappers ? I'm
+saying that cause you propose to <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=shamim_ru"
+class="user-hover" rel="shamim_ru">Shamim Ahmed</a> to decrease
+ConfigHelper.setInputSplitSize exactly for that, right ?<br/>I need one more day to test
+without vnodes. 
+
+
+New Comment: 
+Current implementation only matches one mapper to a split. Existing code doesn't set
+InputSplitSize (which means we can't change it to a smaller number unless we change the
+code at setLocation method to do it), so we need more than 64k rows to have more than one
+mapper per node.For vnode we need to support a virtual split which combines multiple small
+splits. 
+
+
+New Comment: 
+okay. I'll test without vnodes and give you a feedback except if <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=shamim_ru"
+class="user-hover" rel="shamim_ru">Shamim Ahmed</a> confirms that he didn't use vnodes,
+which I suppose as he upgraded from C* 1.1.5 to 1.2.1 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a><br/>1) I am using pig and actually don't
+know how many split i had (i am very curious to know how to calculate the split count).
+However i have had more than 30 million rows.<br/>2) I didn't use VNODES.<br/>3) SET
+mapred.min.split.size 12500000; <br/>SET mapred.max.split.size 12500000;<br/> doesn't help
+at all<br/>4) SET pig.noSplitCombination true; - did some magic trick, we got more than
+100 maps but 2 of them (always two maps) got very large Map input records and runs more
+than hours. <br/>5) Observe one very interesting thing when used SET
+pig.noSplitCombination true, a lot of maps created with  	<br/>Map input records 	0 
+
+
+New Comment: 
+To get the splits for the node, call thrift API client.describe_splits_ex(cfName,
+range.start_token, range.end_token, splitsize) it returns the split for that node.where
+range.start_token and range.end_token is the start and end token of the node, and
+splitsize is 64 *1024 
+
+
+New Comment: 
+<span class="error">&#91;~shamim&#93;</span> I think you already found the answer, SET
+pig.noSplitCombination true, so Pig doesn't combine the small splits into one mapper.
+HBase internal code does it as well. I found that C*-1.2.1 update Pig from 0.9.0 version
+to 0.10.0 version which may cause the behavior changes.As far as number 4) and number 5)
+concerns, I think the empty maps/big maps are due to data skewness. If you can first print
+out the splits, then you can check the rows for each split.I will add the following code
+to CassandraStorage.javajob.getConfiguration().setBoolean("pig.noSplitCombination", true); 
+
+
+New Comment: 
+I attached the patch. 
+
+
+New Comment: 
+AFAIK split combination is used to improve performance. Doesn't it mean the same for
+cassandra ?<br/>And if performance decreases without split combination, will the
+performance decrease much more with vnodes ? 
+
+
+New Comment: 
+CassandraColumnInputFormat define the split size, so we don't want Pig to override it by
+combining splits. We can always tune the split size to tune the performance. Next step, we
+can open up a little bit so that Pig user can specify split size configuration.Vnode
+hadoop performance generally decreases, we can do the split combination at Cassandra side
+to improve the performance, which could be another ticket. 
+
+
+New Comment: 
+Version 2 patch is attached. It allows user to define PIG_INPUT_SPLIT_SIZE in the system
+env 
+
+
+New Comment: 
+Alex, thank you very much for your quick response. <br/>However, i am afraid that above
+patch will not solve the problem i described "we got more than 100 maps but 2 of them
+(always two maps) got very large Map input records and runs more than hours - point 4" -
+this behavior is unexpected. This means Map input records is not evenly through cluster,
+most of the maps getting  Map input records = 10000 but only two of them getting more than
+millions.<br/>Certainly i will do some test through thrift api as you described. <br/>One
+more things, would you kindly allows user to define PIG_INPUT_SPLIT_SIZE through cassandra
+store URL as "STORE updated INTO
+'cassandra://KEYSPACE/CF?allow_deletes=true&amp;PIG_INPUT_SPLIT_SIZE=xxxxxx' USING
+CassandraStorage()" instead of system environment. 
+
+
+New Comment: 
+Or maybe via a SET PIG_INPUT_SPLIT_SIZE in Pig script ?<br/><a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alexliu68"
+class="user-hover" rel="alexliu68">Alex Liu</a> I open the second ticket to improve
+performance with vnodes except if you prefer to open it, which could be better <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Version 3 is attached. I add split_size as a parameter. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=cscetbon"
+class="user-hover" rel="cscetbon">Cyril Scetbon</a> please open it, someone else may
+already open it. 
+
+
+New Comment: 
+Committed, with an update to the README to document split_size. 
+
+
+New Comment: 
+Version 4 is attached, it removes getting split size as system env 
+
+
+New Comment: 
+I'm fine with leaving that in for now. 
+
+
+New Comment: 
+I have a plan to do some test in weekend 
+
+
+New Comment: 
+My tests confirm that I have multiple mappers (1025) and each mapper works on a range of
+my column family <a href="http://pastebin.com/vL3uC5Ca" class="external-link"
+rel="nofollow">http://pastebin.com/vL3uC5Ca</a>. Good job ! 
+
+
+New Comment: 
+did you run map reduce job through Pig? 
+
+
+New Comment: 
+Yes. I used Pig 0.11.1, Hadoop 1.1.2 (as newer versions are not supported <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5201" class="external-link"
+rel="nofollow">CASSANDRA-5201</a>) and cassandra 1.2.3 (I added the current patch from git
+commits and built sources) 
+
+

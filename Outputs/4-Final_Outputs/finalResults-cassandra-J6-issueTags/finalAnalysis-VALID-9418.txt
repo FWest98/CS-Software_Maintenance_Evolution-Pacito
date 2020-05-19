@@ -1,0 +1,142 @@
+Pattern changes caused by commit: c4c9626f8b3ba941aa51860a7d10a6e686362f85
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9418.txt 
+
+commit c4c9626f8b3ba941aa51860a7d10a6e686362f85
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Ignore pre-truncate hints
+    patch by Alexey Zotov and jbellis; reviewed by vijay for CASSANDRA-4655
+
+
+
+==================================
+ Issue CASSANDRA-4655 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4655] Truncate operation doesn't delete rows from HintsColumnFamily.
+-----------------
+
+-----------------
+Summary: Truncate operation doesn't delete rows from HintsColumnFamily.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 12 Sep 2012 13:48:11 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 23 May 2013 15:07:46 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Steps to reproduce:<br/>1. Start writing of data to some column family, let name it
+'MyCF'<br/>2. Stop 1 node<br/>3. Wait some time (until some data will be collected in
+HintsColumnFamily)<br/>4. Start node (HintedHandoff will be started automatically for
+'MyCF')<br/>5. Run 'truncate' command for 'MyCF' column family from command from
+cli<br/>6. Wait until truncate will be finished<br/>7. You will see that 'MyCF' is not
+empty because HintedHandoff is copying data 
+
+So, I suggest to clean HintsColumnFamily
+(for truncated column family) before we had started to discard sstables. <br/>I think it
+should be done in CompactionManager#submitTrucate() method. I can try to create patch but
+I need to know right way of cleaning HintsColumnFamily. Could you clarify it?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Maybe it would be easier to record truncate time and drop hints older than that on replay,
+than to make truncate a two-pass operation. 
+
+
+New Comment: 
+Good idea. I'll try to implement it. 
+
+
+New Comment: 
+Patch has been attached. Please review it. 
+
+
+New Comment: 
+Two things:<ol>	<li>Need to store last truncation time across server restart.  Storing
+these as a Map in <tt>system.local</tt> is one option.  (<tt>system</tt> columnfamilies
+are defined in CFMetaData.)</li>	<li>Instead of skipping the entire hint if any component
+CF has been truncated, should generate a new RowMutation with only untruncated CF data in
+it.</li></ol> 
+
+
+New Comment: 
+Are you still working on this, Alexey? 
+
+
+New Comment: 
+Jonathan, I'm sorry for so long delay and a silence from my side. <br/>I've created
+another patch against current trunk (46f1c7fabd6a7102a7a363bcfdc40c62a3bdc461). It uses
+local column family as you suggested. I tested it on three-nodes ccm cluster with
+replication factor 2. Steps:<br/>1. load 150KB per node<br/>2. stop one of them<br/>3.
+wait until both live nodes will have about 20MB of data<br/>4. stop loading of data<br/>5.
+start downed node<br/>6. wait 3-5 seconds after start of hints delivery process and
+truncate data<br/>7. wait until data will be successfully truncated<br/>Results:<br/>Nodes
+which were not stopped are completely empty. Another node <span class="error">&#91;that
+was stopped&#93;</span> contains about several tens rows but all their were marked as
+deleted. Note that the both nodes which weren't stopped before truncate operation has
+about 5-6 thousands of rows.Please review the patch. 
+
+
+New Comment: 
+Is there any progress on review? 
+
+
+New Comment: 
+Overall LGTM, Do we really need to remove removeTruncationTime? IMHO it might be a useful
+information for the user to query.<br/>Instead of caching the truncatedAt in CFS can we
+just cache it in deliverHintsToEndpointInternal? coz it wont be thread safe in CFS
+anyways. 
+
+
+New Comment: 
+Ping <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=azotcsit"
+class="user-hover" rel="azotcsit">Alexey Zotov</a> 
+
+
+New Comment: 
+v3 attached.  I've retained removing obsolete truncation information; otherwise, in the
+case of creating many temporary tables we will cause problems eventually.Moved caching to
+HHOM.  Also combined the new hint time with the existing truncated_at blob for simplicity
+and to make sure both get updated as a group. 
+
+
+New Comment: 
++1 
+
+

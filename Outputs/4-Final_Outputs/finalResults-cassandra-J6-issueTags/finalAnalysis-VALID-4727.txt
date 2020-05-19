@@ -1,0 +1,83 @@
+Pattern changes caused by commit: 58e29caa2882defad24e6617667b39ef52da97d6
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4727.txt 
+
+commit 58e29caa2882defad24e6617667b39ef52da97d6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix log4j initialization in EmbeddedCassandraService
+    patch by jbellis; reviewed by tjake for CASSANDRA-2857
+
+
+
+==================================
+ Issue CASSANDRA-2857 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2857] initialize log4j correctly in EmbeddedCassandraService
+-----------------
+
+-----------------
+Summary: initialize log4j correctly in EmbeddedCassandraService
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 5 Jul 2011 19:51:17 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 29 Aug 2011 15:24:28 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Currently, ECS.cleanUpOldStuff calls CleanupHelper.cleanupAndLeaveDirs(), which
+initialized DatabaseDescriptor which does some logging.  When we go to initialize log4j
+later in AbstractCassandraService, it's too late.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to move the log4j initialization into the "real" entry point classes 
+
+
+New Comment: 
+needs rebase but +1 
+
+
+New Comment: 
+committed 
+
+

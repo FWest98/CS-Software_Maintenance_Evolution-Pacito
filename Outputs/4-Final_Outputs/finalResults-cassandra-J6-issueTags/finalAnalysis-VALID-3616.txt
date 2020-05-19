@@ -1,0 +1,189 @@
+Pattern changes caused by commit: e05fb25675bf20567b530ed862116d0607841ad1
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3616.txt 
+
+commit e05fb25675bf20567b530ed862116d0607841ad1
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Log a message when a streaming action for an unkown session is received
+    instead of NPE.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-2377
+
+
+
+==================================
+ Issue CASSANDRA-2377 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2377] NPE During Repair In StreamReplyVerbHandler
+-----------------
+
+-----------------
+Summary: NPE During Repair In StreamReplyVerbHandler
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 24 Mar 2011 06:57:42 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 24 Mar 2011 18:59:55 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+ERROR <span class="error">&#91;MiscStage:4&#93;</span> 2011-03-24 02:45:05,172
+DebuggableThreadPoolExecutor.java (line 103) Error in
+ThreadPoolExecutorjava.lang.NullPointerException<br/>        at
+org.apache.cassandra.streaming.StreamReplyVerbHandler.doVerb(StreamReplyVerbHandler.java:62)
+       at org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:72)   
+    at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>        at
+java.lang.Thread.run(Unknown Source)<br/>ERROR <span
+class="error">&#91;MiscStage:4&#93;</span> 2011-03-24 02:45:05,172
+AbstractCassandraDaemon.java (line 112) Fatal exception in thread Thread<span
+class="error">&#91;MiscStage:4,5,main&#93;</span>java.lang.NullPointerException<br/>      
+ at
+org.apache.cassandra.streaming.StreamReplyVerbHandler.doVerb(StreamReplyVerbHandler.java:62)
+       at org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:72)   
+    at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>        at
+java.lang.Thread.run(Unknown Source)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+As per my analysis,<br/>I can see that it is happening because StreamOutSession is not
+instantiated.<br/>Which is done via "create" call in StreamOutSession.
+StreamReplyVerbHandler should create a new session, in case StreamOutSession instance is
+null?Will this work as a solution? 
+
+
+New Comment: 
+Can you please provide more log or details on it? 
+
+
+New Comment: 
+Patch to just log a warning when a stream command is received for an unknown session. 
+
+
+New Comment: 
+What could cause unexpected stream commands?  Is there a deeper bug we should be looking
+for? 
+
+
+New Comment: 
+In the case I was looking at there were also some failures in compaction.This was seen
+after running a full repair on the node.I'm not sure that they are related:ERROR <span
+class="error">&#91;CompactionExecutor:1&#93;</span> 2011-03-24 01:56:48,515
+AbstractCassandraDaemon.java (line 112) Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:1,1,main&#93;</span><br/>java.lang.IndexOutOfBoundsException<br/>
+       at java.nio.Buffer.checkIndex(Unknown Source)<br/>        at
+java.nio.HeapByteBuffer.getInt(Unknown Source)<br/>        at
+org.apache.cassandra.db.DeletedColumn.getLocalDeletionTime(DeletedColumn.java:57)<br/>    
+   at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedStandard(ColumnFamilyStore.java:879)<br/>
+       at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedColumnsOnly(ColumnFamilyStore.java:866)<br/>
+       at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeleted(ColumnFamilyStore.java:857)<br/>  
+     at org.apache.cassandra.io.PrecompactedRow.&lt;init&gt;(PrecompactedRow.java:94)<br/>
+       at
+org.apache.cassandra.io.CompactionIterator.getCompactedRow(CompactionIterator.java:147)<br/>
+       at
+org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:108)<br/>   
+    at
+org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:43)<br/>    
+   at
+org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:73)<br/>    
+   at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136)<br/>
+       at
+com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)<br/>       
+at
+org.apache.commons.collections.iterators.FilterIterator.setNextObject(FilterIterator.java:183)<br/>
+       at
+org.apache.commons.collections.iterators.FilterIterator.hasNext(FilterIterator.java:94)<br/>
+       at
+org.apache.cassandra.db.CompactionManager.doValidationCompaction(CompactionManager.java:822)<br/>
+       at
+org.apache.cassandra.db.CompactionManager.access$800(CompactionManager.java:56)<br/>      
+ at org.apache.cassandra.db.CompactionManager$6.call(CompactionManager.java:358)<br/>     
+  at java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)<br/>        at
+java.util.concurrent.FutureTask.run(Unknown Source)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>        at
+java.lang.Thread.run(Unknown Source) 
+
+
+New Comment: 
+In this specific case, the machine was performing a repair and then restarted.  The other
+nodes then sent it session close commands, so really this is just a cosmetic problem. 
+
+
+New Comment: 
+I think I'd rather see it at debug level if it's expected.  +1 otherwise 
+
+
+New Comment: 
+Committed with the message moved to debug. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #406 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/406/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/406/</a>)<br/>    Log a
+message when a streaming action for an unkown session is received<br/>instead of
+NPE.<br/>Patch by brandonwilliams, reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2377" title="NPE During Repair In
+StreamReplyVerbHandler" class="issue-link"
+data-issue-key="CASSANDRA-2377"><del>CASSANDRA-2377</del></a> 
+
+
+New Comment: 
+I was going through the changes made. I wonder what should be the value of
+reply.getSessionID for: StreamReply reply = StreamReply.serializer.deserialize(new
+DataInputStream(bufIn), message.getVersion());Should we check for this, instead of if
+(session == null)            {                logger.warn("Received stream action " +
+reply.action + " for an unknown session from " + message.getFrom());               
+return;         }<br/> <br/>As per log it happens for :<br/><br/> case
+SESSION_FINISHED:<br/><br/><br/>So changes should be something like this:<br/><br/>if
+(SESSION_FINISHED.equals(reply.action.))<br/>            {               
+logger.warn("Received stream action " + reply.action + " for an unknown session from " +
+message.getFrom());                return;         }Idea is to save any additional static
+call on StreamOutSession.get(message.getFrom(), reply.sessionId), which results in object
+instantiation for new Pair&lt;InetAddress, Long&gt;(host, sessionId). 
+
+

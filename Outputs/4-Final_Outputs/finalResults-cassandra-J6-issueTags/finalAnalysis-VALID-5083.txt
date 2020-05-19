@@ -1,0 +1,177 @@
+Pattern changes caused by commit: aca1661d4746070d647d0c088ee4a9bd4df7dae3
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5083.txt 
+
+commit aca1661d4746070d647d0c088ee4a9bd4df7dae3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix tool .bat files when CASSANDRA_HOME contains spaces
+    patch by Tim Almdal; reviewed by jbellis for CASSANDRA-3258
+
+
+
+==================================
+ Issue CASSANDRA-3258 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3258] *.bat files fails when CASSANDRA_HOME contains a white space.
+-----------------
+
+-----------------
+Summary: *.bat files fails when CASSANDRA_HOME contains a white space.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 26 Sep 2011 13:46:54 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 29 Sep 2011 01:44:52 +0000
+-----------------
+
+-----------------
+Assigned to: Tim Almdal
+-----------------
+
+-----------------
+Description: 
+
+Issues 2952 and 2237 fixed the issue for cassandra.bat. But the following bat files need
+the same
+fix:<br/>json2sstable.bat<br/>nodetool.bat<br/>sstable2json.bat<br/>sstablekeys.bat
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This also applies to 1.0.0 
+
+
+New Comment: 
+Can you submit a patch? 
+
+
+New Comment: 
+Sure, I'll try getting that done tomorrow 
+
+
+New Comment: 
+Pull request: <a href="https://github.com/apache/cassandra/pull/4" class="external-link"
+rel="nofollow">https://github.com/apache/cassandra/pull/4</a><br/>Change: <a
+href="https://github.com/talmdal/cassandra/commit/2ffdc581aa758c8bdb2a58d7e43f1e07feca7141"
+class="external-link"
+rel="nofollow">https://github.com/talmdal/cassandra/commit/2ffdc581aa758c8bdb2a58d7e43f1e07feca7141</a> 
+
+
+New Comment: 
+please post a patch here, the ASF does not accept patches via github yet 
+
+
+New Comment: 
+diff --git a/bin/json2sstable.bat b/bin/json2sstable.bat<br/>index 158210c..ceb7987
+100644<br/>&#8212; a/bin/json2sstable.bat<br/>+++ b/bin/json2sstable.bat<br/>@@ -18,7
++18,7 @@<br/> if "%OS%" == "Windows_NT" setlocal if NOT DEFINED CASSANDRA_HOME set
+CASSANDRA_HOME=%~dp0..<br/>-if NOT DEFINED CASSANDRA_CONF set
+CASSANDRA_CONF=%CASSANDRA_HOME%\conf<br/>+if NOT DEFINED CASSANDRA_CONF set
+CASSANDRA_CONF="%CASSANDRA_HOME%\conf"<br/> if NOT DEFINED CASSANDRA_MAIN set
+CASSANDRA_MAIN=org.apache.cassandra.tools.SSTableImport<br/> if NOT DEFINED JAVA_HOME goto
+err@@ -29,10 +29,10 @@ set JAVA_OPTS=^<br/> REM ***** CLASSPATH library setting ***** REM
+Ensure that any user defined CLASSPATH variables are not used on startup<br/>-set
+CLASSPATH=%CASSANDRA_HOME%\conf<br/>+set CLASSPATH="%CASSANDRA_HOME%\conf" REM For each
+jar in the CASSANDRA_HOME lib directory call append to build the CLASSPATH
+variable.<br/>-for %%i in (%CASSANDRA_HOME%\lib&#42;.jar) do call :append %%~fi<br/>+for
+%%i in ("%CASSANDRA_HOME%\lib&#42;.jar") do call :append %%~fi<br/> goto okClasspath
+:append<br/>@@ -41,7 +41,7 @@ goto :eof :okClasspath<br/> REM Include the
+build\classes\main directory so it works in development<br/>-set
+CASSANDRA_CLASSPATH=%CLASSPATH%;%CASSANDRA_HOME%\build\classes\main;%CASSANDRA_CONF%;%CASSANDRA_HOME%\build\classes\thrift<br/>+set
+CASSANDRA_CLASSPATH=%CLASSPATH%;"%CASSANDRA_HOME%\build\classes\main";%CASSANDRA_CONF%;"%CASSANDRA_HOME%\build\classes\thrift"
+set CASSANDRA_PARAMS=<br/> set TOOLS_PARAMS=<br/>diff --git a/bin/nodetool.bat
+b/bin/nodetool.bat<br/>index ea86317..a78c1c9 100644<br/>&#8212;
+a/bin/nodetool.bat<br/>+++ b/bin/nodetool.bat<br/>@@ -21,7 +21,7 @@ if NOT DEFINED
+CASSANDRA_HOME set CASSANDRA_HOME=%~dp0..<br/> if NOT DEFINED JAVA_HOME goto err REM
+Ensure that any user defined CLASSPATH variables are not used on startup<br/>-set
+CLASSPATH=%CASSANDRA_HOME%\conf<br/>+set CLASSPATH="%CASSANDRA_HOME%\conf" REM For each
+jar in the CASSANDRA_HOME lib directory call append to build the CLASSPATH variable.<br/>
+rem for %%i in (%CASSANDRA_HOME%\lib*.jar) do call :append %%~fi<br/>@@ -34,7 +34,7 @@
+goto :eof :okClasspath<br/> REM Include the build\classes\main directory so it works in
+development<br/>-set
+CASSANDRA_CLASSPATH=%CLASSPATH%;%CASSANDRA_HOME%\build\classes\main;%CASSANDRA_HOME%\build\classes\thrift<br/>+set
+CASSANDRA_CLASSPATH=%CLASSPATH%;"%CASSANDRA_HOME%\build\classes\main";"%CASSANDRA_HOME%\build\classes\thrift"<br/>
+goto runNodeTool :runNodeTool<br/>diff --git a/bin/sstable2json.bat
+b/bin/sstable2json.bat<br/>index 6ca91e4..cc4cbce 100644<br/>&#8212;
+a/bin/sstable2json.bat<br/>+++ b/bin/sstable2json.bat<br/>@@ -18,7 +18,7 @@<br/> if "%OS%"
+== "Windows_NT" setlocal if NOT DEFINED CASSANDRA_HOME set CASSANDRA_HOME=%~dp0..<br/>-if
+NOT DEFINED CASSANDRA_CONF set CASSANDRA_CONF=%CASSANDRA_HOME%\conf<br/>+if NOT DEFINED
+CASSANDRA_CONF set CASSANDRA_CONF="%CASSANDRA_HOME%\conf"<br/> if NOT DEFINED
+CASSANDRA_MAIN set CASSANDRA_MAIN=org.apache.cassandra.tools.SSTableExport<br/> if NOT
+DEFINED JAVA_HOME goto err@@ -29,10 +29,10 @@ set JAVA_OPTS=^<br/> REM ***** CLASSPATH
+library setting ***** REM Ensure that any user defined CLASSPATH variables are not used on
+startup<br/>-set CLASSPATH=%CASSANDRA_HOME%\conf<br/>+set
+CLASSPATH="%CASSANDRA_HOME%\conf" REM For each jar in the CASSANDRA_HOME lib directory
+call append to build the CLASSPATH variable.<br/>-for %%i in
+(%CASSANDRA_HOME%\lib&#42;.jar) do call :append %%~fi<br/>+for %%i in
+("%CASSANDRA_HOME%\lib&#42;.jar") do call :append %%~fi<br/> goto okClasspath
+:append<br/>@@ -41,7 +41,7 @@ goto :eof :okClasspath<br/> REM Include the
+build\classes\main directory so it works in development<br/>-set
+CASSANDRA_CLASSPATH=%CLASSPATH%;%CASSANDRA_HOME%\build\classes\main;%CASSANDRA_CONF%;%CASSANDRA_HOME%\build\classes\thrift<br/>+set
+CASSANDRA_CLASSPATH=%CLASSPATH%;"%CASSANDRA_HOME%\build\classes\main";%CASSANDRA_CONF%;"%CASSANDRA_HOME%\build\classes\thrift"
+set CASSANDRA_PARAMS=<br/> set TOOLS_PARAMS=<br/>diff --git a/bin/sstablekeys.bat
+b/bin/sstablekeys.bat<br/>index a0d7641..7d6446a 100644<br/>&#8212;
+a/bin/sstablekeys.bat<br/>+++ b/bin/sstablekeys.bat<br/>@@ -18,7 +18,7 @@<br/> if "%OS%"
+== "Windows_NT" setlocal if NOT DEFINED CASSANDRA_HOME set CASSANDRA_HOME=%~dp0..<br/>-if
+NOT DEFINED CASSANDRA_CONF set CASSANDRA_CONF=%CASSANDRA_HOME%\conf<br/>+if NOT DEFINED
+CASSANDRA_CONF set CASSANDRA_CONF="%CASSANDRA_HOME%\conf"<br/> if NOT DEFINED
+CASSANDRA_MAIN set CASSANDRA_MAIN=org.apache.cassandra.tools.SSTableExport<br/> if NOT
+DEFINED JAVA_HOME goto err@@ -29,10 +29,10 @@ set JAVA_OPTS=^<br/> REM ***** CLASSPATH
+library setting ***** REM Ensure that any user defined CLASSPATH variables are not used on
+startup<br/>-set CLASSPATH=%CASSANDRA_HOME%\conf<br/>+set
+CLASSPATH="%CASSANDRA_HOME%\conf" REM For each jar in the CASSANDRA_HOME lib directory
+call append to build the CLASSPATH variable.<br/>-for %%i in
+(%CASSANDRA_HOME%\lib&#42;.jar) do call :append %%~fi<br/>+for %%i in
+("%CASSANDRA_HOME%\lib&#42;.jar") do call :append %%~fi<br/> goto okClasspath
+:append<br/>@@ -41,7 +41,7 @@ goto :eof :okClasspath<br/> REM Include the
+build\classes\main directory so it works in development<br/>-set
+CASSANDRA_CLASSPATH=%CLASSPATH%;%CASSANDRA_HOME%\build\classes\main;%CASSANDRA_CONF%;%CASSANDRA_HOME%\build\classes\thrift<br/>+set
+CASSANDRA_CLASSPATH=%CLASSPATH%;"%CASSANDRA_HOME%\build\classes\main";%CASSANDRA_CONF%;"%CASSANDRA_HOME%\build\classes\thrift"
+set CASSANDRA_PARAMS=<br/> set TOOLS_PARAMS= 
+
+
+New Comment: 
+Hmm, hope this is the right way to submit the patch.Given the back and forth, it would
+have just been easier for you to add the quotes :-/ 
+
+
+New Comment: 
+Committed, thanks!(For future reference, attaching a file with the patch is easiest to
+work with.) 
+
+

@@ -1,0 +1,180 @@
+Pattern changes caused by commit: c9499e85813970a65796356189e9356083018dbc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3769.txt 
+
+commit c9499e85813970a65796356189e9356083018dbc
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Better detect failure during streaming (always cleaning up tmp files as a consequence)
+    patch by amorton and slebresne; reviewed by jbellis for (the first part of) CASSANDRA-2088
+
+
+
+==================================
+ Issue CASSANDRA-2088 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2088] Clean up after failed (repair) streaming operation
+-----------------
+
+-----------------
+Summary: Clean up after failed (repair) streaming operation
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 1 Feb 2011 05:49:53 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Apr 2011 21:06:46 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Regarding repair: <a
+href="http://www.mail-archive.com/user@cassandra.apache.org/msg09259.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg09259.html</a><br/>And
+compaction: <a href="https://issues.apache.org/jira/browse/CASSANDRA-2084" title="Corrupt
+sstables cause compaction to fail again, and again and again, ..." class="issue-link"
+data-issue-key="CASSANDRA-2084"><del>CASSANDRA-2084</del></a> 
+
+
+New Comment: 
+I'm keen to try this ticket (to learn more about compaction and repair) if it's not
+already been worked on. Also if it's ok for me to take a couple of days while I dig into
+this.For compaction I'm looking in<ul class="alternate"
+type="square">	<li>CompactionManager.doCompaction where it creates a new SSTableWriter via
+cfs.createCompactionWriter()</li>	<li>CompactionManager.doCleanupCompaction() also uses an
+SSTableWriter</li></ul>Are the sorts of failures we're considering for compaction ones
+that come from the CompactionIterator or SSTableScanner ?For repair I'm looking in:<ul
+class="alternate" type="square">	<li>IncomingStreamReader appears to clean up the
+temporary pending file in some error situations. Do we have any more info on the sorts of
+failures here? e.g. If there is an IOException sending the re-stream message, or a non
+checked exception it will fail to cleaup the file.</li>	<li>I'm looking into what happens
+in StreamInSession.finished() closeIfFinished()</li>	<li>Are we considering failures
+during the streaming or when processing the data after the stream has
+finished?</li></ul>Any guidance welcome. 
+
+
+New Comment: 
+<blockquote>Are the sorts of failures we're considering for compaction ones that come from
+the CompactionIterator or SSTableScanner ?</blockquote>Both. Also I suppose it's possible
+for the writer to error out from lack of disk space since it only checks at the beginning
+for space and doesn't "reserve" it vs flushes.<blockquote>Are we considering failures
+during the streaming or when processing the data after the stream has
+finished?</blockquote>The former is much more common (I've never seen the latter
+reported), so I'd start with that. 
+
+
+New Comment: 
+patch 0001 tracks failures during AES streaming, files for failed Stream sessions are
+cleaned up and repair is allowed to continue. Failed files are logged at the
+StreamSession, TreeRequest, and RepairSession level. patch 0002 handle exceptions when
+doing a (normal) compaction and deletes the temp SSTable. The SSTableWriter components are
+closed before deletion so that windows will delete correctly. 
+
+
+New Comment: 
+I think there is a few different things here and I think we should separate them
+somehow.Fixing the fact that streaming leave tmp files around when it fails is a 2 lines
+fix and I think this is simple enough that it could go to 0.7. I'm attaching a patch
+against 0.7. It's extracted from Aaron first patch, although rebased on 0.7 (and fix a
+bug).Making repair aware that there has been some failures is actually more complicated so
+that should go in 0.8.1 or something (and should go to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2433" title="Failed Streams Break
+Repair" class="issue-link" data-issue-key="CASSANDRA-2433"><del>CASSANDRA-2433</del></a>
+or another ticket that describe the problem better). 
+
+
+New Comment: 
+<blockquote>I'm attaching a patch against 0.7</blockquote>Is that
+0001-Better-detect-failures-from-the-other-side-in-Incomi.patch?  I don't see the
+connection to .tmp files.  (Also: have you verified that the channel will actually
+infinite-loop returning 0?  Kind of odd behavior, although I guess it's technically
+within-spec.) 
+
+
+New Comment: 
+<blockquote>Is that 0001-Better-detect-failures-from-the-other-side-in-Incomi.patch? I
+don't see the connection to .tmp files. (Also: have you verified that the channel will
+actually infinite-loop returning 0? Kind of odd behavior, although I guess it's
+technically within-spec.)</blockquote>Yes. IncomingStreamReader does clean the tmp file
+when there is an expection (there's an enclosing 'try catch'). The problem is that no
+exception is raised if the other side of the connection dies. What will happen then is the
+read will infinitely read 0 bytes. So this actually avoid the infinite loop returning 0
+(and so I think answered your second question, so it wasn't very clear).Note that without
+this patch, there is an infinite loop that will hold a socket open forever (and consume
+cpu, though very few probably in that case). So this is not just merely a fix of deleting
+the tmp files. But it does as a consequence of correctly raising an exception when should
+be. 
+
+
+New Comment: 
++1, and can you move some of that explanation inline as a comment? 
+
+
+New Comment: 
+Committed that first part. I think we should keep that open to fix the tmp files for
+failed compaction and move the rest to another ticket (like <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2433" title="Failed Streams Break
+Repair" class="issue-link" data-issue-key="CASSANDRA-2433"><del>CASSANDRA-2433</del></a>
+for instance).About the attached patch on cleaning up failed compaction:<ul>	<li>We should
+also handle cleanup and scrub</li>	<li>We should handle SSTableWriter.Builder as it is yet
+another place where we could miss to cleanup a tmp file on error.</li>	<li>In theory a
+failed flush could leave a tmp file behind. If that happens having a tmp file would be the
+least of your problem but for completeness sake we could handle it.</li>	<li>The logging
+when failing to close iwriter and dataFile in SSTableWriter could probably go at error (we
+should not be failing there, if we do something is wrong)</li>	<li>That's nitpick but I'm
+not a huge fan of catching RuntimeException in this case as this pollute the code for
+something that would be a programming error (that's probably debatable though). Maybe
+another solution would be to have this in the final block. It means making sure
+closeAndDelete() is ok with the file being already closed and/or deleted and having this
+final block <b>after</b> the closeAndOpenReader call.</li></ul> 
+
+
+New Comment: 
+Thanks will take another look at the cleanup for compaction. 
+
+

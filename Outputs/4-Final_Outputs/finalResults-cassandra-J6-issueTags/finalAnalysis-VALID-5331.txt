@@ -1,0 +1,149 @@
+Pattern changes caused by commit: b04b0a6e2293f64685ce5b69be0e0977cc552fb7
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5331.txt 
+
+commit b04b0a6e2293f64685ce5b69be0e0977cc552fb7
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Cleanup usage of StorageService.setMode()
+    patch by slebresne; reviewed by thobbs for CASSANDRA-3388
+
+
+
+==================================
+ Issue CASSANDRA-3388 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3388] StorageService.setMode() is used inconsistently
+-----------------
+
+-----------------
+Summary: StorageService.setMode() is used inconsistently
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 19 Oct 2011 22:45:10 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 28 Oct 2011 17:23:57 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+<tt>StorageService.setMode()</tt>, which ends up setting the OperationMode attribute of
+the related mbean, is used inconsistently.  In most places, it's used like
+"<tt>setMode("MODE: details")</tt>, but in a few places, it's used more like a normal log
+message.
+
+To make this attribute more usable through JMX, <tt>setMode()</tt> should have a
+signature like <tt>setMode(mode, details)</tt>, where the mode parameter could be an enum
+(or even just a string, the main thing is just being consistent).  The OperationMode JMX
+attribute should definitely remain a string, though.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+We're talking about this, right?<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">private</span> void setMode(<span class="code-object">String</span>
+m, <span class="code-object">boolean</span> log)</pre></div></div>Why would we even expose
+this over JMX?  It's not intended to be public. 
+
+
+New Comment: 
+Yes, that's the method.  Sorry, I forgot that there was also a "log" parameter.It's a
+fairly reliable way to figure out if a node is joining, moving, decommissioning, or has
+finished decommissioning.  I'm open to alternative ways of discovering this reliably.  I
+assumed that's why this was exposed through JMX in the first place. 
+
+
+New Comment: 
+I don't see setMode or getMode in StorageServiceMBean.  I'm lost, how is it exposed
+through JMX? 
+
+
+New Comment: 
+It's named getOperationMode(). 
+
+
+New Comment: 
+Ah, okay.setMode isn't exposed though, which is as it should be since it's informational
+only.  Setting it wouldn't actually change any internal state to match. 
+
+
+New Comment: 
+Right, I wasn't suggesting that setMode() be exposed externally at all.  I was merely
+saying that the way it's used <em>internally</em> is inconsistent.  (And since the
+attribute is readable through JMX, being consistent matters.) 
+
+
+New Comment: 
+Ah, I get it now.  I was confused by the description of "making this attribute more usable
+through JMX." 
+
+
+New Comment: 
+A couple of comments on v1 of the patch:<ul>	<li>I think you accidentally lower-cased
+'Leaving' on one line</li>	<li>Everything is done consistently now, but I'm a little bit
+concerned about this being accidentally broken in the future.  Would you mind either
+splitting the mode (currently just the string prefix) into a separate parameter or at
+least documenting the setMode() method with a note about how it should be
+used?</li></ul>Thanks, Sylvain. 
+
+
+New Comment: 
+Yeah right. I was going with the 'smallest diff' approach but I agree we can make that
+cleaner. v2 does so by adding a Mode enumeration. A few details (that I think are ok but
+are worth mentioning):<ul>	<li>the patch changes the semantic of the getOperationMode JMX
+attribute to only return the "mode", not the message part. It can be changed back but I'm
+not sure the message is really useful outside of the log itself and it feels slightly
+cleaner that way.</li>	<li>the modes are in caps. Again, feels more simple, natural but
+that can change.</li>	<li>I've changed the last "mode" from Draining to Drained. Feels
+more useful/right that way.</li>	<li></li></ul> 
+
+
+New Comment: 
+Minor note: <tt>setMode(Mode.DECOMMISSIONED, null, true);</tt> could omit the
+<tt>null</tt> parameter.Other than that, it looks perfect to me, and I agree with your
+thoughts.  Thanks!+1 
+
+

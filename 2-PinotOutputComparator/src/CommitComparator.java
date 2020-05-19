@@ -7,7 +7,7 @@ public class CommitComparator {
     private static int counter = 1;
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "outputs-cassandra";
+    private static String analyzedProject = "outputs-flink";
 
     public static void main(String[] args) throws IOException {
 

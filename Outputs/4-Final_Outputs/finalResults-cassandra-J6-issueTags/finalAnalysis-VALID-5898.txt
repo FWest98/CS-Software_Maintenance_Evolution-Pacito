@@ -1,0 +1,164 @@
+Pattern changes caused by commit: f4064b5ff1c1d14736afdb35493ade0db033668f
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5898.txt 
+
+commit f4064b5ff1c1d14736afdb35493ade0db033668f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix setting 'compaction_strategy_class' using CQL introduced by CASSANDRA-3374
+
+
+
+==================================
+ Issue CASSANDRA-3374 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3374] CQL can't create column with compression or that use leveled compaction
+-----------------
+
+-----------------
+Summary: CQL can't create column with compression or that use leveled compaction
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 18 Oct 2011 13:48:51 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 30 Jan 2012 16:22:04 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Looking at CreateColumnFamilyStatement.java, it doesn't seem CQL can create compressed
+column families, nor define a compaction strategy.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There is also no way to specify a index_type 
+
+
+New Comment: 
+I think we want to support the strategy options and compaction options generically. This
+would make maintenance easier as we won't have to update this each time we add a new
+option, but more importantly if it's not generic, it means one cannot use a custom
+compressor or compaction strategy having options. I understand this complicate matters
+because the parser probably needs to be updated accordingly, but I believe we'd better
+bite the bullet now.It would also be nice to add index_type support and to update the CQL
+doc. 
+
+
+New Comment: 
+If Jonathan says that we can support compound options like 'compression:&lt;something&gt;'
+in CREATE TABLE I'm not against it. 
+
+
+New Comment: 
+I thought we'd use the syntax we use for replication strategy options. 
+
+
+New Comment: 
+ok, I will modify patch to support that then. 
+
+
+New Comment: 
+CQLsh fails with "Unmatched named substitution: 'sstable_compressor' not given for CREATE
+COLUMNFAMILY cf ( KEY text PRIMARY KEY ) WITH compression_parameters:sstable_compressor =
+'SnappyCompressor' and compression_parameters:chunk_size_in_kb = 16 and comparator =
+ascii;"... Tested with raw thrift call - works as excepted. Jonathan do you have any idea
+how to fix that cqlsh problem? 
+
+
+New Comment: 
+No idea. Assigning to Paul to have a look at that part. 
+
+
+New Comment: 
+This is due to a bug in the python driver: <a
+href="http://code.google.com/a/apache-extras.org/p/cassandra-dbapi2/issues/detail?id=11"
+class="external-link"
+rel="nofollow">http://code.google.com/a/apache-extras.org/p/cassandra-dbapi2/issues/detail?id=11</a>Also,
+changes like this should probably include the relevant changes to the CQL doc at
+doc/cql/CQL.textile.I'll look at making those changes if I have a few moments. 
+
+
+New Comment: 
+The python driver bug is fixed, are we good to go for this patch? 
+
+
+New Comment: 
+rebased patch. everything works as expected with cql fixed! 
+
+
+New Comment: 
+patch adds update to CQL.doc 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Was this meant to expose 'compaction_strategy_class' to CQL, as well as
+compaction_strategy_options? It's added here as a valid option, but it doesn't actually do
+anything, and it appears there is no other possible way to set
+CFMetaData.compactionStrategyClass from CQL. 
+
+
+New Comment: 
+<blockquote>Was this meant to expose 'compaction_strategy_class' to CQL</blockquote>Yes 
+
+
+New Comment: 
+it had that option but never actually bothered to set it <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1 
+
+

@@ -1,0 +1,125 @@
+Pattern changes caused by commit: 9f6ad8a4c421fd9793e5831da18edef9b656d94c
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4406.txt 
+
+commit 9f6ad8a4c421fd9793e5831da18edef9b656d94c
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix typo in CLI help
+    patch by j.casares; reviewed by slebresne for CASSANDRA-2839
+
+
+
+==================================
+ Issue CASSANDRA-2839 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2839] Small typos in the cli
+-----------------
+
+-----------------
+Summary: Small typos in the cli
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 29 Jun 2011 00:08:50 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 7 Jul 2011 13:52:36 +0000
+-----------------
+
+-----------------
+Assigned to: Joaquin Casares
+-----------------
+
+-----------------
+Description: 
+
+Memtable thresholds: %s/%s/%s (millions of ops/minutes/MB) was displaying
+ops/MB/minutes.
+
+placement_strategy: the fully qualified class used to place replicas
+in<br/>                        this keyspace. Valid values are<br/>                       
+org.apache.cassandra.locator.SimpleStrategy,<br/>                       
+org.apache.cassandra.locator.NetworkTopologyStrategy,<br/>                        and
+org.apache.cassandra.locator.OldNetworkTopologyStrategy<br/>was being displayed but would
+only accept SimpleStrategy.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I've committed the typo on the memtable thresholds. On the placement_strategy help, are
+you sure ? Because CliTest does use a fully qualified class and don't seem to fail. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #523 (See <a
+href="https://builds.apache.org/job/Cassandra-0.7/523/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.7/523/</a>)<br/>    Fix typo in
+CLI help<br/>patch by j.casares; reviewed by slebresne for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2839" title="Small typos in the cli"
+class="issue-link" data-issue-key="CASSANDRA-2839"><del>CASSANDRA-2839</del></a>slebresne
+: <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143444"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143444</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/cli/CliClient.java</li></ul> 
+
+
+New Comment: 
+This is my output of my test on cassandra-0.7.6 just right now:<span
+class="error">&#91;default@unknown&#93;</span> create keyspace abc with
+placement_strategy=org.apache.cassandra.locator.SimpleStrategy;<br/>Syntax error at
+position 47: missing EOF at '.'<br/><span class="error">&#91;default@unknown&#93;</span>
+create keyspace abc with
+placement_strategy=org.apache.cassandra.locator.NetworkTopologyStrategy;<br/>Syntax error
+at position 47: missing EOF at '.'<br/><span
+class="error">&#91;default@unknown&#93;</span> create keyspace abc with
+placement_strategy=org.apache.cassandra.locator.OldNetworkTopologyStrategy;<br/>Syntax
+error at position 47: missing EOF at '.'<br/><span
+class="error">&#91;default@unknown&#93;</span> create keyspace abc with
+placement_strategy=SimpleStrategy;                                        
+<br/>844d2b67-a7f9-11e0-b6a3-e700f669bcfc<br/>Waiting for schema agreement...<br/>...
+schemas agree across the cluster<br/><span class="error">&#91;default@unknown&#93;</span>
+update keyspace abc with
+placement_strategy=NetworkTopologyStrategy;<br/>9182d288-a7f9-11e0-b6a3-e700f669bcfc<br/>Waiting
+for schema agreement...<br/>... schemas agree across the cluster<br/><span
+class="error">&#91;default@unknown&#93;</span> update keyspace abc with
+placement_strategy=OldNetworkTopologyStrategy;<br/>96344ca9-a7f9-11e0-b6a3-e700f669bcfc<br/>Waiting
+for schema agreement...<br/>... schemas agree across the cluster 
+
+
+New Comment: 
+You'd have to use placement_strategy='org.apache.cassandra.locator.SimpleStrategy' 
+
+
+New Comment: 
+Works! Could we get the help lines to reflect this? 
+
+

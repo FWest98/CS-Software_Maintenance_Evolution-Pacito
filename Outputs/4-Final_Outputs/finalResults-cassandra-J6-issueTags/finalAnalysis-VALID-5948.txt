@@ -1,0 +1,99 @@
+Pattern changes caused by commit: b527d9ffe1807f6ae1b1df15d64d1715bb33f4f1
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5948.txt 
+
+commit b527d9ffe1807f6ae1b1df15d64d1715bb33f4f1
+Author: paul cannon <paul@datastax.com>
+
+    Fix cqlsh data display on python <2.7
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3846
+
+
+
+==================================
+ Issue CASSANDRA-3846 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3846] cqlsh can't show data under python2.5, python2.6
+-----------------
+
+-----------------
+Summary: cqlsh can't show data under python2.5, python2.6
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 3 Feb 2012 20:52:16 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 6 Feb 2012 19:42:17 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+Kris Hahn discovered a python2.6-ism in recent cqlsh changes:
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+     bval = escapedval.encode(output_encoding, errors=<span
+class="code-quote">'backslashreplace'</span>)</pre></div></div>
+before python2.7,
+str.encode() didn't accept a keyword argument for the second parameter. the semantics are
+the same without naming the parameter, though, so removing the "errors=" bit should
+suffice to make it run right.
+
+does not affect any released version, but does affect HEAD
+of cassandra-1.0, cassandra-1.1, and trunk.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+..or <a
+href="https://github.com/thepaul/cassandra/commit/24cfab5ddb4dd1c619c9a14878dd31fd18a3cbe9"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/commit/24cfab5ddb4dd1c619c9a14878dd31fd18a3cbe9</a>
+, found on my 3846 branch 
+
+
+New Comment: 
+edit: this is also a problem on python2.6, not just python2.5. resolution is still the
+same. 
+
+

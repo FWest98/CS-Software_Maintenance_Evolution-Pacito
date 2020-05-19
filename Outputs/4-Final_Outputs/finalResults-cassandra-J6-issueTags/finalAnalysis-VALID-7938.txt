@@ -1,0 +1,200 @@
+Pattern changes caused by commit: add2d2db67a34efdf2f12ac59fd129d6b16ee987
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7938.txt 
+
+commit add2d2db67a34efdf2f12ac59fd129d6b16ee987
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Check gossiper's HOST_ID during hinted handoff.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-4384
+
+
+
+==================================
+ Issue CASSANDRA-4384 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4384] HintedHandoff can begin before SS knows the hostID
+-----------------
+
+-----------------
+Summary: HintedHandoff can begin before SS knows the hostID
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 27 Jun 2012 19:00:58 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 15 Nov 2012 17:58:48 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Since HH fires from the FD, SS won't quite have the hostId yet:
+<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> INFO
+18:58:04,196 Started hinted handoff for host: null with IP: /10.179.65.102 INFO
+18:58:04,197 Node /10.179.65.102 state jump to normalERROR 18:58:04,197 Exception in
+thread Thread[HintedHandoff:1,1,main]java.lang.NullPointerException        at
+org.apache.cassandra.utils.UUIDGen.decompose(UUIDGen.java:120)        at
+org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpointInternal(HintedHandOffManager.java:304)
+       at
+org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpoint(HintedHandOffManager.java:250)
+       at
+org.apache.cassandra.db.HintedHandOffManager.access$400(HintedHandOffManager.java:87)     
+  at
+org.apache.cassandra.db.HintedHandOffManager$4.runMayThrow(HintedHandOffManager.java:433) 
+      at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:26)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.Thread.run(Thread.java:662)</pre></div></div>
+Simple solution seems to be
+getting the hostId from gossip instead.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is a corner-case that only happens to a node that is restarted (and lost its hostId
+map as a result).  It is the result of a hint delivery being triggered (by the
+<em>reception</em> of a gossip message) before the hostId could be processed from the
+message.I see two ways to fix:<ol>	<li>Skip hint delivery when we don't (yet) have a
+hostId.</li>	<li>Persist hostIds the way we do tokens.</li></ol>(1) has the benefit of
+being a one-liner.  Presumably this code exists to schedule hint delivery for a remote
+host that was dead and is now alive.  Since in this case it is <em>us</em> that was down,
+I don't think skipping would be Evil.(2) adds complexity, but guards against any future
+cases of an <tt>IEndpointStateChangeSubscriber.onAlive()</tt> relying on
+<tt>TokenMetadata.isMember()</tt> before looking up a hostId. 
+
+
+New Comment: 
+When a node first starts up without a hostId map, it may be asked to store a hint for a
+node which is down and it won't know the hostId of that node since it never saw it
+alive.We should persist the hostIds to prevent both of these cases where we are missing
+required information when we first start up. 
+
+
+New Comment: 
+I'm inclined to agree with Sam, since this is how the problem is solved with tokens. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4351" title="Consider storing
+more informations on peers in system tables" class="issue-link"
+data-issue-key="CASSANDRA-4351"><del>CASSANDRA-4351</del></a> is relevant (or in other
+words, I agree too since we wanted to persist them anyway for that issue). 
+
+
+New Comment: 
+I'll note that while <a href="https://issues.apache.org/jira/browse/CASSANDRA-4351"
+title="Consider storing more informations on peers in system tables" class="issue-link"
+data-issue-key="CASSANDRA-4351"><del>CASSANDRA-4351</del></a> is similar in spirit, that
+is information we do NOT want to use, so I would prefer this be in LocationInfo with the
+tokens, and have everything else in a different CF, so the old method of blowing away LI
+when something goes bad is still valid. 
+
+
+New Comment: 
+<blockquote>...so I would prefer this be in LocationInfo with the
+tokens...</blockquote>Tokens are now in the <tt>peers</tt> columnfamily, keyed by the
+token with one column for the peer (inet address).  With vnodes, that will become
+many-to-one (the endpoints will not be unique).  Host IDs are one-to-one.  The most
+straightforward approach seemed to be to create another columnfamily (peer_ids?), similar
+to <tt>peers</tt>, but keyed by host ID. 
+
+
+New Comment: 
+or we could replace the existing <tt>peers</tt> entirely (I'd prefer to retain the table
+name) and add an index on the token column for that lookup. 
+
+
+New Comment: 
+<blockquote>or we could replace the existing peers entirely</blockquote>I would agree with
+that, but going a bit further I would imagine that a natural schema for that peers table
+could be something like:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>CREATE TABLE peers (  host_id UUID PRIMARY
+KEY,  peer inet,  tokens set&lt;blob&gt;,)</pre></div></div>with maybe even more info for
+each host but that's for <a href="https://issues.apache.org/jira/browse/CASSANDRA-4351"
+title="Consider storing more informations on peers in system tables" class="issue-link"
+data-issue-key="CASSANDRA-4351"><del>CASSANDRA-4351</del></a>. Of course that specific
+schema means waiting for <a href="https://issues.apache.org/jira/browse/CASSANDRA-3647"
+title="Support collection (list, set, and map) value types in CQL" class="issue-link"
+data-issue-key="CASSANDRA-3647"><del>CASSANDRA-3647</del></a>, but I don't see that as a
+big problem. This wouldn't let use query by token but I don't think that really matter
+because we'll read the whole table content at startup anyway. 
+
+
+New Comment: 
+I have a branch at <a href="https://github.com/acunu/cassandra/tree/CASSANDRA-4384"
+class="external-link"
+rel="nofollow">https://github.com/acunu/cassandra/tree/CASSANDRA-4384</a>
+which<ul>	<li>gossips host ID on startup</li>	<li>persists host IDs to the peers CF and
+loads them on startup</li></ul>I ended up changing the peers schema to be keyed off IP
+address instead of UUID:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>CREATE TABLE peers (  peer inet PRIMARY KEY,
+ token_bytes blob,  ring_id uuid,)</pre></div></div>I agree with Sylvain that it seems
+more natural to use UUID as the key rather than by IP, but that didn't seem as
+straightforward to update when tokens or hostIds change.There is some overlap with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4122" title="Bootstrap and
+decommission with multiple ranges for vnodes" class="issue-link"
+data-issue-key="CASSANDRA-4122"><del>CASSANDRA-4122</del></a> so it would be best to wait
+for that to go in before changing the SystemTable again for this. 
+
+
+New Comment: 
+I like making HOST_ID a full app state, that seems much cleaner.  Unsure on the ip vs uuid
+change at the moment. 
+
+
+New Comment: 
+HOST_ID is a full app state after <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4383" title="Binary encoding of
+vnode tokens" class="issue-link"
+data-issue-key="CASSANDRA-4383"><del>CASSANDRA-4383</del></a> now so we can revisit this. 
+
+
+New Comment: 
+Not sure where we stand on the schema changes, but we can trivially prevent this exception
+by checking the gossiper instead of SS now. 
+
+
+New Comment: 
+We do persist the ring_id for all nodes now, so maybe we should use that. 
+
+
+New Comment: 
++1 on Brandon's fix for 1.2.0. 
+
+

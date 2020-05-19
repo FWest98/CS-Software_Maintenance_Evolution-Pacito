@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 0021d35ee77cef59cc7ca9b37a1389791ded26e1
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3875.txt 
+
+commit 0021d35ee77cef59cc7ca9b37a1389791ded26e1
+Author: Chris Goffinet <goffinet@apache.org>
+
+    Remove checking all column families on startup for compaction candidates
+    patch by goffinet; reviewed by stuhood for CASSANDRA-2444
+
+
+
+==================================
+ Issue CASSANDRA-2444 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2444] Remove checkAllColumnFamilies on startup
+-----------------
+
+-----------------
+Summary: Remove checkAllColumnFamilies on startup
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 9 Apr 2011 03:50:16 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 22 Apr 2011 22:21:07 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Goffinet
+-----------------
+
+-----------------
+Description: 
+
+We've ran into many times where we do not want compaction to run right away against CFs
+when booting up a node. If the node needs to compact, it will do so at the first flush
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Rather than adding an option for this, I think we should remove the check entirely. If the
+node needs to compact, it will do so at the first flush, which is more likely to be
+staggered across the cluster (and if this flush is forced by commitlogs, then AOK). 
+
+
+New Comment: 
+<blockquote>Rather than adding an option for this, I think we should remove the check
+entirely. If the node needs to compact, it will do so at the first flush</blockquote>+1 
+
+

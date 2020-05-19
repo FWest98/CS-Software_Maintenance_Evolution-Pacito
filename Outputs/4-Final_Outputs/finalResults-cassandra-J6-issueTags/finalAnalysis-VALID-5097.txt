@@ -1,0 +1,133 @@
+Pattern changes caused by commit: dc23a33efda97e95233c071dc5317cd6d0d27487
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5097.txt 
+
+commit dc23a33efda97e95233c071dc5317cd6d0d27487
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Evict gossip state immediately when a token is taken over.
+    Patch by vijay, reviewed by brandonwilliams for CASSANDRA-3259
+
+
+
+==================================
+ Issue CASSANDRA-3259 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3259] Replace token leaves the old node state in tact causing problems in cli
+-----------------
+
+-----------------
+Summary: Replace token leaves the old node state in tact causing problems in cli
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 26 Sep 2011 15:51:09 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 30 Sep 2011 21:48:09 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+in the replace token patch we dont evict the node from the Gossip which will leave the
+node lingering around and causes issues in cli (UNReachable nodes)
+
+As a part of the
+replace token if the token is replaced with another token we should remove the old nodes
+Gossip states.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch fixes this issue. We can immediately delete the Application states of the token
+which we just replaced so that we dont gossip about it. 
+
+
+New Comment: 
+If this is causing problems in the cli, the cli is doing something wrong, because
+removeEndpoint already takes it out of the Gossiper's unreachable nodes.  What problem is
+this solving?We do need to expire remove this endpoint but I don't think exposing
+evictFromMembership is the best way. 
+
+
+New Comment: 
+The problem is that, when we do the replace token we dont change the status of the old
+node (to removed ip or something)... hence the Node will get the State back as it is still
+gossiping about the replaced node. Even if removeToken() the states are not removed and
+hence if someone is talking about this node after (Async evict by doStatus()) this node
+will be added back.... hence the node will never go out of the Application State. This
+patch will instead will evict immediately when it sees a irrelevant host. This is simpler
+solution than adding another status like "remove ip". This works as expected in my tests. 
+
+
+New Comment: 
+v2 adds abstraction to evict based on brandon's comments in IRC. 
+
+
+New Comment: 
+Committed, thanks 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #352 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/352/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/352/</a>)<br/>    Evict gossip
+state immediately when a token is taken over.<br/>Patch by vijay, reviewed by
+brandonwilliams for <a href="https://issues.apache.org/jira/browse/CASSANDRA-3259"
+title="Replace token leaves the old node state in tact causing problems in cli"
+class="issue-link"
+data-issue-key="CASSANDRA-3259"><del>CASSANDRA-3259</del></a>brandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1177847"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1177847</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/gms/Gossiper.java</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/service/StorageService.java</li></ul> 
+
+
+New Comment: 
+Hi Brandon, Really sorry about extra work... i missed one change for 1.0 i was separating
+these 2 patches and some how i missed it.... 
+
+
+New Comment: 
+This hasn't been merged up to 1.0 yet so it should probably be (with the last changes from
+Vijay?), and it could probably use an entry in the changelog when doing so. 
+
+

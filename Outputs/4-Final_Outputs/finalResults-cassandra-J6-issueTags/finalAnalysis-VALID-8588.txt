@@ -1,0 +1,98 @@
+Pattern changes caused by commit: 6bddbb2dd242cacd50cf1b98643385c7b22c1939
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8588.txt 
+
+commit 6bddbb2dd242cacd50cf1b98643385c7b22c1939
+Author: Yuki Morishita <yukim@apache.org>
+
+    fix nodetool repair not fail on node down; patch by yukim reviewed by brandonwilliams for CASSANDRA-5203
+
+
+
+==================================
+ Issue CASSANDRA-5203 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5203] Repair command should report error when replica node is dead
+-----------------
+
+-----------------
+Summary: Repair command should report error when replica node is dead
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 30 Jan 2013 23:58:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 1 Feb 2013 21:35:48 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4767" title="Need some
+indication of node repair success or failure" class="issue-link"
+data-issue-key="CASSANDRA-4767"><del>CASSANDRA-4767</del></a> makes nodetool repair
+command to print progress, but when replica node is dead and repair cannot be proceeded,
+nodetool repair just report session finished. Instead, nodetool should report session is
+failed.
+
+Also, it is nice to exit command with status code of 1 when repair failed.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to fail on node dead and exit nodetool with error status code. 
+
+
+New Comment: 
++1 
+
+

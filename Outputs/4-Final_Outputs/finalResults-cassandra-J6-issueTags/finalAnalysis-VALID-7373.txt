@@ -1,0 +1,378 @@
+Pattern changes caused by commit: 846b14019de484e9bf36e8907c48d3518f09e32f
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7373.txt 
+
+commit 846b14019de484e9bf36e8907c48d3518f09e32f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix broken system.schema_* timestamps on system startup
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4561
+
+
+
+==================================
+ Issue CASSANDRA-4561 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4561] update column family fails
+-----------------
+
+-----------------
+Summary: update column family fails
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 21 Aug 2012 09:24:22 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 4 Sep 2012 21:17:21 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+<span class="error">&#91;default@test&#93;</span> show schema;<br/>create column family
+Messages<br/>  with column_type = 'Standard'<br/>  and comparator = 'AsciiType'<br/>  and
+default_validation_class = 'BytesType'<br/>  and key_validation_class = 'AsciiType'<br/> 
+and read_repair_chance = 0.1<br/>  and dclocal_read_repair_chance = 0.0<br/>  and gc_grace
+= 864000<br/>  and min_compaction_threshold = 2<br/>  and max_compaction_threshold =
+4<br/>  and replicate_on_write = true<br/>  and compaction_strategy =
+'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'<br/>  and caching =
+'KEYS_ONLY'<br/>  and compaction_strategy_options = 
+{'sstable_size_in_mb' : '1024'}
+  and
+compression_options = 
+{'chunk_length_kb' : '64', 'sstable_compression' :
+'org.apache.cassandra.io.compress.DeflateCompressor'}
+;
+
+<span
+class="error">&#91;default@test&#93;</span> update column family Messages with
+min_compaction_threshold = 4 and  max_compaction_threshold =
+32;<br/>a5b7544e-1ef5-3bfd-8770-c09594e37ec2<br/>Waiting for schema agreement...<br/>...
+schemas agree across the cluster
+
+<span class="error">&#91;default@test&#93;</span> show
+schema;<br/>create column family Messages<br/>  with column_type = 'Standard'<br/>  and
+comparator = 'AsciiType'<br/>  and default_validation_class = 'BytesType'<br/>  and
+key_validation_class = 'AsciiType'<br/>  and read_repair_chance = 0.1<br/>  and
+dclocal_read_repair_chance = 0.0<br/>  and gc_grace = 864000<br/>  and
+min_compaction_threshold = 2<br/>  and max_compaction_threshold = 4<br/>  and
+replicate_on_write = true<br/>  and compaction_strategy =
+'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'<br/>  and caching =
+'KEYS_ONLY'<br/>  and compaction_strategy_options = 
+{'sstable_size_in_mb' : '1024'}
+  and
+compression_options = 
+{'chunk_length_kb' : '64', 'sstable_compression' :
+'org.apache.cassandra.io.compress.DeflateCompressor'}
+;
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+in logfile I see only this:<br/> INFO <span
+class="error">&#91;MigrationStage:1&#93;</span> 2012-08-21 11:27:55,560
+ColumnFamilyStore.java (line 659) Enqueuing flush of
+Memtable-schema_columnfamilies@970905946(1266/1582 serialized/live bytes, 20 ops)<br/>
+INFO <span class="error">&#91;FlushWriter:5&#93;</span> 2012-08-21 11:27:55,561
+Memtable.java (line 264) Writing Memtable-schema_columnfamilies@970905946(1266/1582
+serialized/live bytes, 20 ops)<br/> INFO <span
+class="error">&#91;FlushWriter:5&#93;</span> 2012-08-21 11:27:55,587 Memtable.java (line
+305) Completed flushing
+/var/lib/cassandra/data/system/schema_columnfamilies/system-schema_columnfamilies-he-196-Data.db
+(1336 bytes) for commitlog position ReplayPosition(segmentId=4914817711083622,
+position=333055) 
+
+
+New Comment: 
+oh, and it obviously happens when I'm trying to change anything else, not only compaction
+treshhold, ex: sstable_size_in_mb 
+
+
+New Comment: 
+I saw a similar case. In my case, columns of schema_keyspaces and schema_columnfamilies in
+the system keyspace had future timestamp such as 2052-08-01 11:22:33. All operations of
+changing schemas were not affected. I do not know why timestamps had future values. I
+fixed it with rebuilding system keyspace. 
+
+
+New Comment: 
+Hmmm, it's possible. How did you rebuilt system keyspace? 
+
+
+New Comment: 
+Zenek, what version are you using? It's possible if you are on version less than 1.1.3 or
+if you have created your schema before 1.1.3 because of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4432" title="Change nanoTime() to
+currentTimeInMillis() in schema related code." class="issue-link"
+data-issue-key="CASSANDRA-4432"><del>CASSANDRA-4432</del></a>... 
+
+
+New Comment: 
+I'm using 1.1.4, but schema was created in 0.8.5Could you help me solve my problem step by
+step? 
+
+
+New Comment: 
+Did you upgrade directly to 1.1.4 or one of the previous 1.1 versions first? Please check
+timestamps in your schema_* ColumnFamilies and see if they have any future dates. The
+easiest way I see to fix this would be to re-create your schema if you have timestamp
+problems from <a href="https://issues.apache.org/jira/browse/CASSANDRA-4432" title="Change
+nanoTime() to currentTimeInMillis() in schema related code." class="issue-link"
+data-issue-key="CASSANDRA-4432"><del>CASSANDRA-4432</del></a> 
+
+
+New Comment: 
+I've upgraded cassandra from 8.7 to 1.0, then to 1.0.5 -&gt; 1.0.6 -&gt; 1.1.0 -&gt; 1.1.1
+-&gt; 1.1.2 -&gt; 1.1.0 -&gt; 1.1.3 -&gt; 1.1.4. 
+
+
+New Comment: 
+aha, so check system.schema_* CFs column's timestamp values I bet they are from the
+future. The simplest fix for you would be to delete system/schema_* SSTables and re-create
+a schema after restart. 
+
+
+New Comment: 
+<blockquote>check system.schema_* CFs column's timestamp values I bet they are from the
+future</blockquote>Can we fix that on startup for other upgraders? 
+
+
+New Comment: 
+Yes, I was about too <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1 I just ended up seeing this problem in our cluster which was upgraded from 1.1.2 to
+1.1.3. Will probably have to find a workaround since I have to change schema now. 
+
+
+New Comment: 
+I took my cluster down for 10 minutes. I took a snapshot of 'show schema' into a text file
+and removed system KS from it so I will only have my KS schema definition in it. Then I
+stop cassandra on all nodes. On each node, I removed system/schema_* folders from system's
+keyspace folder in cassandra data dir. I started all cassandra nodes. When I tried to
+reload the schema file using cli to recreate my CFs, I kept getting the message that CFs
+already exist. When I listed schema_columnfamilies in one of the node, I saws the same
+long timestamps like 2705487066780774 on columns of that CF. So, the procedure didn't
+quiet work out for me. What could have gone wrong here?Please advice. 
+
+
+New Comment: 
+What cassandra version are you running? Did you try to recreate a schema on all of the
+nodes or just one of them? 
+
+
+New Comment: 
+I am running 1.1.3 which was upgraded from 1.1.2. When nodes came up, I created the
+schemas in one node only. 
+
+
+New Comment: 
+As part of my process, I also removed saved_caches/system-*. 
+
+
+New Comment: 
+if you still have such timestamps and messages that CF already exists means that schema
+wasn't empty on restart and was reloaded from one of the nodes. I'm currently working on
+the patch which would fix timestamp situation on node's start up. 
+
+
+New Comment: 
+Do you have an ETA? I'll be happy to monkey apply it on my cluster and be the guinea pig
+for it. 
+
+
+New Comment: 
+Not yet but I'm working on it and soon as it's ready I will attach it here. 
+
+
+New Comment: 
+Don't you want to call cfs.truncate().get() to block for the truncate to finish?  Rest
+LGTM. 
+
+
+New Comment: 
+good point, I would add that and commit, thanks! 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra #2035 (See <a href="https://builds.apache.org/job/Cassandra/2035/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/2035/</a>)<br/>    change
+SYSTEM_TABLE to SYSTEM_KS related to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4561" title="update column family
+fails" class="issue-link" data-issue-key="CASSANDRA-4561"><del>CASSANDRA-4561</del></a>
+merge (Revision cf23bd0a0fd192d991e971bcae94c2447126f873)     Result = FAILURE<br/>xedin :
+<br/>Files : <ul>	<li>src/java/org/apache/cassandra/db/DefsTable.java</li></ul> 
+
+
+New Comment: 
+After applying this patch (1.1.5-tentative) I see the future timestamps being detected and
+fixed:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">INFO [main] 2012-09-07 02:24:00,090 DefsTable.java
+(line 202) Fixing timestamps of schema ColumnFamily schema_keyspaces...INFO [main]
+2012-09-07 02:24:00,168 DefsTable.java (line 202) Fixing timestamps of schema ColumnFamily
+schema_columnfamilies...</pre></div></div>If I list schema_keyspaces I still see the old
+(future) timestamps.Given the timestamps weren't actually updated I did go back and found
+the following error shortly after the restarted node joined the ring (this may or not be
+related):<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [InternalResponseStage:1] 2012-09-07
+02:24:16,555 AbstractCassandraDaemon.java (line 135) Exception in thread <span
+class="code-object">Thread</span>[InternalResponseStage:1,5,main]java.lang.NullPointerException
+       at org.apache.cassandra.db.DefsTable.mergeColumnFamilies(DefsTable.java:468)       
+at org.apache.cassandra.db.DefsTable.mergeSchema(DefsTable.java:346)        at
+org.apache.cassandra.db.DefsTable.mergeRemoteSchema(DefsTable.java:324)        at
+org.apache.cassandra.service.MigrationManager$MigrationTask$1.response(MigrationManager.java:416)
+       at org.apache.cassandra.net.ResponseVerbHandler.doVerb(ResponseVerbHandler.java:45)
+       at org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:59)   
+    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)    
+   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)     
+  at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:679)</pre></div></div>I have however assumed that
+the patch automatically fixes this across all servers in a multi dc ring once this patch
+is applied.  If there is a specific series of steps required to fix this, such as the full
+ring outage, deletion of system/schema_* etc can it please be documented here, the wiki or
+in the NEWS.txt file under upgrading notes? 
+
+
+New Comment: 
+Yes it does, but it assumes that you have schema in agreement across the nodes before it
+tries to fix timestamps. I can put that into NEWS.txt 
+
+
+New Comment: 
+My schema is in agreement, but the timestamps aren't fixed, even though the log suggests
+otherwise (is that previously mentioned NPE related?).  <div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[<span class="code-keyword">default</span>@unknown] describe
+cluster;Cluster Information:   Snitch: org.apache.cassandra.locator.PropertyFileSnitch  
+Partitioner: org.apache.cassandra.dht.RandomPartitioner   Schema versions:        
+89b22434-5e34-381d-83d1-2a3cde1482fe: [x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x,
+x, x, x, x, x, x, x, x][<span
+class="code-keyword">default</span>@unknown]</pre></div></div>Schema updates continue to
+silently fail. 
+
+
+New Comment: 
+Interesting, why does it try to merge remote schema if all of your nodes are in agreement,
+can you run in debug mode as attach the log? The thing is timestamps are fixed long before
+the storage server is initialized and the process involves truncate of the system.schema_*
+CFs so I don't see any other reason why your schema still has old timestamps except some
+other node sent it migration request... NPE that you experience is also interesting,
+cfMetaData() is always not null as CFs are copied from one map to another on KS
+initialization, and KS itself could not be null or you would have the assertion error
+instead of NPE. 
+
+
+New Comment: 
+Maybe we should reopen this if that didn't fully fixed the problem? I'd better hold on a
+bit on 1.1.5 if this is not fixed yet as this seem to hit quite a few people. 
+
+
+New Comment: 
+We are not yet sure what is the problem so I think we should hold on reopening for a bit. 
+
+
+New Comment: 
+I just thought that a good addition to existing patch could be change in
+ColumnSerializer.deserialize to fix timestamps from the future, that way migrations from
+the remote locations would be deserialized with correct timestamp even if they were sent
+with the wrong one... 
+
+
+New Comment: 
+Well, Anton still sees timestamp in the future and is still unable to do schema updates,
+it does sound a lot like there is a problem and it's related to this ticket. I just meant
+that I prefer keeping that in mind before releasing 1.1.5 into the wild too quickly. 
+
+
+New Comment: 
+I understand, but we don't know if that is caused by the fix not working or by something
+else as exception indicates that something was send to the node, this could be a separate
+issue. I will work on the ColumnSerializer change I mentioned and we'll see if it helps. 
+
+
+New Comment: 
+Debug log sent to <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=xedin"
+class="user-hover" rel="xedin">Pavel Yaskevich</a> privately. 
+
+
+New Comment: 
+adding a patch that fixes column timestamp on deserialization. Anton, can you please apply
+and see if that fixes the problem? 
+
+
+New Comment: 
+As I see from the log - timestamps were actually fixed to "7 september 2012 cl 10:58 GMT"
+but then overriten by remote migration, latest patch should help with that. 
+
+
+New Comment: 
+When cassandra 1.1.5 will be available? 
+
+
+New Comment: 
+I've patched &amp; deployed to a couple of nodes where I now see the corrected timestamps.
+ The NPE appears to also be gone.It will take me some time to deploy to the entire ring
+but it looks promising so far. 
+
+
+New Comment: 
+Ring upgraded with the second patch and I am now able to perform schema updates.  Thanks! 
+
+
+New Comment: 
++1 lgtm 
+
+
+New Comment: 
+Committed to cassandra-1.1 branch. 
+
+

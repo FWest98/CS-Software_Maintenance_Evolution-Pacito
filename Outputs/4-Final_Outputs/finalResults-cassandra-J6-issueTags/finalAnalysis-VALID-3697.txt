@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 9c9e79b357fd78a142cef4123e8f56333ff79032
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3697.txt 
+
+commit 9c9e79b357fd78a142cef4123e8f56333ff79032
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix sstable read count regression
+    patch by Stu Hood; reviewed by jbellis for CASSANDRA-2422
+
+
+
+==================================
+ Issue CASSANDRA-2422 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2422] SSTables per read metric is incorrect
+-----------------
+
+-----------------
+Summary: SSTables per read metric is incorrect
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 5 Apr 2011 22:25:23 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 5 Apr 2011 22:47:11 +0000
+-----------------
+
+-----------------
+Assigned to: Stu Hood
+-----------------
+
+-----------------
+Description: 
+
+The sstables per read metric is currently recording the count of live sstables, rather
+than the number that are being read.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Unless this is a trunk-only regression, let's fix for 0.7.5 
+
+
+New Comment: 
+Patch for trunk: not a problem in the 0.7 branch. 
+
+
+New Comment: 
+committed, thanks! 
+
+

@@ -1,0 +1,152 @@
+Pattern changes caused by commit: ec9f6c2c970e47242cfdee6c64d7daf4fab30460
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4580.txt 
+
+commit ec9f6c2c970e47242cfdee6c64d7daf4fab30460
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Update distributed tests to work with whirr 0.4
+    Patch by Michael Allen, reviewed by brandonwilliams for CASSANDRA-2523
+
+
+
+==================================
+ Issue CASSANDRA-2523 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2523] Distributed test scripts not working with Whirr 0.4.0
+-----------------
+
+-----------------
+Summary: Distributed test scripts not working with Whirr 0.4.0
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 20 Apr 2011 19:58:02 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 3 Aug 2011 22:10:43 +0000
+-----------------
+
+-----------------
+Assigned to: Michael Allen
+-----------------
+
+-----------------
+Description: 
+
+I suspect that our runurl based script execution is not working with Whirr 0.4.0, which
+is causing distributed tests that kill/wipe nodes to timeout. See <a
+href="http://incubator.apache.org/whirr/faq.html#how-can-i-modify-the-instance-installation-and-configuration-scripts"
+class="external-link" rel="nofollow">this FAQ entry</a> for a description of the change.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This issue probably relates-to/causes 2504. 
+
+
+New Comment: 
+A work-in-progress patch to include our own "functions" directory as alluded to in the
+Whirr FAQ. I'm not yet certain that it's getting picked up at all. 
+
+
+New Comment: 
+Standard approach works for me most of the time but in like 2-3% of the cases it fails, I
+don't think that runurl is a good and stable solution, maybe we should hold our scripts in
+the test/distributed/scripts directory so we always sure that they are in place instead of
+using whirr's half-broken approach? 
+
+
+New Comment: 
+Any more clarity here on what the right way to fix this is? 
+
+
+New Comment: 
+I'd like to put some more time into the distributed tests once the next revision of
+2319/674 is posted: hopefully 2 weeks from now. 
+
+
+New Comment: 
+Stu was headed in the right direction here.  I've attached a working revised version of
+his patch with a few adjustments.  The main difference is the use of whirr's
+StatementBuilder, which uses jclouds ScriptBuilder.  When an instance of ScriptBuilder is
+rendered and during the 'resolve function dependencies stage', jclouds will search the
+class path for a directory named "functions".  It will then look in that directory for a
+file named after the function that it is trying to resolve.  For example, if in the
+ScriptBuilder there was a call to the function "start_cassandra", then jclouds would look
+for a file named functions/start_cassandra.sh and if found, include its content in the
+ScriptBuilder.  functions/start_cassandra.sh is expected to contain a single function
+definition, namely "start_cassandra".This seems to work fairly well in practice, and we no
+longer use runurl with this solution. 
+
+
+New Comment: 
+updated to fix my use of the incorrect aws-s3 version.  should be 1.0-beta-9b rather than
+1.0. 
+
+
+New Comment: 
+why does install_cassandra.sh use 0.7.0? 
+
+
+New Comment: 
+Currently, the version is always passed to that function so the default never gets used,
+but I guess we should update that to default to 0.8 instead? 
+
+
+New Comment: 
+and to actually answer the question <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  that install script is provided by whirr
+and in 0.4.0 release, they've got it set to 0.7. 
+
+
+New Comment: 
+<blockquote>Currently, the version is always passed to that function so the default never
+gets used, but I guess we should update that to default to 0.8 instead?</blockquote>I
+think I'd rather not have a default so it's always explicit.  Accidentally testing the
+wrong version would be pretty bad.<blockquote>and to actually answer the question  that
+install script is provided by whirr and in 0.4.0 release, they've got it set to
+0.7.</blockquote>Ah, I see <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Attached another version to address the "let's not use a default version of cassandra" in
+install_cassandra.sh 
+
+
+New Comment: 
+Committed. 
+
+

@@ -1,0 +1,76 @@
+Pattern changes caused by commit: b419eb05c6b2ce5edcf9a2848a84e5f7c57193f1
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3345.txt 
+
+commit b419eb05c6b2ce5edcf9a2848a84e5f7c57193f1
+Author: Chris Goffinet <goffinet@apache.org>
+
+    Cli does not support updating replicate_on_write. patch Kelvin Kakugawa; reviewed by Pavel Yaskevich for CASSANDRA-2236
+
+
+
+==================================
+ Issue CASSANDRA-2236 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2236] Cli does not support updating replicate_on_write
+-----------------
+
+-----------------
+Summary: Cli does not support updating replicate_on_write
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 24 Feb 2011 08:46:02 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 24 Feb 2011 18:11:11 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Goffinet
+-----------------
+
+-----------------
+Description: 
+
+Add support for updating a column families replicate on write setting.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch by Kelvin Kakugawa. 
+
+
+New Comment: 
++1 
+
+

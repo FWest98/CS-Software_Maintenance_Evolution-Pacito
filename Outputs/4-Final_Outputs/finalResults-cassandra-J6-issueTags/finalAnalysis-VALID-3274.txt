@@ -1,0 +1,115 @@
+Pattern changes caused by commit: 581d885e0851835cbedb88a665915272eebd038b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3274.txt 
+
+commit 581d885e0851835cbedb88a665915272eebd038b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Handle whole-row deletions in CFOutputFormat
+    patch by Patrik Modesto; reviewed by jbellis for CASSANDRA-2014
+
+
+
+==================================
+ Issue CASSANDRA-2014 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2014] Can't delete whole row from Hadoop MapReduce
+-----------------
+
+-----------------
+Summary: Can't delete whole row from Hadoop MapReduce
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 20 Jan 2011 08:55:30 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Feb 2011 15:09:07 +0000
+-----------------
+
+-----------------
+Assigned to: Patrik Modesto
+-----------------
+
+-----------------
+Description: 
+
+ColumnFamilyRecordWriter.java doesn't support Mutation with Deletion without
+slice_predicat and super_column to delete whole row. The other way I tried is to specify
+SlicePredicate with empty start and finish and I got:
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">java.io.IOException: InvalidRequestException(why:Deletion does not yet
+support SliceRange predicates.)        at
+org.apache.cassandra.hadoop.ColumnFamilyRecordWriter$RangeClient.run(ColumnFamilyRecordWriter.java:355)</pre></div></div>
+I
+tryied to patch the ColumnFamilyRecordWriter.java like this:
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">---
+a/src/java/org/apache/cassandra/hadoop/ColumnFamilyRecordWriter.java+++
+b/src/java/org/apache/cassandra/hadoop/ColumnFamilyRecordWriter.java@@ -166,10 +166,17 @@
+<span class="code-keyword">implements</span>
+org.apache.hadoop.mapred.RecordWriter&lt;ByteBuffer,List&lt;org.apache.cass            
+<span class="code-comment">// deletion</span>             Deletion deletion = <span
+class="code-keyword">new</span> Deletion(amut.deletion.timestamp);            
+mutation.setDeletion(deletion);+             org.apache.cassandra.avro.SlicePredicate
+apred = amut.deletion.predicate;-            <span class="code-keyword">if</span>
+(amut.deletion.super_column != <span class="code-keyword">null</span>)+            <span
+class="code-keyword">if</span> (apred == <span class="code-keyword">null</span> &amp;&amp;
+amut.deletion.super_column == <span class="code-keyword">null</span>)+            {+      
+         <span class="code-comment">// epmty; delete whole row</span>+            }+      
+     <span class="code-keyword">else</span> <span class="code-keyword">if</span>
+(amut.deletion.super_column != <span class="code-keyword">null</span>)+            {      
+          <span class="code-comment">// <span class="code-keyword">super</span>
+column</span>                 deletion.setSuper_column(copy(amut.deletion.super_column));+
+           }             <span class="code-keyword">else</span> <span
+class="code-keyword">if</span> (apred.column_names != <span
+class="code-keyword">null</span>)             {                 <span
+class="code-comment">// column names</span></pre></div></div>
+but that didn't work as
+well.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The patch actually worked, I just did misinterpret the data. 
+
+
+New Comment: 
+Hi, can the fix be merged please? 
+
+
+New Comment: 
+committed, thanks! 
+
+

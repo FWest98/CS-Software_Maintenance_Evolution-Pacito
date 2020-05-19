@@ -1,0 +1,342 @@
+Pattern changes caused by commit: aeaab2445e3fcc022ee3d1c92eda8a56dd509b5a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4656.txt 
+
+commit aeaab2445e3fcc022ee3d1c92eda8a56dd509b5a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    work around native memory leak in com.sun.management.GarbageCollectorMXBean
+    patch by brandonwilliams and jbellis for CASSANDRA-2868
+
+
+
+==================================
+ Issue CASSANDRA-2868 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2868] Native Memory Leak
+-----------------
+
+-----------------
+Summary: Native Memory Leak
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Jul 2011 14:05:41 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 23 Aug 2011 20:06:00 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+We have memory issues with long running servers. These have been confirmed by several
+users in the user list. That's why I report.
+
+The memory consumption of the cassandra java
+process increases steadily until it's killed by the os because of oom (with no swap)
+
+Our
+server is started with -Xmx3000M and running for around 23 days.
+
+pmap -x shows
+
+Total
+SST: 1961616 (mem mapped data and index files)<br/>Anon  RSS: 6499640<br/>Total RSS:
+8478376
+
+This shows that &gt; 3G are 'overallocated'.
+
+We will use BRAF on one of our less
+important nodes to check wether it is related to mmap and report back.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hm after 3 days checking a node that does not use mmaped files it looks like
+this:nativelib: 14128<br/>locale-archive: 1492<br/>ffiSwFShY(deleted): 8<br/>javajar:
+2292<br/><span class="error">&#91;anon&#93;</span>: 3609388<br/><span
+class="error">&#91;stack&#93;</span>: 132<br/>java: 44<br/>7008:
+32<br/>jna534482390478104336.tmp: 92Total RSS: 3627608<br/>Total SST: 0Compared to start
+RSS increased by ~400MB. So it seems that this is not related to mem mapping.We will
+deploy <a href="https://issues.apache.org/jira/browse/CASSANDRA-2654" title="Work around
+native heap leak in sun.nio.ch.Util affecting IncomingTcpConnection" class="issue-link"
+data-issue-key="CASSANDRA-2654"><del>CASSANDRA-2654</del></a> this week. Will see if that
+changes anything but I suspect not ... 
+
+
+New Comment: 
+At one point I was convinced this was a JVM bug and opened <a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7037080" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7037080</a>  After
+seeing how totally broken NIO is after <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2654" title="Work around native heap
+leak in sun.nio.ch.Util affecting IncomingTcpConnection" class="issue-link"
+data-issue-key="CASSANDRA-2654"><del>CASSANDRA-2654</del></a> I'm no longer sure of
+anything.I was going to start a survey on the user list after the summit to see if any
+OS/jvm level pattern could be found, since clearly it doesn't happen to everyone in all
+cases. 
+
+
+New Comment: 
+Is your data size constant?  If not you are probably seeing growth in the index samples
+and bloom filters. 
+
+
+New Comment: 
+Next: <span class="error">&#91;anon&#93;</span>: 3675224 (+47616KB in 1 day)<blockquote>Is
+your data size constant? If not you are probably seeing growth in the index samples and
+bloom filters.</blockquote>Well no - the data size is increasing. But I thought that index
+and bf is good old plain java heap no? JVM heap stats are really relaxed. Yet I think that
+doesn't really matter because what we are seeing is an ever increasing rss mem consumption
+even though we have -Xmx3G and -Xms3G and mlockall (pmap shows these 3G as one block). So
+something seems to be constantly allocating native mem that has nothing to do with java
+heap. 
+
+
+New Comment: 
+We call getLastGcInfo several times a second.  <a
+href="http://twitter.com/#!/kimchy/status/90861039930970113" class="external-link"
+rel="nofollow">http://twitter.com/#!/kimchy/status/90861039930970113</a>You could try
+turning GCInspector methods into a no-op and see if that makes it go away. 
+
+
+New Comment: 
+<a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7066129" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7066129</a> will be the
+id when bugs.sun.com gets around to doing it's thing.I confirmed that
+-XX:MaxDirectMemorySize does not protect you from this (ie it's a native native leak, not
+some DirectByteBuffer thing).  I'll be able to test this but not until the end of this
+week at the earliest (and it will then take at least another week to be sure). 
+
+
+New Comment: 
+In case it is useful to anyone else this is what I intend to test with. 
+
+
+New Comment: 
+Initial results.  Graph of VmRSS from /proc/PID/status at 10 second intervals from my last
+comment to now.  Box on the left has GCInspector disabled.  These are on two test boxes
+under trivial load so this is all still <b>very</b> tentative.  Will start testing under
+real load by early next week. 
+
+
+New Comment: 
+Promising! 
+
+
+New Comment: 
+It's indeed promising. We have been running this in production for 3 days now and rss
+increased only insignificantly by ~5MB a day. 
+
+
+New Comment: 
+<blockquote>We have been running this in production for 3 days now and rss increased only
+insignificantly by ~5MB a day</blockquote>Do you mean it is very helpful to control RSS
+increasing by removing getLastGcInfo()? I have no idea why just some of us meets the
+problem. 
+
+
+New Comment: 
+I interpreted Daniel's "this" to be the 2868-v1.txt patch (or something equivalent) with
+cassandra.enable_gc_inspector=false.  I did not find -XX:MaxDirectMemorySize to be
+helpful. 
+
+
+New Comment: 
+Yes - we did disable the GCInspector. 
+
+
+New Comment: 
+Got it!Do you have any idea why only some of us reports the problem? 
+
+
+New Comment: 
+Well either it's environment specific or (more likely) others didn't notice / care because
+they have enough memory and/or restart the nodes often enough.We have 16GB of RAM and run
+Cassandra with 3GB. Within one month we loose ~3GB (13GB -&gt; 10GB) files system cache
+because of the mem leak. Looking at our graphs I can't really tell a difference
+performance wise. So I guess only people with weaker servers (less memory headroom) will
+really notice. We noticed only because we got the system oom on a cluster that's not
+critical and which we didn't really monitor. 
+
+
+New Comment: 
+Looks good to me. Guess cassandra should just disable the inspector for now (probably make
+it jmx'able to start it manually)Thu Jul 14 09:39:26 CEST 2011: <span
+class="error">&#91;anon&#93;</span>: 3234068<br/>Thu Jul 14 17:22:45 CEST 2011: <span
+class="error">&#91;anon&#93;</span>: 3266888<br/>Fri Jul 15 09:33:53 CEST 2011: <span
+class="error">&#91;anon&#93;</span>: 3269160<br/>Mon Jul 18 09:54:29 CEST 2011: <span
+class="error">&#91;anon&#93;</span>: 3270188 
+
+
+New Comment: 
+We could try switching to what JConsole does, which is just log the total number and time
+spent for each compaction type.  This uses a different API which hopefully does not leak:
+<a
+href="http://www.java2s.com/Open-Source/Java-Document/6.0-JDK-Modules-sun/tools/sun/tools/jconsole/MemoryTab.java.htm"
+class="external-link"
+rel="nofollow">http://www.java2s.com/Open-Source/Java-Document/6.0-JDK-Modules-sun/tools/sun/tools/jconsole/MemoryTab.java.htm</a>Logging
+the lifetime totals there with StatusLogger similar to what we do now for dropped messages
+would be better than nothing. 
+
+
+New Comment: 
+48 hours under production load after C* had already been running for a few days.  Two on
+the left have GCInspector enabled.  The two on the right do not.  (Note that the scale on
+the lower right one reflects a change of only 10s of bytes.)So it looks like victory to
+me. 
+
+
+New Comment: 
+Thanks, Chris.  We'll work on rewriting GCInspector to use the java.lang.management api
+instead, unless you have time to take a stab at that. 
+
+
+New Comment: 
+Depending how long the rewrite is going to take, can we get the config file option to
+disable gc inspector into a new 0.7.X and 0.8.X release? 
+
+
+New Comment: 
+v2 switches the GCInspector to us java.lang.managment.  I don't know if it too leaks or
+not yet. 
+
+
+New Comment: 
+I created three isolated nodes, all with a hack of setting the inspector interval to 1ms
+applied (not the tightest loop, but good enough and easy.)  One of the nodes had the
+inspector disabled entirely (the control), one was vanilla, and one had v2 applied.  After
+starting them up with a 128M heap and letting them run for a few minutes, here are the
+results:<div class='table-wrap'><table class='confluenceTable'><tbody><tr><th
+class='confluenceTh'>version</th><th class='confluenceTh'>resident</th></tr><tr><td
+class='confluenceTd'>control</td><td class='confluenceTd'>72M</td></tr><tr><td
+class='confluenceTd'>patched</td><td class='confluenceTd'>72M</td></tr><tr><td
+class='confluenceTd'>vanilla</td><td
+class='confluenceTd'>540M</td></tr></tbody></table></div>I think it's safe to say
+java.lang.management doesn't share the leak. 
+
+
+New Comment: 
+Comments on v2:<ul>	<li>Couldn't we estimate the reclaimed size by recording the last
+memory used (that would need to be the first thing we do in logGCResults so that we record
+it each time) ?</li>	<li>Wouldn't it be worth indicating that how many collection have
+been done since last log message if it's &gt; 1, since it can (be &gt; 1).</li>	<li>Nit:
+especially if we decide to keep the last memory used, it may be more efficient (in cleaner
+imho) to have just one HashMap of string -&gt; GCInfo where GCInfo would be a small struct
+with times, counts and usedMemory. Not that it is very performance sensitive...</li></ul> 
+
+
+New Comment: 
+<blockquote>Couldn't we estimate the reclaimed size</blockquote>Well, not really, what
+we'd have is "difference in size between last time it was called, and now" which isn't all
+that close to "amount reclaimed by a specific GC."<blockquote>Wouldn't it be worth
+indicating that how many collection have been done since last log message</blockquote>IMO
+the duration-based thresholds are hard to reason about here, where we're dealing w/
+summaries and not individual GC results.  I think I'd rather have something like the
+dropped messages logger, where every N seconds we log the summary we get from the
+mbean.The flushLargestMemtables/reduceCacheSizes stuff should probably be removed. <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<blockquote>Wouldn't it be worth indicating that how many collection have been done since
+last log message if it's &gt; 1, since it can (be &gt; 1).</blockquote>The only reason I
+added count tracking was to prevent it from firing when there were no GCs (the api is
+flakey.)  I've never actually been able to get &gt; 1 to happen, but we can add it to the
+logging.<blockquote>IMO the duration-based thresholds are hard to reason about here, where
+we're dealing w/ summaries and not individual GC results.</blockquote>We are dealing with
+individual GCs at least 99% of the time in practice.  The worst case is &gt;1 GC inflates
+the gctime enough that we errantly log when it's not needed, but I imagine to trigger that
+you would have to be in a gc pressure situation already.<blockquote>I think I'd rather
+have something like the dropped messages logger, where every N seconds we log the summary
+we get from the mbean.</blockquote>That seems like it could be a lot of noise since GC is
+constantly happening.<blockquote>The flushLargestMemtables/reduceCacheSizes stuff should
+probably be removed. </blockquote>I think the logic there is still sound ("Did we just do
+a CMS? Is the heap still 80% full?") and it seems to work as well as it always has. 
+
+
+New Comment: 
+<blockquote>I've never actually been able to get &gt; 1 to happen, but we can add it to
+the logging</blockquote>I'm sure it's possible w/ a small enough heap, especially since
+GCInspector is paused along w/ everything else for STW collections (including new gen).v3
+attached to accomodate this and add durationPerCollection. 
+
+
+New Comment: 
+Why is v3 touching compaction? 
+
+
+New Comment: 
+dirty working directory.  GCI is the only relevant file. 
+
+
+New Comment: 
++1 to GCI changes.  Also, it is indeed possible to get &gt;1 with a tiny heap. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #282 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/282/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/282/</a>)<br/>    work around
+native memory leak in com.sun.management.GarbageCollectorMXBean<br/>patch by
+brandonwilliams and jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2868" title="Native Memory Leak"
+class="issue-link" data-issue-key="CASSANDRA-2868"><del>CASSANDRA-2868</del></a>jbellis :
+<a href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1158490"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1158490</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/service/GCInspector.java</li></ul> 
+
+
+New Comment: 
+Can we get this in 0.7.X as well? 
+
+
+New Comment: 
+Reopening to backport to 0.7 
+
+
+New Comment: 
+Committed to 0.7 in r1160879 
+
+

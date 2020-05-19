@@ -1,0 +1,276 @@
+Pattern changes caused by commit: 134e8c78d2acff21d960b8d78c7efd6bff5c6b29
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8277.txt 
+
+commit 134e8c78d2acff21d960b8d78c7efd6bff5c6b29
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix multithreaded compaction deadlock
+    patch by Carl Yeksigian; reviewed by jbellis for CASSANDRA-4492
+
+
+
+==================================
+ Issue CASSANDRA-4492 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4492] HintsColumnFamily compactions hang when using multithreaded compaction
+-----------------
+
+-----------------
+Summary: HintsColumnFamily compactions hang when using multithreaded compaction
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 5 Aug 2012 04:12:59 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 18 Dec 2012 21:15:52 +0000
+-----------------
+
+-----------------
+Assigned to: Carl Yeksigian
+-----------------
+
+-----------------
+Description: 
+
+Running into an issue on a 6 node ring running 1.0.11 where HintsColumnFamily compactions
+often hang indefinitely when using multithreaded compaction. Nothing of note in the logs.
+In some cases, the compaction hangs before a tmp sstable is even created.
+
+I've wiped out
+every hints sstable and restarted several times. The issue always comes back rather
+quickly and predictably. The compactions sometimes complete if the hint sstables are very
+small. Disabling multithreaded compaction stops this issue from occurring.
+
+Compactions of
+all other CFs seem to work just fine.
+
+This ring was upgraded from 1.0.7. I didn't keep
+any hints from the upgrade.
+
+I should note that the ring gets a huge amount of writes, and
+as a result the HintedHandoff rows get be quite wide. I didn't see any large-row
+compaction notices when the compaction was hanging (perhaps the bug was triggered by
+incremental compaction?). After disabling multithreaded compaction, several of the rows
+that were successfully compacted were over 1GB.
+
+Here is the output I see from
+compactionstats where a compaction has hung. The 'bytes compacted' column never
+changes.
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">pending tasks: 1          compaction type       
+keyspace   column family bytes compacted     bytes total  progress              
+Compaction          systemHintsColumnFamily          268082       464784758    
+0.06%</pre></div></div>
+The hung thread stack is as follows: (full jstack attached, as
+well)
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span
+class="code-quote">"CompactionExecutor:37"</span> daemon prio=10 tid=0x00000000063df800
+nid=0x49d9 waiting on condition [0x00007eb8c6ffa000]   java.lang.<span
+class="code-object">Thread</span>.State: WAITING (parking)        at
+sun.misc.Unsafe.park(Native Method)        - parking to wait <span
+class="code-keyword">for</span>  &lt;0x000000050f2e0e58&gt; (a
+java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)        at
+java.util.concurrent.locks.LockSupport.park(LockSupport.java:158)        at
+java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1987)
+       at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:399)     
+  at
+org.apache.cassandra.db.compaction.ParallelCompactionIterable$Deserializer.computeNext(ParallelCompactionIterable.java:329)
+       at
+org.apache.cassandra.db.compaction.ParallelCompactionIterable$Deserializer.computeNext(ParallelCompactionIterable.java:281)
+       at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)       
+at org.apache.cassandra.utils.MergeIterator$Candidate.advance(MergeIterator.java:147)     
+  at org.apache.cassandra.utils.MergeIterator$ManyToOne.advance(MergeIterator.java:126)   
+    at
+org.apache.cassandra.utils.MergeIterator$ManyToOne.computeNext(MergeIterator.java:100)    
+   at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)       
+at
+org.apache.cassandra.db.compaction.ParallelCompactionIterable$Unwrapper.computeNext(ParallelCompactionIterable.java:101)
+       at
+org.apache.cassandra.db.compaction.ParallelCompactionIterable$Unwrapper.computeNext(ParallelCompactionIterable.java:88)
+       at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)       
+at com.google.common.collect.Iterators$7.computeNext(Iterators.java:614)        at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)    
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)       
+at org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:141)     
+  at
+org.apache.cassandra.db.compaction.CompactionManager$7.call(CompactionManager.java:395)   
+    at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+MT compaction is unfortunately a) not highly used and b) known to be suspect to issues. 
+The best course of action right now is to just not use it. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+I hit this recently as well.Though mine I was able to reproduce.  If you call truncate
+while a compaction is currently going on it hangs both the truncate and the parallel
+compaction iterator. 
+
+
+New Comment: 
+hit this as well on both 1.1.5 and 1.1.6. Turned multhreaded compaction off and
+HintsColumnFamily finished very quickly. Nothing in the logs of interest and not
+reproducible. 
+
+
+New Comment: 
+This actually is severe.  Since they hang, it blocks all schema changes. 
+
+
+New Comment: 
+If you can give us a set of sstables that reliably cause the hang (snapshot before
+compaction option should be useful here) then we can troubleshoot.  Nothing is obviously
+wrong from just eyeballing things. 
+
+
+New Comment: 
+<blockquote>If you call truncate while a compaction is currently going on it hangs both
+the truncate and the parallel compaction iterator. </blockquote>Truncate took some big
+changes for 1.2 (<a href="https://issues.apache.org/jira/browse/CASSANDRA-4096"
+title="mlockall() returned code is ignored w/o assertions" class="issue-link"
+data-issue-key="CASSANDRA-4096"><del>CASSANDRA-4096</del></a>) so I doubt this is still
+the case.  (If it is, I'm not sure it's related to compaction alone causing the hang.) 
+
+
+New Comment: 
+Using 1.2 with LeveledCompaction I have not hit any deadlocks 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a> no I can't.  We turned off MT
+compaction and they have been compacted away. 
+
+
+New Comment: 
+Does your workload also involve truncates <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=tvachon"
+class="user-hover" rel="tvachon">Thomas Vachon</a> <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=mkjellman"
+class="user-hover" rel="mkjellman">Michael Kjellman</a> <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=alienth"
+class="user-hover" rel="alienth">Jason Harvey</a>? 
+
+
+New Comment: 
+No, update heavy though 
+
+
+New Comment: 
+no, minimal (if any) deletes. 
+
+
+New Comment: 
+This is still happening:Looking at the code it seems there are two places where
+HintedHandoffManager calls a user defined compact() for all sstables.Multithreaded
+compaction would allow this to race since I see no check to avoid multiple calls to user
+defined compaction for the same sstables 
+
+
+New Comment: 
+<blockquote>Looking at the code it seems there are two places where HintedHandoffManager
+calls a user defined compact() for all sstable</blockquote>Well that would explain why
+everytime I restart and I get hints, I get every sstable compacted 
+
+
+New Comment: 
+Jake: I think you're missing how markCompacting works in submitUserDefined 
+
+
+New Comment: 
+Ah, I needed to scroll down more.  Well I can confirm this is sill happening in 1.2 but
+only for hints CF 
+
+
+New Comment: 
+Here is what I think is happening (with help from Jake):For simplicity, we are compacting
+two SSTables, sstable-1 and sstable-2.<ul class="alternate" type="square">	<li>Read a row
+from sstable-1, which is empty</li>	<li>We don't call close on the LazilyCompactedRow
+because only Write or Update calls close; this means that the
+NotifyingSSTableIdentityIterator never signals the condition.</li>	<li>Read a row from
+sstable-2, which is not empty</li>	<li>Call hasNext() in CompactionTask's runWith() on the
+iterator for sstable-1, which was never triggered</li></ul>This means that we are now
+deadlocked in ParallelCompactionIterable.Deserializer's as waiting for the signal and
+waiting for another row. We never return because we have no way of closing sstable-1's
+NotifyingSSTableIdentityIterator, and moving to the next row. 
+
+
+New Comment: 
+This patch add the Closeable interface to AbstractCompactedRow, and calls row.close() if
+the row is empty. 
+
+
+New Comment: 
+I think you've nailed it.  Committed to 1.1 and 1.2.0.  Nice work! 
+
+
+New Comment: 
+One more place that wasn't handling the close on empty - was hitting this case as
+well.I've only included the additional patch. 
+
+
+New Comment: 
+fixed formatting and committed 
+
+

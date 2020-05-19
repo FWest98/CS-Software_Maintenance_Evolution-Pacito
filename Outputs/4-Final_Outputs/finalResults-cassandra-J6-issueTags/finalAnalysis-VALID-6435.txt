@@ -1,0 +1,79 @@
+Pattern changes caused by commit: 4a6531172c7d142e199f198e275942b7952c80f7
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6435.txt 
+
+commit 4a6531172c7d142e199f198e275942b7952c80f7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    remove unnecessary asserts in native code interfaces
+    patch by jbellis; reviewed by pschuller for CASSANDRA-4096
+
+
+
+==================================
+ Issue CASSANDRA-4096 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4096] mlockall() returned code is ignored w/o assertions
+-----------------
+
+-----------------
+Summary: mlockall() returned code is ignored w/o assertions
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 28 Mar 2012 03:13:43 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 30 Mar 2012 15:41:53 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+We log that mlockall() was successful only based on the lack of an assertion failure, so
+for anyone running w/o <tt>-ea</tt> we are lying about mlockall() succeeding.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The assert is redundant anyway since JNA will check return value and errno for us. Patch
+attached. 
+
+
+New Comment: 
+Good point. If that's the behavior of JNA, then definitely +1. 
+
+

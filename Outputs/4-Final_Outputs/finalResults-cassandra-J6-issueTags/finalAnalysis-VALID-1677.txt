@@ -1,0 +1,194 @@
+Pattern changes caused by commit: f0a396947afcd40d8ee397c1b4515d0b9c9c4304
+
+From: Abstract Factory-0
+To:   Abstract Factory-2
+
+From: Factory Method-0
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1677.txt 
+
+commit f0a396947afcd40d8ee397c1b4515d0b9c9c4304
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    replace constant-size 2GB mmaped segments and special casing for index entries spanning segment boundaries, with SegmentedFile that computes segments that always contain entire entries (or rows).  patch by Stu Hood and jbellis for CASSANDRA-1117
+
+
+
+==================================
+ Issue CASSANDRA-1117 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1117] Clean up MMAP support
+-----------------
+
+-----------------
+Summary: Clean up MMAP support
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 23 May 2010 20:13:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 6 Jun 2010 04:30:55 +0000
+-----------------
+
+-----------------
+Assigned to: Stu Hood
+-----------------
+
+-----------------
+Description: 
+
+Awareness of MMAP is currently embedded into the SSTableReader implementation and
+IndexSummary. A good number of bugs experienced recently have been due to this lack of
+separation, so it is ripe for abstraction. Additionally, the current implementation does
+not provide a good method for iterating over the segments of a file, which is useful for
+range queries, and lays more stable groundwork for #998.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patches to add SegmentedFile, remove the embedded mmap handling in RowIndexedReader, and
+perform other minor cleanups.This set doesn't go so far as to use SegmentedFile iteration
+in SSTableScanner (since the nested iterators there make it almost impossible to close
+underlying segments), but 998 will. 
+
+
+New Comment: 
+I'm trying to see how these patches make Cassandra more awesome?  I think we've worked out
+the bugs with mmap.  This seems like a big refactor that doesn't net us anything. 
+
+
+New Comment: 
+The MMAP segmenting support in SSTableReader was buggy because the implementation in trunk
+is extremely complicated. RowIndexReader.getPosition for instance, is 110 lines long. The
+MMAP logic for finding segment boundaries is implemented twice in trunk: once for the
+index, and once for the data file. Additionally, the segment support is not abstracted
+enough to support using MMAP'd reads for calls to getNearestPosition, which always fall
+back to buffered files.This patchset addresses all of these issues, and sets us up to be
+able to use MMAP'd reads for Scanners (which currently always use buffered files). Also,
+the set adds support for iterating over the segments in a file, which getNearestPosition
+punts on entirely, and getPosition special cases. Finally, because the segmenting is
+extracted from RowIndexedReader, it will be much easier to reuse for the new API in 998
+and the new file format for 674. Eventually.While this patchset isn't a huge win for
+performance (my quick tests showed a 5% drop), I think it is a huge win for clarity and
+reusability. 
+
+
+New Comment: 
+something's wrong if introducing more mmap-ing reduces performance. 
+
+
+New Comment: 
+nor does this seem like a reduction in complexity overall; it just moves the complexity
+around. 
+
+
+New Comment: 
+In particular, while getting rid of the "spanned entry" index logic is a real improvement,
+this patch adds complexity (and poor performance &#8211; creating BRAFs is not free) to
+the non-mmap'd case by creating BRAF segments instead of mmap'd ones, rather than treating
+it as One Big BRAF.  Non-mmap'd is supposed to be our stable, fall-back path, so I'm
+ambivalent about that.It's also not clear to me if this can handle the wide rows I'm
+introducing for <a href="https://issues.apache.org/jira/browse/CASSANDRA-16" title="Memory
+efficient compactions " class="issue-link"
+data-issue-key="CASSANDRA-16"><del>CASSANDRA-16</del></a>.  It looks like a single row has
+to fit in 2GB here, which isn't going to be acceptable.  (Otherwise, you have to add an if
+statement on each byte read, to see if you need to skip to the next segment, which is an
+approach I tried way back when, but is too slow.)Re performance, at a guess, I'd say
+looking up index segment by navigablemap instead of % is the cause of most of the lost
+performance (in mmap mode). 
+
+
+New Comment: 
+&gt; this patch adds complexity (and poor performance - creating BRAFs is not free) to the
+non-mmap'd case by creating BRAF segments<br/>This patch isn't supposed to create any more
+BRAFs than trunk does: in the non-mmap case, a SegmentedFile with one "null" segment
+should be created, which should result in a BRAF being created for every
+getSegment/getFileDataInput call. I think this is equivalent to the current code.&gt; It
+looks like a single row has to fit in 2GB here, which isn't going to be
+acceptable.<br/>The segment building support (look at SegmentedFile.addPotentialBoundary)
+attempts to create segments that are just barely smaller than the 2GB, but failing that,
+it will create a segment larger than 2GB. The segment which is larger than 2GB will be a
+'null' segment, meaning that getFileDataInput calls for that segment will use a BRAF.&gt;
+I'd say looking up index segment by navigablemap instead of % is the cause of most of the
+lost performance (in mmap mode).<br/>Agreed... it may be possible to optimize this lookup
+somehow, but I think it might be worth eating the cost. 
+
+
+New Comment: 
+I think Cassandra's reached the point where we're willing to trade a little extra
+complexity to get better performance (especially on the read path where we can use all the
+help we can get).But here's an idea, what if you use a 2-level binary search to get to the
+right segment, instead of a treemap?  That is, you'd bsearch the first keys in each
+segment, then bsearch w/in just that segment. 
+
+
+New Comment: 
+I got to thinking about Jonathan's 2-level binary search idea, and realized that a
+multiple level binary search would be handled really well by a tree.The tree I'm imagining
+would be a tree of depth K+2 where K is the number of index/data files (2 in our current
+situation). The 0th level would be a root. At each of the K levels after the root, you
+would have inner nodes representing the segments of the index/data file at that level.
+The 1st level would contain the segments for the smallest file, the 2nd level would
+contain the segments for the second smallest, and the Kth would contain the segments for
+the data file. The K+1th level would contain leaf nodes which would be equivalent to the
+contents of the IndexSummary class.I thiiink I can implement this structure over the
+weekend if it sounds worthwhile?Also, generalizing to multiple levels of indexing means
+that at some point in the future, we could write out multiple index files at progressively
+higher resolution, giving you a balanced tree on disk. Our INDEX_INTERVAL is intended to
+represent the ratio between ram and disk, so theoretical you should always have enough
+memory to summarize the index in memory, but in most cases, a lot of that memory would be
+better served as row cache. 
+
+
+New Comment: 
+Let me take another look at this patchset first on my plane this afternoon. 
+
+
+New Comment: 
+I think we can get this in if you can fix the speed regression.All that should be needed
+is a single-level ArrayList to bsearch on.  You're not doing anything fancy with the
+TreeMap, just using floor.  bsearch on an array will be much more cache-coherent.The
+Builder pattern seems overwrought here.  I'd rather see MappedSegmentedFile and
+BufferedSegmented file, with addPotentialBoundary/completeBoundaryConstruction pushed into
+SF as abstract.Patches 01 04 05 are not core to cleaning up mmap, and move things around
+without any real benefit.  Let's leave those out. 
+
+
+New Comment: 
+<ul>	<li>Replaced TreeMap with an Array of final 'Segment' objects	<ul>		<li>(now very
+slightly faster than trunk)</li>	</ul>	</li>	<li>Rebased for trunk</li>	<li>Removed the
+patch renaming SSTableReaderTest to SegmentedFileTest</li></ul>I didn't remove the builder
+pattern, because the alternative seems pretty ugly (copying the segments array for every
+append). The accessory patches address minor issues that aren't worth opening tickets for,
+but I can remove them if you're sure we don't want them. 
+
+
+New Comment: 
+Noticed a minor bug in Segment comparison: no other changes. 
+
+

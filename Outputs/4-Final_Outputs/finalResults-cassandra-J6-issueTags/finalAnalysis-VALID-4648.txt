@@ -1,0 +1,257 @@
+Pattern changes caused by commit: e987e3b88fb8ca88d1c69bbe48235dd770d8042a
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4648.txt 
+
+commit e987e3b88fb8ca88d1c69bbe48235dd770d8042a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    default auto_bootstrap to true and remove from example configuration
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-2477
+
+
+
+==================================
+ Issue CASSANDRA-2477 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2477] CQL support for describing keyspaces / column familes
+-----------------
+
+-----------------
+Summary: CQL support for describing keyspaces / column familes
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 14 Apr 2011 16:55:32 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 May 2012 19:47:03 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is to do with CQL jdbc support? 
+
+
+New Comment: 
+Sort of. It's really about making CQL feature-complete and not needing the old API
+anymore. 
+
+
+New Comment: 
+Rather than adding new CQL keywords, one alternative would be to take the pgsql approach
+of building this logic into the shell, by querying system CFs. 
+
+
+New Comment: 
+Tooling will want to be able to ask the API to describe:<ul class="alternate"
+type="square">	<li>List all the Keyspace names.</li>	<li>List all the attributes of the
+Keyspace</li>	<li>List all the column families within a Keyspace</li>	<li>List all of the
+column names and types of those columns that have been declared</li>	<li>list all of the
+indexed names and alias names</li></ul>I think this will need to be returned by the API at
+the code level not a shell. How about just a special set of CFs in the "System" Keyspace
+that can be treated as RO data that describes Keyspaces and CFs? 
+
+
+New Comment: 
+<blockquote>I think this will need to be returned by the API at the code level not a
+shell. </blockquote>You misunderstood; I'm not saying that the shell will be the only
+client able to access that, but that the shell can have shortcuts ("\d users" vs "select *
+from pg_class where relname = 'users'"). 
+
+
+New Comment: 
+Sorry... No that is a good idea...Does CLI go away in deference to this new shell level
+access to CQL? Like the features in CLI but using CQL syntax would be great! 
+
+
+New Comment: 
+Yes, we want cqlsh or a similar tool to be a full replacement for the existing cli. 
+
+
+New Comment: 
+<blockquote>Rather than adding new CQL keywords, one alternative would be to take the
+pgsql approach of building this logic into the shell, by querying system
+CFs.</blockquote>How will you actually grok the schema without Avro? 
+
+
+New Comment: 
+<blockquote>How will you actually grok the schema without Avro?</blockquote>That's the
+question, isn't it?What I want to avoid is a special query type (i.e. anything not
+"SELECT") because it makes the language less orthogonal because of implementation details
+that are subject to change (in an ideal world, we'd move away from avro and store schema
+information in "real" columns, with indexes so you could easily say "give me all the
+columns for CF X at schema version Y.")You'd also be limited to basically an RPC style
+call &#8211; no specifying which columns to select, or which rows you're interested in.
+Not without reinventing that wheel on a LOT of code (because SELECT right now relies on
+CFS to perform the actual queries).My first stab was to create a class of "virtual" CFs
+that would contain read-only data for this kind of query. (Attached.) I stopped when I got
+to a chicken/egg problem: the natural place to update this view CF is
+DD.setTableDefinition, but that gets called on startup when Table/CFS objects aren't live
+yet.Trying to fake this at the QueryProcessor layer is also unsatisfactory &#8211; we come
+back to the same kind of limitations we'd have with a special-case query type, that we
+don't have full SELECT support on non-CFS objects without insane amounts of work.Starting
+to think that we'll have to bite the bullet and get rid of avro schema serialization to do
+this right.  Which I do think is doable, but it's more than I want to bite off right now.
+(Until then, clients like JDBC DatabaseMetadata can continue to use the thrift describe_
+calls.) 
+
+
+New Comment: 
+Hi,<br/>Rather than introducing a list of new commands. <br/>Will it be a good option to
+introduce something similar sysobjects in Oracle and information_schema in mysql.Referring
+RDBMS only for such concepts! 
+
+
+New Comment: 
+I addressed exactly this in the comment immediately before yours. 
+
+
+New Comment: 
+Hi,<br/>Just took a reference from oracle data
+dictionary:<br/>dba_all_tables<ul>	<li>dba_indexes</li></ul><ul>	<li>dba_ind_partitions</li></ul><ul>	<li>dba_ind_subpartitions</li></ul><ul>	<li>dba_object_tables</li></ul><ul>	<li>dba_part_col_statistics</li></ul><ul>	<li>dba_subpart_col_statistics</li></ul><ul>	<li>dba_tables</li></ul><ul>	<li>dba_tab_cols</li></ul><ul>	<li>dba_tab_columns</li></ul><ul>	<li>dba_tab_col_statistics</li></ul><ul>	<li>dba_tab_partitions</li></ul><ul>	<li>dba_tab_subpartitions</li></ul>out
+of these, which looks to be required for Cassandra?dba_all_tables, dba_object_tables,
+dba_tab_columns ? 
+
+
+New Comment: 
+Probably.IMO the right way to think about this is "how can we expose the data we have in
+KSMetaData and CFMetaData" not "how can we make this look like Oracle." 
+
+
+New Comment: 
+Absolutly.. make more sense. 
+
+
+New Comment: 
+From KsMetadata, something which i can see to get CFMetadata, strategy_class and strategy
+options... Count on number of ColumnFamilies, fetch specific CfMetadata(via
+cfName)Similarly from CFMetadata, we could fetchCfName, Default validator, compare type,
+subcolumn comparator, Keyspace name and many more..Is this what we are planning for
+"Describe Ks" or "Describe cf"? 
+
+
+New Comment: 
+How about a custom CF for each (KS/CF); that fully defines the schema entries for each
+piece of information to be returned about each KS and each CF.Then DESCRIBE returns a
+CQLResult containing normal row content. The syntax of the DESCRIBE drives a flat set of
+rows returned to the caller. The CQL QueryProcessor returns the contents of the CQLRow
+items for information it already has access to in the internal metadata tables. 
+
+
+New Comment: 
+<blockquote>What I want to avoid is a special query type (i.e. anything not "SELECT")
+because it makes the language less orthogonal because of implementation details that are
+subject to change (in an ideal world, we'd move away from avro and store schema
+information in "real" columns, with indexes so you could easily say "give me all the
+columns for CF X at schema version Y.")You'd also be limited to basically an RPC style
+call – no specifying which columns to select, or which rows you're interested in. Not
+without reinventing that wheel on a LOT of code (because SELECT right now relies on CFS to
+perform the actual queries).</blockquote> 
+
+
+New Comment: 
+So from the client side you will need to know the name  of the Keyspace and the names of
+the CFs where this data will be stored and updated by the server. And the server side will
+need to fully document the current schema description of the CF(s) to do the SELECT on.
+And keep the CFs updated with any additions and updates to the internal KS and CF
+metadata. But with that info in hand the client could just issue a SELECT of the involved
+CF to get the metadata that is currently held in the internal server metadata structures
+represented by the associated KS/CFs. Is that the plan? 
+
+
+New Comment: 
+would describe_ring call fall into this ticket too ? 
+
+
+New Comment: 
+I suppose. 
+
+
+New Comment: 
++1,Would be very helpful to expose
+describe_{ring,partitioner,snitch,keyspace,version,cluster_name,schema_versions} to CQL. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-1391" title="Allow Concurrent
+Schema Migrations" class="issue-link"
+data-issue-key="CASSANDRA-1391"><del>CASSANDRA-1391</del></a> <b>should</b> give us this
+for free.  Leaving this open while we see if that works as planned. 
+
+
+New Comment: 
+You can SELECT from schema_keyspaces, schema_columnfamilies, and schema_columns now. 
+
+
+New Comment: 
+I still don't understand how to get the column families from the system tables. In other
+words, I need to use cqlsh and DESCRIBE COLUMNFAMILIES to list an array of strings
+containing each column family for a keyspace. 
+
+
+New Comment: 
+cqlsh does the work for you.  but if you wanted to do it programatically then you would
+need to piece the data together via SELECT. 
+
+
+New Comment: 
+How would I get all tables for a keyspace using CQL? cqlsh implements this with thrift api
+calls, so I have no examples. Selecting from schema_columnfamilies only returns a list of
+keyspaces.I am working on a Ruby gem that is 100% CQL except for a few calls (ie. <a
+href="https://github.com/data-axle/cassandra_object/blob/master/lib/cassandra_object/schema/tasks.rb"
+class="external-link"
+rel="nofollow">https://github.com/data-axle/cassandra_object/blob/master/lib/cassandra_object/schema/tasks.rb</a>).
+I would like to remove the cqlsh dependency. 
+
+
+New Comment: 
+<tt>SELECT columnfamily_name FROM schema_columnfamilies WHERE
+keyspace_name='?'</tt>Suggest looking at definitions in CFMetaData.java. 
+
+
+New Comment: 
+Also note that some column names changed from 1.1 -&gt; 1.2. 
+
+
+New Comment: 
+Is columnfamily_name new in 1.2? For v1.1.5, the only column with values in the
+schema_columnfamilies table is "keyspace". 
+
+

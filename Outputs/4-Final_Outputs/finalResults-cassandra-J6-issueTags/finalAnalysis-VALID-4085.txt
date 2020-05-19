@@ -1,0 +1,171 @@
+Pattern changes caused by commit: 85ea33912e326cf406d3b9b0c64416b5094839d7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4085.txt 
+
+commit 85ea33912e326cf406d3b9b0c64416b5094839d7
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix for dh_installinit syntax for CASSANDRA-2481
+    Patch by Paul Cannon, reviewed by brandonwilliams
+
+
+
+==================================
+ Issue CASSANDRA-2481 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2481] C* .deb installs C* init.d scripts such that C* comes up before mdadm and related
+-----------------
+
+-----------------
+Summary: C* .deb installs C* init.d scripts such that C* comes up before mdadm and related
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 14 Apr 2011 18:51:51 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 23 May 2011 15:45:10 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+the C* .deb packages install the init.d scripts at S20 which is before mdadm and various
+other services.  This means that when a node reboots that C* is started before the RAID
+sets are up and mounted causing C* to think it has no data and attempt bootstrapping
+again.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Integrated in Cassandra-0.8 #14 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.8/14/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.8/14/</a>)<br/>    add
+optional replication_factor fields to KsDef to make supporting both 0.8 and 0.7 easier for
+client devs<br/>patch by jbellis; reviewed by Nate McCall for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2481" title="C* .deb installs C*
+init.d scripts such that C* comes up before mdadm and related" class="issue-link"
+data-issue-key="CASSANDRA-2481"><del>CASSANDRA-2481</del></a> 
+
+
+New Comment: 
+patch solverizes this problem. uses priority 50, or requires mdadm to be started first if
+using dependency-based init ordering. 
+
+
+New Comment: 
+Out of curiosity, why aren't start/stop symmetrical?<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>+	dh_installinit -u'start 50 2 3 4 5 . stop 50 0 1 6'</pre></div></div> 
+
+
+New Comment: 
+<blockquote>Out of curiosity, why aren't start/stop symmetrical?</blockquote>they are:
+((start = 50) == 100 - (end = 50))If you were referring to the "2 3 4 5" vs "0 1 6", those
+are the standard "starting stuff" and "stopping stuff" runlevels for SysV init. 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #484 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/484/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/484/</a>)<br/>   
+Start/stop cassandra after more important services such as mdadm in<br/>debian
+packaging.<br/>Patch by Paul Cannon, reviewed by brandonwilliams for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2481" title="C* .deb installs C*
+init.d scripts such that C* comes up before mdadm and related" class="issue-link"
+data-issue-key="CASSANDRA-2481"><del>CASSANDRA-2481</del></a> 
+
+
+New Comment: 
+When installing the debian package for 0.7.6 and 0.8.0-rc1 on ubuntu 11.04 (natty), I
+get<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>Installing new version of config file
+/etc/init.d/cassandra ...update-rc.d: error: start|stop arguments not terminated by
+"."usage: update-rc.d [-n] [-f] &lt;basename&gt; remove       update-rc.d [-n]
+&lt;basename&gt; defaults [NN | SS KK]       update-rc.d [-n] &lt;basename&gt; start|stop
+NN runlvl [runlvl] [...] .       update-rc.d [-n] &lt;basename&gt; disable|enable
+[S|2|3|4|5]		-n: not really		-f: force</pre></div></div>Given that it works like a charm
+with 0.7.5, I strongly suspect this is this patch doing. 
+
+
+New Comment: 
+<blockquote>Installing new version of config file /etc/init.d/cassandra
+...<br/>update-rc.d: error: start|stop arguments not terminated by "."</blockquote>find
+dh_installinit in debian/rules and edit like following line.dh_installinit -u'start 50 2 3
+4 5 . stop 50 0 1 6 .'it works for me. 
+
+
+New Comment: 
+fix for previous 
+
+
+New Comment: 
+Fix committed. 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #488 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/488/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/488/</a>)<br/>    Fix
+for dh_installinit syntax for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2481" title="C* .deb installs C*
+init.d scripts such that C* comes up before mdadm and related" class="issue-link"
+data-issue-key="CASSANDRA-2481"><del>CASSANDRA-2481</del></a><br/>Patch by Paul Cannon,
+reviewed by brandonwilliamsbrandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1124338"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1124338</a><br/>Files
+: <ul>	<li>/cassandra/branches/cassandra-0.7/debian/rules</li></ul> 
+
+
+New Comment: 
+This is still broken for 0.8.0~rc1.  The last commit to it shows a merge with 0.7 but this
+fix is not in it.quick workaround is to modify the cassandra.postinst file.  You can get
+that from dpkg-query -c cassandra, mine is under /var/lib/dpkg/info/:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>sudo cp /var/lib/dpkg/info/cassandra.postinst
+/var/lib/dpkg/info/cassandra.postinst.originalsudo sed -i 's/50 2 3 4 5 \. stop 50 0 1 6
+&gt;/50 2 3 4 5 \. stop 50 0 1 6 \.&gt;/' /var/lib/dpkg/info/cassandra.postinst#make sure
+it's correct then run the below line.#sudo dpkg --configure cassandra</pre></div></div> 
+
+

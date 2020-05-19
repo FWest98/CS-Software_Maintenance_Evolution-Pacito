@@ -1,0 +1,68 @@
+Pattern changes caused by commit: cb5d567086b6fd28a8e5f3dda1ce96f903f4e145
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5305.txt 
+
+commit cb5d567086b6fd28a8e5f3dda1ce96f903f4e145
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    push down assignments to scopes where they are needed
+    patch by dbrosius; reviewed by slebresne for CASSANDRA-3396
+
+
+
+==================================
+ Issue CASSANDRA-3396 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3396] [patch] push down assignments to scopes where they are needed
+-----------------
+
+-----------------
+Summary: [patch] push down assignments to scopes where they are needed
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 22 Oct 2011 05:59:02 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 25 Oct 2011 16:07:00 +0000
+-----------------
+
+-----------------
+Assigned to: David Brosius
+-----------------
+
+-----------------
+Description: 
+
+Code makes assignments at a scope where that assignment may not be needed, patch pushes
+these assignments down to where conditionals has prescribed that the assignment will be
+used.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

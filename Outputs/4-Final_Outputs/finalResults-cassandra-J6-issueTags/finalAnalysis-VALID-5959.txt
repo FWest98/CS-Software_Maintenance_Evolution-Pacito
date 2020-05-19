@@ -1,0 +1,277 @@
+Pattern changes caused by commit: 333e7ace0aa939c3c22f21e92b2f937f17d22948
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5959.txt 
+
+commit 333e7ace0aa939c3c22f21e92b2f937f17d22948
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix NPE during HH when target has been removed from the cluster.
+    Patch by Sam Overton, reviewed by brandonwilliams for CASSANDRA-3677
+
+
+
+==================================
+ Issue CASSANDRA-3677 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3677] NPE during HH delivery when gossip turned off on target
+-----------------
+
+-----------------
+Summary: NPE during HH delivery when gossip turned off on target
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 27 Dec 2011 20:49:43 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 7 Feb 2012 15:33:08 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+probably not important bug
+
+ERROR <span class="error">&#91;OptionalTasks:1&#93;</span>
+2011-12-27 21:44:25,342 AbstractCassandraDaemon.java (line 138) Fatal exception in thread
+Thread<span
+class="error">&#91;OptionalTasks:1,5,main&#93;</span><br/>java.lang.NullPointerException<br/>
+       at
+org.cliffc.high_scale_lib.NonBlockingHashMap.hash(NonBlockingHashMap.java:113)<br/>       
+at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:553)<br/> 
+      at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:348)<br/> 
+      at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfAbsent(NonBlockingHashMap.java:319)<br/>
+       at
+org.cliffc.high_scale_lib.NonBlockingHashSet.add(NonBlockingHashSet.java:32)<br/>       
+at
+org.apache.cassandra.db.HintedHandOffManager.scheduleHintDelivery(HintedHandOffManager.java:371)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.scheduleAllDeliveries(HintedHandOffManager.java:356)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.access$000(HintedHandOffManager.java:84)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager$1.run(HintedHandOffManager.java:119)<br/>    
+   at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)<br/>       
+at java.util.concurrent.FutureTask$Sync.innerRunAndReset(FutureTask.java:351)<br/>       
+at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:178)<br/>        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:165)<br/>
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:267)<br/>
+       at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br/>      
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br/>  
+     at java.lang.Thread.run(Thread.java:679)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Can you confirm the version is 1.0.6?  This only seems possible with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3554" title="Hints are not replayed
+unless node was marked down" class="issue-link"
+data-issue-key="CASSANDRA-3554"><del>CASSANDRA-3554</del></a>, because otherwise hint
+delivery only happens when a node comes up. 
+
+
+New Comment: 
+its 1.0.6 + patches from 1.0 branch 
+
+
+New Comment: 
+The simplest thing to do is double up on the FD check. 
+
+
+New Comment: 
+This error is not related to target node down, i got it today and no nodes down are
+reported.INFO <span class="error">&#91;HintedHandoff:1&#93;</span> 2011-12-29 10:49:38,993
+HintedHandOffManager.java (line <br/>334) Finished hinted handoff of 0 rows to endpoint
+/216.17.99.40 INFO <span class="error">&#91;CompactionExecutor:5&#93;</span> 2011-12-29
+10:54:52,465 CompactionTask.java (line 113) Compacting <span
+class="error">&#91;SSTableReader(path=&#39;/usr/local/cassandra/data/system/HintsColumnFamily-hc-963-Data.db&#39;),
+SSTableReader(path=&#39;/usr/local/cassandra/data/system/HintsColumnFamily-hc-962-Data.db&#39;)&#93;</span><br/>
+INFO <span class="error">&#91;CompactionExecutor:5&#93;</span> 2011-12-29 10:55:08,744
+CompactionTask.java (line 221) Compacted to <span
+class="error">&#91;/usr/local/cassandra/data/system/HintsColumnFamily-hc-964-Data.db,&#93;</span>.
+ 709,504,640 to 165,449,718 (~23% of original) bytes for 2 keys at 9.692558MB/s.  Time:
+16,279ms.ERROR <span class="error">&#91;OptionalTasks:1&#93;</span> 2011-12-29
+10:59:06,482 AbstractCassandraDaemon.java (line 138) Fatal exception in thread Thread<span
+class="error">&#91;OptionalTasks:1,5,main&#93;</span><br/>java.lang.NullPointerException<br/>
+       at
+org.cliffc.high_scale_lib.NonBlockingHashMap.hash(NonBlockingHashMap.java:113)<br/>       
+at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:553)<br/> 
+      at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:348)<br/> 
+      at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfAbsent(NonBlockingHashMap.java:319)<br/>
+       at
+org.cliffc.high_scale_lib.NonBlockingHashSet.add(NonBlockingHashSet.java:32)<br/>       
+at
+org.apache.cassandra.db.HintedHandOffManager.scheduleHintDelivery(HintedHandOffManager.java:371)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.scheduleAllDeliveries(HintedHandOffManager.java:356)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.access$000(HintedHandOffManager.java:84)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager$1.run(HintedHandOffManager.java:119)<br/>    
+   at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)<br/>       
+at java.util.concurrent.FutureTask$Sync.innerRunAndReset(FutureTask.java:351)<br/>       
+at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:178)<br/>        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:165)<br/>
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:267)<br/>
+       at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br/>      
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br/>  
+     at java.lang.Thread.run(Thread.java:679) 
+
+
+New Comment: 
+I suspect that this is happening when node is trying to deliver hints created for himself
+(to is null after all)because i have some stuck hints, cant list them via CLI to look at
+keys because node will OOM.INFO <span class="error">&#91;CompactionExecutor:7&#93;</span>
+2012-01-02 15:48:13,084 CompactionTask.java (line 221) Compacted to <span
+class="error">&#91;/usr/local/cassandra/data/system/HintsColumnFamily-hc-1011-Data.db,&#93;</span>.
+ 168,568,056 to 163,770,679 (~97% of original) bytes for 1 keys at 29.619551MB/s.  Time:
+5,273ms.Its 2 node cluster and no hints were delivered to other node:INFO <span
+class="error">&#91;HintedHandoff:1&#93;</span> 2012-01-02 15:41:29,035
+HintedHandOffManager.java (line 267) Started hinted handoff for token:
+99070591730234615865843651857942052864<br/>INFO <span
+class="error">&#91;HintedHandoff:1&#93;</span> 2012-01-02 15:41:29,217
+HintedHandOffManager.java (line 334) Finished hinted handoff of 0 rows to 
+
+
+New Comment: 
+Sounds like this is just fallout from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3440" title="local writes timing out
+cause attempt to hint to self" class="issue-link"
+data-issue-key="CASSANDRA-3440"><del>CASSANDRA-3440</del></a> then, you can delete the
+hints and see if it continues. 
+
+
+New Comment: 
+I've been able to reproduce this in 1.07 and in trunk as follows:<ul>	<li>create a cluster
+of 2 nodes</li>	<li>stop one of the nodes</li>	<li>insert some data at RF=1, CL=ANY - this
+causes hints to be stored</li>	<li>nodetool removetoken on the token of the dead
+node</li>	<li>some time up to 10 minutes later the exception is logged:</li></ul>ERROR
+<span class="error">&#91;OptionalTasks:1&#93;</span> 2012-02-07 14:41:57,710
+AbstractCassandraDaemon.java (line 134) Fatal exception in thread Thread<span
+class="error">&#91;OptionalTasks:1,5,main&#93;</span><br/>java.lang.NullPointerException<br/>	at
+org.cliffc.high_scale_lib.NonBlockingHashMap.hash(NonBlockingHashMap.java:113)<br/>	at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:553)<br/>	at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfMatch(NonBlockingHashMap.java:348)<br/>	at
+org.cliffc.high_scale_lib.NonBlockingHashMap.putIfAbsent(NonBlockingHashMap.java:319)<br/>	at
+org.cliffc.high_scale_lib.NonBlockingHashSet.add(NonBlockingHashSet.java:32)<br/>	at
+org.apache.cassandra.db.HintedHandOffManager.scheduleHintDelivery(HintedHandOffManager.java:410)<br/>	at
+org.apache.cassandra.db.HintedHandOffManager.scheduleAllDeliveries(HintedHandOffManager.java:395)<br/>	at
+org.apache.cassandra.db.HintedHandOffManager.access$000(HintedHandOffManager.java:84)<br/>	at
+org.apache.cassandra.db.HintedHandOffManager$1.run(HintedHandOffManager.java:119)<br/>	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRunAndReset(FutureTask.java:351)<br/>	at
+java.util.concurrent.FutureTask.runAndReset(FutureTask.java:178)<br/>	at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:165)<br/>	at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:267)<br/>	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br/>	at
+java.lang.Thread.run(Thread.java:636)Adverse Effects:<ul>	<li>The 10min repeating
+scheduleAllDeliveries() introduced in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3554" title="Hints are not replayed
+unless node was marked down" class="issue-link"
+data-issue-key="CASSANDRA-3554"><del>CASSANDRA-3554</del></a> will no longer fire (since
+the exception was uncaught), so the node has now regressed to pre-<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3554" title="Hints are not replayed
+unless node was marked down" class="issue-link"
+data-issue-key="CASSANDRA-3554"><del>CASSANDRA-3554</del></a> behaviour</li>	<li>Even
+after the node is restarted, the exception will be thrown again next time the schedule is
+run.</li>	<li>This will continue until the row tombstone for the dead node's hints is
+garbage-collected (10 days)</li></ul>Fix:<ul>	<li>don't try to schedule delivery of hints
+for tokens which are no longer valid endpoints (see attached).</li></ul> 
+
+
+New Comment: 
+attached patch against trunk 
+
+
+New Comment: 
+Good catch, Sam.  Committed. 
+
+
+New Comment: 
+Q: don't try to schedule delivery of hints for tokens which are no longer valid endpoints
+(see attached).Does this mean the hints are just lost for good? Does anyone thing an
+attempt should be made to determine where the hints should go and possibly re-write them? 
+
+
+New Comment: 
+It doesn't make a lot of sense.  a) we have no way to quickly find such hints, and b) if
+you removetoken the node, the data from existing replicas will be copied to restore the
+RF, so the hint isn't necessary (unless you wrote at ANY, in which case you've already
+lived dangerously.) 
+
+
+New Comment: 
+When a token is removed, hints intended for that endpoint are removed (see
+StorageService.excise(Token token, InetAddress endpoint)) so yes, they are lost for good.
+The removetoken process involves streaming from replicas to the new endpoint, so it should
+be up to date assuming writes were at CL &gt; ANY. I can't think of a case where we would
+gain anything by delivering the hints for the removed endpoint (except where writes were
+at CL.ANY). 
+
+
+New Comment: 
+It seems wrong to abandon hints. Arguments like such as "(unless you wrote at ANY, in
+which case you've already lived dangerously.)" are  a slippery slope, and it says
+something about the contract of ANY.According to Cassandra.thrift.<blockquote><ul>	<li>ANY
+         Ensure that the write has been written once somewhere, including possibly being
+hinted in a non-target node.</li></ul></blockquote>It does not say
+:<blockquote><ul>	<li>ANY          Ensure that the write has been written once somewhere,
+including possibly being hinted in a non-target node, which probably wont get lost, unless
+.....</li></ul></blockquote>Maybe there is some other harder to contrive scenario out
+there RF3, write ONE, two hints and one node failure then a move also causes an issue with
+lost hints.It is an edge case, but I think it is important. Since writes are idempotent I
+would rather a hint gets delivered causing an extra write then it gets lost. 1.0's made HH
+way more reliable, I would like to see Cassandra push that high standard and not have
+caveats associated around how ANY works. 
+
+

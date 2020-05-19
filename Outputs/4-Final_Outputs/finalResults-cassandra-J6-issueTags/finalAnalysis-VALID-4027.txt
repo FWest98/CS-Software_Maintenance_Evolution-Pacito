@@ -1,0 +1,105 @@
+Pattern changes caused by commit: c8f2414688e11b457be8305017fe34db0e85ffe5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4027.txt 
+
+commit c8f2414688e11b457be8305017fe34db0e85ffe5
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix regression where boostrapping a node without schema defined fails
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2625
+
+
+
+==================================
+ Issue CASSANDRA-2625 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2625] auto bootstrapping a node into a cluster without a schema silently fails
+-----------------
+
+-----------------
+Summary: auto bootstrapping a node into a cluster without a schema silently fails
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 8 May 2011 22:38:33 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 May 2011 08:08:49 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+from <a href="http://www.mail-archive.com/user@cassandra.apache.org/msg13001.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg13001.html</a>
+
+StorageService.joinRing()
+aborts the auto bootstrap process if the cluster does not have a schema defined. It looks
+like the node is left in the "Joining" mode and there is no logging. 
+
+There could be a
+schema defined and no data loaded, so just having a schema does not make the token
+selection any better. And BootStrapper.bootstrap() handles their been no non system
+tables.
+
+Can we let the bootstrap process continue ?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is a regression from <a href="https://issues.apache.org/jira/browse/CASSANDRA-2435"
+title="auto bootstrap happened on already bootstrapped nodes" class="issue-link"
+data-issue-key="CASSANDRA-2435"><del>CASSANDRA-2435</del></a>. Attaching fix. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #476 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/476/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/476/</a>)<br/>    Fix
+regression where boostrapping a node without schema defined fails<br/>patch by slebresne;
+reviewed by jbellis for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2625"
+title="auto bootstrapping a node into a cluster without a schema silently fails"
+class="issue-link" data-issue-key="CASSANDRA-2625"><del>CASSANDRA-2625</del></a> 
+
+

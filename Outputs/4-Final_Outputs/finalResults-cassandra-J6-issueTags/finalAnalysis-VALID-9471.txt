@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 2f72f8bc57bb96fa4434fb395373a73b259dcce5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9471.txt 
+
+commit 2f72f8bc57bb96fa4434fb395373a73b259dcce5
+Author: Jason Brown <jasedbrown@gmail.com>
+
+    Add a rate limit option to stress
+    patch by jasobrown, reviewed by driftx for CASSANDRA-5004
+
+
+
+==================================
+ Issue CASSANDRA-5004 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5004] Add a rate limit option to stress
+-----------------
+
+-----------------
+Summary: Add a rate limit option to stress
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 30 Nov 2012 02:53:45 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 30 May 2013 21:16:19 +0000
+-----------------
+
+-----------------
+Assigned to: Jason Brown
+-----------------
+
+-----------------
+Description: 
+
+For certain testing scenarios, you might want to only partially load a cluster.  We could
+do this by wiring guava's RateLimiter into keys sent by stress.  The operator would have
+to play with the limit to find the load they want, but that's unavoidable.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+added new cmd line param (-th) to set the rate throttling for cassandra stress. Uses
+guava's RateLimiter. 
+
+
+New Comment: 
++1 
+
+

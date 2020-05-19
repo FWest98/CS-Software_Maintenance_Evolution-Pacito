@@ -1,0 +1,125 @@
+Pattern changes caused by commit: 1729edd64b933685386abd1140fc83c657b9a6a7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3427.txt 
+
+commit 1729edd64b933685386abd1140fc83c657b9a6a7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add configurable rowlimit to Pig loadfunc
+    patch by Matt Kennedy; reviewed by jbellis for CASSANDRA-2276
+
+
+
+==================================
+ Issue CASSANDRA-2276 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2276] Pig memory issues with default LIMIT and large rows.
+-----------------
+
+-----------------
+Summary: Pig memory issues with default LIMIT and large rows.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 5 Mar 2011 04:31:58 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Mar 2011 04:28:03 +0000
+-----------------
+
+-----------------
+Assigned to: Matt Kennedy
+-----------------
+
+-----------------
+Description: 
+
+Rows with a lot of columns, especially super-colums with a lot of values can cause
+OutOfMemory errors in Cassandra when queried with Pig.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Adds a constructor that allows the user to modify the limit parameter used in
+CassandraStorage to fetch fewer rows and use less memory in Cassandra. 
+
+
+New Comment: 
+is it actually useful to call setLimit post-construction, or should we make it final? 
+
+
+New Comment: 
+Yeah, fair point.  It isn't really useful, I was just letting eclipse write code for me. 
+
+
+New Comment: 
+new patch reflecting Jonathan Ellis' comment. 
+
+
+New Comment: 
+Corrected patch for final limit. 
+
+
+New Comment: 
+Matt - you mention super columns - are you iterating over super columns successfully, that
+is are you able to access the data in subcolumns successfully? 
+
+
+New Comment: 
+Only for the purposes of counting the super columns, no access to the subcolumns. 
+
+
+New Comment: 
+okay - thank you - I just wanted to see if you found a way to dereference subcolumns even
+with <a href="https://issues.apache.org/jira/browse/PIG-1849" title="Pig cannot
+dereference Cassandra subcolumns in a Super Column Family" class="issue-link"
+data-issue-key="PIG-1849"><del>PIG-1849</del></a>. Sounds like you're not though.  Thanks. 
+
+
+New Comment: 
+patch fails to apply for me, is this against current 0.7 branch? 
+
+
+New Comment: 
+D'oh! I wrote it against a checkout of the 0.7.3 tag instead of trunk.  I'll port the
+changes to trunk tonight.  Sorry for the confusion. 
+
+
+New Comment: 
+OK, third time's the charm, coded this one against trunk and just successfully applied it
+to a fresh check-out. 
+
+
+New Comment: 
+added javadoc and committed.  thanks! 
+
+

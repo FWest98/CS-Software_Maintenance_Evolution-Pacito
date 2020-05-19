@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 7364c09843942bba7ef4ed363b91b54e6251b56d
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3374.txt 
+
+commit 7364c09843942bba7ef4ed363b91b54e6251b56d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add countercolumn support to SSTableExport
+    patch by slebresne; reviewed by Pavel Yaskevich for CASSANDRA-2093
+
+
+
+==================================
+ Issue CASSANDRA-2093 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2093] add countercolumn support to SSTableExport
+-----------------
+
+-----------------
+Summary: add countercolumn support to SSTableExport
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 1 Feb 2011 21:07:21 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 28 Feb 2011 19:23:12 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch on trunk.This actually changes the export format to add a column type.
+Previously we were using the cardinality of the json column to decided whether this was a
+standard or expired column. We could still have done it here (since counter has 1 extra
+field while expiring columns have 2), but this feels fragile and not very
+extensible.Anyway the new and old formats are incompatible, but SSTableImport is able to
+read the old format. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+
