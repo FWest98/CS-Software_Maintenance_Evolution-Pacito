@@ -1,0 +1,110 @@
+
+--------- Original GoF Patterns ----------
+
+Singleton Pattern
+Dsmlv2StatesEnum is a Singleton class
+instance is the Singleton instance
+getInstance creates and returns instance
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/Dsmlv2StatesEnum.java
+
+
+
+
+Strategy Pattern.
+GrammarTransition is the Context class.
+GrammarAction is the Strategy interface.
+Concrete Strategy classes:  Dsmlv2Grammar$1 Dsmlv2Grammar$2 Dsmlv2Grammar$3 Dsmlv2Grammar$4 Dsmlv2Grammar$5 Dsmlv2Grammar$6 Dsmlv2Grammar$7 Dsmlv2Grammar$8 Dsmlv2Grammar$9 Dsmlv2Grammar$10 Dsmlv2Grammar$11 Dsmlv2Grammar$12 Dsmlv2Grammar$13 Dsmlv2Grammar$14 Dsmlv2Grammar$15 Dsmlv2Grammar$16 Dsmlv2Grammar$17 Dsmlv2Grammar$18 Dsmlv2Grammar$19 Dsmlv2Grammar$20 Dsmlv2Grammar$21 Dsmlv2Grammar$22 Dsmlv2Grammar$23 Dsmlv2Grammar$24 Dsmlv2Grammar$25 Dsmlv2Grammar$26 Dsmlv2Grammar$27 Dsmlv2Grammar$28 Dsmlv2Grammar$29 Dsmlv2Grammar$30 Dsmlv2Grammar$31 Dsmlv2Grammar$32 Dsmlv2Grammar$33 Dsmlv2Grammar$34 Dsmlv2Grammar$35 Dsmlv2Grammar$36 Dsmlv2Grammar$37 Dsmlv2Grammar$38 Dsmlv2ResponseGrammar$1 Dsmlv2ResponseGrammar$2 Dsmlv2ResponseGrammar$3 Dsmlv2ResponseGrammar$4 Dsmlv2ResponseGrammar$5 Dsmlv2ResponseGrammar$6 Dsmlv2ResponseGrammar$7 Dsmlv2ResponseGrammar$8 Dsmlv2ResponseGrammar$9 Dsmlv2ResponseGrammar$10 Dsmlv2ResponseGrammar$11 Dsmlv2ResponseGrammar$12 Dsmlv2ResponseGrammar$13 Dsmlv2ResponseGrammar$14 Dsmlv2ResponseGrammar$15 Dsmlv2ResponseGrammar$16 Dsmlv2ResponseGrammar$17 Dsmlv2ResponseGrammar$18 Dsmlv2ResponseGrammar$19 Dsmlv2ResponseGrammar$20 Dsmlv2ResponseGrammar$21 Dsmlv2ResponseGrammar$22 Dsmlv2ResponseGrammar$23 Dsmlv2ResponseGrammar$24 Dsmlv2ResponseGrammar$25 Dsmlv2ResponseGrammar$26 Dsmlv2ResponseGrammar$27 Dsmlv2ResponseGrammar$28
+Delegation through action of type GrammarAction
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/GrammarTransition.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/GrammarAction.java
+
+Strategy Pattern.
+GrammarTransition is the Context class.
+GrammarAction is the Strategy interface.
+Concrete Strategy classes:  ConnectionGrammar$1 ConnectionGrammar$2 ConnectionGrammar$3 ConnectionGrammar$4 ConnectionGrammar$5 ConnectionGrammar$6 ConnectionGrammar$7 ConnectionGrammar$8 ConnectionGrammar$9
+Delegation through action of type GrammarAction
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser/src/main/java/org/apache/directory/ldapstudio/browser/model/GrammarTransition.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser/src/main/java/org/apache/directory/ldapstudio/browser/model/GrammarAction.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+CONNECTION is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser/src/main/java/org/apache/directory/ldapstudio/browser/view/ImageKeys.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+WIZARD_DSML is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-plugin/src/main/java/org/apache/directory/ldapstudio/dsmlv2/view/ImageKeys.java
+
+Flyweight Pattern.
+Application is a flyweight factory.
+PLUGIN_ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/Application.java
+
+Flyweight Pattern.
+Plugin is a flyweight factory.
+ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/Plugin.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+ENTRY is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/view/ImageKeys.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+ABOUT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-rcp/src/main/java/org/apache/directory/ldapstudio/view/ImageKeys.java
+
+Flyweight Pattern.
+IImageKeys is a flyweight factory.
+ABOUT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/view/IImageKeys.java
+
+Flyweight Pattern.
+ICommandIds is a flyweight factory.
+CMD_DELETE is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/ICommandIds.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   1
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   8
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    2
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 32
+Number of files processed: 236
+Size of DelegationTable: 26
+Size of concrete class nodes: 24
+Size of undirected invocation edges: 4
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/8
+nFlyweightGoFVersion = 0

@@ -1,0 +1,508 @@
+
+--------- Original GoF Patterns ----------
+
+Singleton Pattern
+Dsmlv2StatesEnum is a Singleton class
+instance is the Singleton instance
+getInstance creates and returns instance
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/Dsmlv2StatesEnum.java
+
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+getDefaultCipherSuites is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+getSupportedCipherSuites is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+createSocket is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+createSocket is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+createSocket is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+createSocket is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Decorator Pattern
+DummySSLSocketFactory is a Decorator class
+createSocket is a decorate operation
+delegate of type SSLSocketFactory is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+
+ SSLSocketFactory
+Strategy Pattern.
+GrammarTransition is the Context class.
+GrammarAction is the Strategy interface.
+Concrete Strategy classes:  Dsmlv2Grammar$1 Dsmlv2Grammar$2 Dsmlv2Grammar$3 Dsmlv2Grammar$4 Dsmlv2Grammar$5 Dsmlv2Grammar$6 Dsmlv2Grammar$7 Dsmlv2Grammar$8 Dsmlv2Grammar$9 Dsmlv2Grammar$10 Dsmlv2Grammar$11 Dsmlv2Grammar$12 Dsmlv2Grammar$13 Dsmlv2Grammar$14 Dsmlv2Grammar$15 Dsmlv2Grammar$16 Dsmlv2Grammar$17 Dsmlv2Grammar$18 Dsmlv2Grammar$19 Dsmlv2Grammar$20 Dsmlv2Grammar$21 Dsmlv2Grammar$22 Dsmlv2Grammar$23 Dsmlv2Grammar$24 Dsmlv2Grammar$25 Dsmlv2Grammar$26 Dsmlv2Grammar$27 Dsmlv2Grammar$28 Dsmlv2Grammar$29 Dsmlv2Grammar$30 Dsmlv2Grammar$31 Dsmlv2Grammar$32 Dsmlv2Grammar$33 Dsmlv2Grammar$34 Dsmlv2Grammar$35 Dsmlv2Grammar$36 Dsmlv2Grammar$37 Dsmlv2Grammar$38 Dsmlv2ResponseGrammar$1 Dsmlv2ResponseGrammar$2 Dsmlv2ResponseGrammar$3 Dsmlv2ResponseGrammar$4 Dsmlv2ResponseGrammar$5 Dsmlv2ResponseGrammar$6 Dsmlv2ResponseGrammar$7 Dsmlv2ResponseGrammar$8 Dsmlv2ResponseGrammar$9 Dsmlv2ResponseGrammar$10 Dsmlv2ResponseGrammar$11 Dsmlv2ResponseGrammar$12 Dsmlv2ResponseGrammar$13 Dsmlv2ResponseGrammar$14 Dsmlv2ResponseGrammar$15 Dsmlv2ResponseGrammar$16 Dsmlv2ResponseGrammar$17 Dsmlv2ResponseGrammar$18 Dsmlv2ResponseGrammar$19 Dsmlv2ResponseGrammar$20 Dsmlv2ResponseGrammar$21 Dsmlv2ResponseGrammar$22 Dsmlv2ResponseGrammar$23 Dsmlv2ResponseGrammar$24 Dsmlv2ResponseGrammar$25 Dsmlv2ResponseGrammar$26 Dsmlv2ResponseGrammar$27 Dsmlv2ResponseGrammar$28
+Delegation through action of type GrammarAction
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/GrammarTransition.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-parser/src/main/java/org/apache/directory/ldapstudio/dsmlv2/GrammarAction.java
+
+Strategy Pattern.
+AttributeHierachie is the Context class.
+IEntry is the Strategy interface.
+Concrete Strategy classes:  DummyEntry IRootDSE DelegateEntry AbstractEntry
+Delegation through entry of type IEntry
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/AttributeHierachie.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/IEntry.java
+
+Strategy Pattern.
+SearchUpdateEvent is the Context class.
+ISearch is the Strategy interface.
+Concrete Strategy classes:  Search
+Delegation through search of type ISearch
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/events/SearchUpdateEvent.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ISearch.java
+
+Strategy Pattern.
+BookmarkUpdateEvent is the Context class.
+IBookmark is the Strategy interface.
+Concrete Strategy classes:  Bookmark
+Delegation through bookmark of type IBookmark
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/events/BookmarkUpdateEvent.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/IBookmark.java
+
+Strategy Pattern.
+EventRegistry is the Context class.
+EventDispatcher is the Strategy interface.
+Concrete Strategy classes: 
+Delegation through eventDispatcher of type EventDispatcher
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/events/EventRegistry.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/events/EventDispatcher.java
+
+Strategy Pattern.
+AttributeComparator is the Context class.
+IEntry is the Strategy interface.
+Concrete Strategy classes:  DummyEntry IRootDSE DelegateEntry AbstractEntry
+Delegation through dummyEntry of type IEntry
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/AttributeComparator.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/IEntry.java
+
+Strategy Pattern.
+LdapFilter is the Context class.
+LdapFilterComponent is the Strategy interface.
+Concrete Strategy classes:  LdapNotFilterComponent LdapFilterItemComponent LdapOrFilterComponent LdapAndFilterComponent
+Delegation through filterComponent of type LdapFilterComponent
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilter.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilterComponent.java
+
+Strategy Pattern.
+GrammarTransition is the Context class.
+GrammarAction is the Strategy interface.
+Concrete Strategy classes:  ConnectionGrammar$1 ConnectionGrammar$2 ConnectionGrammar$3 ConnectionGrammar$4 ConnectionGrammar$5 ConnectionGrammar$6 ConnectionGrammar$7 ConnectionGrammar$8 ConnectionGrammar$9
+Delegation through action of type GrammarAction
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-ldapbrowser/src/main/java/org/apache/directory/ldapstudio/browser/model/GrammarTransition.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-ldapbrowser/src/main/java/org/apache/directory/ldapstudio/browser/model/GrammarAction.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+WIZARD_DSML is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-dsml-plugin/src/main/java/org/apache/directory/ldapstudio/dsmlv2/view/ImageKeys.java
+
+Flyweight Pattern.
+Application is a flyweight factory.
+PLUGIN_ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/Application.java
+
+Flyweight Pattern.
+Plugin is a flyweight factory.
+ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/Plugin.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+ENTRY is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/view/ImageKeys.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+CONNECTION is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-ldapbrowser/src/main/java/org/apache/directory/ldapstudio/browser/view/ImageKeys.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+SHOW_PREFERENCES is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-rcp/src/main/java/org/apache/directory/ldapstudio/view/ImageKeys.java
+
+Flyweight Pattern.
+IImageKeys is a flyweight factory.
+ABOUT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/view/IImageKeys.java
+
+Flyweight Pattern.
+ICommandIds is a flyweight factory.
+CMD_DELETE is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/ICommandIds.java
+
+Flyweight Pattern.
+ObjectClassDescription is a flyweight factory.
+EXTENSIBLEOBJECT_OBJECTCLASSNAME is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/schema/ObjectClassDescription.java
+
+Flyweight Pattern.
+LdapSyntaxDescription is a flyweight factory.
+DN_OID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/schema/LdapSyntaxDescription.java
+
+Flyweight Pattern.
+Control is a flyweight factory.
+SUBENTRIES_CONTROL is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/Control.java
+
+Flyweight Pattern.
+IRootDSE is a flyweight factory.
+ROOTDSE_ATTRIBUTE_NAMINGCONTEXTS is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/IRootDSE.java
+
+Flyweight Pattern.
+BrowserCoreConstants is a flyweight factory.
+PREFERENCE_BINARY_SYNTAXES is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/BrowserCoreConstants.java
+
+Flyweight Pattern.
+AttributeTypeDescription is a flyweight factory.
+ATTRIBUTE_USAGE_USER_APPLICATIONS is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/schema/AttributeTypeDescription.java
+
+Flyweight Pattern.
+Password is a flyweight factory.
+HASH_METHOD_SHA is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/Password.java
+
+Template Method Found.
+AbstractAsyncBulkJob is the template class
+executeAsyncJob is the template method
+executeBulkJob is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/jobs/AbstractAsyncBulkJob.java
+
+Factory Method pattern.
+Object is a Factory Method class.
+SearchParameter is a concrete Factory Method class.
+clone is a factory method returns  SearchParameter
+ which extends Object
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/SearchParameter.java
+
+Factory Method pattern.
+SSLSocketFactory is a Factory Method class.
+DummySSLSocketFactory is a concrete Factory Method class.
+getDefault is a factory method returns  DummySSLSocketFactory
+ which extends SocketFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Mediator Pattern.
+LdapFilterComponent is the mediator class.
+filterList controls a list of colleagues of type LdapFilter.
+getTokens invokes the mediator. 
+Subtype(s) of colleague(s): 
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilterComponent.java
+
+Mediator Pattern.
+Mediator: RDNPart
+Colleagues:  RDN SchemaPart Schema
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/RDNPart.java
+
+Mediator Pattern.
+Mediator: RDN
+Colleagues:  DN RDNPart Entry ObjectClassDescription MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/RDN.java
+
+Mediator Pattern.
+Mediator: DummyEntry
+Colleagues:  Subschema ConnectionManager BrowserCorePlugin Entry ModelConverter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummyEntry.java
+
+Mediator Pattern.
+Mediator: Control
+Colleagues:  ObjectClassDescription LdifControlLine LdifLineBase MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/Control.java
+
+Mediator Pattern.
+Mediator: LdifNonEmptyLineBase
+Colleagues:  LdifVersionLine LdifLineBase LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifModSpecSepLine LdifChangeTypeLine LdifDnLine LdifAttrValLine LdifValueLineBase LdifControlLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifNonEmptyLineBase.java
+
+Mediator Pattern.
+Mediator: LdifValueLineBase
+Colleagues:  LdifVersionLine LdifLineBase LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifControlLine LdifAttrValLine LdifRecord LdifNonEmptyLineBase ModelConverter LdifUtils
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifValueLineBase.java
+
+Mediator Pattern.
+Mediator: LdifVersionLine
+Colleagues:  LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifVersionLine.java
+
+Mediator Pattern.
+Mediator: LdifContainer
+Colleagues:  LdifFile LdifEOFPart LdifInvalidPart GrammarAction RDNPart RDN SchemaPart2 LdapSyntaxDescription Control URL DN LdifToken AliasOrReferral LdapFilterToken LdapNotFilterComponent LdapFilter LdapFilterItemComponent LdapOrFilterComponent LdapAndFilterComponent Password ObjectClassDescription MatchingRuleUseDescription Utils AttributeTypeDescription LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifContainer.java
+
+Mediator Pattern.
+Mediator: LdifRecord
+Colleagues:  LdifChangeRecord LdifDnLine LdifLineBase LdifContainer LdifNonEmptyLineBase LdifValueLineBase LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifModSpecSepLine LdifModSpec LdifControlLine LdifChangeTypeLine LdifAttrValLine LdifContentRecord LdifChangeModDnRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifRecord.java
+
+Mediator Pattern.
+Mediator: LdifChangeRecord
+Colleagues:  LdifChangeModDnRecord LdifRecord LdifContentRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifChangeRecord.java
+
+Mediator Pattern.
+Mediator: LdifNewsuperiorLine
+Colleagues:  LdifVersionLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifNewsuperiorLine.java
+
+Mediator Pattern.
+Mediator: LdifNewrdnLine
+Colleagues:  LdifVersionLine LdifNewsuperiorLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifNewrdnLine.java
+
+Mediator Pattern.
+Mediator: LdifDeloldrdnLine
+Colleagues:  LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifDeloldrdnLine.java
+
+Mediator Pattern.
+Mediator: LdifChangeModDnRecord
+Colleagues:  LdifContentRecord LdifChangeRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifChangeModDnRecord.java
+
+Mediator Pattern.
+Mediator: LdifCommentLine
+Colleagues:  LdifModSpecSepLine LdifValueLineBase LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifAttrValLine LdifRecord LdifNonEmptyLineBase
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifCommentLine.java
+
+Mediator Pattern.
+Mediator: LdifModSpecTypeLine
+Colleagues:  LdifModSpec LdifValueLineBase LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifModSpecTypeLine.java
+
+Mediator Pattern.
+Mediator: LdifModSpecSepLine
+Colleagues:  LdifRecord LdifNonEmptyLineBase LdifValueLineBase LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifAttrValLine
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifModSpecSepLine.java
+
+Mediator Pattern.
+Mediator: LdifModSpec
+Colleagues:  LdifRecord LdifModSpecTypeLine
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifModSpec.java
+
+Mediator Pattern.
+Mediator: LdifControlLine
+Colleagues:  Control LdifNonEmptyLineBase LdifValueLineBase LdifVersionLine LdifLineBase LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifAttrValLine LdifRecord ModelConverter LdifUtils
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifControlLine.java
+
+Mediator Pattern.
+Mediator: LdifChangeTypeLine
+Colleagues:  LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifAttrValLine LdifRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifChangeTypeLine.java
+
+Mediator Pattern.
+Mediator: LdifFile
+Colleagues:  ObjectClassDescription LdifContainer MatchingRuleUseDescription LdapSyntaxDescription Utils AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/LdifFile.java
+
+Mediator Pattern.
+Mediator: LdifDnLine
+Colleagues:  LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifModSpecSepLine LdifValueLineBase LdifRecord LdifAttrValLine ModelConverter LdifUtils
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifDnLine.java
+
+Mediator Pattern.
+Mediator: LdifAttrValLine
+Colleagues:  ModelConverter LdifNonEmptyLineBase LdifVersionLine LdifNewsuperiorLine LdifNewrdnLine LdifDeloldrdnLine LdifModSpecTypeLine LdifControlLine LdifChangeTypeLine LdifDnLine LdifModSpecSepLine LdifValueLineBase LdifRecord LdifUtils
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/lines/LdifAttrValLine.java
+
+Mediator Pattern.
+Mediator: LdifContentRecord
+Colleagues:  LdifRecord LdifChangeModDnRecord
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/ldif/container/LdifContentRecord.java
+
+Mediator Pattern.
+Mediator: AttributeDescription
+Colleagues:  DummyEntry AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/AttributeDescription.java
+
+Mediator Pattern.
+Mediator: DN
+Colleagues:  URL RDN SearchParameter ConnectionParameter ModelConverter AliasOrReferral BaseDNEntry ObjectClassDescription MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/DN.java
+
+Mediator Pattern.
+Mediator: EventRegistry
+Colleagues:  ModelConverter EventDispatcher AbstractAsyncBulkJob DummyEntry
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/events/EventRegistry.java
+
+Mediator Pattern.
+Mediator: AliasOrReferral
+Colleagues:  ObjectClassDescription IConnection DN MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/ChildrenInfo.java
+
+Mediator Pattern.
+Mediator: Entry
+Colleagues:  Subschema BaseDNEntry
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/Entry.java
+
+Mediator Pattern.
+Mediator: LdapFilterComponent
+Colleagues:  LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilterComponent.java
+
+Mediator Pattern.
+Mediator: LdapNotFilterComponent
+Colleagues:  LdapFilterItemComponent LdapOrFilterComponent LdapAndFilterComponent ObjectClassDescription GrammarAction RDNPart RDN LdapSyntaxDescription Control URL LdifContainer LdifFile LdifEOFPart LdifInvalidPart DN LdifToken AliasOrReferral LdapFilterToken LdapFilter Password MatchingRuleUseDescription SchemaPart2 Utils AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapNotFilterComponent.java
+
+Mediator Pattern.
+Mediator: LdapFilter
+Colleagues:  LdapFilterComponent LdapOrFilterComponent GrammarAction RDNPart RDN SchemaPart2 LdapSyntaxDescription Control URL LdifContainer LdifFile LdifEOFPart LdifInvalidPart DN LdifToken AliasOrReferral LdapNotFilterComponent LdapFilterItemComponent LdapAndFilterComponent Password ObjectClassDescription LdapFilterToken MatchingRuleUseDescription Utils AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilter.java
+
+Mediator Pattern.
+Mediator: LdapFilterItemComponent
+Colleagues:  LdapNotFilterComponent LdapOrFilterComponent LdapAndFilterComponent ObjectClassDescription LdapFilterToken MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapFilterItemComponent.java
+
+Mediator Pattern.
+Mediator: LdapOrFilterComponent
+Colleagues:  LdapNotFilterComponent LdapFilterItemComponent LdapAndFilterComponent ObjectClassDescription LdapFilter MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapOrFilterComponent.java
+
+Mediator Pattern.
+Mediator: LdapAndFilterComponent
+Colleagues:  LdapNotFilterComponent LdapFilterItemComponent LdapOrFilterComponent ObjectClassDescription LdapFilter MatchingRuleUseDescription LdapSyntaxDescription Utils LdifContainer AttributeTypeDescription
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/LdapAndFilterComponent.java
+
+Mediator Pattern.
+Mediator: Password
+Colleagues:  ObjectClassDescription LdifUtils MatchingRuleUseDescription LdapSyntaxDescription LdifContainer AttributeTypeDescription LdapNotFilterComponent LdapFilter
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/Password.java
+
+Proxy Pattern.
+DummySSLSocketFactory is a proxy.
+SSLSocketFactory is a proxy interface.
+The real object(s): SocketFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummySSLSocketFactory.java
+
+Facade Pattern.
+DummyEntry is a facade class.
+Hidden types: ConnectionManager BrowserCorePlugin
+Facade access types: ModelConverter
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/DummyEntry.java
+
+Facade Pattern.
+SchemaUtils is a facade class.
+Hidden types: SchemaPart2 Schema AttributeTypeDescription SchemaPart
+Facade access types: SchemaUtils
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/schema/SchemaUtils.java
+
+Facade Pattern.
+URL is a facade class.
+Hidden types: DN Utils IConnection ISearch
+Facade access types: JNDIUtils
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/URL.java
+
+Facade Pattern.
+ModificationLogger is a facade class.
+Hidden types: ConnectionManager Connection
+Facade access types: ModificationLogger
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/ModificationLogger.java
+
+Facade Pattern.
+ModelConverter is a facade class.
+Hidden types: LdifContainer EventRegistry DummyEntry LdifAttrValLine LdifValueLineBase Attribute LdifPart IEntry LdifChangeAddRecord LdifChangeRecord LdifChangeTypeLine LdifRecord LdifSepLine LdifContentRecord DN LdifDnLine LdifControlLine
+Facade access types: AttributeComparator
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/utils/ModelConverter.java
+
+Facade Pattern.
+JNDIUtils is a facade class.
+Hidden types: JNDIConnectionContext URL
+Facade access types: JNDIUtils
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/JNDIUtils.java
+
+Facade Pattern.
+LdapFilterUtils is a facade class.
+Hidden types: IValue IAttribute
+Facade access types: LdapFilterUtils
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/utils/LdapFilterUtils.java
+
+Facade Pattern.
+AttributeComparator is a facade class.
+Hidden types: IValue ModelConverter IAttribute
+Facade access types: AttributeComparator
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/internal/model/AttributeComparator.java
+
+Facade Pattern.
+LdapFilterParser is a facade class.
+Hidden types: LdapFilterScanner LdapFilter LdapFilterToken LdapFilterComponent LdapAndFilterComponent LdapOrFilterComponent LdapNotFilterComponent LdapFilterItemComponent
+Facade access types: LdapFilterParser
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/filter/parser/LdapFilterParser.java
+
+Facade Pattern.
+Password is a facade class.
+Hidden types: LdifUtils UnixCrypt
+Facade access types: Password
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-browser-core/src/org/apache/directory/ldapstudio/browser/core/model/Password.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            2
+Factory Method              2
+Singleton                   1
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                     10
+Flyweight                  15
+Proxy                       1
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                   37
+Observer                    0
+State                       0
+Strategy                    8
+Template Method             1
+Visitor                     0
+------------------------------
+
+Number of classes processed: 171
+Number of files processed: 437
+Size of DelegationTable: 1906
+Size of concrete class nodes: 118
+Size of undirected invocation edges: 145
+
+
+nMediatorFacadeDual/nMediator = 2/37
+nImmutable/nFlyweight = 0/15
+nFlyweightGoFVersion = 0
