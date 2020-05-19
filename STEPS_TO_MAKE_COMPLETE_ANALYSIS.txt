@@ -1,0 +1,23 @@
+Copy Scripts_and_Tools/github-looper.sh and Scripts_and_Tools/pinotscript.sh inside gitHub repo that is
+intended to be analyzed (usually cloned into Analyzed_projects folder
+
+Run github-looper.sh and obtain folder outputs, rename to outputs-"projectName" where "projectName" is the name of the project
+object of analysis
+
+Run Scripts_and_Tools/blank-error-validChecker.sh inside the outputs-"projectName" folder and extract 4 files 
+named "projectName"- blank,empty, valid and finalAnalysis
+for statistics.
+
+Copy the blank, empty and valid .list files obtained just before onto the project 1-pinotAnalysisProgressChecker, and obtain
+a .csv file containing a set of consecutive numbers, that represent the project timespan, and a label representing if the analysis
+was successful, empty or encountered an error. This can serve to observe the projects changes over time.
+
+Copy outputs-"projectName" into 2-pinotOutputComparator and run the main to obtain a list of the 
+comparisons between consecutive commits, all inside a folder named results-"projectName"
+
+Copy Scripts_and_Tools/issueTagExtractor.sh inside the results-"projectName" folder and run it 
+passing as argument the name of the gitHub repositories name. (example: issueTagExtractor.sh mina).
+This will generate a folder named "projectName"-issueTags containing the git logs of each valid commit consecutive analysis.
+
+Copy the folder that was outputted just before and paste it into project 3-JiraIssueParser, which will output a folder named 
+finalResults-"projectName"-issueTags, containing the final result of this cycle.
