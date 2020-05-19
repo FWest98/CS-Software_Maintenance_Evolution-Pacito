@@ -1,0 +1,21 @@
+Pattern changes caused by commit: b455745738b591d992eab22f26d541ff9699a684
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3484.txt 
+
+commit b455745738b591d992eab22f26d541ff9699a684
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Rename pig jar from loadfunc to storage to reflect it supports both
+    reading and writing.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2303

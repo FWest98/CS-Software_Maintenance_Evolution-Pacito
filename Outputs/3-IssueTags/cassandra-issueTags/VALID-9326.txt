@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 56927973fea9112a5d3aa704e82af45af457772c
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9326.txt 
+
+commit 56927973fea9112a5d3aa704e82af45af457772c
+Author: Dave Brosius <dbrosius@apache.org>
+
+    add nodetool enablebackup/disablebackup
+    patch by pmargolin reviewed by dbrosius for CASSANDRA-5556

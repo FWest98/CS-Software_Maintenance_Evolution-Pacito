@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 7c8c57041bb739ab87377171f581f1dd85fd1b1f
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5774.txt 
+
+commit 7c8c57041bb739ab87377171f581f1dd85fd1b1f
+Author: T Jake Luciani <jakers@gmail.com>
+
+    Upgrade Thrift to 0.7.0

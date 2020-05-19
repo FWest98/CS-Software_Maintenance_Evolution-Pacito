@@ -1,0 +1,23 @@
+Pattern changes caused by commit: cd60613ae03642a841c0fd460205bcf78b10249c
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4200.txt 
+
+commit cd60613ae03642a841c0fd460205bcf78b10249c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix truncate/compaction race
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2673

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: c00c6ab098d8322e2a3a416f8416152c570c132c
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7978.txt 
+
+commit c00c6ab098d8322e2a3a416f8416152c570c132c
+Merge: 8a2fdbf fab61e3
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2.0

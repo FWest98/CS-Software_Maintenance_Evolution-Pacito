@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 742648c821bb5922018423ff5f360233017a08ba
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6004.txt 
+
+commit 742648c821bb5922018423ff5f360233017a08ba
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig's objToBB should handle all types.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-3886

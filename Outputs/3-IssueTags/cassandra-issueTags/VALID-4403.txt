@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 0b0d7eadfddeb16f22573f4ff1c31f4a1a0f006b
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4403.txt 
+
+commit 0b0d7eadfddeb16f22573f4ff1c31f4a1a0f006b
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix describeOwnership for OPP
+    patch by jhermes; reviewed by slebresne for CASSANDRA-2800

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 40515ed5de10958cedc237af7f965000b2972cc6
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6485.txt 
+
+commit 40515ed5de10958cedc237af7f965000b2972cc6
+Merge: c9f8810 1a42cf3
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-0.8' into cassandra-1.0

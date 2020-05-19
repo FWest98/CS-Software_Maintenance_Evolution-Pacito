@@ -1,0 +1,26 @@
+Pattern changes caused by commit: f5619bbfdc7e17e33fc27c9e2d06293cde14c800
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7300.txt 
+
+commit f5619bbfdc7e17e33fc27c9e2d06293cde14c800
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Log(info) schema changes
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-4547

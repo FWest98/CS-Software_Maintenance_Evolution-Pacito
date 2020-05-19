@@ -1,0 +1,25 @@
+Pattern changes caused by commit: ee4a26d8659f4ab09d2646de0b68d39db958bdb9
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7534.txt 
+
+commit ee4a26d8659f4ab09d2646de0b68d39db958bdb9
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix validation for IN queries with non-PK cols

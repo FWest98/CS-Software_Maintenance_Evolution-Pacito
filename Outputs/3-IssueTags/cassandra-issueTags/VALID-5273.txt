@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 9f97c0e3cc38acf13cafcfded735060cb2556bfd
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5273.txt 
+
+commit 9f97c0e3cc38acf13cafcfded735060cb2556bfd
+Merge: 00202c4 6f38e10
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

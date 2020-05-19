@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 4d34917d2f0ceddd86dbed285391b05df19d46e9
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6817.txt 
+
+commit 4d34917d2f0ceddd86dbed285391b05df19d46e9
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Add support for range tombstones

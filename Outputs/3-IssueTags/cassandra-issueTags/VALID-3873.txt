@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 1ce23e78f648b8aa8bc6e99e38c7db00188d82e0
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3873.txt 
+
+commit 1ce23e78f648b8aa8bc6e99e38c7db00188d82e0
+Author: Eric Evans <eevans@apache.org>
+
+    update debian/changelog for 0.7.5 release

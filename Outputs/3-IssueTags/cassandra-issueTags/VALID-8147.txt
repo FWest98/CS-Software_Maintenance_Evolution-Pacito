@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7322f8238bb53efbac2a078585c4582cb1fc5e4a
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8147.txt 
+
+commit 7322f8238bb53efbac2a078585c4582cb1fc5e4a
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Load host_ids when adding saved endpoints
+    Patch by brandonwilliams, reviewed by tjake for CASSANDRA-5032

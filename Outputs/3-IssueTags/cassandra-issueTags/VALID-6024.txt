@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 4ab6fad945cada90497a8cf523a4c868932834c2
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6024.txt 
+
+commit 4ab6fad945cada90497a8cf523a4c868932834c2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix unsynchronized use of TokenMetadata.entrySet
+    patch by Peter Schuller; reviewed by jbellis for CASSANDRA-3417

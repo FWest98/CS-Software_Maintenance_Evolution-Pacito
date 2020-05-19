@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 467e89b12f62bbe3a2e05407383d2cac0b8e88eb
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5161.txt 
+
+commit 467e89b12f62bbe3a2e05407383d2cac0b8e88eb
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix missing fields in CLI `show schema` output
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3304

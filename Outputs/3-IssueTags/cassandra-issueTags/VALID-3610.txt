@@ -1,0 +1,19 @@
+Pattern changes caused by commit: c061a69c3ec6919cd80c17b7afec5081b23c9ee2
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3610.txt 
+
+commit c061a69c3ec6919cd80c17b7afec5081b23c9ee2
+Author: Eric Evans <eevans@apache.org>
+
+    leading whitespace optional (sigh)

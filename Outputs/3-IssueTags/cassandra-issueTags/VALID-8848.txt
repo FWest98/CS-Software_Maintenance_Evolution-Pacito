@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 444a5515bad8b6ab57a3489f0ea0563115eeacb4
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8848.txt 
+
+commit 444a5515bad8b6ab57a3489f0ea0563115eeacb4
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix bad merge (commit: 88b9d95165b5f83896be740bcfff260ff8e2009d)

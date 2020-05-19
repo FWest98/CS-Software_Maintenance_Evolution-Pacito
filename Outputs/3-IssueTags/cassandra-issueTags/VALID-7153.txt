@@ -1,0 +1,30 @@
+Pattern changes caused by commit: ff1ba870726d9c0de24ff8dad3e23aa96465290e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7153.txt 
+
+commit ff1ba870726d9c0de24ff8dad3e23aa96465290e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Convert bootstrap state from boolean to 3-way value; detect and retry
+    partial bootstraps on restart.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-4427

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: cbca39135c9abc6b88b5e8498980486de45709fd
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5609.txt 
+
+commit cbca39135c9abc6b88b5e8498980486de45709fd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Increase vm.max_map_count in debian packages.
+    Patch by brandonwilliams and Paul Cannon, reviewed by Paul Cannon for CASSANDRA-3563

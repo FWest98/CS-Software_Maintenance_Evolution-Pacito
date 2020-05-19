@@ -1,0 +1,26 @@
+Pattern changes caused by commit: bb5fdbf4b5f558278e9b6ab1f28c888fdffd8bdf
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5888.txt 
+
+commit bb5fdbf4b5f558278e9b6ab1f28c888fdffd8bdf
+Merge: 4fb3963 119fa05
+Author: Pavel Yaskevich <povel.y@gmail.com>
+
+    merge from 1.0

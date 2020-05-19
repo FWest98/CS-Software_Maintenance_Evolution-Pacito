@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f599559221ad074d9af0a99d7ffdd482c2b6b10c
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4625.txt 
+
+commit f599559221ad074d9af0a99d7ffdd482c2b6b10c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make sure pre-truncate CL segments are discarded

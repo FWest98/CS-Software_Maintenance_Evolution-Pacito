@@ -1,0 +1,23 @@
+Pattern changes caused by commit: efba67888ef832d2c97ae04e226487b5a5fd07c2
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7071.txt 
+
+commit efba67888ef832d2c97ae04e226487b5a5fd07c2
+Merge: fbb5ec0 5bcfcbc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

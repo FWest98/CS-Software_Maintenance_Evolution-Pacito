@@ -1,0 +1,26 @@
+Pattern changes caused by commit: c98edc3e81c8c1e19370802ab6c82a7e5ff00f42
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6027.txt 
+
+commit c98edc3e81c8c1e19370802ab6c82a7e5ff00f42
+Merge: c598687 9ca8478
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

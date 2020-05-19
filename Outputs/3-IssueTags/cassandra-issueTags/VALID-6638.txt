@@ -1,0 +1,23 @@
+Pattern changes caused by commit: cb67c98d574d941819a127bb60033fbbf34e511f
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6638.txt 
+
+commit cb67c98d574d941819a127bb60033fbbf34e511f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix stress tool that hangs forever on timeout or error
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-4128

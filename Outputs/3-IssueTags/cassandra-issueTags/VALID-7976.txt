@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8a2fdbf93c32c370f6152a591fd0db165ca27f53
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7976.txt 
+
+commit 8a2fdbf93c32c370f6152a591fd0db165ca27f53
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Document that prepared ID a server global

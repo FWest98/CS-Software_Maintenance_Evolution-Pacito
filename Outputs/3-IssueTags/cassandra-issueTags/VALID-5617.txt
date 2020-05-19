@@ -1,0 +1,24 @@
+Pattern changes caused by commit: 4d5c1325d5f92e1674bce232ecb94e1329a7002a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5617.txt 
+
+commit 4d5c1325d5f92e1674bce232ecb94e1329a7002a
+Merge: 09a6ee1 2b0859f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    turn off string interning in json2sstable, take 2
+    patch by jbellis; tested by George Ciubotaru for CASSANDRA-2189

@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 203d0d109e00cc6c6cbf076bac70e6cee1a93d36
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-2
+
+From: Mediator-2
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7214.txt 
+
+commit 203d0d109e00cc6c6cbf076bac70e6cee1a93d36
+Author: Yuki Morishita <yukim@apache.org>
+
+    use slf4j api for logging

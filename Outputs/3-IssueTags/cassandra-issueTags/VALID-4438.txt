@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 69f4fec007989f2ce47a59abf84a98bd02ed8fac
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4438.txt 
+
+commit 69f4fec007989f2ce47a59abf84a98bd02ed8fac
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Do not allow extra params to nodetool commands to prevent confusion.
+    Patch by Jon Hermes, reviewed by brandonwilliams for CASSANDRA-2740

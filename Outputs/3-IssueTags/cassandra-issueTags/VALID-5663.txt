@@ -1,0 +1,17 @@
+Pattern changes caused by commit: dd5df19f2e4c30e00f4bd3cd312b1f76f897de02
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5663.txt 
+
+commit dd5df19f2e4c30e00f4bd3cd312b1f76f897de02
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Check for permission problems with directories on startup.
+    Patch by Yuki Morishita, reviewed by brandonwilliams for CASSANDRA-3544

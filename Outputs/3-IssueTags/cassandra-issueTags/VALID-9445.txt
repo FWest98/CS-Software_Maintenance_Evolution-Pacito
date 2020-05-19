@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1b5edee00faeb03ec4fc5dff779a031f7093241b
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9445.txt 
+
+commit 1b5edee00faeb03ec4fc5dff779a031f7093241b
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Reuse prepared statements in hot auth queries

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 0d443b037611bd3576b21fa17fecd27366eb7878
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3597.txt 
+
+commit 0d443b037611bd3576b21fa17fecd27366eb7878
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix potential infinite loop in ByteBufferUtil.inputStream
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2365

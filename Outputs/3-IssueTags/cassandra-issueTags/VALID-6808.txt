@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 2db61ab9e0a5fe7f764236ec060ee370c19bd593
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6808.txt 
+
+commit 2db61ab9e0a5fe7f764236ec060ee370c19bd593
+Author: Aaron Morton <aaron@the-mortons.org>
+
+    Ensure unique streaming session id's

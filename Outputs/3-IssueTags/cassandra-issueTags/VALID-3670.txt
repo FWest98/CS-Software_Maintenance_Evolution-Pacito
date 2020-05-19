@@ -1,0 +1,20 @@
+Pattern changes caused by commit: cd1b798fa852b9a038ae234c5639c643a3c98d0a
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3670.txt 
+
+commit cd1b798fa852b9a038ae234c5639c643a3c98d0a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add file path to seek-past-eof exception
+    patch by jbellis

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 67e57a974f7fe5f7b950fa370b665ba828f6e5e1
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9439.txt 
+
+commit 67e57a974f7fe5f7b950fa370b665ba828f6e5e1
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: add custom prompt support

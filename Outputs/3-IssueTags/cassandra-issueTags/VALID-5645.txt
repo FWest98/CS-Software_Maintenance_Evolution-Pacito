@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 58518301472fc99b01cfd4bcf90bf81b5f0694ee
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5645.txt 
+
+commit 58518301472fc99b01cfd4bcf90bf81b5f0694ee
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix typo introduced by #1034 in QueryProcessor
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3604

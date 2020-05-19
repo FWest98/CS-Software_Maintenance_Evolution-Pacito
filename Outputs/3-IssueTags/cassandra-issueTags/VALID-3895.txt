@@ -1,0 +1,23 @@
+Pattern changes caused by commit: f05d1881ae392b0f18cac927d7e7202dc0728dc8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3895.txt 
+
+commit f05d1881ae392b0f18cac927d7e7202dc0728dc8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    movegossip heartbeat back to its own thread
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2554

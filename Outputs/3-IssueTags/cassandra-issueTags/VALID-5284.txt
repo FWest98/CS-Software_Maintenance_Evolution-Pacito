@@ -1,0 +1,26 @@
+Pattern changes caused by commit: ece371588db88ebfafaadcc090437a8330def90a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5284.txt 
+
+commit ece371588db88ebfafaadcc090437a8330def90a
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Correctly serialize key_validation_class for avro
+    patch by amorton; reviewed by slebresne for CASSANDRA-3391

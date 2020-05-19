@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 58fe9e9f56638d00858aebb65bf4b2dc69721291
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5801.txt 
+
+commit 58fe9e9f56638d00858aebb65bf4b2dc69721291
+Author: paul cannon <paul@datastax.com>
+
+    remove "todo" notice on UpdateColumnFamily

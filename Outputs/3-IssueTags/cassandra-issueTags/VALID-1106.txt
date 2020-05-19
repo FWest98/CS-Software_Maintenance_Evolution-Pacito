@@ -1,0 +1,16 @@
+Pattern changes caused by commit: edc48c258d3cad3f876f713a88f22ec43f94a24e
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1106.txt 
+
+commit edc48c258d3cad3f876f713a88f22ec43f94a24e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    inline HashingSchemes constants.  patch by jbellis

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 61567e7b4676a7075979e005b54c3c1f7ff8d04b
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9359.txt 
+
+commit 61567e7b4676a7075979e005b54c3c1f7ff8d04b
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Write row markers when serializing schema

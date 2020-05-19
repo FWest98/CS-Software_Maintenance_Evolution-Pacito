@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 9db882790f1b1a37a590d3b32dcef9ce14dad6ae
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7981.txt 
+
+commit 9db882790f1b1a37a590d3b32dcef9ce14dad6ae
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: make consistency level configurable; patch by Aleksey Yeschenko,
+    reviewed by Brandon Williams

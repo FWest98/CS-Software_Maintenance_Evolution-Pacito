@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 2820f050db002d653e3e6474ea5351db198ac71b
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6961.txt 
+
+commit 2820f050db002d653e3e6474ea5351db198ac71b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    skip tombstones during hint replay
+    patch by Vijay; reviewed by jbellis for CASSANDRA-4320

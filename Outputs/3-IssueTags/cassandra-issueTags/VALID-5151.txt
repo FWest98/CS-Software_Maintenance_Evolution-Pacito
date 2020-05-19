@@ -1,0 +1,23 @@
+Pattern changes caused by commit: b4ea3a73cafca1995c36248cd9a21a73b36bb34d
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5151.txt 
+
+commit b4ea3a73cafca1995c36248cd9a21a73b36bb34d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix type information returned for wildcard queries
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-3311

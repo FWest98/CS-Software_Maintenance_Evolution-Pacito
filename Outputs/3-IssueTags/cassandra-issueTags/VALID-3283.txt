@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8c509318f56237b152a7ad5882d57760aa605323
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3283.txt 
+
+commit 8c509318f56237b152a7ad5882d57760aa605323
+Merge: 3c03e52 076198e
+Author: T Jake Luciani <jake@apache.org>
+
+    merge from 0.7

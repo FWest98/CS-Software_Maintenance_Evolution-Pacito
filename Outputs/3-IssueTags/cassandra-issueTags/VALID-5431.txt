@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 84a03abdcea3c893a975f34ee75f436a4dcc99c7
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5431.txt 
+
+commit 84a03abdcea3c893a975f34ee75f436a4dcc99c7
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Report compression ratio in CFSMBean
+    patch by vijay; reviewed by xedin for CASSANDRA-3393

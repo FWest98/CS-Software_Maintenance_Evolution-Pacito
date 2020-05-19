@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 35d8f534270f6d78e4242082174214769a88e272
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4059.txt 
+
+commit 35d8f534270f6d78e4242082174214769a88e272
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Make help and validation types match in cassandra-cli.
+    Patch by Pavel Yaskevich, revewied by Jackson Chung for CASSANDRA-2615

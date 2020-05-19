@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 16097db1f2afac9e5098d67e9709552f4f7ef9a0
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5575.txt 
+
+commit 16097db1f2afac9e5098d67e9709552f4f7ef9a0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix commitlog segment recycling
+    patch by Rick Branson; reviewed by jbellis for CASSANDRA-3557

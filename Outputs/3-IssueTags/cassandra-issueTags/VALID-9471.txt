@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 2f72f8bc57bb96fa4434fb395373a73b259dcce5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9471.txt 
+
+commit 2f72f8bc57bb96fa4434fb395373a73b259dcce5
+Author: Jason Brown <jasedbrown@gmail.com>
+
+    Add a rate limit option to stress
+    patch by jasobrown, reviewed by driftx for CASSANDRA-5004

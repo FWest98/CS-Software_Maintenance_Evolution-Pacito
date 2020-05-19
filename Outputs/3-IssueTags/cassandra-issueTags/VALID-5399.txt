@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9bf951eb464b3d4c75d6e19ddae20b5e34d9aa3d
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5399.txt 
+
+commit 9bf951eb464b3d4c75d6e19ddae20b5e34d9aa3d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix invalidate-related test failures
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3437

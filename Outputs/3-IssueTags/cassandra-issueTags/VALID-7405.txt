@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 06893e4ff4fe81161010e0e948af20b0bb587c4c
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7405.txt 
+
+commit 06893e4ff4fe81161010e0e948af20b0bb587c4c
+Merge: 567146e d391726
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1

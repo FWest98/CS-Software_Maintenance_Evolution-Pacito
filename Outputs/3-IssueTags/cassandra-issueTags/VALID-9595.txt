@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 78b0dbeb25f2327fc2c417bb07bebac15f99e785
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9595.txt 
+
+commit 78b0dbeb25f2327fc2c417bb07bebac15f99e785
+Merge: 86081fa fc5044f
+Author: Jason Brown <jasedbrown@gmail.com>
+
+    Merge branch 'cassandra-1.2' into trunk

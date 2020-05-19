@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 80d3decdfe70b12422c24cd71405aecc5a02b97e
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3705.txt 
+
+commit 80d3decdfe70b12422c24cd71405aecc5a02b97e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add SerializingCacheProvider
+    patch by Vijay and jbellis for CASSANDRA-1969

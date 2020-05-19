@@ -1,0 +1,19 @@
+Pattern changes caused by commit: adbff64e2d345a5653d5b46cf8a08f8c35d2f5e7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3688.txt 
+
+commit adbff64e2d345a5653d5b46cf8a08f8c35d2f5e7
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Namepsace the udf context key to avoid accidental overwrites in the future

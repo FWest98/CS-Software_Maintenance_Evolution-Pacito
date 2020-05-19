@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 23026fdf32176a4779be6b373a7a2b20c73e47c5
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5826.txt 
+
+commit 23026fdf32176a4779be6b373a7a2b20c73e47c5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update CHANGES

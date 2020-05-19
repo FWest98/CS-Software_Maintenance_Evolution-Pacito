@@ -1,0 +1,20 @@
+Pattern changes caused by commit: b065aac226069077d265801e18dc20a6f2b964e6
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3383.txt 
+
+commit b065aac226069077d265801e18dc20a6f2b964e6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid aquiring (and contending with flush for) flusherlock on each write
+    patch by slebresne; reviewed by jbellis and stuhood for CASSANDRA-1954

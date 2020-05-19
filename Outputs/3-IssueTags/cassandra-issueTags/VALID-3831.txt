@@ -1,0 +1,23 @@
+Pattern changes caused by commit: a3ab11865b0e1cdea2af376625e00b65cc043261
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3831.txt 
+
+commit a3ab11865b0e1cdea2af376625e00b65cc043261
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix backslash substitutions in CLI
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2492

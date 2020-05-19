@@ -1,0 +1,17 @@
+Pattern changes caused by commit: a853d7e40f75bec7046a04d83b9c9a01d72a3cef
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5414.txt 
+
+commit a853d7e40f75bec7046a04d83b9c9a01d72a3cef
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix handling of rows with no columns
+    patch by pyaskevich and jbellis for CASSANDRA-3424

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: e07e88a612db0e8bcd3d3175a1d74c0244e95c5a
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3668.txt 
+
+commit e07e88a612db0e8bcd3d3175a1d74c0244e95c5a
+Merge: a14f038 95809de
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

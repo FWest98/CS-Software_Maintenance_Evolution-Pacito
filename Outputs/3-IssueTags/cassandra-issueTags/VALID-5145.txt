@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 1029fd59b9d4a5114fe86c8b31a0eb30bdf51964
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5145.txt 
+
+commit 1029fd59b9d4a5114fe86c8b31a0eb30bdf51964
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Nodetool closes JMX connections to avoid leaking timer threads.
+    Patch by vijay, reviewed by brandonwilliams for CASSANDRA-3309

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 23706164f6e1495f2e2a21a454fd07ef0c7164a5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3848.txt 
+
+commit 23706164f6e1495f2e2a21a454fd07ef0c7164a5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    count a row deletionas one operation towards memtable threshold
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2519

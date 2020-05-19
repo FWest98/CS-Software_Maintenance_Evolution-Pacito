@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 4e1be7d02ec723005623147dbc8e9d2a2f1e1122
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5282.txt 
+
+commit 4e1be7d02ec723005623147dbc8e9d2a2f1e1122
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.8

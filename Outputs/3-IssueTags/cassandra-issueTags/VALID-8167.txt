@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f91001a085886a75f62c7eef019fd32bdc4c9fe1
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8167.txt 
+
+commit f91001a085886a75f62c7eef019fd32bdc4c9fe1
+Author: Jake Luciani <jluciani@bluemountaincapital.com>
+
+    Fix for IndexHelper.IndexFor OOB Exception

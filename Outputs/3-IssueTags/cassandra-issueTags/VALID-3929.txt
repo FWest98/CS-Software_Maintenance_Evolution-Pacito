@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 7105ae1dfd609230be8d9f09f0f4f0d1af0986a8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3929.txt 
+
+commit 7105ae1dfd609230be8d9f09f0f4f0d1af0986a8
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Deploy parent POM to maven central
+    patch by stephenc for CASSANDRA-2562

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 6b1e0a42a9cc6404770d3bce71c97aa9eff3c47e
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Template Method-0
+To:   Template Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1010.txt 
+
+commit 6b1e0a42a9cc6404770d3bce71c97aa9eff3c47e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    convert Runnables containing code involving checked exceptions to WrappedRunnable, which reduces the boilerplate of rethrowing as RuntimeException.  Also replace one-off Runner class from test suite that served a similar purpose.  patch by jbellis

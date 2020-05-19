@@ -1,0 +1,16 @@
+Pattern changes caused by commit: be525d1e4cdec98c10f5919697284244ac593d61
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5214.txt 
+
+commit be525d1e4cdec98c10f5919697284244ac593d61
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update gc options to include promotionfailure and flsstatistics

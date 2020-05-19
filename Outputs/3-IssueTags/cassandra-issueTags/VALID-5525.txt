@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 789aa15fc1990643a1162e0ac93f1487446328db
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5525.txt 
+
+commit 789aa15fc1990643a1162e0ac93f1487446328db
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Avoid race in OutboundTcpConnection in multi-DC setups
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3530

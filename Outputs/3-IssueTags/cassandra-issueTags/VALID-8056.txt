@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 93738e31266e87eb34f8fe0de72262b5312b0db7
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8056.txt 
+
+commit 93738e31266e87eb34f8fe0de72262b5312b0db7
+Merge: 24cf1d1 3706749
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 359c38a8f2262924e37e49d2261573bfe82cfef4
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6731.txt 
+
+commit 359c38a8f2262924e37e49d2261573bfe82cfef4
+Merge: b4e520c af1dc0f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 64b4e4f23dbd5020087200f478c7a69fa51db989
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4984.txt 
+
+commit 64b4e4f23dbd5020087200f478c7a69fa51db989
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix cfhistograms read/write latency transposition.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3222

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8deaa64751c6db3bdb8b3ef5920ab6cca9cbd50a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4684.txt 
+
+commit 8deaa64751c6db3bdb8b3ef5920ab6cca9cbd50a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid retaining references to dropped CFS objects in CompactionManager.estimatedCompactions
+    patch by Dan LaRocque; reviewed by jbellis for CASSANDRA-2708

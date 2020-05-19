@@ -1,0 +1,17 @@
+Pattern changes caused by commit: ed18ee0c728ae069b7e41161bb301c9688491cbf
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4433.txt 
+
+commit ed18ee0c728ae069b7e41161bb301c9688491cbf
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    single-pass streaming
+    patch by Yuki Morishita; reviewed by jbellis for CASSANDRA-2677

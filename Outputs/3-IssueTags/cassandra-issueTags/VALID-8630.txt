@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 310bf348521e25f9142e5a62dc206555b83e1a68
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8630.txt 
+
+commit 310bf348521e25f9142e5a62dc206555b83e1a68
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: ninja-fix indentation in Shell constructor

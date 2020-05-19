@@ -1,0 +1,19 @@
+Pattern changes caused by commit: e62f62910d2865d5398636624aec88d0db5546f0
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3674.txt 
+
+commit e62f62910d2865d5398636624aec88d0db5546f0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    modernize column name quoting

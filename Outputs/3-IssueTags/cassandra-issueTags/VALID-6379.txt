@@ -1,0 +1,20 @@
+Pattern changes caused by commit: d361ed2f838af23efe3b078da0ab18a48a157080
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6379.txt 
+
+commit d361ed2f838af23efe3b078da0ab18a48a157080
+Merge: c38d326 0594179
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1.0

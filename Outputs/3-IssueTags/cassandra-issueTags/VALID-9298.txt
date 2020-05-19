@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 29ad6bdca67f219c4bddb6e08dd629a2239a5909
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9298.txt 
+
+commit 29ad6bdca67f219c4bddb6e08dd629a2239a5909
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: ninja-kill 'Perhaps you meant to use CQL X' warning

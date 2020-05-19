@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 11f1c419815f961a3b40a7625257c3b900a56ae7
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4074.txt 
+
+commit 11f1c419815f961a3b40a7625257c3b900a56ae7
+Merge: 2c3800e 21b5cdb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

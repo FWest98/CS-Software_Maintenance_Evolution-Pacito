@@ -1,0 +1,16 @@
+Pattern changes caused by commit: e9660c6de8e3f4b5d4802e898e421316e2783575
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5356.txt 
+
+commit e9660c6de8e3f4b5d4802e898e421316e2783575
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    cleanup and fixes for index debug logging

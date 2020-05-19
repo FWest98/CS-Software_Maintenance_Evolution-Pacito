@@ -1,0 +1,17 @@
+Pattern changes caused by commit: f2744896e956a8078aadc4cc76cd88db015ab1ec
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5608.txt 
+
+commit f2744896e956a8078aadc4cc76cd88db015ab1ec
+Merge: 2b1f4de 7bfd0f3
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.0

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8623bfb19f52a83472c673b1ad5acf06b40795c9
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5606.txt 
+
+commit 8623bfb19f52a83472c673b1ad5acf06b40795c9
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    'describe ring' moved from CLI to nodetool and available through JMX
+    patch by Jackson Chung; reviewed by Pavel Yaskevich for CASSANDRA-3220

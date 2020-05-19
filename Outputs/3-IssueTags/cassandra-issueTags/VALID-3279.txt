@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 74c464a36d1fe951ceaa6d0107f93cd46cf21572
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3279.txt 
+
+commit 74c464a36d1fe951ceaa6d0107f93cd46cf21572
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix callback when repair request times out (see #2069)
+    patch by jbellis

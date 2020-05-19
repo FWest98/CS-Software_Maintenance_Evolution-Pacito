@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 46273c4dd4de28e596eb2c1eb272f6da60b06d57
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9498.txt 
+
+commit 46273c4dd4de28e596eb2c1eb272f6da60b06d57
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: fix COPY FROM with ReversedType

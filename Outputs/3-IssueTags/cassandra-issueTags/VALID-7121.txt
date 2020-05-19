@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 3e4858271d2c2f3f9a6ab4a13f6a48f63b77aa70
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7121.txt 
+
+commit 3e4858271d2c2f3f9a6ab4a13f6a48f63b77aa70
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: describe command outputs valid CQL.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4380

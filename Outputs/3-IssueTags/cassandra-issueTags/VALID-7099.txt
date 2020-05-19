@@ -1,0 +1,29 @@
+Pattern changes caused by commit: aa2c28eadea7009361b46d95ee86a46fff291c0b
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7099.txt 
+
+commit aa2c28eadea7009361b46d95ee86a46fff291c0b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update default commitlog segment and total size
+    patch by jbellis; reviewed by vijay for CASSANDRA-4422

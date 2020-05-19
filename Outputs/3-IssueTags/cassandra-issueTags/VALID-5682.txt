@@ -1,0 +1,17 @@
+Pattern changes caused by commit: e3c5d5d4335150e76b3e7e5ea7147f33ddc49910
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5682.txt 
+
+commit e3c5d5d4335150e76b3e7e5ea7147f33ddc49910
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    stop thrift service in shutdown hook so we can quiesce MessagingService
+    patch by jbellis; reviewed by Brandon Williams for CASSANDRA-3335

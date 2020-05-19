@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 46e61bfeb31ce377676345aa878b4c6218c9e7bb
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5478.txt 
+
+commit 46e61bfeb31ce377676345aa878b4c6218c9e7bb
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Set default rack/dc in ec2snitch to avoid NPEs.
+    Patch by Alex Araujo, reviewed by brandonwilliams for CASSANDRA-3186.

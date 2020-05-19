@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 145010997609f1ed8e629b0996c06a367fdde588
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4151.txt 
+
+commit 145010997609f1ed8e629b0996c06a367fdde588
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Clone super column to avoid modifying them mid-flush
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2675

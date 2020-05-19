@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 0f61444ff9ae25246fd18669cd095e6b3d6e006b
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5450.txt 
+
+commit 0f61444ff9ae25246fd18669cd095e6b3d6e006b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Skip empty rows when entire row is requested, redux.
+    Patch by tjake, reviewed by brandonwilliams for CASSANDRA-2855

@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 577cb2c7600c6e26f5a2a252cb157769e861ece9
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8637.txt 
+
+commit 577cb2c7600c6e26f5a2a252cb157769e861ece9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Always collect hint tombstones.
+    Patch by brandonwilliams, reviewed by slebresne for CASSANDRA-5068

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: cef35c0c68f8eae76fbb99424fa0cc8712e4d7d8
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5566.txt 
+
+commit cef35c0c68f8eae76fbb99424fa0cc8712e4d7d8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix adding to leveled manifest after streaming
+    patch by jbellis; reviewed by Ben Coverston and tested by Joe Siegrist for CASSANDRA-3536

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: a12aa08154faaae7e096d8a6f500d1b352ef94b8
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7119.txt 
+
+commit a12aa08154faaae7e096d8a6f500d1b352ef94b8
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    If detected cores is zero, try at least one.
+    Patch by Andy Cobley, reviewed by brandonwilliams for CASSANDRA-4401

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 4a342a669b1dafbb22bc03e28849283d9f0374a1
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3870.txt 
+
+commit 4a342a669b1dafbb22bc03e28849283d9f0374a1
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Update CHANGES.txt

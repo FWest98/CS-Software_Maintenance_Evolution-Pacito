@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 7c59d8f4d37e467e664e6fea1e9b6414a1dba13a
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7066.txt 
+
+commit 7c59d8f4d37e467e664e6fea1e9b6414a1dba13a
+Merge: 9d1bf37 b1c60d2
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1

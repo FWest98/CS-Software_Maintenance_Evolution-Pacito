@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 5a3eb1a6c3e61bd217e23e5d1e7c27f03fab4f08
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8062.txt 
+
+commit 5a3eb1a6c3e61bd217e23e5d1e7c27f03fab4f08
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Replace IAuthority with new IAuthorizer; patch by Aleksey Yeschenko,
+    reviewed by Jonathan Ellis for CASSANDRA-4874

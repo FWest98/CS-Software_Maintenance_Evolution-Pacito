@@ -1,0 +1,17 @@
+Pattern changes caused by commit: c70740fbc41e562fac21baec4ece32449fe3443b
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9346.txt 
+
+commit c70740fbc41e562fac21baec4ece32449fe3443b
+Merge: 793d58a 384c27c
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 78446d67ac40ac3ba39c181a6c41587482c18c42
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5171.txt 
+
+commit 78446d67ac40ac3ba39c181a6c41587482c18c42
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    run compaction and hinted handoff threads at MIN_PRIORITY
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3308

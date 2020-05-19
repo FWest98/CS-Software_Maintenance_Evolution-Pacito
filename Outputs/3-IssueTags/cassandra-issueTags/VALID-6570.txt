@@ -1,0 +1,23 @@
+Pattern changes caused by commit: cb7a931ffcda61392d59c995c6733c20e47c98f0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6570.txt 
+
+commit cb7a931ffcda61392d59c995c6733c20e47c98f0
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    allow running stress from build classes
+    patch by Vijay; reviewed by jbellis for CASSANDRA-4139

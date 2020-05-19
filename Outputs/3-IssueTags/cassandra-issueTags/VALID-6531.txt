@@ -1,0 +1,20 @@
+Pattern changes caused by commit: fd3bfac6cbc487e36ac1c39740c5897e350d0d16
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6531.txt 
+
+commit fd3bfac6cbc487e36ac1c39740c5897e350d0d16
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make memory metering use an unbounded queue to avoid blocking the write path
+    patch by pschuller and jbellis; reviewed by slebresne for CASSANDRA-4032

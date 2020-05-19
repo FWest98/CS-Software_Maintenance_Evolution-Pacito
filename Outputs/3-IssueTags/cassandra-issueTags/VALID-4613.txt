@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 00f6a2495ff3e73bfad05b7c74d3df18e322a431
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4613.txt 
+
+commit 00f6a2495ff3e73bfad05b7c74d3df18e322a431
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    ignore saved replication_factor strategy_option for NTS
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3011

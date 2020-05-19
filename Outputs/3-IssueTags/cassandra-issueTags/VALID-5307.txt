@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 79296bb2eef3ac18363dea0743621ad9e566dc65
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5307.txt 
+
+commit 79296bb2eef3ac18363dea0743621ad9e566dc65
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    rm conf/schema-sample.txt

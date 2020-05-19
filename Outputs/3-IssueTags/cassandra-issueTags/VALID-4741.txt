@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 94691479d70fc5a678e159d76cfc5743abc43102
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4741.txt 
+
+commit 94691479d70fc5a678e159d76cfc5743abc43102
+Merge: ab1681d a832be4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

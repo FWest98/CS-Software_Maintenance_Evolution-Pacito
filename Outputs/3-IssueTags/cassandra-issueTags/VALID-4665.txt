@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 6139767e9095fecabf38cade374a3817f9858be8
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4665.txt 
+
+commit 6139767e9095fecabf38cade374a3817f9858be8
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Validate that column names in column_metadata does not equal to key_alias on create/update of the ColumnFamily and CQL 'ALTER' statement.
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3036

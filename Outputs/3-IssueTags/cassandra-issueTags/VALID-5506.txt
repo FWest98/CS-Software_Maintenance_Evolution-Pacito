@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 64c3807a65305c8098428434a3964f4f02a9953b
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5506.txt 
+
+commit 64c3807a65305c8098428434a3964f4f02a9953b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

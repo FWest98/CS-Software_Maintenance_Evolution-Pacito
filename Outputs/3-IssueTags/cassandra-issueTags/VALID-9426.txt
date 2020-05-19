@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 342050fcd73d0cd5f8db9c9a17f05c3260114437
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9426.txt 
+
+commit 342050fcd73d0cd5f8db9c9a17f05c3260114437
+Merge: 1c8e627 6abb1d4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

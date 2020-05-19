@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 088f8b99071dc3161be648b6fbb1640ec59b51f8
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5421.txt 
+
+commit 088f8b99071dc3161be648b6fbb1640ec59b51f8
+Merge: 1cc7d14 1d92696
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

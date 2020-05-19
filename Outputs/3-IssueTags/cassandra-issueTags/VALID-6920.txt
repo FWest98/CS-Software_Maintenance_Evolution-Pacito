@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 90869e25133db17adf8d390df72187ffe69df258
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6920.txt 
+
+commit 90869e25133db17adf8d390df72187ffe69df258
+Merge: dc9e70e a5e0994
+Author: Yuki Morishita <yukim@apache.org>
+
+    Merge branch 'cassandra-1.1' into trunk

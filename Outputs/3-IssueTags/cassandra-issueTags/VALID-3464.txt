@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 4618b41ea9374e09ee61e569da9ca4a4fedf81ed
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3464.txt 
+
+commit 4618b41ea9374e09ee61e569da9ca4a4fedf81ed
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix #2 for counter replication NPE
+    patch by Stu Hood; reviewed by slebresne for CASSANDRA-2289

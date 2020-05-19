@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 670954cb3e6a1021c03884ffc4756caab0fba576
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9565.txt 
+
+commit 670954cb3e6a1021c03884ffc4756caab0fba576
+Merge: 8bf6e15 f1004e9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.2

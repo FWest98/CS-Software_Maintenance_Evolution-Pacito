@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 5b151f3b3607494f67f502bae1d59e86ab7ceae8
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7615.txt 
+
+commit 5b151f3b3607494f67f502bae1d59e86ab7ceae8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add cqlVersion to things ClientState.reset cleans up
+    patch by jbellis; reviewed by dbrosius for CASSANDRA-4657

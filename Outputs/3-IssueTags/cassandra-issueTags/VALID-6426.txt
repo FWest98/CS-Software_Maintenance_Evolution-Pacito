@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 7326ba88795665d241d2aac9a1386598f35f157e
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6426.txt 
+
+commit 7326ba88795665d241d2aac9a1386598f35f157e
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Allow custom types in CLI's assume command

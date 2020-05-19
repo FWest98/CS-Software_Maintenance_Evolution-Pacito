@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 08376354a75eb8029ef9b2e7ddde53cd714b5031
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4925.txt 
+
+commit 08376354a75eb8029ef9b2e7ddde53cd714b5031
+Merge: 1f7ff16 a9e0930
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge #3164 from 0.7

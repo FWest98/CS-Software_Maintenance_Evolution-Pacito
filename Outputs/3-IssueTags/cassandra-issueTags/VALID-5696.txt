@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 1cde4ac54dfb9f015d7bf95059caf2c54c3c1e4a
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5696.txt 
+
+commit 1cde4ac54dfb9f015d7bf95059caf2c54c3c1e4a
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Allow setting compaction strategy via JMX.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3452

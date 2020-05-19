@@ -1,0 +1,25 @@
+Pattern changes caused by commit: c7ce11f0031c81311a359de03380860fa4e366a5
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7557.txt 
+
+commit c7ce11f0031c81311a359de03380860fa4e366a5
+Author: Yuki Morishita <yukim@apache.org>
+
+    display elapsed time in 2 fraction digits in cli; patch by Radim Kolar, reviewed by yukim for CASSANDRA-3460

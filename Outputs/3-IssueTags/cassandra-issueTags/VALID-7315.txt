@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 39e5a080d350a669b775063e2707deaade77b5ba
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7315.txt 
+
+commit 39e5a080d350a669b775063e2707deaade77b5ba
+Merge: 66d52f9 dbf99d6
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1

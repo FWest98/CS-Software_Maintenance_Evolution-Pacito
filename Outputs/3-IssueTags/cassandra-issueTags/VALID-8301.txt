@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 45310c068fcc8868e3d4bdb877b2b62ec1bfdb98
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8301.txt 
+
+commit 45310c068fcc8868e3d4bdb877b2b62ec1bfdb98
+Author: Yuki Morishita <yukim@apache.org>
+
+    make sure OrderPreservingPartitionerTest runs clean

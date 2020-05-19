@@ -1,0 +1,17 @@
+Pattern changes caused by commit: f0b14509e1e4827f10458d359a46a69983be786f
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5564.txt 
+
+commit f0b14509e1e4827f10458d359a46a69983be786f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix default value validation usage in CLI SET command
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3553

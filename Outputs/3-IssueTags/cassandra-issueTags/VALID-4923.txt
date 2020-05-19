@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 71ebcafb49033dc895db971ddf7b702bed55a8cd
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4923.txt 
+
+commit 71ebcafb49033dc895db971ddf7b702bed55a8cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix divide by zero error in GCInspector
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3164

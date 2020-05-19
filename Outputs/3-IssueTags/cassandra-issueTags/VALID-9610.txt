@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 998fe96766a8c826ab0483e657885eb10a9293ae
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9610.txt 
+
+commit 998fe96766a8c826ab0483e657885eb10a9293ae
+Author: Jason Brown <jasedbrown@gmail.com>
+
+    Avoid over-reconnecting in EC2MRS
+    patch by jasobrown; reviewed by jbellis for CASSADNRA-5678

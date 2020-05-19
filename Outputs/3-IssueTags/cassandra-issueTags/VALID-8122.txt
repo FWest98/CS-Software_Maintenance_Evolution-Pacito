@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 21581315760d8d6764da120dd07dd9d4cf53093e
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8122.txt 
+
+commit 21581315760d8d6764da120dd07dd9d4cf53093e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add BF with 0.1 FP to LCS by default
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-5029

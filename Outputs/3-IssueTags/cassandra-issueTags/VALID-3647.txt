@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f60187d4d56395f25c45ab26422ac8e7d72f5c9c
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3647.txt 
+
+commit f60187d4d56395f25c45ab26422ac8e7d72f5c9c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    disallow querying a counter CF with non-counter operation
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2321

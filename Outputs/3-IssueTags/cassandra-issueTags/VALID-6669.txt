@@ -1,0 +1,22 @@
+Pattern changes caused by commit: a725f80fce2be6880db9572b35339d68acc398a7
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6669.txt 
+
+commit a725f80fce2be6880db9572b35339d68acc398a7
+Author: Eric Evans <eevans@apache.org>
+
+    eliminate clientutil dependency on commons-lang

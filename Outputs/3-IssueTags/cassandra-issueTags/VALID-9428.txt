@@ -1,0 +1,16 @@
+Pattern changes caused by commit: cc301de4f7236f411a621566f749ff53ad962ca9
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9428.txt 
+
+commit cc301de4f7236f411a621566f749ff53ad962ca9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    tracing improvements

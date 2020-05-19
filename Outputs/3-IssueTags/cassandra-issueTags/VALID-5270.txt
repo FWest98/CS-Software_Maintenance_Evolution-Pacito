@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 00202c449787c87c311dd6fd1a40a1fbadf74bfa
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5270.txt 
+
+commit 00202c449787c87c311dd6fd1a40a1fbadf74bfa
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix merge

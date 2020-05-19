@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 4f0237acd5ee8097f90732ac416622588e4d7552
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7213.txt 
+
+commit 4f0237acd5ee8097f90732ac416622588e4d7552
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Update versions, news and changes for 1.0.11 release

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 5850178cb99dbd1e5e5333442c85470386ec1b4f
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5819.txt 
+
+commit 5850178cb99dbd1e5e5333442c85470386ec1b4f
+Author: paul cannon <paul@datastax.com>
+
+    cqlsh: format output properly, make prettier

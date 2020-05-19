@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8a80faf41e1179a31b7a42434f363e5c8e306aff
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4357.txt 
+
+commit 8a80faf41e1179a31b7a42434f363e5c8e306aff
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    reduce max HH pageSize to 1024
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-2832

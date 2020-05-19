@@ -1,0 +1,28 @@
+Pattern changes caused by commit: f58a51bc5f9815b554a52f93b48d70670a55047e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6784.txt 
+
+commit f58a51bc5f9815b554a52f93b48d70670a55047e
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix CQL3 index dropping

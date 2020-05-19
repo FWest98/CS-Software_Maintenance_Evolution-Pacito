@@ -1,0 +1,17 @@
+Pattern changes caused by commit: fc42891a3a174545658c1b20b09006d824e990ee
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5604.txt 
+
+commit fc42891a3a174545658c1b20b09006d824e990ee
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix missing response during range slice repair
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3551

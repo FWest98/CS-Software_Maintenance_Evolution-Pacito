@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 56e0ad1be2c3d7a2eb56b361e021668b8f22c095
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9519.txt 
+
+commit 56e0ad1be2c3d7a2eb56b361e021668b8f22c095
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Add CQL3 input/output formats
+    patch by Alex Liu; reviewed by jbellis and Mike Schrag for CASSANDRA-4421

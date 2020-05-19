@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 9fb57798eeb58578cf28338ce235f91b855dfabe
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8027.txt 
+
+commit 9fb57798eeb58578cf28338ce235f91b855dfabe
+Merge: e1ac6e9 d0292ef
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2.0

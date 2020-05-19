@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 4806ef91f3da007378657852f103a4551d52b6ff
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5475.txt 
+
+commit 4806ef91f3da007378657852f103a4551d52b6ff
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix "liveSize" stat when sstables are removed
+    patch by Jackson Chung; reviewed by jbellis and slebresne for CASSANDRA-3496

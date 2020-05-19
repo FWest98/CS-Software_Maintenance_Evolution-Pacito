@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c3ff774dee93de4e64282f86556a32cbb0cab5cd
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9311.txt 
+
+commit c3ff774dee93de4e64282f86556a32cbb0cab5cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    enable native protocol by default

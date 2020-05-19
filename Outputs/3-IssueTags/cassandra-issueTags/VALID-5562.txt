@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 09b4f448e2f9a7b4eeda8040bd8bb1893441aa57
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5562.txt 
+
+commit 09b4f448e2f9a7b4eeda8040bd8bb1893441aa57
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix potential race in AES when repair fails
+    patch by slebresne; reviewed by amorton for CASSANDRA-3548

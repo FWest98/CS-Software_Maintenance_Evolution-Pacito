@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8c24d019fced1bb6039310c192208721462d280a
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8016.txt 
+
+commit 8c24d019fced1bb6039310c192208721462d280a
+Author: Yuki Morishita <yukim@apache.org>
+
+    Remove cassandra specific exceptions from JMX interface; patch by yukim reviewed by dbrosius for CASSANDRA-4893

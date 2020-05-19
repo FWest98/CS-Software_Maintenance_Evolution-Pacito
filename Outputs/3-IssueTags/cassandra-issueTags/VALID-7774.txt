@@ -1,0 +1,28 @@
+Pattern changes caused by commit: a850abd16e2d87200e942e9523548f17ba3a6e7b
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7774.txt 
+
+commit a850abd16e2d87200e942e9523548f17ba3a6e7b
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix broken isInitialized check from maybeJoinRing (#4679)

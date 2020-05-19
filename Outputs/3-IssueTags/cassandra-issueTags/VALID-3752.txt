@@ -1,0 +1,17 @@
+Pattern changes caused by commit: beac419bd36a033c6376d3b91455abdeddc85685
+
+From: Flyweight-5
+To:   Flyweight-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3752.txt 
+
+commit beac419bd36a033c6376d3b91455abdeddc85685
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Multithreaded compactions
+    patch by stuhood; reviewed by slebresne for CASSANDRA-2191

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: abebf52c9575d2016a0b2cfe1a7bc060d6b2698d
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3601.txt 
+
+commit abebf52c9575d2016a0b2cfe1a7bc060d6b2698d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m uses of SSTableUtils.writeRaw
+    patch by Stu Hood; reviewed by jbellis for CASSANDRA-2366

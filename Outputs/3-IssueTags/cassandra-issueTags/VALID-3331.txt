@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 4e11242fb58cc97d7b098ed16d0102377a94a445
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3331.txt 
+
+commit 4e11242fb58cc97d7b098ed16d0102377a94a445
+Merge: 91808f1 e6d74c1
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    merge from 0.7

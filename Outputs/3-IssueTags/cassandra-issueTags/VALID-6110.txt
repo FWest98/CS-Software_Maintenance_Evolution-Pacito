@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 5030f78a5aa9bfa52915812dceb78a717db1ee86
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6110.txt 
+
+commit 5030f78a5aa9bfa52915812dceb78a717db1ee86
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Remove deprecated merge_shard_chance

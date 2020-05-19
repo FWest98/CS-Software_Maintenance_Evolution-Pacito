@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 965ea78789f2f85ea198d7b6a3071770a0f86ff3
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5600.txt 
+
+commit 965ea78789f2f85ea198d7b6a3071770a0f86ff3
+Merge: abcd54c d3f8683
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

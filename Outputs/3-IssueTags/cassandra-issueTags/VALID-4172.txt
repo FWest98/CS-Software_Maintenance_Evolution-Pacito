@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 4e96cc9d41bccc9781cbe3008db6e72c91c7d5f1
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4172.txt 
+
+commit 4e96cc9d41bccc9781cbe3008db6e72c91c7d5f1
+Author: T Jake Luciani <jake@apache.org>
+
+    fix NPE	when bypassing commitlog during	memtable flush

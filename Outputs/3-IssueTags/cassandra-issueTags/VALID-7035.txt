@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 0627c8aaec966d01500f2bb957aaefb9873fff38
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7035.txt 
+
+commit 0627c8aaec966d01500f2bb957aaefb9873fff38
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Use correct partitioner when saving + loading caches
+    patch by jbellis; reviewed by xedin for CASSANDRA-4331

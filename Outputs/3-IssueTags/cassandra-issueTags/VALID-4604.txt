@@ -1,0 +1,20 @@
+Pattern changes caused by commit: c9ff755776931c8d999699401b3a73bc796fcf3c
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4604.txt 
+
+commit c9ff755776931c8d999699401b3a73bc796fcf3c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid doing read forno-op replicate-on-write at CL=1
+    patch by slebresne and jbellis for CASSANDRA-2892

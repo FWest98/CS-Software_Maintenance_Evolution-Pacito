@@ -1,0 +1,26 @@
+Pattern changes caused by commit: ee2a135469c4dc05d600bfb240afaa988d6984ce
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6032.txt 
+
+commit ee2a135469c4dc05d600bfb240afaa988d6984ce
+Merge: 1d435db 161e052
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1

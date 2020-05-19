@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a32eb9f7d2f2868e8154d178e96e045859e1d855
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8001.txt 
+
+commit a32eb9f7d2f2868e8154d178e96e045859e1d855
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix CQL3 limit

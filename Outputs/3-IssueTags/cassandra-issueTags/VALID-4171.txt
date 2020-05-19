@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2ae4267b531422b372f289039566dd5dcb93264e
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4171.txt 
+
+commit 2ae4267b531422b372f289039566dd5dcb93264e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    throttle migration replay
+    patch by jbellis; reviewed by gdusbabek for CASSANDRA-2714

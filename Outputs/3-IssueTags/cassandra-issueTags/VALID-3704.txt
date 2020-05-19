@@ -1,0 +1,19 @@
+Pattern changes caused by commit: cc0322fef8cfa526932d72784e261f0dea519516
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3704.txt 
+
+commit cc0322fef8cfa526932d72784e261f0dea519516
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    fix FBU.getInstance

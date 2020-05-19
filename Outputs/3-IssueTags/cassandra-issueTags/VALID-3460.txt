@@ -1,0 +1,16 @@
+Pattern changes caused by commit: fc4502acf0d3a2d9bdf8f26cbe63b9309705bca1
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3460.txt 
+
+commit fc4502acf0d3a2d9bdf8f26cbe63b9309705bca1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    revert r1078803 (#1902)

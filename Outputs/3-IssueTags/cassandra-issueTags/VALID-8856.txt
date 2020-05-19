@@ -1,0 +1,35 @@
+Pattern changes caused by commit: bb63238749171ebb4a6631f28c93246f3fd31743
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8856.txt 
+
+commit bb63238749171ebb4a6631f28c93246f3fd31743
+Merge: 7cb8cf1 3346771
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2

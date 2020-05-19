@@ -1,0 +1,23 @@
+Pattern changes caused by commit: d8dfcfac449f33c981735bb84108547b8127d5ea
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3981.txt 
+
+commit d8dfcfac449f33c981735bb84108547b8127d5ea
+Merge: 879871e 94f5a6a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

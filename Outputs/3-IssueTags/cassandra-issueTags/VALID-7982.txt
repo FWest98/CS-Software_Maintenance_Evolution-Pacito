@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 6875c3bf85f0662be1b910c157aed0ba1e721214
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7982.txt 
+
+commit 6875c3bf85f0662be1b910c157aed0ba1e721214
+Merge: 791affd 9db8827
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

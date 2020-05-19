@@ -1,0 +1,19 @@
+Pattern changes caused by commit: bc598b5a05b5033b524706553ebfe578fae5a841
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8271.txt 
+
+commit bc598b5a05b5033b524706553ebfe578fae5a841
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Include shuffle in the debian package (and rename to cassandra-shuffle)

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: be22ee49b7156d57378cd4812c38e8b4d0dd03b0
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4478.txt 
+
+commit be22ee49b7156d57378cd4812c38e8b4d0dd03b0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    store hints as serialized mutations instead of pointers to data rows
+    patch by Nick Telford, jbellis, and Patricio Echague for CASSANDRA-2045

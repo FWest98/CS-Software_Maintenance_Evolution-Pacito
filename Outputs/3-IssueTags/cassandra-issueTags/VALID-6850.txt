@@ -1,0 +1,29 @@
+Pattern changes caused by commit: b5f99a3364a6b0a8531d8bb1c240a8f0603b4f56
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6850.txt 
+
+commit b5f99a3364a6b0a8531d8bb1c240a8f0603b4f56
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Don't convict dead states.
+    Patch by brandonwilliams, reviewed by Vijay for CASSANDRA-4115.

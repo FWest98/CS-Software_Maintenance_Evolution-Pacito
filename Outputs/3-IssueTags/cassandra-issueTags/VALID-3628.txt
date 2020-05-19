@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 469f947cf7322f0f5edae7331972a14a66040a49
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3628.txt 
+
+commit 469f947cf7322f0f5edae7331972a14a66040a49
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    specify UTF8Type comparator to fix regression found by Jingguo Yao
+    patch by jbellis for CASSANDRA-2390

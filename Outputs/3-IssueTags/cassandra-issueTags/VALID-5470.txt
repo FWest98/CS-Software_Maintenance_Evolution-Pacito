@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 0dfd8c97b2ed8d99ebdd78ed5d9928da8c1276c8
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5470.txt 
+
+commit 0dfd8c97b2ed8d99ebdd78ed5d9928da8c1276c8
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Add missing file from previous commit

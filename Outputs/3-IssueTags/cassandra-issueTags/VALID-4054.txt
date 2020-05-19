@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 50b490e046bdc23b23fbb268400abcc41a0de72c
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4054.txt 
+
+commit 50b490e046bdc23b23fbb268400abcc41a0de72c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add quote-escaping via backslash to CLI
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-2623

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 24a70804086a07409fef1303f7c53327661806bc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6195.txt 
+
+commit 24a70804086a07409fef1303f7c53327661806bc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    delete hints from dropped ColumnFamilies on handoff instead of erroring out
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3975

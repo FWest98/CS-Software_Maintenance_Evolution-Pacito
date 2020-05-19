@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 1a44fa7ea20a0be92cc0cb0f87c270a7dd2f6334
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7285.txt 
+
+commit 1a44fa7ea20a0be92cc0cb0f87c270a7dd2f6334
+Merge: e243db4 17c1787
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

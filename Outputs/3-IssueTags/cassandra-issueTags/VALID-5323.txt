@@ -1,0 +1,17 @@
+Pattern changes caused by commit: d2fd3915458253ce7229bda76be76924061849da
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5323.txt 
+
+commit d2fd3915458253ce7229bda76be76924061849da
+Merge: 5c752cd 1ee4899
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

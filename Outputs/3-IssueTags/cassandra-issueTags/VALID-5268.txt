@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 845af1ca3ce21fb543daba5434751cb63fd5a18d
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5268.txt 
+
+commit 845af1ca3ce21fb543daba5434751cb63fd5a18d
+Merge: fe336ca 368aa0e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

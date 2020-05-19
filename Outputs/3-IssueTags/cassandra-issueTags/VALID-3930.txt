@@ -1,0 +1,23 @@
+Pattern changes caused by commit: cbbd7c8ca8c8b89d899acc364ce8cab3251d2100
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3930.txt 
+
+commit cbbd7c8ca8c8b89d899acc364ce8cab3251d2100
+Merge: 4f3e4cc 7105ae1
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge --record-only of CASSANDRA-2562 from 0.7

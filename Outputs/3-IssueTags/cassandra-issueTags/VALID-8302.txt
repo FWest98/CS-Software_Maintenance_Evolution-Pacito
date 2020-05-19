@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f25284220ca2ba0bd28e753b4a1d554e468b85b0
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8302.txt 
+
+commit f25284220ca2ba0bd28e753b4a1d554e468b85b0
+Merge: de2495c 45310c0
+Author: Yuki Morishita <yukim@apache.org>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

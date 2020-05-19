@@ -1,0 +1,20 @@
+Pattern changes caused by commit: b3b6e4a45ebb80d629f7d722f6efd09a78197286
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6460.txt 
+
+commit b3b6e4a45ebb80d629f7d722f6efd09a78197286
+Merge: 2462c6a 67e88da
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

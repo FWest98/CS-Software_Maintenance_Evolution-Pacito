@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 2efa95d8e8691fc4f76c37628e14946b9734c29c
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3661.txt 
+
+commit 2efa95d8e8691fc4f76c37628e14946b9734c29c
+Author: Eric Evans <eevans@apache.org>
+
+    (dumb )cqlsh completion for PRIMARY KEY in CREATE

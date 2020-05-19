@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 885ab7cf85fd2d074d06e9444f3f9d63b2bf2702
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6742.txt 
+
+commit 885ab7cf85fd2d074d06e9444f3f9d63b2bf2702
+Merge: 44e7a08 b2ca7f8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

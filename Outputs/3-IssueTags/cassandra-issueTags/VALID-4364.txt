@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 57684e9aab65c7ecff60c108d8d3c183073088b1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4364.txt 
+
+commit 57684e9aab65c7ecff60c108d8d3c183073088b1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix race that could result in Hadoopwriter failing to throw exception for encountered error
+    patch by Mck SembWever and jbellis for CASSANDRA-2755

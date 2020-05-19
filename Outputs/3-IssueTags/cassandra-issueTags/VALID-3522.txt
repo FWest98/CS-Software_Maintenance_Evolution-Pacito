@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 404301ec373fb74fe98f603dc5224f216842c408
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3522.txt 
+
+commit 404301ec373fb74fe98f603dc5224f216842c408
+Author: Eric Evans <eevans@apache.org>
+
+    more flexible keyword argument specification

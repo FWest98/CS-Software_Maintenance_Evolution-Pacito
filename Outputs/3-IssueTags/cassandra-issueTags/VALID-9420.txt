@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 44c462cb7a231c1e99226e4a3cac3f05a3a99669
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9420.txt 
+
+commit 44c462cb7a231c1e99226e4a3cac3f05a3a99669
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix typo in removeTruncationRecord

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: a2ca30e79510a04ca1f6b9c5a342ee9467176a9f
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7876.txt 
+
+commit a2ca30e79510a04ca1f6b9c5a342ee9467176a9f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    reset getRangeSlice filter after finishing a row forget_paged_slice
+    patch by Piotr Kołaczkowski; reviewed by jbellis for CASSANDRA-4919

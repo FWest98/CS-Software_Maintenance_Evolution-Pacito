@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f304c4c1fb9281b0a1143c7c3b4f77805c4a844f
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4473.txt 
+
+commit f304c4c1fb9281b0a1143c7c3b4f77805c4a844f
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Updates for 0.7.8 release (changelog, news, version number)

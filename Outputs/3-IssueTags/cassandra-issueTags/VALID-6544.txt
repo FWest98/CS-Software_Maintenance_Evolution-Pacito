@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 2eaea5be96461b1d9e405d26229b9803a96d3abf
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6544.txt 
+
+commit 2eaea5be96461b1d9e405d26229b9803a96d3abf
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    remove intialCapacity from rowcache
+    patch by Vijay; reviewed by xedin for CASSANDRA-4141

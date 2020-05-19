@@ -1,0 +1,32 @@
+Pattern changes caused by commit: 0077edc946a3f8520b3366ee3ace0d6f029651e5
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6800.txt 
+
+commit 0077edc946a3f8520b3366ee3ace0d6f029651e5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Report thrift status in nodetool info.
+    Patch by Dave Brosius, reviewed by brandonwilliams for CASSANDRA-4010

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 32f21794ed8020055458bda7e62043ad644b8861
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5336.txt 
+
+commit 32f21794ed8020055458bda7e62043ad644b8861
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    CFMetaData.convertToThrift method to set RowCacheProvider
+    patch by Marcus Eriksson; reviewed by Pavel Yaskevich for CASSANDRA-3405

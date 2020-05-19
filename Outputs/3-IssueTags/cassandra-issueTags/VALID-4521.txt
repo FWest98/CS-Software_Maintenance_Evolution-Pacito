@@ -1,0 +1,17 @@
+Pattern changes caused by commit: d7261c526b0e45899396fabd7f14ef4622874dbd
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4521.txt 
+
+commit d7261c526b0e45899396fabd7f14ef4622874dbd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    DES shouldn't ignore nodes when the read repair chance is zero.
+    Patch by brandonwilliams reviewed by Paul Cannon for CASSANDRA-2662

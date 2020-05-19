@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 8d555cf2b9a54c609c568fbc8bd8f793dcf0c59c
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5299.txt 
+
+commit 8d555cf2b9a54c609c568fbc8bd8f793dcf0c59c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge #3390 from 0.8

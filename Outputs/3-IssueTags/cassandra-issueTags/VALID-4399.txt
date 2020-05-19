@@ -1,0 +1,17 @@
+Pattern changes caused by commit: dbcfe673224bb0f9670ada2bf6a3fcbdc23a6565
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4399.txt 
+
+commit dbcfe673224bb0f9670ada2bf6a3fcbdc23a6565
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    log unavailableexception details at debug level
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2856

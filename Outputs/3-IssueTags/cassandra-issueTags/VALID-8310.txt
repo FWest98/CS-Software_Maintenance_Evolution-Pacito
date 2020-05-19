@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 986893e424677964e7e44baeffdb3ae0f2a914da
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8310.txt 
+
+commit 986893e424677964e7e44baeffdb3ae0f2a914da
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Disallow counters in collection

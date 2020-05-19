@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 98708d817f8df91be4cfcba06c9523027fab881c
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7437.txt 
+
+commit 98708d817f8df91be4cfcba06c9523027fab881c
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix assumption error in CLI when updating/describing keyspace
+    patch by Pavel Yaskevich; reviewed by Dave Brosius for CASSANDRA-4322

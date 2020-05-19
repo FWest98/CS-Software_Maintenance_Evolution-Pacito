@@ -1,0 +1,19 @@
+Pattern changes caused by commit: fff525d552c2e5043b0c157902021e8b5b8f2c8f
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3583.txt 
+
+commit fff525d552c2e5043b0c157902021e8b5b8f2c8f
+Author: Eric Evans <eevans@apache.org>
+
+    make utf8 default comparator/validator for CQL (not ascii)

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: daf173bff2010ea9f7f2d0da9f3589044db9b477
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4028.txt 
+
+commit daf173bff2010ea9f7f2d0da9f3589044db9b477
+Merge: 47af0b0 c8f2414
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.7

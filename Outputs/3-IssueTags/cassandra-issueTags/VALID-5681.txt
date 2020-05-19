@@ -1,0 +1,17 @@
+Pattern changes caused by commit: f6024d8a2f22268aaa04a7d3b3fcd69f7d441b0c
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5681.txt 
+
+commit f6024d8a2f22268aaa04a7d3b3fcd69f7d441b0c
+Merge: 4c2efec 04abad6
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.0

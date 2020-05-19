@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 5dc93856fd052607bfbfd8c394fbc57ee44e87d9
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4578.txt 
+
+commit 5dc93856fd052607bfbfd8c394fbc57ee44e87d9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    describe_ring returns the interface thrift is bound to instead of the
+    one the storage proto is bound to.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-1777

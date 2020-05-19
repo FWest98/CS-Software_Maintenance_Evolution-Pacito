@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 8be8ff512c06f6f2758c425f6864a134bf12c300
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5570.txt 
+
+commit 8be8ff512c06f6f2758c425f6864a134bf12c300
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix typo in method name

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 14f82e900d43f54ff8a1a0a74d5c8c0375f244f1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4485.txt 
+
+commit 14f82e900d43f54ff8a1a0a74d5c8c0375f244f1
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Don't include tmp file as sstable when creating cfs
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2929

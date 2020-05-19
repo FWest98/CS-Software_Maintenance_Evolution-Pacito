@@ -1,0 +1,32 @@
+Pattern changes caused by commit: f89b9aecc6d573571ceed3d22715606c3ce7d637
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6847.txt 
+
+commit f89b9aecc6d573571ceed3d22715606c3ce7d637
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix long-test xml
+    patch by Tyler Patterson; reviewed by jbellis for CASSANDRA-4270

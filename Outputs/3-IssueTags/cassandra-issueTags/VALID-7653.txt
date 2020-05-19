@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 936302cb3876df87e6afb45c775850eb851e9b18
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7653.txt 
+
+commit 936302cb3876df87e6afb45c775850eb851e9b18
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Wait for writes on synchronous read digest mismatch
+    patch by Niklas Ekstrom; reviewed by jbellis and vijay for CASSANDRA-4792

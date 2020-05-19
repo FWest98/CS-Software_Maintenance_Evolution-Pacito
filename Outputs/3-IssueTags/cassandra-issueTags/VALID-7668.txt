@@ -1,0 +1,27 @@
+Pattern changes caused by commit: 4d2e5e73b127dc0b335176ddc1dec1f0244e7f6d
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7668.txt 
+
+commit 4d2e5e73b127dc0b335176ddc1dec1f0244e7f6d
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: use libedit when readline is not available, if possible
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-3597

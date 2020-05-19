@@ -1,0 +1,25 @@
+Pattern changes caused by commit: d0f952dc75c1de25be38da75ecf2f320ca8882f3
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5505.txt 
+
+commit d0f952dc75c1de25be38da75ecf2f320ca8882f3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    move Opening log line before assertions, to make it easier to recover from missing components

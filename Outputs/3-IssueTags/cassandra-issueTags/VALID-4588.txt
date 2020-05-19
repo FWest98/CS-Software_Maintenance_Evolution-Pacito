@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 2e25600fabab058b642a301d92bc2732e0b3d560
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4588.txt 
+
+commit 2e25600fabab058b642a301d92bc2732e0b3d560
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    prune index scan resultset back to original request
+    patch by jbellis; tested by Roland Gude for CASSANDRA-2964

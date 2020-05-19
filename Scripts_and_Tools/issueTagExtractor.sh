@@ -38,6 +38,8 @@ do
  
     cat $filenameWithoutTxt-issueTag.txt >> $currentFolder/$1-issueTags/$line
 
+    rm $filenameWithoutTxt-issueTag.txt
+
     cd $currentFolder
 done < "$input"
 

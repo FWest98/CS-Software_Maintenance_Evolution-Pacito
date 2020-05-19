@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8a96ec702168430eea7400d41fc476b93c7e7404
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8116.txt 
+
+commit 8a96ec702168430eea7400d41fc476b93c7e7404
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    rename rpc_timeout settings to request_timeout
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-5027

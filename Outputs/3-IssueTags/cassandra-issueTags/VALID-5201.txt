@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 90d4c337bfc57745db48313ef9964b754b9a7aa5
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5201.txt 
+
+commit 90d4c337bfc57745db48313ef9964b754b9a7aa5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix hsha pool size

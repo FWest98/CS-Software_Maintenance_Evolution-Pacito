@@ -1,0 +1,23 @@
+Pattern changes caused by commit: eaf2082e74ddc8aa974100293c4aa3057d75c797
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3924.txt 
+
+commit eaf2082e74ddc8aa974100293c4aa3057d75c797
+Merge: 2641bd2 27a5111
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

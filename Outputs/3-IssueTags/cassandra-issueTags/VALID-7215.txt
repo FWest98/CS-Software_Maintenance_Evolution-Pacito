@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 5dab451afc6a9b63206bf2428022d641682b60b2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7215.txt 
+
+commit 5dab451afc6a9b63206bf2428022d641682b60b2
+Author: Yuki Morishita <yukim@apache.org>
+
+    use slf4j api for logging

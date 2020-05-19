@@ -1,0 +1,16 @@
+Pattern changes caused by commit: d37084b119bc49380cb2123161d24f20b6f298c8
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5361.txt 
+
+commit d37084b119bc49380cb2123161d24f20b6f298c8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    switch from PrintGCTimeStamps (time-elapsed-since-jvm-start, which is almost useless) to PrintGCDateStamps (wall clock time in ISO 8601)

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 569feedfe9f49e1de0c176431d11f5d0dc9045fe
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3106.txt 
+
+commit 569feedfe9f49e1de0c176431d11f5d0dc9045fe
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    replace ExecutorService.submit with .execute where a Future is not required
+    patch by jbellis

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: a0f5dc5156b0d6fe393194cc99a263defcad1311
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6718.txt 
+
+commit a0f5dc5156b0d6fe393194cc99a263defcad1311
+Merge: 4279ce4 6d38881
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1' into trunk

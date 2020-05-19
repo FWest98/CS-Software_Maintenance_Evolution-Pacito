@@ -1,0 +1,28 @@
+Pattern changes caused by commit: ac8bbb17ee86e2aede17672da5ee64824ae01381
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6937.txt 
+
+commit ac8bbb17ee86e2aede17672da5ee64824ae01381
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Make sure DeletedColumn.isMFD always return true

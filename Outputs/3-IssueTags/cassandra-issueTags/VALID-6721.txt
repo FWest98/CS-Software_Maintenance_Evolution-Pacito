@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 13f3ba838193d8ec7dc6ae0732c905951cb7f13e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6721.txt 
+
+commit 13f3ba838193d8ec7dc6ae0732c905951cb7f13e
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    CQL3: make some keywords unreserved

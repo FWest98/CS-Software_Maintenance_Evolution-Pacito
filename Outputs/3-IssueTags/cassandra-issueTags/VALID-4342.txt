@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 14f3714f0504e4c6ff3914d93512f590dd5aa5d2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4342.txt 
+
+commit 14f3714f0504e4c6ff3914d93512f590dd5aa5d2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m unhelpful advice to rebuild index file (because scrub does that implicitly)

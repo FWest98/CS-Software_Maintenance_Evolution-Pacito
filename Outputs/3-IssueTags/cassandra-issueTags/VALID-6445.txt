@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 457e09e91396e82520afb5d6727f6616b2c972fc
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6445.txt 
+
+commit 457e09e91396e82520afb5d6727f6616b2c972fc
+Merge: cd20c3a ef50e8f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1.0

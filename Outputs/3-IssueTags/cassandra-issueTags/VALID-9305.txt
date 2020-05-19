@@ -1,0 +1,16 @@
+Pattern changes caused by commit: ae0d6ebd26389d9504456cf96582eb76c24c9ff3
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9305.txt 
+
+commit ae0d6ebd26389d9504456cf96582eb76c24c9ff3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m redundant log line on startup

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 554223b4a65c7839c36e8a17e36636b92f4f15a0
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5553.txt 
+
+commit 554223b4a65c7839c36e8a17e36636b92f4f15a0
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    remove assumption that key and token are in bijection
+    patch by slebresne; reviewed by jbellis for CASSANDRA-1034

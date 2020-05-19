@@ -1,0 +1,20 @@
+Pattern changes caused by commit: e7be5e64ddc0c48512a5d8cfc831d9399203da94
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4667.txt 
+
+commit e7be5e64ddc0c48512a5d8cfc831d9399203da94
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    load access.properties for each request so you don't have to restart server to see changes
+    patch by Thomas Peuss; reviewed by jbellis for CASSANDRA-3048

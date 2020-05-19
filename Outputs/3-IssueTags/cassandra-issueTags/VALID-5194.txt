@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 56492f50329d50c9aabda6a824f856e181657b64
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5194.txt 
+
+commit 56492f50329d50c9aabda6a824f856e181657b64
+Author: Eric Evans <eevans@apache.org>
+
+    move FBUtils methods for bytes<->hex to separate class

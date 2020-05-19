@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 9fc9c657ece7abc1213b280afff8c5a2f803a3d5
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3353.txt 
+
+commit 9fc9c657ece7abc1213b280afff8c5a2f803a3d5
+Merge: a9cbaae b674d83
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 8480f06e324e0bc2e042b7c1c483e08132d81eb4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5586.txt 
+
+commit 8480f06e324e0bc2e042b7c1c483e08132d81eb4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    remove nonlocal DC write optimization
+    patch by Vijay; reviewed by jbellis for CASSANDRA-3577

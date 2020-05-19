@@ -1,0 +1,17 @@
+Pattern changes caused by commit: be313935e54be450d9aaabda7965a2f266e922c9
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5667.txt 
+
+commit be313935e54be450d9aaabda7965a2f266e922c9
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fsync the directory after new sstable or commitlog segment are created
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3250

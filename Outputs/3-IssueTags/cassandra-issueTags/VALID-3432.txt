@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7d71c3991b411fadf9e3c0ac095c212596c56af0
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3432.txt 
+
+commit 7d71c3991b411fadf9e3c0ac095c212596c56af0
+Merge: 7eb445b fffecb8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8cf9f2deda1fa2d1300813b6a0a4f3a23e00f011
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5644.txt 
+
+commit 8cf9f2deda1fa2d1300813b6a0a4f3a23e00f011
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Allow overriding RING_DELAY.
+    Patch by brandonwilliams reviewed by slebresne for CASSANDRA-3600

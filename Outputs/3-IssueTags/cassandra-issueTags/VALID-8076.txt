@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ab5c06fd7edbbcb97c0d2684951a6c0026e4182d
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8076.txt 
+
+commit ab5c06fd7edbbcb97c0d2684951a6c0026e4182d
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: fix KEY pseudocolumn escaping when describing Thrift tables; patch by Aleksey Yeschenko, reviewed by Brandon Williams for CASSANDRA-4955

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 2dec842fdd380687bd58d3e0575c7e5d68c0c748
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5635.txt 
+
+commit 2dec842fdd380687bd58d3e0575c7e5d68c0c748
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge 3485 from 0.8

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c924ce55eb25e712a71ec57b09ab79ea098c7323
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1647.txt 
+
+commit c924ce55eb25e712a71ec57b09ab79ea098c7323
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Add ResourceWatcher to generalize reloading Strategy configurations.  patch by Jon Hermes and jbellis for CASSANDRA-1105

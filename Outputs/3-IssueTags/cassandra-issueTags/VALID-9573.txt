@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 2397bc8c334142ddaa6ef8e34f18bbecffba4f4f
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9573.txt 
+
+commit 2397bc8c334142ddaa6ef8e34f18bbecffba4f4f
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Updated CREATE CUSTOM INDEX syntax

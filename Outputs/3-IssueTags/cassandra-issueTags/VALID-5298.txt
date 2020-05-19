@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 5a439b23b19e4b73ac4e0511b619886cc57fc6f4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5298.txt 
+
+commit 5a439b23b19e4b73ac4e0511b619886cc57fc6f4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    remove incorrect optimization from slice read path
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3390

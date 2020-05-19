@@ -1,0 +1,32 @@
+Pattern changes caused by commit: edfc06fdd0794831cf7d1401fa98ff38bb4e4210
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6912.txt 
+
+commit edfc06fdd0794831cf7d1401fa98ff38bb4e4210
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Oversize integer in CQL throws NumberFormatException
+    patch by dbrosius reviewed by pyaskevich for CASSANDRA-4291

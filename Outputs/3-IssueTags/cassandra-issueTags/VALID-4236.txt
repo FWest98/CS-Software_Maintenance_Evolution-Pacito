@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4463f10c42d69727f608be5a12e9408804c052e9
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4236.txt 
+
+commit 4463f10c42d69727f608be5a12e9408804c052e9
+Author: Eric Evans <eevans@apache.org>
+
+    don't try to run tests that are no longer there

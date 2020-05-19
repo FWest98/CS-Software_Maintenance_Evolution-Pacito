@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 5a6f0b852935e7da957e5cfc397fd0a55b9516b6
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6750.txt 
+
+commit 5a6f0b852935e7da957e5cfc397fd0a55b9516b6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Introduce MessageOut class, which wraps an object to be sent in the "payload" field.  The old Header class is inlined into the "parameters" map.
+    patch by jbellis; reviewed by yukim for CASSANDRA-3617

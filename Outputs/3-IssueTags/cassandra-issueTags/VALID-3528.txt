@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 3947dba35b605ad365e62d4c875ff76685bf69c9
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3528.txt 
+
+commit 3947dba35b605ad365e62d4c875ff76685bf69c9
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    do not instrument the *Token classes. patch by gdusbabek, reviewed by jbellis. CASSANDRA-2258

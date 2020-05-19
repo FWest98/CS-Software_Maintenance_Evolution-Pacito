@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 6fc8124985096d5158a3c4c4de0efc9c480f2332
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4743.txt 
+
+commit 6fc8124985096d5158a3c4c4de0efc9c480f2332
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix comment that implied you could have compaction_thread_priority > 5

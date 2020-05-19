@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9b4fbb805646088546ea6996a918f6dc40ad993d
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5590.txt 
+
+commit 9b4fbb805646088546ea6996a918f6dc40ad993d
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix assertion error in DK
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3574

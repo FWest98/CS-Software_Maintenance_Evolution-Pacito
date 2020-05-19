@@ -1,0 +1,16 @@
+Pattern changes caused by commit: fd6d19bd5cdf764ce6667d1bd974795bb1d871fc
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9525.txt 
+
+commit fd6d19bd5cdf764ce6667d1bd974795bb1d871fc
+Author: Dave Brosius <dbrosius@apache.org>
+
+    remove bad import

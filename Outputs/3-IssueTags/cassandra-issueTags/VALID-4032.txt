@@ -1,0 +1,23 @@
+Pattern changes caused by commit: d9ccfd5c5fd4ef7357104ae201f15a56bf5ff307
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4032.txt 
+
+commit d9ccfd5c5fd4ef7357104ae201f15a56bf5ff307
+Merge: daf173b c5bb467
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.7

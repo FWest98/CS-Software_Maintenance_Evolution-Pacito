@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 1729edd64b933685386abd1140fc83c657b9a6a7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3427.txt 
+
+commit 1729edd64b933685386abd1140fc83c657b9a6a7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add configurable rowlimit to Pig loadfunc
+    patch by Matt Kennedy; reviewed by jbellis for CASSANDRA-2276

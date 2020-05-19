@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f8b939ab0d7949c1ac2425ba59bde4b9b6fbf3a3
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7941.txt 
+
+commit f8b939ab0d7949c1ac2425ba59bde4b9b6fbf3a3
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Remove ALTER TABLE DROP until #3919 is resolved

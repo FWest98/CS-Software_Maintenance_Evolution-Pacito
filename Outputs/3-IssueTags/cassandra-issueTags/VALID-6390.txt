@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 9fc1d5c23a58e06e104b94271b25fdf2eb048ed4
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6390.txt 
+
+commit 9fc1d5c23a58e06e104b94271b25fdf2eb048ed4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix col. width in presence of wide unicode glyphs
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4033

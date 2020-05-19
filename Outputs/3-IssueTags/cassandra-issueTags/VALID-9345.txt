@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 384c27c356ce57f59f36096a31ebb6fd267cb664
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9345.txt 
+
+commit 384c27c356ce57f59f36096a31ebb6fd267cb664
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    cqlsh: fix DESCRIBE after case insensitive USE

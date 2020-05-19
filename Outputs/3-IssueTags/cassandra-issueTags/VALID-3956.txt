@@ -1,0 +1,23 @@
+Pattern changes caused by commit: d719e5787cfbae2201384cb94290f673879fc56f
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3956.txt 
+
+commit d719e5787cfbae2201384cb94290f673879fc56f
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix merkle tree splitting exiting early
+    patch by slebresne; reviewed by stuhood for CASSANDRA-2605

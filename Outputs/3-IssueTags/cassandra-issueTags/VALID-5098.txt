@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 160cb28d97b3d14094e60f53cb760f3f145f72e3
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5098.txt 
+
+commit 160cb28d97b3d14094e60f53cb760f3f145f72e3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    ignore any CF ids sent by client for adding CF/KS
+    patch by jbellis and Nate McCall for CASSANDRA-3288

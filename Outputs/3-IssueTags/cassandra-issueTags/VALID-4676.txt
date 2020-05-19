@@ -1,0 +1,20 @@
+Pattern changes caused by commit: ef485a24f2e8f756c4665a36703eed372f01091b
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4676.txt 
+
+commit ef485a24f2e8f756c4665a36703eed372f01091b
+Merge: db2d62c 351c024
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

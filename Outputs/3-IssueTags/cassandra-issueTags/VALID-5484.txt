@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 269da55a9eea420683f4ae91a4335390d631760c
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5484.txt 
+
+commit 269da55a9eea420683f4ae91a4335390d631760c
+Merge: 9ca13b6 bafa305
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

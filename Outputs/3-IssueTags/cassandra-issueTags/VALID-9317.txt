@@ -1,0 +1,16 @@
+Pattern changes caused by commit: d349787515554087efc92231599e270c2c3aa29b
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9317.txt 
+
+commit d349787515554087efc92231599e270c2c3aa29b
+Author: Dave Brosius <dbrosius@apache.org>
+
+    avoid NPE on describe cf with no compaction strategy (local)

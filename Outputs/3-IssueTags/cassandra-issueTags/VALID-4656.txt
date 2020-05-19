@@ -1,0 +1,20 @@
+Pattern changes caused by commit: aeaab2445e3fcc022ee3d1c92eda8a56dd509b5a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4656.txt 
+
+commit aeaab2445e3fcc022ee3d1c92eda8a56dd509b5a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    work around native memory leak in com.sun.management.GarbageCollectorMXBean
+    patch by brandonwilliams and jbellis for CASSANDRA-2868

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 62b9037d1a2baa859b8bef27a4329f60a3bf356b
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8193.txt 
+
+commit 62b9037d1a2baa859b8bef27a4329f60a3bf356b
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    ninja-followup 5003

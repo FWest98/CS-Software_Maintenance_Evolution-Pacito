@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 545cd657526cb92be4c7d677df943bd7c2646136
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5532.txt 
+
+commit 545cd657526cb92be4c7d677df943bd7c2646136
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Remove allocator code from counter unit test

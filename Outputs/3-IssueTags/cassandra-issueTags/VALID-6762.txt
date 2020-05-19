@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 641346b0dc85a723f1bd755007c334b310c71e67
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6762.txt 
+
+commit 641346b0dc85a723f1bd755007c334b310c71e67
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    more user-friendly error messages for unknown host and connection failures
+    patch by Noa Resare; reviewed by jbellis for CASSANDRA-4224

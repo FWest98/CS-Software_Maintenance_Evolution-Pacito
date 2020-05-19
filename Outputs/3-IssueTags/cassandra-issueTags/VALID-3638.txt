@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ab2536e1b12bfcbbd8be7efb755f6131daa506e2
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3638.txt 
+
+commit ab2536e1b12bfcbbd8be7efb755f6131daa506e2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: c8f2414688e11b457be8305017fe34db0e85ffe5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4027.txt 
+
+commit c8f2414688e11b457be8305017fe34db0e85ffe5
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix regression where boostrapping a node without schema defined fails
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2625

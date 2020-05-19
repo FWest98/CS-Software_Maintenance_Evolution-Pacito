@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 3950de9e830b8e5c21367ce98f7b34a5049dac00
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9339.txt 
+
+commit 3950de9e830b8e5c21367ce98f7b34a5049dac00
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make BytesToken.toString only return hex bytes
+    patch by Juraj Sustek; reviewed by jbellis for CASSANDRA-5566

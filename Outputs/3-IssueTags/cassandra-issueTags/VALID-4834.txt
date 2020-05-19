@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 31358f11583ed799f71b5f47e147f518431f62a2
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4834.txt 
+
+commit 31358f11583ed799f71b5f47e147f518431f62a2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Improve caching of same-version Messages on digest and repair paths
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3158

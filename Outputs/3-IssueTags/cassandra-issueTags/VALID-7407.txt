@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 2b6c625e4ed307002ca4e0b4e92194c031f7863c
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7407.txt 
+
+commit 2b6c625e4ed307002ca4e0b4e92194c031f7863c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Increase default max_hint_window_in_ms to 3h
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-4632

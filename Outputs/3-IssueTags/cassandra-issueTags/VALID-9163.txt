@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 6968f68cd7c8d4a1ab4a6d4638c547e9de33a560
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9163.txt 
+
+commit 6968f68cd7c8d4a1ab4a6d4638c547e9de33a560
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow STCS options to apply to the L0 compaction performed by LCS
+    patch by Carl Yeksigian; reviewed by jbellis for CASSANDRA-5439

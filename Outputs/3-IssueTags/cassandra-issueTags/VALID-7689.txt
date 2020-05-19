@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 8495560c2ba71621ab4326de7a87e9f3222ab8e4
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7689.txt 
+
+commit 8495560c2ba71621ab4326de7a87e9f3222ab8e4
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Support client Thrift SSL socket
+    patch by Jason Brown; reviewed by Vijay for CASSANDRA-4239

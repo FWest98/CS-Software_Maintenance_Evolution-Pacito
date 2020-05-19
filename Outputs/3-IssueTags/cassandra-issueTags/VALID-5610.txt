@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 2b0859f9274a3f90f526c2469af092e04e99e6e5
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5610.txt 
+
+commit 2b0859f9274a3f90f526c2469af092e04e99e6e5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    excise mention of 2189 from CHANGES since it didn't actually get fixed

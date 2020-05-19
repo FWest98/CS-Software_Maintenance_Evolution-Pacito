@@ -1,0 +1,32 @@
+Pattern changes caused by commit: 48438ffc61bce2396fa2eac2f88fa66a6e6a69cd
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6825.txt 
+
+commit 48438ffc61bce2396fa2eac2f88fa66a6e6a69cd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    warn if deb sysctl vm.max_map_count setting fails for OpenVZ
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3636

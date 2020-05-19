@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 050c6b3f595b07c7dd7c6f25a0c03ace74318bad
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5595.txt 
+
+commit 050c6b3f595b07c7dd7c6f25a0c03ace74318bad
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    revert compaction-stopping from 1.0.x

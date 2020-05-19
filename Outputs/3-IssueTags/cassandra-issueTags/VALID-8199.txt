@@ -1,0 +1,19 @@
+Pattern changes caused by commit: d6ccfb53cf7a42bba4e49c7f7823bb8c6845f755
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8199.txt 
+
+commit d6ccfb53cf7a42bba4e49c7f7823bb8c6845f755
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix inserting only keys in CQL3

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 1507ce8cd4c5c9896a4923d9e0a74d85b6a83184
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7200.txt 
+
+commit 1507ce8cd4c5c9896a4923d9e0a74d85b6a83184
+Merge: 111f6c9 bb37a0f
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1' into trunk

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2dd17718d250e9c1c53cbd7ae8e6ed8105887dae
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4079.txt 
+
+commit 2dd17718d250e9c1c53cbd7ae8e6ed8105887dae
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    mark BRAF buffer invalid post-flush so we don't re-flush partial buffers again
+    patch by Peter Schuller; reviewed by jbellis for CASSANDRA-2660

@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 0906b7cc5173770e04932432d40503f7c39eb61f
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8386.txt 
+
+commit 0906b7cc5173770e04932432d40503f7c39eb61f
+Author: Yuki Morishita <yukim@apache.org>
+
+    Show progress on nodetool repair command; patch by yukim reviewed Sylvain Lebresne for CASSANDRA-4767

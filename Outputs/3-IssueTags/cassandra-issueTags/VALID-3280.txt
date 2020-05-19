@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 3c03e527d678a84211570a44ff23e41811c82c58
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3280.txt 
+
+commit 3c03e527d678a84211570a44ff23e41811c82c58
+Merge: 6ebebbf 74c464a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

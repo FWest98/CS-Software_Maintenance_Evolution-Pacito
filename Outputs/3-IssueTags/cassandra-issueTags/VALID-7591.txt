@@ -1,0 +1,27 @@
+Pattern changes caused by commit: 51e4b7adf1dc8ec9ed1c297d9c1362d260a72810
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7591.txt 
+
+commit 51e4b7adf1dc8ec9ed1c297d9c1362d260a72810
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: add thrift transport factory
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4610

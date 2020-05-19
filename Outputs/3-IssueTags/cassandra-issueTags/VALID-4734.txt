@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 4f7ed5a7c26d1897f6e00e0a0f2fb018a3c475fe
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4734.txt 
+
+commit 4f7ed5a7c26d1897f6e00e0a0f2fb018a3c475fe
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update CHANGES for #3023 and #3044

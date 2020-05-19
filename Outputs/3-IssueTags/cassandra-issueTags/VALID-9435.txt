@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 54c15d826b4c414e0f22f5eedf023dfe53d2eae4
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9435.txt 
+
+commit 54c15d826b4c414e0f22f5eedf023dfe53d2eae4
+Author: Dave Brosius <dbrosius@apache.org>
+
+    add missing white space to message

@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 60dadc5dcbe470804f2dad153d3e1da64cac7540
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7341.txt 
+
+commit 60dadc5dcbe470804f2dad153d3e1da64cac7540
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    heap defaults are pretty good now, change language to "may wish" to adjust

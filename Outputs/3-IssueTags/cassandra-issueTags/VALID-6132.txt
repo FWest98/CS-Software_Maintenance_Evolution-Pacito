@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 7587e73aab5b1e8d3158995b65756ecd3e9ec6fc
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6132.txt 
+
+commit 7587e73aab5b1e8d3158995b65756ecd3e9ec6fc
+Merge: eac19fe 5cc12f3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 72aa8240117dab6f6e7eaeaab112538b3bc557ca
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7155.txt 
+
+commit 72aa8240117dab6f6e7eaeaab112538b3bc557ca
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix changelog

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 05187d5792adb132e0706c04806da8e427318dcb
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3972.txt 
+
+commit 05187d5792adb132e0706c04806da8e427318dcb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add back obsolete mutation debug log

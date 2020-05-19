@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 492d44e1586eb6f73090ec29e7e997940cde314a
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5823.txt 
+
+commit 492d44e1586eb6f73090ec29e7e997940cde314a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow using sstable2json on secondary index data

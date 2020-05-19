@@ -1,0 +1,22 @@
+Pattern changes caused by commit: a67606fa7fcad6b34092e847f9c774efc05a1d75
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5290.txt 
+
+commit a67606fa7fcad6b34092e847f9c774efc05a1d75
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.8

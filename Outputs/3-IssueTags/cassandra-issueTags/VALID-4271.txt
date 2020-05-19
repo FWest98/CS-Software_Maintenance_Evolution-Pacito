@@ -1,0 +1,16 @@
+Pattern changes caused by commit: bc15e804530e87b1c5cc8c96fdf939dcaaa8efd9
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4271.txt 
+
+commit bc15e804530e87b1c5cc8c96fdf939dcaaa8efd9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    backport #2766 from 0.8

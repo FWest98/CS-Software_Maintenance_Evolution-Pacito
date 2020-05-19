@@ -1,0 +1,20 @@
+Pattern changes caused by commit: a9e9b720fb04aa7218a0815ea4cfeaa1ef60c065
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4669.txt 
+
+commit a9e9b720fb04aa7218a0815ea4cfeaa1ef60c065
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    return an InvalidRequestException if an indexed column is assigned a value larger than 64K
+    patch by pyaskevich and jbellis for CASSANDRA-3057

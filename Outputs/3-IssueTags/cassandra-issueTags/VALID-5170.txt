@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 16fe609aec30250d8919c9f8a45c756ac93aa62c
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5170.txt 
+
+commit 16fe609aec30250d8919c9f8a45c756ac93aa62c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    switch to NBHS to avoid Comparable requirement on Statements
+    patch by jbellis

@@ -17,7 +17,8 @@ comparisons between consecutive commits, all inside a folder named results-"proj
 
 Copy Scripts_and_Tools/issueTagExtractor.sh inside the results-"projectName" folder and run it 
 passing as argument the name of the gitHub repositories name. (example: issueTagExtractor.sh mina).
-This will generate a folder named "projectName"-issueTags containing the git logs of each valid commit consecutive analysis.
+This will generate a folder named "projectName"-issueTags containing the git logs of each valid commit consecutive analysis inside the 
+folder where issueTagExtractor.sh was ran.
 
-Copy the folder that was outputted just before and paste it into project 3-JiraIssueParser, which will output a folder named 
+Copy the folder that was outputted just before and paste it into project 3-JiraIssueParser and run it, this will output a folder named 
 finalResults-"projectName"-issueTags, containing the final result of this cycle.

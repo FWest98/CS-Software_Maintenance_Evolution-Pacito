@@ -1,0 +1,20 @@
+Pattern changes caused by commit: d992a93c270558b441cecc5e10fdcc1f7bb90f32
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6624.txt 
+
+commit d992a93c270558b441cecc5e10fdcc1f7bb90f32
+Merge: b5528c4 df7776b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.1.0' into cassandra-1.1

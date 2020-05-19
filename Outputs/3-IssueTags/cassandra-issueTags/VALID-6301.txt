@@ -1,0 +1,26 @@
+Pattern changes caused by commit: c29037290a204ba7624646e99780e32e4157ae1a
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6301.txt 
+
+commit c29037290a204ba7624646e99780e32e4157ae1a
+Merge: e7e984a f42ec6d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1.0

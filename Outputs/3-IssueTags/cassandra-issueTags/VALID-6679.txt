@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 85a42a59d48447a6b56b95b5bab675c3fd33c626
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6679.txt 
+
+commit 85a42a59d48447a6b56b95b5bab675c3fd33c626
+Merge: cb25a8f f1ee34f
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge from 1.1

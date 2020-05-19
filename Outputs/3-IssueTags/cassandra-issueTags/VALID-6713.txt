@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 4279ce466452959b0329ae2d3048f36d184d6dde
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6713.txt 
+
+commit 4279ce466452959b0329ae2d3048f36d184d6dde
+Merge: dfd0567 5c3db0d
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1

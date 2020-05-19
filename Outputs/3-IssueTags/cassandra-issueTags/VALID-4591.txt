@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 26dfdac558a32c41b366ae6ba5afd5e00a3eda5e
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4591.txt 
+
+commit 26dfdac558a32c41b366ae6ba5afd5e00a3eda5e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: b23a805925907c35422c63abdd41b323f539e057
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5541.txt 
+
+commit b23a805925907c35422c63abdd41b323f539e057
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix ASSUME when using SELECT keyspace.cfname syntax in cqlsh.
+    Patch by Paul Cannon, reviewed by brandonwilliams for CASSANDRA-3500

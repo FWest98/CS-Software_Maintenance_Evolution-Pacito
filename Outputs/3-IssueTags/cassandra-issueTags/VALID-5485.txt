@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 943fd92c9c0e16601a1445181462bde5466d55b4
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5485.txt 
+
+commit 943fd92c9c0e16601a1445181462bde5466d55b4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update SSTableMetadata to conform with code style

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 85934a1e27565e7010f05f789eb1d09ae5593100
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6151.txt 
+
+commit 85934a1e27565e7010f05f789eb1d09ae5593100
+Merge: b2b8a53 1ed6065
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1.0

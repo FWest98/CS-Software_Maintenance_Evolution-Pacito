@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 1a0134376b2a6e0aa5ba9b308f2a5306b7abf605
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4704.txt 
+
+commit 1a0134376b2a6e0aa5ba9b308f2a5306b7abf605
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m failing assert to match 1161167 in 0.8

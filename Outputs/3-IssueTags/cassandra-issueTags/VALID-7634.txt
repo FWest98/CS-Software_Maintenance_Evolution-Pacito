@@ -1,0 +1,27 @@
+Pattern changes caused by commit: c44af8c2c5c74b4f033bde5e445776122c4a3197
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7634.txt 
+
+commit c44af8c2c5c74b4f033bde5e445776122c4a3197
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: allow configuration of value display formats
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-3756

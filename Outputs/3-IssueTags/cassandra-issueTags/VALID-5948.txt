@@ -1,0 +1,26 @@
+Pattern changes caused by commit: b527d9ffe1807f6ae1b1df15d64d1715bb33f4f1
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5948.txt 
+
+commit b527d9ffe1807f6ae1b1df15d64d1715bb33f4f1
+Author: paul cannon <paul@datastax.com>
+
+    Fix cqlsh data display on python <2.7
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3846

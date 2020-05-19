@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 8289d6840388a1f868c14a2740e7f1bbefa0e675
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4810.txt 
+
+commit 8289d6840388a1f868c14a2740e7f1bbefa0e675
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix CLI `show schema;` to output correct keyspace definition statement
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3129

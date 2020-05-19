@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 6dc75ce2f3305d9568f9a7e7078bd87c04009218
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3857.txt 
+
+commit 6dc75ce2f3305d9568f9a7e7078bd87c04009218
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix updating column metadata validation class
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2512

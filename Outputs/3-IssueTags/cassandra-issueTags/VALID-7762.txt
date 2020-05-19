@@ -1,0 +1,30 @@
+Pattern changes caused by commit: 3d4867109fb09d9a995e0b3f5a9a30e11231db58
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7762.txt 
+
+commit 3d4867109fb09d9a995e0b3f5a9a30e11231db58
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix timestamp formatting for tz info
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4746

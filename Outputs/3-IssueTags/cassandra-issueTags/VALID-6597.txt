@@ -1,0 +1,20 @@
+Pattern changes caused by commit: cf98153c6512c01358aafa7d4b04566d2438efbf
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6597.txt 
+
+commit cf98153c6512c01358aafa7d4b04566d2438efbf
+Merge: 03d3833 8c9d0fb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1.0

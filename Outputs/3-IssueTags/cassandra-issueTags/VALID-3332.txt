@@ -1,0 +1,19 @@
+Pattern changes caused by commit: b0ad19454d1bbb49ce91e94d6886504d976046d2
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3332.txt 
+
+commit b0ad19454d1bbb49ce91e94d6886504d976046d2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add CFS.createFlushWriter/createCompactionWriter

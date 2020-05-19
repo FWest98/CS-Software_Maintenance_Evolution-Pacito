@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8f9592bee69fd33530f4e3ae3229d8828a3ca89a
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3625.txt 
+
+commit 8f9592bee69fd33530f4e3ae3229d8828a3ca89a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

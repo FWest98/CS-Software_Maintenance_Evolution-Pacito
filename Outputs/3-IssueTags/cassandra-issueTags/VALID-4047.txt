@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 287729981e2a1695e05ded1e66da8fc80d89ac4b
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4047.txt 
+
+commit 287729981e2a1695e05ded1e66da8fc80d89ac4b
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.7

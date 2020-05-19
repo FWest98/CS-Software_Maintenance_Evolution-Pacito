@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f0a396947afcd40d8ee397c1b4515d0b9c9c4304
+
+From: Abstract Factory-0
+To:   Abstract Factory-2
+
+From: Factory Method-0
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1677.txt 
+
+commit f0a396947afcd40d8ee397c1b4515d0b9c9c4304
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    replace constant-size 2GB mmaped segments and special casing for index entries spanning segment boundaries, with SegmentedFile that computes segments that always contain entire entries (or rows).  patch by Stu Hood and jbellis for CASSANDRA-1117

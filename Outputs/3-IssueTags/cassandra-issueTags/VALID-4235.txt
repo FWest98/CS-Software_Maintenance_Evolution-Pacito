@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 410134e67e736f1d0e550ff5d4f767df478ce5e1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4235.txt 
+
+commit 410134e67e736f1d0e550ff5d4f767df478ce5e1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix removing columns and subcolumns that are supressed by a row orsupercolumn tombstone during replica resolution
+    patch by Aaron Morton and jbellis; reviewed by slebresne for CASSANDRA-2590

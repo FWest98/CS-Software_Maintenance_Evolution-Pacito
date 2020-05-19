@@ -1,0 +1,22 @@
+Pattern changes caused by commit: ca1c8bf247fa3fd65fefb31adfe5b1f6c29ec1a0
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3811.txt 
+
+commit ca1c8bf247fa3fd65fefb31adfe5b1f6c29ec1a0
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Revert "Keep endpoint state until aVeryLongTime when not a fat client"

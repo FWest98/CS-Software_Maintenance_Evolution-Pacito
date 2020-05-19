@@ -1,0 +1,23 @@
+Pattern changes caused by commit: fff2c085c4cc4b88cfa1d0eb072fedec7a654fe2
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3932.txt 
+
+commit fff2c085c4cc4b88cfa1d0eb072fedec7a654fe2
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Update pig example script to work again.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2487

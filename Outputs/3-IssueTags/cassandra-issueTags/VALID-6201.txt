@@ -1,0 +1,26 @@
+Pattern changes caused by commit: ebafaeba3496769e18dc76ca7a7efde450d9e81b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6201.txt 
+
+commit ebafaeba3496769e18dc76ca7a7efde450d9e81b
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    add CompositeType ref to the CLI doc for create/update column family
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3980

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 180f32bf24392602a3867986040e3b3201c9c492
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6792.txt 
+
+commit 180f32bf24392602a3867986040e3b3201c9c492
+Merge: ad72c57 96d6aa2
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1

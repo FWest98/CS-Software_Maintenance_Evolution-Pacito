@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 152ee37e22dd31c150021f57adbbc3e39a184dd1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4468.txt 
+
+commit 152ee37e22dd31c150021f57adbbc3e39a184dd1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix hint replay
+    patch by brandonwilliams and jbellis for CASSANDRA-2928

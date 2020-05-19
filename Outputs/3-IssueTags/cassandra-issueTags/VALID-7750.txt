@@ -1,0 +1,26 @@
+Pattern changes caused by commit: a2a2251b371dd7deef3ed1f0516873e894010577
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7750.txt 
+
+commit a2a2251b371dd7deef3ed1f0516873e894010577
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix CREATE COLUMNFAMILY permissions check
+    patch by Aleksey Yeschenko; reviewed by jbellis for CASSANDRA-4864

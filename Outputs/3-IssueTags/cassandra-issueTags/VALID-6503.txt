@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 9a6d0c7cce5bd94df0d7a004d98a55d917e65077
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6503.txt 
+
+commit 9a6d0c7cce5bd94df0d7a004d98a55d917e65077
+Merge: 25da034 0162447
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

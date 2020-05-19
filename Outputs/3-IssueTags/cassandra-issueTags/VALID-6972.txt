@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 15577ba86b4615e25611245e019b07304576f751
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6972.txt 
+
+commit 15577ba86b4615e25611245e019b07304576f751
+Merge: aa26705 a4fab90
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.1' into trunk

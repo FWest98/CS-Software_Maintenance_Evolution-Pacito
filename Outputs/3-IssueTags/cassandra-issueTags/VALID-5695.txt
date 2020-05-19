@@ -1,0 +1,17 @@
+Pattern changes caused by commit: c9b71e349ebcc68c5346797fb89738671b4d95e8
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5695.txt 
+
+commit c9b71e349ebcc68c5346797fb89738671b4d95e8
+Merge: 0a61bac a9c820b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

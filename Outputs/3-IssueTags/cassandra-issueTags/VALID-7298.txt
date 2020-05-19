@@ -1,0 +1,26 @@
+Pattern changes caused by commit: a343c85b79419d47a9fc05eb555fae7740bfbfb5
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7298.txt 
+
+commit a343c85b79419d47a9fc05eb555fae7740bfbfb5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    simplify Map/Set usage
+    patch by pjenvey; reviewed by jbellis

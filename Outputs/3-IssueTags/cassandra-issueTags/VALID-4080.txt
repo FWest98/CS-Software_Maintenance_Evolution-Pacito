@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 605457a895d27b3f00f238b8f015f0d59410d452
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4080.txt 
+
+commit 605457a895d27b3f00f238b8f015f0d59410d452
+Merge: 035e30b 2dd1771
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

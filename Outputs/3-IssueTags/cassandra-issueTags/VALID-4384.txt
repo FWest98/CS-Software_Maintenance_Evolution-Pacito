@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 36638db022ee422c344630f44ce2f7e2096e05c4
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4384.txt 
+
+commit 36638db022ee422c344630f44ce2f7e2096e05c4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Always use even distribution for merkle tree with RandomPartitionner
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2841

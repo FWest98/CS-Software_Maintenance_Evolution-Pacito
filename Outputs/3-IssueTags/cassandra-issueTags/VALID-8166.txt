@@ -1,0 +1,19 @@
+Pattern changes caused by commit: b49ca58b2a7fb272e21dd2acd00996483a36ddcc
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8166.txt 
+
+commit b49ca58b2a7fb272e21dd2acd00996483a36ddcc
+Author: Jake Luciani <jluciani@bluemountaincapital.com>
+
+    ninja relocate crc_check_chance removal from options list

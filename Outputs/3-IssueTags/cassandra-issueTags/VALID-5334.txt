@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1611a2f0645707afc3fe6acd9c4b192cc5b75893
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5334.txt 
+
+commit 1611a2f0645707afc3fe6acd9c4b192cc5b75893
+Author: Eric Evans <eevans@apache.org>
+
+    run cassandra from ant

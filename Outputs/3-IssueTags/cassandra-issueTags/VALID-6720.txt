@@ -1,0 +1,26 @@
+Pattern changes caused by commit: fb2bfc9846fa12211adf45e1bac23814fe099740
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6720.txt 
+
+commit fb2bfc9846fa12211adf45e1bac23814fe099740
+Merge: a0f5dc5 a75b708
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1' into trunk

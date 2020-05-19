@@ -1,0 +1,20 @@
+Pattern changes caused by commit: acde48fb3db47e3c523b9e2b5fddb1517d7d9f64
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3660.txt 
+
+commit acde48fb3db47e3c523b9e2b5fddb1517d7d9f64
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    stress.java rejects arbitrary arguments.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2323

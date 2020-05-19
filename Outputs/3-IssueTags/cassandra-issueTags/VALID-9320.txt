@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 49a7311f5fffa3ae25fbd1e7f1b9d13900f3b8cd
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9320.txt 
+
+commit 49a7311f5fffa3ae25fbd1e7f1b9d13900f3b8cd
+Merge: aecd630 2e2dd48
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.2' into trunk

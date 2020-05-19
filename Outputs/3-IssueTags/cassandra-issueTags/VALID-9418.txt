@@ -1,0 +1,17 @@
+Pattern changes caused by commit: c4c9626f8b3ba941aa51860a7d10a6e686362f85
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9418.txt 
+
+commit c4c9626f8b3ba941aa51860a7d10a6e686362f85
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Ignore pre-truncate hints
+    patch by Alexey Zotov and jbellis; reviewed by vijay for CASSANDRA-4655

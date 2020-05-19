@@ -1,0 +1,17 @@
+Pattern changes caused by commit: eaca5341522a079dcecc181d229728da418ff2d6
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5572.txt 
+
+commit eaca5341522a079dcecc181d229728da418ff2d6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Optimize componentsFor method for compaction and startup time
+    patch by jbellis and Eric Parusel; reviewed by slebresne for CASSANDRA-3532

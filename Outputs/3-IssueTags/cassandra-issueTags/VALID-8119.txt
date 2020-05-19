@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 40e22489cd989651da5111902e2ce2d378ba8804
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8119.txt 
+
+commit 40e22489cd989651da5111902e2ce2d378ba8804
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m obsolete and unnecessary rpc_timeout_in_ms override from test config

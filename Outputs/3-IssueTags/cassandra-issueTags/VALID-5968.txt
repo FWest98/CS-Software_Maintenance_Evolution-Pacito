@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 2216a3dce05e5b91c99b0aa98d2c1ce588f665df
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5968.txt 
+
+commit 2216a3dce05e5b91c99b0aa98d2c1ce588f665df
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    make CLI `show schema` to use output stream directly instead of StringBuilder
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3842

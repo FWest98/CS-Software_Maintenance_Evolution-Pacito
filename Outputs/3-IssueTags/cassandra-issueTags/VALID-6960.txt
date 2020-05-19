@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 21aef92905678f98675fc34aeb4edb0e34a1d6af
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6960.txt 
+
+commit 21aef92905678f98675fc34aeb4edb0e34a1d6af
+Author: Yuki Morishita <yukim@apache.org>
+
+    directly stream compressed sstable with java nio. patch by yukim,
+    reveiwed by jbellis for CASSANDRA-4297

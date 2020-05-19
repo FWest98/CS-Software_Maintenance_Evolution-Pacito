@@ -1,0 +1,27 @@
+Pattern changes caused by commit: 4a49b9dcc05d6f06c3354fb37a4a0199a2c283d5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6172.txt 
+
+commit 4a49b9dcc05d6f06c3354fb37a4a0199a2c283d5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig CounterColumnFamily support.
+    Patch by Janne Jalkanen and brandonwilliams, reviewed by brandonwilliams
+    for CASSANDRA-3973

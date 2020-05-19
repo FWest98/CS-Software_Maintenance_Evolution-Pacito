@@ -1,0 +1,26 @@
+Pattern changes caused by commit: b25b12a0a9a15904fcd8126422d01100d611de44
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7301.txt 
+
+commit b25b12a0a9a15904fcd8126422d01100d611de44
+Merge: f70945e f5619bb
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.1

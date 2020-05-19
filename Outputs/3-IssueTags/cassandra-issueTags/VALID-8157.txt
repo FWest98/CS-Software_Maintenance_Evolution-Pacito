@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 7442fc02098c468447a4610d84023336f57545a4
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8157.txt 
+
+commit 7442fc02098c468447a4610d84023336f57545a4
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Don't generate UUID based on other nodes' address

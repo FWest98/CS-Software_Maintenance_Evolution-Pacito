@@ -1,0 +1,20 @@
+Pattern changes caused by commit: dd5a4bf0e9d8a511d8c2e2c16913abf8f2b1990d
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8219.txt 
+
+commit dd5a4bf0e9d8a511d8c2e2c16913abf8f2b1990d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fallback to old manifest if most recent is unparseable
+    patch by Carl Yeksigian; reviewed by jbellis for CASSANDRA-5041

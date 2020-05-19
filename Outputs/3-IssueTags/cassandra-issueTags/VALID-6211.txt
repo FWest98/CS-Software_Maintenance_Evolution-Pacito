@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 2d6c8729e1ca48c6a5b3d67d797828d2c25e090b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6211.txt 
+
+commit 2d6c8729e1ca48c6a5b3d67d797828d2c25e090b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Cli doesn't call getBroadcastAddress needlessly, avoids loading yaml.
+    Patch by brandonwilliams, reviewed by Dave Brosius for CASSANDRA-3986

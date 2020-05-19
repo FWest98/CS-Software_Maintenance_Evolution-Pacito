@@ -1,0 +1,29 @@
+Pattern changes caused by commit: a4f06c237f0d7c62d10ce9f2ad0592b202f35917
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6863.txt 
+
+commit a4f06c237f0d7c62d10ce9f2ad0592b202f35917
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    apply parent CF compaction settings to secondary index CFs
+    patch by jbellis; reviewed by yukim for CASSANDRA-4280
