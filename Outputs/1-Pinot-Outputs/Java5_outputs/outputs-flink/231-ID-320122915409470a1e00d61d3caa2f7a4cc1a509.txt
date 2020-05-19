@@ -1,0 +1,102 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+SocketOutputStream is a Decorator class
+close is a decorate operation
+channel of type WritableByteChannel is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/net/SocketOutputStream.java
+
+
+ WritableByteChannel
+Strategy Pattern.
+LineReader is the Context class.
+FSDataInputStream is the Strategy interface.
+Concrete Strategy classes:  LocalDataInputStream DistributedDataInputStream
+Delegation through stream of type FSDataInputStream
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/fs/LineReader.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/fs/FSDataInputStream.java
+
+Flyweight Pattern.
+MetricsBase is a flyweight factory.
+NO_DESCRIPTION is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/metrics/util/MetricsBase.java
+
+Flyweight Pattern.
+BufferPairRequest is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/io/channels/bytebuffered/BufferPairRequest.java
+
+Flyweight Pattern.
+QuickSort is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/pact/pact-runtime/src/main/java/eu/stratosphere/pact/runtime/sort/QuickSort.java
+
+Flyweight Pattern.
+ResourceConfig is a flyweight factory.
+NUM_SORT_BUFFER_DEFAULT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/pact/pact-compiler/src/main/java/eu/stratosphere/pact/compiler/config/ResourceConfig.java
+
+Flyweight Pattern.
+Constants is a flyweight factory.
+CLUSTER_CONFIGS is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/pact/pact-tests/src/test/java/eu/stratosphere/pact/test/util/Constants.java
+
+Mediator Pattern.
+Mediator: SocketOutputStream
+Colleagues:  Writer SocketIOWithTimeout
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/net/SocketOutputStream.java
+
+Adapter Pattern.
+Adapting classes:  OutputStream Object Flushable Closeable WritableByteChannel Channel
+SocketOutputStream is an adapter class.
+Writer is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/net/SocketOutputStream.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-common/src/main/java/eu/stratosphere/nephele/net/SocketOutputStream.java
+
+Facade Pattern.
+InstanceProfiler is a facade class.
+Hidden types: InternalInstanceProfilingData InstanceConnectionInfo
+Facade access types: InstanceProfiler
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/nephele/nephele-profiling/src/main/java/eu/stratosphere/nephele/profiling/impl/InstanceProfiler.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     1
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      1
+Flyweight                   5
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    1
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 134
+Number of files processed: 684
+Size of DelegationTable: 321
+Size of concrete class nodes: 72
+Size of undirected invocation edges: 22
+
+
+nMediatorFacadeDual/nMediator = 0/1
+nImmutable/nFlyweight = 2/5
+nFlyweightGoFVersion = 0
