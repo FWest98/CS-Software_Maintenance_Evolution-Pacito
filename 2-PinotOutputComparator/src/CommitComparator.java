@@ -48,8 +48,8 @@ public class CommitComparator {
         boolean hasErrors = checkIfFileHasErrors(file1)||checkIfFileHasErrors(file2);
 
         if (hasErrors) {
-            File errorAnalysis = new File(".\\results-" + analyzedProject + "\\" + "Error-" + counter + ".txt");
-            errorAnalysis.createNewFile();
+            //File errorAnalysis = new File(".\\results-" + analyzedProject + "\\" + "Error-" + counter + ".txt");
+            //errorAnalysis.createNewFile();
             counter++;
         }
 
@@ -60,8 +60,8 @@ public class CommitComparator {
 
     private static boolean checkIfAnyFileIsEmpty(File file1, File file2) throws IOException {
         if (file1.length() == 0 || file2.length() == 0){
-            File noAnalysis = new File(".\\results-"+analyzedProject + "\\Blank-" + counter + ".txt");
-            noAnalysis.createNewFile();
+            //File noAnalysis = new File(".\\results-"+analyzedProject + "\\Blank-" + counter + ".txt");
+            //noAnalysis.createNewFile();
             counter++;
             return true;
         }
