@@ -1,0 +1,55 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Observer Pattern.
+SimpleConnSet is an observer iterator.
+SimpleHttpServerConnection is the generic type for the listeners.
+shutdown is the notify method.
+close is the update method.
+Subject class(es):
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/upstream/commons-httpclient-3x/src/test/org/apache/commons/httpclient/server/SimpleConnSet.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   0
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    1
+State                       0
+Strategy                    0
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 8
+Number of files processed: 709
+Size of DelegationTable: 10
+Size of concrete class nodes: 3
+Size of undirected invocation edges: 1
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/0
+nFlyweightGoFVersion = 0

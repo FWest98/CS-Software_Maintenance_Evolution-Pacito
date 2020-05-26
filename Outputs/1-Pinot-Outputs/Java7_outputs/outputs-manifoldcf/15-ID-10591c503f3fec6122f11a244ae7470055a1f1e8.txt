@@ -1,0 +1,398 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Flyweight Pattern.
+IThreadContext is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/IThreadContext.java
+
+Flyweight Pattern.
+MetacartaException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/MetacartaException.java
+
+Flyweight Pattern.
+ILimitChecker is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ILimitChecker.java
+
+Flyweight Pattern.
+IResultSet is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/IResultSet.java
+
+Flyweight Pattern.
+IndexDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/IndexDescription.java
+
+Flyweight Pattern.
+IResultRow is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/IResultRow.java
+
+Flyweight Pattern.
+ColumnDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ColumnDescription.java
+
+Flyweight Pattern.
+CacheKeyFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/CacheKeyFactory.java
+
+Flyweight Pattern.
+ICacheExecutor is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheExecutor.java
+
+Flyweight Pattern.
+ICacheClass is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheClass.java
+
+Flyweight Pattern.
+ICacheDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheDescription.java
+
+Flyweight Pattern.
+ICacheManager is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheManager.java
+
+Flyweight Pattern.
+DocumentDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/pull-agent/com/metacarta/crawler/interfaces/DocumentDescription.java
+
+Flyweight Pattern.
+JobStatus is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/pull-agent/com/metacarta/crawler/interfaces/JobStatus.java
+
+Flyweight Pattern.
+JobStartRecord is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/pull-agent/com/metacarta/crawler/interfaces/JobStartRecord.java
+
+Flyweight Pattern.
+CharacterInput is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/CharacterInput.java
+
+Flyweight Pattern.
+ICacheCreateHandle is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheCreateHandle.java
+
+Flyweight Pattern.
+ICacheHandle is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ICacheHandle.java
+
+Flyweight Pattern.
+ILockManager is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/ILockManager.java
+
+Flyweight Pattern.
+LockException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/LockException.java
+
+Flyweight Pattern.
+BinaryInput is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/BinaryInput.java
+
+Flyweight Pattern.
+TimeMarker is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/TimeMarker.java
+
+Flyweight Pattern.
+TempFileInput is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/TempFileInput.java
+
+Flyweight Pattern.
+TempFileCharacterInput is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/TempFileCharacterInput.java
+
+Flyweight Pattern.
+LocalLockException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/lockmanager/LocalLockException.java
+
+Flyweight Pattern.
+ExpiredObjectException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/lockmanager/ExpiredObjectException.java
+
+Flyweight Pattern.
+Encoder is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/ui-core/com/metacarta/ui/util/Encoder.java
+
+Flyweight Pattern.
+IKeystoreManager is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/IKeystoreManager.java
+
+Flyweight Pattern.
+KeystoreManagerFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/KeystoreManagerFactory.java
+
+Flyweight Pattern.
+NameDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/memex/connector/com/metacarta/crawler/connectors/memex/NameDescription.java
+
+Flyweight Pattern.
+NameDescription is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/NameDescription.java
+
+Flyweight Pattern.
+NameValue is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/sharepoint/connector/com/metacarta/crawler/connectors/sharepoint/NameValue.java
+
+Flyweight Pattern.
+SharedDriveParameters is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/jcifs/connector/com/metacarta/crawler/connectors/sharedrive/SharedDriveParameters.java
+
+Flyweight Pattern.
+RMILocalSocketFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/RMILocalSocketFactory.java
+
+Flyweight Pattern.
+RMILocalSocketFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/RMILocalSocketFactory.java
+
+Flyweight Pattern.
+DocumentClassDefinition is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/DocumentClassDefinition.java
+
+Flyweight Pattern.
+FileSeedInfo is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/FileSeedInfo.java
+
+Flyweight Pattern.
+LocalClientSocket is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/LocalClientSocket.java
+
+Flyweight Pattern.
+LocalClientSocket is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/LocalClientSocket.java
+
+Flyweight Pattern.
+RMILocalClientSocketFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/RMILocalClientSocketFactory.java
+
+Flyweight Pattern.
+RMILocalClientSocketFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/RMILocalClientSocketFactory.java
+
+Flyweight Pattern.
+MetadataFieldDefinition is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/MetadataFieldDefinition.java
+
+Flyweight Pattern.
+FilenetException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/FilenetException.java
+
+Flyweight Pattern.
+IFilenetFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/IFilenetFactory.java
+
+Flyweight Pattern.
+FilenetFactoryImpl is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/FilenetFactoryImpl.java
+
+Flyweight Pattern.
+GTSConfig is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/gts/connector/com/metacarta/agents/output/gts/GTSConfig.java
+
+Flyweight Pattern.
+LuceneConfig is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/lucene/connector/com/metacarta/agents/output/lucene/LuceneConfig.java
+
+Flyweight Pattern.
+FormDataElement is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/webcrawler/connector/com/metacarta/crawler/connectors/webcrawler/FormDataElement.java
+
+Flyweight Pattern.
+FormData is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/webcrawler/connector/com/metacarta/crawler/connectors/webcrawler/FormData.java
+
+Flyweight Pattern.
+AuthenticationCredentials is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/webcrawler/connector/com/metacarta/crawler/connectors/webcrawler/AuthenticationCredentials.java
+
+Flyweight Pattern.
+LoginParameters is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/webcrawler/connector/com/metacarta/crawler/connectors/webcrawler/LoginParameters.java
+
+Flyweight Pattern.
+WebcrawlerConfig is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/webcrawler/connector/com/metacarta/crawler/connectors/webcrawler/WebcrawlerConfig.java
+
+Flyweight Pattern.
+IDocumentum is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/IDocumentum.java
+
+Flyweight Pattern.
+IDocumentumObject is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/IDocumentumObject.java
+
+Flyweight Pattern.
+DocumentumException is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/DocumentumException.java
+
+Flyweight Pattern.
+IDocumentumResult is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/IDocumentumResult.java
+
+Flyweight Pattern.
+IDocumentumFactory is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/IDocumentumFactory.java
+
+Flyweight Pattern.
+DocumentumFactoryImpl is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/implementation/com/metacarta/crawler/common/DCTM/DocumentumFactoryImpl.java
+
+Flyweight Pattern.
+JDBCConstants is a flyweight factory.
+_rcsid is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/jdbc/connector/com/metacarta/crawler/connectors/jdbc/JDBCConstants.java
+
+Factory Method pattern.
+BinaryInput is a Factory Method class.
+TempFileInput is a concrete Factory Method class.
+transfer is a factory method returns  TempFileInput
+ which extends BinaryInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/TempFileInput.java
+
+Factory Method pattern.
+CharacterInput is a Factory Method class.
+TempFileCharacterInput is a concrete Factory Method class.
+transfer is a factory method returns  TempFileCharacterInput
+ which extends CharacterInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/framework/core/com/metacarta/core/interfaces/TempFileCharacterInput.java
+
+Factory Method pattern.
+RMIServerSocketFactory is a Factory Method class.
+RMILocalSocketFactory is a concrete Factory Method class.
+createServerSocket is a factory method returns  LocalServerSocket
+ which extends ServerSocket
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/RMILocalSocketFactory.java
+
+Factory Method pattern.
+RMIServerSocketFactory is a Factory Method class.
+RMILocalSocketFactory is a concrete Factory Method class.
+createServerSocket is a factory method returns  LocalServerSocket
+ which extends ServerSocket
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/RMILocalSocketFactory.java
+
+Factory Method pattern.
+RMIClientSocketFactory is a Factory Method class.
+RMILocalClientSocketFactory is a concrete Factory Method class.
+createSocket is a factory method returns  LocalClientSocket
+ which extends Socket
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/RMILocalClientSocketFactory.java
+
+Factory Method pattern.
+RMIClientSocketFactory is a Factory Method class.
+RMILocalClientSocketFactory is a concrete Factory Method class.
+createSocket is a factory method returns  LocalClientSocket
+ which extends Socket
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/interface/com/metacarta/crawler/common/DCTM/RMILocalClientSocketFactory.java
+
+Factory Method pattern.
+IFilenetFactory is a Factory Method class.
+FilenetFactoryImpl is a concrete Factory Method class.
+make is a factory method returns  FilenetImpl
+ which extends IFilenet
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/filenet/com/metacarta/crawler/common/filenet/FilenetFactoryImpl.java
+
+Factory Method pattern.
+IDocumentumFactory is a Factory Method class.
+DocumentumFactoryImpl is a concrete Factory Method class.
+make is a factory method returns  DocumentumImpl
+ which extends IDocumentum
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/manifoldcf/modules/connectors/documentum/implementation/com/metacarta/crawler/common/DCTM/DocumentumFactoryImpl.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            6
+Factory Method              6
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                  59
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    0
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 65
+Number of files processed: 433
+Size of DelegationTable: 81
+Size of concrete class nodes: 42
+Size of undirected invocation edges: 2
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/59
+nFlyweightGoFVersion = 0

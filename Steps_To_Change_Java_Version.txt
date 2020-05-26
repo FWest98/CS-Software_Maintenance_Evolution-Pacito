@@ -12,11 +12,11 @@ J2REDIR="/usr/lib/jvm/jdk1.6.0_45/jre"
 JAVA_HOME="/usr/lib/jvm/jdk1.6.0_45"
 DERBY_HOME="/usr/lib/jvm/jdk1.6.0_45/db"
 
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-1.7.0-openjdk-amd64/bin:/usr/lib/jvm/java-1.7.0-openjdk-amd64/db/bin:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/bin"
-J2SDKDIR="/usr/lib/jvm/java-1.7.0-openjdk-amd64"
-J2REDIR="/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre"
-JAVA_HOME="/usr/lib/jvm/java-1.7.0-openjdk-amd64"
-DERBY_HOME="/usr/lib/jvm/java-1.7.0-openjdk-amd64/db"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-7-openjdk-amd64/bin:/usr/lib/jvm/java-7-openjdk-amd64/db/bin:/usr/lib/jvm/java-7-openjdk-amd64/jre/bin"
+J2SDKDIR="/usr/lib/jvm/java-7-openjdk-amd64"
+J2REDIR="/usr/lib/jvm/java-7-openjdk-amd64/jre"
+JAVA_HOME="/usr/lib/jvm/java-7-openjdk-amd64"
+DERBY_HOME="/usr/lib/jvm/java-7-openjdk-amd64/db"
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/jdk1.8.0_251/bin:/usr/lib/jvm/jdk1.8.0_251/db/bin:/usr/lib/jvm/jdk1.8.0_251/jre/bin"
 J2SDKDIR="/usr/lib/jvm/jdk1.8.0_251"
@@ -44,11 +44,11 @@ export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/jdk1.6.0_45/jre/lib/\
 :/usr/lib/jvm/jdk1.6.0_45/jre/bin/\
 :/home/filipe/Desktop/Internship_RuG_2020/Scripts_and_Tools/pinot-src/lib/rt.jar
 
-export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 
-export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/\
-:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/rt.jar\
-:/usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/bin/\
+export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/\
+:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar\
+:/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/\
 :/home/filipe/Desktop/Internship_RuG_2020/Scripts_and_Tools/pinot-src/lib/rt.jar
 
 export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_251
