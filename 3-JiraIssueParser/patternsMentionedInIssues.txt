@@ -1,0 +1,745 @@
+On issue key DIRMINA-527 the state was discussed on the following comment: 
+==============================
+We have a little bit more to do <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><a
+href="http://mina.markmail.org/search/?q=connect%20timeout#query:connect%20timeout+page:1+mid:wp3ewpnfew7msthj+state:results"
+class="external-link"
+rel="nofollow">http://mina.markmail.org/search/?q=connect%20timeout#query:connect%20timeout+page:1+mid:wp3ewpnfew7msthj+state:results</a> 
+==============================
+
+On issue key DIRMINA-539 the state was discussed on the following comment: 
+==============================
+indeed, the example was just intended to highlight the unnecesseray redundant tests
+happening with the use of a isSetTrafficClassAvailable(...) method.<a
+href="http://java.sun.com/j2se/1.4.2/docs/api/java/net/Socket.html#getTrafficClass("
+class="external-link"
+rel="nofollow">http://java.sun.com/j2se/1.4.2/docs/api/java/net/Socket.html#getTrafficClass(</a>)<br/>also
+states that "the underlying network implementation may ignore the traffic class or
+type-of-service set using #setTrafficClass()" <br/>If any error throws an exception i just
+wonder why the hell this code got so complicated ?ps : tried to search through mina jira
+db but found nothing proving that it could fail silently 
+==============================
+
+On issue key DIRMINA-514 the state was discussed on the following comment: 
+==============================
+I've got this happening in my application also, on Mac OS X Leopard 10.5.2.I've verified
+that MINA seems to be doing the right thing, in that the destroy function of NioProcessor
+is called and seems to execute OK.  .close is called on the channel, no exception is
+thrown, and the channel moves into the closed state.  However, the socket does remain open
+(I've only tested loopback).For reference, the destroy function is below.@Override<br/>   
+protected void destroy(NioSession session) throws Exception {<br/>        ByteChannel ch =
+session.getChannel();<br/>        SelectionKey key = session.getSelectionKey();<br/>      
+ if (key != null) {            key.cancel();        }<br/>        ch.close();<br/>   
+}<br/><br/>ch is a java.nio.channels.SocketChannel.  After the close statement, toString()
+gives java.nio.channels.SocketChannel<span
+class="error">&#91;closed&#93;</span><br/><br/>I haven't found any references to this as a
+known bug.  I would think that if it were a bug in the Mac OS, that these problems would
+be visible in every application that uses NIO, but I can't think what could be different
+here.<br/><br/>Following the Tomcat example, I tried explicitly closing the
+socket:<br/>protected void destroy(NioSession session) throws Exception {<br/>       
+ByteChannel ch = session.getChannel();<br/>        SelectionKey key =
+session.getSelectionKey();<br/>        if (key != null) {            key.cancel();       
+}        if (ch instanceof SocketChannel) {			SocketChannel sc = (SocketChannel)
+ch;			Socket socket =
+sc.socket();			socket.close();			System.out.println(socket.isClosed());		}       
+ch.close();<br/>    }But that doesn't improve matters: socket.isClosed() is true, but the
+socket remains open.netstat shows the socket to be in state ESTABLISHED (on both legs, as
+this is localhost).I think, but am not certain, that this only applies to channels where
+we are the server, if that provides a clue to anyone. 
+==============================
+
+On issue key DIRMINA-559 the State was discussed, namely here: 
+==============================
+State machines for IoFilter cannot be created 
+==============================
+
+On issue key DIRMINA-567 the state was discussed on the following comment: 
+==============================
+One further question: I'm planning to use M2 with this patch applied in a productive
+environment. The tests I made so far, don't show up any further bugs in my szenario
+(simple client-server connection). What is your opinion about using this early state in a
+productive environment? 
+==============================
+
+On issue key DIRMINA-580 the state was discussed on the following comment: 
+==============================
+Here is a step by step analysis of the bug 503sessionid = 82 Data Read:
+org.apache.mina.filter.support.SSLHandler@1b7bf86 (HeapBuffer<span
+class="error">&#91;pos=0 lim=512 cap=512: 16 03 01 00 20 86 E4 DA BC C8 EA 3F 29 D8 2E 29
+46 16 02 1F F0 47 93 0A 90 BB 95 B2 12 87 06 EA 6C 2E 6E 31 CD 17 03 01 04 88 0D 19 20 07
+F4 1A E0 E2 19 4C 5B E6 A8 D4 B9 71 07 75 1E 3F 20 DF F9 E7 8E EE 2D 17 8C FA CE 8E 55 CC
+4C DC DA D8 22 8B 15 D3 DD D6 12 25 5B 11 C2 E1 38 B6 D3 7A 91 DD 0A 25 91 08 E9 63 FF 57
+54 12 47 53 DE 30 6D 2F 66 95 D6 2D 29 17 8B 40 C7 E9 C7 7A E8 79 25 AB D2 B4 0D CB 03 3E
+7E 6B 62 A7 49 FC F5 7A DB F0 B4 8F 40 D3 20 DD 75 55 11 2C 6C 67 89 10 8E F4 F9 21 F7 72
+E4 43 B6 77 9C FA 64 17 D4 84 9C 49 56 3C A5 BA 0A B9 E4 CA CA F8 3D 04 64 BA D2 50 18 00
+95 59 3D F2 45 09 C3 21 B6 14 C0 7A CC E8 CD 7A 73 F9 B3 72 B5 6D A5 90 F0 21 31 AB A3 47
+CD 3E DA D9 76 DF 97 7F FA B9 DC F3 AA 8D A4 92 2D 7D DB 27 BB 51 1D D2 FF 42 0F 32 AD 3B
+BE F2 11 03 05 4C AB 6B FC 1E 4D 99 9D 5D 90 A5 5C FD 03 39 D8 8D 58 74 16 16 49 7D 96 F5
+7E 28 43 9D 80 74 18 B2 2D B1 C8 E8 1B 8E 81 05 43 D1 89 6F B1 64 08 8D EC 73 F6 B2 64 48
+F7 7C DC 7A 10 F4 AF EB D0 14 35 5E DB 24 9F DC 27 4F E1 D8 CB 22 15 14 3A 81 C4 D8 8F 44
+C7 3D DC 9D B1 AE B5 FF 97 6B 9A A0 2C 6D AE 93 22 22 DB F3 8C FF 6B 06 27 FB C8 65 FB C7
+7F E0 D4 06 CD 04 D1 60 F8 12 EE C9 21 63 BB 39 BD A7 84 F6 34 C5 67 B2 43 32 1E E2 B3 99
+EB C0 48 D4 77 D5 64 DF A9 41 4D 4A E4 FD 45 E9 E0 AB B1 4B F6 8E 71 CF B7 C0 3C 5F 1A C8
+65 5E 3D BA 52 27 4A B2 05 CF 38 30 81 3E 84 BE 4D 47 C5 72 29 1C 14 85 1F 2B 85 59 EA D8
+DB 99 7E 5D 2B 93 49 27 61 F6 55 EF 31 96 A8 C3 6D 2E 57 AC 62 76 6A D9 5B 1D 8C FD 0D 27
+A8 8A BE 09 6F EA EA AC 59 86 05 9D 24 6F 56 C3&#93;</span>)nullAt this stage the
+information is copied 503sessionid = 82   inNetBuffer: java.nio.DirectByteBuffer<span
+class="error">&#91;pos=0 lim=512 cap=16665&#93;</span>null<br/> 503sessionid = 82  
+appBuffer: java.nio.DirectByteBuffer<span class="error">&#91;pos=0 lim=33330
+cap=33330&#93;</span>null and the status moves to FINISHED and OK 1210354840435 sslhandler
+unwrap0 503sessionid = 82 handshakestatus = FINISHED status = OK At this stage it is in
+the method unwrapHandshake it gets into the method which calls unwrap0 again and the
+status<br/> moves to NOT_HANDSHAKING and BUFFER_UNDERFLOW. After this the inNetBuffer is
+compacted and this will cause the<br/> method handshake() to break from the for(;<img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> loop At this stage the buffer
+look like this 503sessionid = 82   inNetBuffer: java.nio.DirectByteBuffer<span
+class="error">&#91;pos=37 lim=512 cap=16665&#93;</span>null<br/> 503sessionid = 82  
+appBuffer: java.nio.DirectByteBuffer<span class="error">&#91;pos=0 lim=33330
+cap=33330&#93;</span>null 1210354840435 sslhandler unwrap0 503sessionid = 82
+handshakestatus = NOT_HANDSHAKING status = BUFFER_UNDERFLOW         // If handshake
+finished, no data was produced, and the status is still ok,<br/>        // try to unwrap
+more<br/>        if (handshakeStatus == SSLEngineResult.HandshakeStatus.FINISHED<br/>     
+          &amp;&amp; res.getStatus() == SSLEngineResult.Status.OK<br/>               
+&amp;&amp; inNetBuffer.hasRemaining()) {            res = unwrap0();                      
+ // prepare to be written again            inNetBuffer.compact();           
+renegotiateIfNeeded(nextFilter, res);        }After this the client sends its next set of
+messages as given below. 503sessionid = 82 Data Read:
+org.apache.mina.filter.support.SSLHandler@1b7bf86 (HeapBuffer<span
+class="error">&#91;pos=0 lim=690 cap=1024: 35 CD B0 6A 74 E6 00 08 31 CA D5 F5 97 3C F3 87
+2F A9 6A 05 1C 75 48 14 A8 51 D9 54 D7 6F B8 22 89 0E 14 96 89 6F E9 35 F4 93 0B A7 F3 26
+8B 66 F5 72 99 1A 37 6E B6 19 DA CE 88 5B 78 79 E3 E4 93 6B 35 F2 68 D5 43 2D 8C D6 30 85
+25 87 C0 C1 F3 5E 1D AB EF 42 6F 92 90 D3 B7 C3 3A 24 1E 80 63 5A B7 A9 00 25 79 59 92 8F
+36 0E DE AF 9C 15 8E 40 6C BA AF 4A 22 0D 63 67 FB 24 2C 0F 70 95 7F 68 1D C1 98 4A 2C 81
+FA 7C 6A 73 95 1D E8 C2 D2 FD 10 0F 8E 43 8F AE F8 E2 59 49 16 45 CE B2 38 1E 77 C8 FE 1D
+49 78 0A A2 D6 60 44 2C 4F 8F 80 67 CC 6A 3E FA 10 A8 3D DF F0 AD 1A E7 00 69 D8 F3 14 71
+BD 4D 99 95 3C AC CE BF 7B 66 3B 4E 59 E2 68 48 E8 ED 48 9C 33 3B 41 3C 9A F5 C3 47 6C 8E
+E3 20 94 F3 86 F2 9F 36 82 D8 2F D0 71 07 0B AC 69 31 57 EC 06 D3 A7 62 7B 49 60 A9 2E 3A
+49 CB 28 90 A0 CD 7A A4 7C 37 B6 6B C5 6E 20 C6 5E 97 39 47 F1 B8 6A AF DD 03 04 DC 21 B7
+BB A7 7D BF 09 B6 FA 43 32 F9 FF ED 49 7C 15 99 83 4A BD 3A EC E3 03 FC 0B 83 08 01 E9 4F
+8C 86 C7 37 E2 81 D7 D5 00 2F A4 34 DB 3C 6B 5D 65 7C 53 AF 22 1B FB CE 3A C4 76 D8 14 C9
+4A C6 35 90 0B 0D D2 F1 10 A5 E7 1A 8C 8E FA B1 93 47 E6 67 AF 6F 10 7A 77 05 78 9A C5 43
+C8 0E 81 78 57 A5 31 44 09 1C A7 48 17 DD 2B B4 B2 29 1D B9 2B 0C DD 23 84 1F F7 44 1C A1
+CE 64 D5 B1 78 EB 2A 04 20 4D 26 63 6B 22 58 4D 1F 3C 1D 95 CF C8 B2 04 29 23 6E DD 06 BD
+7D BD A1 94 62 55 86 4E 32 F4 82 89 7F C5 C6 87 0A 8E E6 CB DA F4 5D AA 25 DB 2D 56 14 62
+C9 79 86 B8 64 F9 26 62 D8 A7 24 4D 0D 82 27 08 FA 75 D7 80 D0 E7 27 CA E7 AE 3C 8B 9E F9
+92 A3 80 58 A7 5E CE 52 19 18 77 F5 09 44 B8 9C 59 DD 29 FB 45 9B 7D B4 36 86 52 53 C0 23
+3A 83 B6 F6 B9 73 D2 08 56 EA A5 84 3F A7 34 21 A6 96 88 E3 41 9B D7 8F 84 6B F6 97 DD 99
+F7 20 36 FA BD 8E 93 A2 A4 B8 8A 98 74 5C D5 BA 26 E3 8F 8C EB 00 53 F2 A3 78 87 9E FF C4
+62 36 99 7A F8 10 EF F8 2F 74 F4 66 5B BE 9E 7F 3A 14 59 9D 91 A6 7E 8A F3 55 7A A7 60 A6
+BD 24 02 D3 59 FA 7D B5 6A 8C A9 56 71 CD 0B C3 20 26 0E F2 9A 66 56 92 4F F6 0F 04 D6 72
+64 3C 83 AB 5C D0 2A 5B 90 CA BF 2F 37 62 7F 1E 97 16 10 AA 3E D9 36 B5 B6 CE F5 3C 04 B0
+B8 A3 BF D0 50 92 BF 29 70 36 67 E3 B3 B2&#93;</span>)null So we already have 476 bytes
+and then we are getting 690 bytes. Now in the handshake() method we have 1210354840435
+sslhandler handshake 503sessionid = 82 handshakeStatus = FINISHED handshakeComplete =
+false This gets into the block and the state is 1210354840435 sslhandler handshake
+503sessionid = 82 handshakeStatus = FINISHED handshakeComplete = true	for(;;<img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/><br/>             if
+(handshakeStatus == SSLEngineResult.HandshakeStatus.FINISHED) {               
+session.setAttribute(SSLFilter.SSL_SESSION, sslEngine.getSession());               
+handshakeComplete = true;		...                break;            }            ...But at
+this point we have all the data but we are not doing anything with the data and sitting
+there until the idle timeout<br/>gets triggered and this is the issue in this caseThus in
+the method messageReceived of SSLHandler the decrypt method never gets called as the
+client is done with sending<br/>the data and we have the data in the inNetBuffer and it
+never gets copied to the appBuffer        if (!handshakeComplete) {           
+handshake(nextFilter);        } else {            decrypt(nextFilter);        } 
+==============================
+
+On issue key DIRMINA-580 the state was discussed on the following comment: 
+==============================
+The better way to fix this issue is having the following code in the handshake() after the
+for(;<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> I am setting the handshakeComplete = true
+if the handshake status is FINISHED.The code is given below.What is actually happening is
+this1. Client has sent packet 1 and handshake is not completed<br/>2. Client sent packet 2
+and handshake status is FINISHED and since in the unwrapHandshake method res = unwrap0()
+is called for the second <br/>     time and which pushes the state to NOT_HANDSHAKING and
+BUFFER_UNDERFLOW<br/>3. Client sent packet 3 and it gets into the handshake() for(;<img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> it sets the handshakeComplete
+= true and does nothting.Had the client sent one more packet then you would not have any
+issue. But we cannot assume a client to send one more packet after handshakeComplete =
+true and I am taking care of this outside the for loop    public void handshake(NextFilter
+nextFilter) throws SSLException {<br/>        for (;<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> {           ...        }       
+if(handshakeStatus == SSLEngineResult.HandshakeStatus.FINISHED &amp;&amp;
+!handshakeComplete){<br/>        	handshakeComplete = true;<br/>                if
+(!initialHandshakeComplete<br/>                     &amp;&amp;
+session.containsAttribute(SSLFilter.USE_NOTIFICATION)) {                            //
+SESSION_SECURED is fired only when it's the first handshake.                            //
+(i.e. renegotiation shouldn't trigger SESSION_SECURED.)                           
+initialHandshakeComplete = true;                           
+scheduleMessageReceived(nextFilter,                                   
+SSLFilter.SESSION_SECURED);                }        }  } 
+==============================
+
+On issue key DIRMINA-579 the State was discussed, namely here: 
+==============================
+ConsumeToEndOfSessionDecodingState not finish decode if the buffer is empty 
+==============================
+
+On issue key DIRMINA-579 the state was discussed on the following comment: 
+==============================
+due to current SVN fubar state, here a patch to apply to mina trunk core component 
+==============================
+
+On issue key DIRMINA-591 the state was discussed, namely here: 
+==============================
+Javadoc & documentation for org/apache/mina/filter/codec/statemachine/ 
+==============================
+
+On issue key DIRMINA-591 the state was discussed on the following comment: 
+==============================
+Thanks a lot Niklas !!This portion of the code (state machine) is not, by far, the less
+documented one in MINA. I went through all the classes in MINA, adding some TODO tags in
+all the class headers, and this sub-project was clean (there are 90 files out of 476
+without headers ...).This is a very valuable effort, even if it seems to be obscur, and
+painfull, but this make the project much better !Julien, you may consider closing the
+issue. 
+==============================
+
+On issue key DIRMINA-608 the strategy was discussed on the following comment: 
+==============================
+Attached is a first proposal, please take a look. I'd like to see if there's any initial
+feedback now, and I'll work up a more extensive patch the coming weeks before M3 is
+released.Open issues:<ul class="alternate" type="square">	<li>should maybe leave the
+methodes on the IoService interface for the next milestone, marked deprecated, and don't
+remove them until 2.0 final.</li></ul><ul class="alternate" type="square">	<li>interface
+naming is open to debate (e.g. the current naming scheme doesn't really allow the same
+interfaces to be used for IoSession statistics).</li></ul><ul class="alternate"
+type="square">	<li>location of the lastReadTime() / lastWriteTime() / lastIoTime() methods
+is open to debate.</li></ul><ul class="alternate" type="square">	<li>to keep the impact of
+this first patch low, I just made AbstractIoService implement the statistics interfaces,
+rather than factoring them into inner classes. (separation of concerns, high cohesion,
+etc.) Factoring them into separate classes gives the ability to deploy those instances
+into an MBeanServer, which I think is a big reason to make that change. Not all
+application servers use the standard MBeanServer (at least historically; Java 5 may have
+changed that) and JMX+OSGi isn't always straightforward, so the actual MBean deployment
+should be handled by a pluggable strategy implementation.</li></ul><ul class="alternate"
+type="square">	<li>I haven't touched the IoSession statistics yet, but the basic idea is
+the same.</li></ul><ul class="alternate" type="square">	<li>anything
+else?</li></ul>Thanks,Barend 
+==============================
+
+On issue key DIRMINA-587 the proxy was discussed, namely here: 
+==============================
+The proxy sample does not work - results in a NullPointerException 
+==============================
+
+On issue key DIRMINA-608 the strategy was discussed on the following comment: 
+==============================
+Attached is a first proposal, please take a look. I'd like to see if there's any initial
+feedback now, and I'll work up a more extensive patch the coming weeks before M3 is
+released.Open issues:<ul class="alternate" type="square">	<li>should maybe leave the
+methodes on the IoService interface for the next milestone, marked deprecated, and don't
+remove them until 2.0 final.</li></ul><ul class="alternate" type="square">	<li>interface
+naming is open to debate (e.g. the current naming scheme doesn't really allow the same
+interfaces to be used for IoSession statistics).</li></ul><ul class="alternate"
+type="square">	<li>location of the lastReadTime() / lastWriteTime() / lastIoTime() methods
+is open to debate.</li></ul><ul class="alternate" type="square">	<li>to keep the impact of
+this first patch low, I just made AbstractIoService implement the statistics interfaces,
+rather than factoring them into inner classes. (separation of concerns, high cohesion,
+etc.) Factoring them into separate classes gives the ability to deploy those instances
+into an MBeanServer, which I think is a big reason to make that change. Not all
+application servers use the standard MBeanServer (at least historically; Java 5 may have
+changed that) and JMX+OSGi isn't always straightforward, so the actual MBean deployment
+should be handled by a pluggable strategy implementation.</li></ul><ul class="alternate"
+type="square">	<li>I haven't touched the IoSession statistics yet, but the basic idea is
+the same.</li></ul><ul class="alternate" type="square">	<li>anything
+else?</li></ul>Thanks,Barend 
+==============================
+
+On issue key DIRMINA-415 the Proxy was discussed, namely here: 
+==============================
+Proxy support 
+==============================
+
+On issue key DIRMINA-415 the Proxy was discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+First cut of proxy connector. Supports unauthenticated proxies and proxies with Basic
+authentication.Still quite messy - needs some refactoring to work with IoC containers
+properly.Tested with MINA 1.1. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Based on James work i hacked around and achieved working NTLM &amp; socks 4 &amp; 4a proxy
+support<br/>But it still needs a lot of work : code cleaning, API reworking, socks 5 &amp;
+digest support<br/>i'll keep sending infos on  progress made 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Due to personal events i've made less progress than expected.<br/>But Socks5 support is
+now added and digest auth is currently in progress.<br/>Code still needs lot of workThe
+problem is that it is hard to test the code as i have no dedicated network to test it. For
+example, i've been unable to find a free proxy supporting Socks5 with GSSAPI
+auth.<br/>Generally speaking i've been forced to use many different proxies because each
+of them has a unique combination of auth methods.<br/>So i may need help on this, if some
+of you could test the proxy program within their network it would help debbuging.Regarding
+a previous comment on IOC containers, i've no idea on how to make code IoC friendly : i'll
+accept any clue on this ;pAnother important point is that the code contains some basic
+objects (HttpHeader, HttpResponse etc...) that i think should be refactored to use
+AsyncWeb (not sure this is the official MINA http project ?) code<br/>WDYT ?That's all for
+the moment<br/>Any comments or help is appreciated. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Hi community,This is a great day (althought i spent 3 hours in the strike this morning
+<img class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> ...) <br/>as i'm proud to
+announce after 4 months of work that <br/>i'm releasing a proxy support connector for MINA
+2.0-M1.This release features :HTTP proxy : <ul class="alternate"
+type="square">	<li>Support for NTLM authentication</li>	<li>Support for Digest
+authentication</li>	<li>Transparent support for reconnection to a http proxy that does not
+support connection keep alive</li>	<li>Support for HTTP/1.1 requests</li>	<li>Support for
+multi valued headers</li>	<li>Configuration of prefered authentication
+mechanism</li>	<li>Smart proxy authentication system that dynamically and automatically
+selects the mechanism to use</li></ul>SOCKS :<ul class="alternate"
+type="square">	<li>Support for SOCKS4 and SOCKS4a</li>	<li>Support for SOCKS5 with support
+for GSSAPI authentication via Kerberos V</li></ul>Moreover i added some test classes and
+junit testcases to test internals and <br/>cover most of the revelant functionnalities.I
+hope this work will be usefull for the community as i put great efforts on it<br/>I'm
+really excited by looking forward for your questions, comments, etc...Regards,<ul
+class="alternate" type="square">	<li>Edouard De Oliveira -<br/><a
+href="http://tedorg.free.fr/en/projects.php" class="external-link"
+rel="nofollow">http://tedorg.free.fr/en/projects.php</a></li></ul> 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Source code updated to comply with MINA 2.0.0-M2 version.<br/>Some minor refactorings were
+madeAdded a telnet test client : tested it by communicating with a SMTP server through a
+http &amp; socks proxy. 
+==============================
+
+On issue key DIRMINA-415 the Proxy was discussed, namely here: 
+==============================
+Proxy support 
+==============================
+
+On issue key DIRMINA-415 the Proxy was discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+First cut of proxy connector. Supports unauthenticated proxies and proxies with Basic
+authentication.Still quite messy - needs some refactoring to work with IoC containers
+properly.Tested with MINA 1.1. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Based on James work i hacked around and achieved working NTLM &amp; socks 4 &amp; 4a proxy
+support<br/>But it still needs a lot of work : code cleaning, API reworking, socks 5 &amp;
+digest support<br/>i'll keep sending infos on  progress made 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Due to personal events i've made less progress than expected.<br/>But Socks5 support is
+now added and digest auth is currently in progress.<br/>Code still needs lot of workThe
+problem is that it is hard to test the code as i have no dedicated network to test it. For
+example, i've been unable to find a free proxy supporting Socks5 with GSSAPI
+auth.<br/>Generally speaking i've been forced to use many different proxies because each
+of them has a unique combination of auth methods.<br/>So i may need help on this, if some
+of you could test the proxy program within their network it would help debbuging.Regarding
+a previous comment on IOC containers, i've no idea on how to make code IoC friendly : i'll
+accept any clue on this ;pAnother important point is that the code contains some basic
+objects (HttpHeader, HttpResponse etc...) that i think should be refactored to use
+AsyncWeb (not sure this is the official MINA http project ?) code<br/>WDYT ?That's all for
+the moment<br/>Any comments or help is appreciated. 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Hi community,This is a great day (althought i spent 3 hours in the strike this morning
+<img class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> ...) <br/>as i'm proud to
+announce after 4 months of work that <br/>i'm releasing a proxy support connector for MINA
+2.0-M1.This release features :HTTP proxy : <ul class="alternate"
+type="square">	<li>Support for NTLM authentication</li>	<li>Support for Digest
+authentication</li>	<li>Transparent support for reconnection to a http proxy that does not
+support connection keep alive</li>	<li>Support for HTTP/1.1 requests</li>	<li>Support for
+multi valued headers</li>	<li>Configuration of prefered authentication
+mechanism</li>	<li>Smart proxy authentication system that dynamically and automatically
+selects the mechanism to use</li></ul>SOCKS :<ul class="alternate"
+type="square">	<li>Support for SOCKS4 and SOCKS4a</li>	<li>Support for SOCKS5 with support
+for GSSAPI authentication via Kerberos V</li></ul>Moreover i added some test classes and
+junit testcases to test internals and <br/>cover most of the revelant functionnalities.I
+hope this work will be usefull for the community as i put great efforts on it<br/>I'm
+really excited by looking forward for your questions, comments, etc...Regards,<ul
+class="alternate" type="square">	<li>Edouard De Oliveira -<br/><a
+href="http://tedorg.free.fr/en/projects.php" class="external-link"
+rel="nofollow">http://tedorg.free.fr/en/projects.php</a></li></ul> 
+==============================
+
+On issue key DIRMINA-415 the proxy was discussed on the following comment: 
+==============================
+Source code updated to comply with MINA 2.0.0-M2 version.<br/>Some minor refactorings were
+madeAdded a telnet test client : tested it by communicating with a SMTP server through a
+http &amp; socks proxy. 
+==============================
+
+On issue key DIRMINA-652 the Proxy was discussed, namely here: 
+==============================
+Socks5LogicHandler.encodeProxyRequestPacket(final SocksProxyRequest request) should check
+that the result of request.getEndpointAddress() is resolved before using it 
+==============================
+
+On issue key DIRMINA-709 the state was discussed on the following comment: 
+==============================
+My patch is the following - I have changed AbstractPollingIoProcessor.remove() method this
+way:switch (state) {<br/>            case OPEN:<br/>            case PREPARING:<br/>      
+         if (removeNow(session)) {                    removedSessions ++;                }
+               break;<br/>            case CLOSED:<br/>                // Skip if channel
+is already closed<br/>                break;I am not sure whether the problem was for
+every PREPARING session or not, but the patch seems to work. 
+==============================
+
+On issue key DIRMINA-718 the state was discussed on the following comment: 
+==============================
+does it happens all the time ?Otherwise it might be a side effect : the session is in
+closing state, and is closed when we try to print data. 
+==============================
+
+On issue key DIRMINA-714 the proxy was discussed on the following comment: 
+==============================
+I have to reopen this issue, as the patch introduce a failure in the proxy code (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-734" title="Regression with flushing
+in MINA 2.0.0-M7 trunk" class="issue-link"
+data-issue-key="DIRMINA-734"><del>DIRMINA-734</del></a>).I have started back to M6, and
+applied every patches up to 787043, which was the one introducing the regression...We have
+to find a better way to fix <a href="https://issues.apache.org/jira/browse/DIRMINA-714"
+title="Packet sequence is unordered in multi thread." class="issue-link"
+data-issue-key="DIRMINA-714"><del>DIRMINA-714</del></a> :/ 
+==============================
+
+On issue key DIRMINA-794 the Adapter was discussed, namely here: 
+==============================
+Log4jXmlFormatter is unnecessarily tied to BasicMDCAdapter 
+==============================
+
+On issue key DIRMINA-269 the proxy was discussed on the following comment: 
+==============================
+This kind of functionality maybe also needed in a proxy server where the connection to the
+proxied server should be closed if the proxy client is closing the connection. 
+==============================
+
+On issue key DIRMINA-445 the Pattern was discussed on the following comment: 
+==============================
+I was thinking that the call to MessageFormatter.format(String messagePattern, Object
+arg1, Object arg2)<br/>would be slower than the simple string concatenation we have
+now.<br/><a
+href="http://svn.slf4j.org/viewvc/slf4j/trunk/slf4j-api/src/main/java/org/slf4j/helpers/MessageFormatter.java?revision=761&amp;view=markup"
+class="external-link"
+rel="nofollow">http://svn.slf4j.org/viewvc/slf4j/trunk/slf4j-api/src/main/java/org/slf4j/helpers/MessageFormatter.java?revision=761&amp;view=markup</a>and
+it is about 50% slower<br/>but in absolute numbers the difference is of course
+insignificant :  0,0006 ms per invocation <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I will apply the proposed change
+immediately. 
+==============================
+
+On issue key DIRMINA-445 the state was discussed on the following comment: 
+==============================
+I completely agree with replacing IoSessionLogger with MdcInjectionFilter<br/>(that's why
+I proposed it in my first comment on this issue).<br/>I just didn't dare to push 'my'
+MdcInjectionFilter too hard <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>IMO MdcInjectionFilter has several
+advantages:<ul>	<li>all log events will contain the remoteIP, as opposed to only those
+created via IoSessionLogger<br/>   (but maybe not everybody wants that ?)</li>	<li>users
+can use all methods of org.slf4j.Logger while currently IoSessionLogger only offers a
+subset</li>	<li>it's an othogonal concern: remove the filter and the log-statements still
+work</li>	<li>users can add custom session attributes to the Mdc</li>	<li>users can decide
+how to format the IoSession attributes (remoteIp, remotePort, ...)</li></ul> 
+==============================
+
+On issue key DIRMINA-367 the proxy was discussed, namely here: 
+==============================
+1.1 proxy example broken with svn revision: 522721 
+==============================
+
+On issue key DIRMINA-367 the proxy was discussed on the following comment: 
+==============================
+The additional check is added to fix <a
+href="https://issues.apache.org/jira/browse/DIRMINA-362" title="Channel writes being made
+without OP_WRITE selector ready" class="issue-link"
+data-issue-key="DIRMINA-362"><del>DIRMINA-362</del></a>.  isWritable() ans isReadable() is
+related with readyOps rather than with interestOps, so removing the flag from interestOps
+won't change the return value of isWritable().I think there's possibility that data is not
+written when the connection is closed from the server.  In the proxy example, the client
+connection is closed immediately if the server connection is closed.  Any write requests
+not yet flushed out to the channel can be swallowed.  Instead of closing the client
+connection immediately after the server closes the connection, you could make sure all
+data received from server is forwarded to the client thoroughly.You could also provide a
+stripped down version of your code that reproduces the problem so I can test it. 
+==============================
+
+On issue key DIRMINA-367 the proxy was discussed on the following comment: 
+==============================
+I'm just now getting a chance to check performance of my proxy server.  With the fix from
+r522721 and doing a WriteFuture.join() in messageReceived peformance isn't so good
+compared to the non-proxy version.  If I undo the fix from r522721 and don't do the join
+in messageRecieved() then performance is better.  Is there a better way to avoid the race
+condition rather than doing the join in messageRecieved()?  Is there some way to instead
+wait in close until all of the writes are flushed?  Though that seems like it would tricky
+with race conditions also.Thanks!Keith 
+==============================
+
+On issue key DIRMINA-456 the Adapter was discussed on the following comment: 
+==============================
+Good call Heath .  You were spot on with everything running in the same thread.  (Cool
+name BTW. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> )Consider the following example:	public
+static void main(String[] args) throws IOException {<br/>		NioSocketAcceptor acceptor =
+new
+NioSocketAcceptor(Executors.newCachedThreadPool());<br/>		acceptor.getFilterChain().addLast("executor",
+new ExecutorFilter(Executors.newCachedThreadPool()));<br/>		acceptor.setHandler(new
+IoHandlerAdapter() {<br/>			@Override<br/>			public void messageReceived(IoSession
+session, Object message) throws Exception {				session.write(IoBuffer.wrap("Have a nice
+day\n".getBytes()));				Thread.sleep(2000);				session.write(IoBuffer.wrap("MINA makes me
+happy\n".getBytes()));				Thread.sleep(2000);				session.write(IoBuffer.wrap("I like cold
+beverages\n".getBytes()));			}		});<br/>		acceptor.setLocalAddress(new
+InetSocketAddress(1995));<br/>		acceptor.bind();<br/>	}The above code works just fine.  If
+you comment out the executor filter, all the writes are done at once after waiting 4000ms.
+ This make sense because the messageReceived is being executed in the I/O thread.However,
+if you comment out the executor filter and then append .awaitUninterruptibly(), the server
+stalls indefinitely.So the question is, do we put something in the await methods that
+checks to see if the await is being called in the I/O thread the await is dependent on and
+throw a dead-lock exception?  Is there away that we can execute the desired action from
+the await methods instead of blocking in this case? 
+==============================
+
+On issue key DIRMINA-432 the Composite was discussed on the following comment: 
+==============================
+I'd prefer MessageBroadcaster.  And users will want to know which peer failed to receive
+the broadcast message, so we need to return something different
+like....<ul>	<li>Map&lt;IoSession, WriteFuture&gt; or</li>	<li>CompositeIoFuture (new
+interface) that can combine any IoFutures (e.g. ConnectFuture + WriteFuture).</li></ul> 
+==============================
+
+On issue key DIRMINA-144 the Adapter was discussed on the following comment: 
+==============================
+You can test the throughput using the following sample application and netcat (UNIX nc)
+command:public class TrafficShapingFilterTest {<br/>    public static void main(String[]
+args) throws Exception {<br/>        ScheduledExecutorService executor =
+Executors.newScheduledThreadPool(1);        SocketAcceptor acceptor = new
+NioSocketAcceptor();<br/>        acceptor.getFilterChain().addLast(<br/>               
+"traffic", <br/>                new TrafficShapingFilter(executor, 1024, 1024));<br/>     
+  acceptor.setHandler(new IoHandlerAdapter() {<br/>            @Override<br/>           
+public void messageReceived(IoSession session, Object message)<br/>                   
+throws Exception {                session.write(((IoBuffer) message).duplicate());        
+   }            @Override<br/>            public void sessionClosed(IoSession session) {  
+             long currentTime = System.currentTimeMillis();               
+System.out.println("elapsedTime: " + (currentTime - session.getCreationTime()));          
+     System.out.println("readBytes: " + session.getReadBytes());               
+System.out.println(                        "readThroughput: " + session.getReadBytes() *
+1000 / (currentTime - session.getCreationTime()));               
+System.out.println("writtenBytes: " + session.getWrittenBytes());               
+System.out.println(                        "writeThroughput: " + session.getWrittenBytes()
+* 1000 / (currentTime - session.getCreationTime()));            }        });<br/>       
+acceptor.setLocalAddress(new InetSocketAddress(8080));<br/>        acceptor.bind();<br/>  
+ }<br/>} 
+==============================
+
+On issue key DIRMINA-144 the Strategy was discussed on the following comment: 
+==============================
+I think this looks great! How about somehow extracting the calculation of the suspendTime
+values in messageReceived and messageSent into a separate class,
+PerSessionTrafficShapingStrategy, to make the shaping strategy pluggable? Then we could
+implement a PerFilterChainTrafficShapingStrategy or PerService...Strategy in the future
+when we know how to do that. One could even chain strategies using a
+CombinedTrafficShapingStrategy to combine global and per session shaping. WDYT? 
+==============================
+
+On issue key DIRMINA-144 the strategy was discussed on the following comment: 
+==============================
+I think this looks great! How about somehow extracting the calculation of the suspendTime
+values in messageReceived and messageSent into a separate class,
+PerSessionTrafficShapingStrategy, to make the shaping strategy pluggable? Then we could
+implement a PerFilterChainTrafficShapingStrategy or PerService...Strategy in the future
+when we know how to do that. One could even chain strategies using a
+CombinedTrafficShapingStrategy to combine global and per session shaping. WDYT? 
+==============================
+
+On issue key DIRMINA-144 the Adapter was discussed on the following comment: 
+==============================
+You can test the throughput using the following sample application and netcat (UNIX nc)
+command:public class TrafficShapingFilterTest {<br/>    public static void main(String[]
+args) throws Exception {<br/>        ScheduledExecutorService executor =
+Executors.newScheduledThreadPool(1);        SocketAcceptor acceptor = new
+NioSocketAcceptor();<br/>        acceptor.getFilterChain().addLast(<br/>               
+"traffic", <br/>                new TrafficShapingFilter(executor, 1024, 1024));<br/>     
+  acceptor.setHandler(new IoHandlerAdapter() {<br/>            @Override<br/>           
+public void messageReceived(IoSession session, Object message)<br/>                   
+throws Exception {                session.write(((IoBuffer) message).duplicate());        
+   }            @Override<br/>            public void sessionClosed(IoSession session) {  
+             long currentTime = System.currentTimeMillis();               
+System.out.println("elapsedTime: " + (currentTime - session.getCreationTime()));          
+     System.out.println("readBytes: " + session.getReadBytes());               
+System.out.println(                        "readThroughput: " + session.getReadBytes() *
+1000 / (currentTime - session.getCreationTime()));               
+System.out.println("writtenBytes: " + session.getWrittenBytes());               
+System.out.println(                        "writeThroughput: " + session.getWrittenBytes()
+* 1000 / (currentTime - session.getCreationTime()));            }        });<br/>       
+acceptor.setLocalAddress(new InetSocketAddress(8080));<br/>        acceptor.bind();<br/>  
+ }<br/>} 
+==============================
+
+On issue key DIRMINA-144 the Strategy was discussed on the following comment: 
+==============================
+I think this looks great! How about somehow extracting the calculation of the suspendTime
+values in messageReceived and messageSent into a separate class,
+PerSessionTrafficShapingStrategy, to make the shaping strategy pluggable? Then we could
+implement a PerFilterChainTrafficShapingStrategy or PerService...Strategy in the future
+when we know how to do that. One could even chain strategies using a
+CombinedTrafficShapingStrategy to combine global and per session shaping. WDYT? 
+==============================
+
+On issue key DIRMINA-144 the strategy was discussed on the following comment: 
+==============================
+I think this looks great! How about somehow extracting the calculation of the suspendTime
+values in messageReceived and messageSent into a separate class,
+PerSessionTrafficShapingStrategy, to make the shaping strategy pluggable? Then we could
+implement a PerFilterChainTrafficShapingStrategy or PerService...Strategy in the future
+when we know how to do that. One could even chain strategies using a
+CombinedTrafficShapingStrategy to combine global and per session shaping. WDYT? 
+==============================
+
+On issue key DIRMINA-463 the State was discussed on the following comment: 
+==============================
+I've introduced IoHandlerEvents and IoFilterEvents which enumerate the possible events for
+the IoHandler and IoFilter interfaces. I've also added IoHandlerTransition and
+IoFilterTransition annotations. When used the events for the on annotation parameter
+aren't strings but instead come from either IoHandlerEvents or IoFilterEvents.
+StateMachine.createForIoHandler() should be used to create a StateMachine which uses the
+IoHandlerTransition annotation. See the TapeDeck example for a demonstration.PS:
+Annotations in Java are extremely limited. For example you cannot have null as a default
+value for a parameter. This is why I found it impossible to use IoEventType from mina-core
+and had to introduce IoHandlerEvents (my first idea was to use null for the wildcard
+event). Furthermore enums cannot be extended which is why IoFilterEvents redefines all the
+events which are also in IoHandlerEvents. In don't like code duplication but I didn't have
+a choice this time. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-463 the State was discussed on the following comment: 
+==============================
+1) Just checked in a fix for this. There are now MINA specific versions of
+StateMachineFactory.<br/>2) Fixed!I'm not sure I like how 1) turned out. There are lots of
+code duplication there. Maybe if we changed StateMachineFactory so that it isn't all
+static like now and to obtain one you would always have to specifiy the annotations to be
+used like so:StateMachineFactory.getInstance(IoHandlerTransition.class).create(...)We need
+a way to couple IoHandlerTransition and IoHandlerTransitions together. I think we can use
+a special annotation for that:@TransitionsCombiner(IoHandlerTransitions.class)<br/>public
+interface @IoHandlerTransition {<br/>...<br/>}That way you won't have to specifiy both
+IoHandlerTransition and IoHandlerTransitions in the call to getInstance(...).WDYT? 
+==============================
+
+On issue key DIRMINA-463 the State was discussed on the following comment: 
+==============================
+&gt; We need a way to couple IoHandlerTransition and IoHandlerTransitions together. I
+think we can use a special annotation for that:<br/>&gt;<br/>&gt;
+@TransitionsCombiner(IoHandlerTransitions.class)<br/>&gt; public interface
+@IoHandlerTransition {&gt; ...&gt; } Does this mean we apply the same technique to
+IoFilterTransition(s) and Transition(s)?  Then it sounds great to me.  Probably we could
+allow user to specify either annotation
+class:StateMachineFactory.getInstance(IoHandlerTransition.class).create(...) =
+StateMachineFactory.getInstance(IoHandlerTransitions.class).create(...)Does it make a
+sense? 
+==============================
+
+On issue key DIRMINA-473 the State was discussed, namely here: 
+==============================
+ReadThrottleFilter throws IllegalStateException 
+==============================
+
+On issue key DIRMINA-473 the State was discussed on the following comment: 
+==============================
+Hi Trustin,I'm unfortunately still getting the
+exception.-RogerException:<br/>java.lang.IllegalStateException: sessionBufferSize:
+-696<br/>       at
+org.apache.mina.filter.traffic.ReadThrottleFilter.exit(ReadThrottleFilter.java:493)<br/>  
+    at
+org.apache.mina.filter.traffic.ReadThrottleFilter.messageReceived(ReadThrottleFilter.java:347)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:399)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:38)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:791)<br/>
+      at org.apache.mina.common.IoFilterEvent.fire(IoFilterEvent.java:54)<br/>       at
+org.apache.mina.common.IoEvent.run(IoEvent.java:62)<br/>       at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>      
+at java.lang.Thread.run(Thread.java:619) 
+==============================
+

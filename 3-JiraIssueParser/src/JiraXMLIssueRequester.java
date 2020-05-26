@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
 public class JiraXMLIssueRequester {
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "cassandra-issueTags";
+    private static String analyzedProject = "mina-J7-issueTags";
 
     public static void main(String[] args) throws IOException {
 
@@ -115,6 +115,9 @@ public class JiraXMLIssueRequester {
             FileWriter csvFileWriter = new FileWriter(csvFile.getPath(), true);
             BufferedWriter csvBufferedWriter = new BufferedWriter(csvFileWriter);
             PrintWriter csvPrintWriter = new PrintWriter(csvBufferedWriter);
+
+            FileWriter writePatternMentionsFW = new FileWriter("patternsMentionedInIssues.txt", true);
+            BufferedWriter writePatternMentionsBW = new BufferedWriter(writePatternMentionsFW);
 
             if (errNodes.getLength() > 0) {
                 Element err = (Element) errNodes.item(0);
@@ -222,6 +225,28 @@ public class JiraXMLIssueRequester {
                     br.write("\n");
                 }
 
+
+                String[] patternNames = {"Abstract Factory", "abstract factory", "Factory Method", "factory method",
+                        "Singleton", "singleton","Adapter","adapter","Bridge","bridge",
+                        "Composite","composite","Decorator","decorator","Facade","facade","Flyweight","flyweight",
+                        "Proxy","proxy","Chain of Responsibility","chain of responsibility","Mediator","mediator",
+                        "Observer","observer"," State "," state ","Strategy","strategy","Template Method","template method",
+                        "Visitor","visitor","Pattern","pattern"};
+
+                for (String patternInstance : patternNames) {
+                    if (summary.contains(patternInstance)) {
+                        writePatternMentionsBW.write("On issue key " + parsedIssueKey + " the " + patternInstance +
+                                "pattern might have been discussed, namely here: \n");
+                        writePatternMentionsBW.write("==============================\n");
+                        for (String commentSmallerLine : textLimiter(summary, 90)) {
+                            writePatternMentionsBW.write(commentSmallerLine);
+                            writePatternMentionsBW.write("\n");
+                        }
+                        writePatternMentionsBW.write("==============================\n\n");
+                    }
+                }
+
+
                 NodeList commentsNodes = doc.getElementsByTagName("comments");
                 Element commentElement = (Element) commentsNodes.item(0);
 
@@ -233,6 +258,19 @@ public class JiraXMLIssueRequester {
                     String comment = commentElement.getElementsByTagName("comment").item(i).getTextContent()
                             .replaceAll("<p>|<\\/p>", "");
 
+                    for (String patternInstance : patternNames){
+                        if (comment.contains(patternInstance)){
+                            writePatternMentionsBW.write("On issue key " + parsedIssueKey + " the " + patternInstance
+                            + " pattern might have been discussed on the following comment: \n");
+                            writePatternMentionsBW.write("==============================\n");
+                            for (String commentSmallerLine : textLimiter(comment, 90)) {
+                                writePatternMentionsBW.write(commentSmallerLine);
+                                writePatternMentionsBW.write("\n");
+                            }
+                            writePatternMentionsBW.write("==============================\n\n");
+                        }
+                    }
+
                     br.write("New Comment: \n");
                     for (String commentSmallerLine : textLimiter(comment, 90)) {
                         br.write(commentSmallerLine);
@@ -243,6 +281,9 @@ public class JiraXMLIssueRequester {
 
                 br.close();
                 fr.close();
+                writePatternMentionsBW.flush();
+                writePatternMentionsBW.close();
+                writePatternMentionsFW.close();
             } else {
                 // success
             }
