@@ -14,7 +14,7 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
-cd /home/s4040112/sourcecodes/mina/
+cd /data/s4040112/sourcecodes/mina
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
 
@@ -27,7 +27,7 @@ file_lines=`cat $filename`
 
 #mkdir -p outputs
 
-projectpath="/home/s4040112/sourcecodes/mina/"
+projectpath="/data/s4040112/sourcecodes/mina/"
 projectname="mina"
 verbose=false
 TEMP=`getopt --long -o "p:v" "$@"`
@@ -56,7 +56,7 @@ do
 #	sh /home/p289550/tools/Pinot/HPC-pinotscript.sh 2>&1 | tee /data/p289550/Pinot_results/Mina_results/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 #don't forget to run sudo updatedb, since locate finds all files but needs to be updated using this command
-updatedb
+#updatedb
 
 find ${projectpath} -name '*.java' > ${projectname}-files.list
 #locate ${projectpath}**.java > ${projectname}-files.list
