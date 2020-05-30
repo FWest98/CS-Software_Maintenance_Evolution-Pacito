@@ -3,6 +3,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/*
+This class aims to analyse pinot outputs, to understand if there are
+changes in the detected patterns between consecutive commits
+
+@param the analyzedProject String needs to be changed according to
+the name of the folder containing the pinot outputs
+
+@input a folder containing files obtained after executing the github-looper.sh script
+the path of the folder should be in the root of this project, namely
+~/Internship_RuG_2020/2-PinotOutputComparator/*nameOfInputFolder*
+
+@output a folder named results-*nameOfInputFolder*, containing several files,
+each corresponding to an analysis between two commits. Depending on the name it has
+"Valid" or "no-differences", means that changes happened or not, respectively.
+
+@author Filipe Capela S4040112
+ */
+
 public class CommitComparator {
     private static int counter = 1;
 
@@ -28,6 +46,10 @@ public class CommitComparator {
         System.out.println("Processing finished!");
     }
 
+    /*
+    For each two files, check if both files are valid pinot outputs, and if
+    so, then compare the pattern between both files
+     */
     private static void patternComparator(File[] files) throws IOException {
 
         for (int i = 0; i < files.length-2; i++) {
@@ -42,6 +64,9 @@ public class CommitComparator {
 
     }
 
+    /*
+    function to check whether both files are valid
+     */
     private static boolean checkIfFilesAreValid(File file1, File file2) throws IOException {
 
         //true if one or both files contain
@@ -58,6 +83,9 @@ public class CommitComparator {
 
     }
 
+    /*
+    function to check if one or both files are empty
+     */
     private static boolean checkIfAnyFileIsEmpty(File file1, File file2) throws IOException {
         if (file1.length() == 0 || file2.length() == 0){
             //File noAnalysis = new File(".\\results-"+analyzedProject + "\\Blank-" + counter + ".txt");
@@ -69,6 +97,9 @@ public class CommitComparator {
         return false;
     }
 
+    /*
+    function to check if a file contains an error message
+     */
     private static boolean checkIfFileHasErrors(File file) {
 
         BufferedReader reader;
@@ -90,6 +121,10 @@ public class CommitComparator {
         return false;
     }
 
+    /*
+    function that analyses one file, and stores the detected patterns in
+    an array like this example: [[Decorator-2],[Proxy-3]]
+     */
     private static ArrayList<String> performAnalysis(File pinotOutput) {
 
         ArrayList<String> patterns = new ArrayList<String>();
@@ -128,6 +163,11 @@ public class CommitComparator {
         return patterns;
     }
 
+    /*
+    Function that ultimately does the comparison between both Arrays that
+    resulted from the performAnalysis method. In this function is where
+    the files are written.
+     */
     private static void pinotComparator(ArrayList<String> firstPatterns, ArrayList<String> secondPatterns, File second) throws IOException {
 
         //-4 since I need to remove the .txt extension
@@ -159,6 +199,12 @@ public class CommitComparator {
     // AUXILIARY METHODS //
     ///////////////////////
 
+    /*
+    To make sure the analysis happens between two consecutive commits, the files
+    need to be ordered according to numerical order, otherwise the files would be
+    ordered by alphabetical, and the order would be 1-..., 10-..., ..... , 2-...
+    instead of 1-..., 2-..., ....., 10-...
+     */
     private static void sortFilesByNumericalOrder(File[] files) {
         Arrays.sort(files, new Comparator<File>() {
             public int compare(File o1, File o2) {
@@ -181,6 +227,9 @@ public class CommitComparator {
         });
     }
 
+    /*
+    Non-used function, but was used to debug the files in the directory
+     */
     public static void showFiles(File[] files) {
         for (File file : files) {
             if (file.isDirectory()) {

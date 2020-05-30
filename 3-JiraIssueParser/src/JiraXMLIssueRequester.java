@@ -14,6 +14,25 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+/*
+Function that fetches information from JIRA's issue tracking
+system, to obtain information regarding several issue tags
+found on commit messages.
+
+@param the analyzedProject String needs to be changed to the name
+of the folder containing the issueTags from a certain project
+
+@input a folder containing files holding the result from script
+issueTagExtractor.
+
+@output a csv file containing all the information relevant for a
+certain project, containing information from the commit, the issue,
+the pattern changes, developers, etc.
+Additionally, for each commit containing an issue tag, a file is created with
+the same information as the csv, but with the addition of the comments extracted
+from JIRA.
+ */
+
 public class JiraXMLIssueRequester {
 
     //Change according to the name of the folder where the pinot outputs are available
@@ -33,6 +52,10 @@ public class JiraXMLIssueRequester {
         pw.flush();
         pw.close();
 
+        /*
+        This portion is responsible for checking whether a commit
+        contains an issue tag on the commit message
+         */
         for (File analyzedFile : issueTagsFiles) {
 
             String issueKey = obtainIssueKey(analyzedFile);
@@ -44,6 +67,10 @@ public class JiraXMLIssueRequester {
 
     }
 
+    /*
+    Function responsible for creating directory to store final results
+    and creating an array of files from the input folder
+     */
     private static File[] createDirectoryAndFileArray() {
 
         //Create directory to store results if it does not exist already
@@ -57,6 +84,12 @@ public class JiraXMLIssueRequester {
     }
 
 
+    /*
+    Function that scans a file which holds a commit message and
+    checks if the projects issue tag is present.
+
+    NOTE: You will need to add the issue tag from the project you are analyzing
+     */
     public static String obtainIssueKey(File analyzedFile) {
 
         String issueKey = null;
@@ -88,6 +121,11 @@ public class JiraXMLIssueRequester {
     }
 
 
+    /*
+    Function responsible for contacting the JIRA's issue URL, and obtaining
+    the XML information, parsing it so that it is possible to write the
+    information for each issue tag obtained.
+     */
     public static void get_response(String issueKey, File outputFile, File csvFile) {
         try {
             String format = "xml";
@@ -226,6 +264,11 @@ public class JiraXMLIssueRequester {
                 }
 
 
+                /*
+                Additional analysis is done here, where from an array of
+                words (patterns), the description and comments from an issue
+                are compared to check if these are discussed inside the issues
+                 */
                 String[] patternNames = {"Abstract Factory", "abstract factory", "Factory Method", "factory method",
                         "Singleton", "singleton","Adapter","adapter","Bridge","bridge",
                         "Composite","composite","Decorator","decorator","Facade","facade","Flyweight","flyweight",
@@ -292,6 +335,11 @@ public class JiraXMLIssueRequester {
         }
     }
 
+    /*
+    Function that receives a String and prints portions of it to a line,
+    so that there's no overflow of characters in a line, making the
+    resulting file hard to read
+     */
     private static List<String> textLimiter(String input, int limit) {
         List<String> returnList = new ArrayList<>();
         String[] parts = input.split(" ");
@@ -308,6 +356,4 @@ public class JiraXMLIssueRequester {
         }
         return returnList;
     }
-
-
 }

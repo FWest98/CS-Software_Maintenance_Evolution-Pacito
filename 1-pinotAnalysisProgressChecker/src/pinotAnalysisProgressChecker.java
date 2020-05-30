@@ -7,19 +7,17 @@ This can have 3 states:
     error analysis (output produced an error);
     blank analysis (an error occurred so no output was produced)
 
-This class receives as an arguments a folder-name in the variable projectName,
+@param This class receives as an arguments a folder-name in the variable projectName,
 which needs to be changed when running the program for different projects.
 
-The input folder needs to be in the same root directory as the project, in this case
+@input The input folder needs to be in the same root directory as the project, in this case
 something like ~/Internship_RuG_2020/1-pinotAnalysisProgressChecker/*hadoop-hdfs-blanks.list*
-
-
 This input is supposed to be 3 different files, which are produced when running
 the script "blank-error-validChecker.sh" on the folder of the pinot analysis output
 The three files are named *projectName*-valid.list, *projectName*-blank.list and
 *projectName*-error.list
 
-The output is a single csv file containing the full analysis, with a list of the commit and
+@outputs The output is a single csv file containing the full analysis, with a list of the commit and
 corresponding analysis.
 This help in understanding how the outputs vary with the evolution of the project
 
