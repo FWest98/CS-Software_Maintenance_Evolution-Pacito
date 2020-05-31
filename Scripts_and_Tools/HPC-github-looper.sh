@@ -2,11 +2,11 @@
 #SBATCH --time=10-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --job-name=pinot_mina
+#SBATCH --job-name=pinot_camel
 #SBATCH --mem=100GB
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=f.a.de.capela@student.rug.nl
-#SBATCH --output=job-%j-pinot_mina.log
+#SBATCH --output=job-%j-pinot_camel.log
 #SBATCH --partition=regular
 
 module load Java/1.7.0_80
@@ -14,21 +14,21 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
-cd /data/s4040112/sourcecodes/mina
+cd /data/s4040112/sourcecodes/camel
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
 
 #depending on the project, the main branch can either be master or trunk
-#git rev-list --reverse master > commitOrder.txt
-git rev-list --reverse trunk > commitOrder.txt
+git rev-list --reverse master > commitOrder.txt
+#git rev-list --reverse trunk > commitOrder.txt
 
 filename=commitOrder.txt
 file_lines=`cat $filename`
 
 #mkdir -p outputs
 
-projectpath="/data/s4040112/sourcecodes/mina/"
-projectname="mina"
+projectpath="/data/s4040112/sourcecodes/camel"
+projectname="camel"
 verbose=false
 TEMP=`getopt --long -o "p:v" "$@"`
 eval set -- "$TEMP"
@@ -64,7 +64,7 @@ find ${projectpath} -name '*.java' > ${projectname}-files.list
 if [ "$verbose" = true ] ; then
 echo "$(<${projectname}-files.list)"
 fi
-/home/s4040112/tools/bin/pinot @${projectname}-files.list 2>&1 | tee /data/s4040112/Pinot_results/Mina_results/$COUNTER-ID-$CURRENT_COMMIT.txt
+/home/s4040112/tools/bin/pinot @${projectname}-files.list 2>&1 | tee /data/s4040112/Pinot_results/Camel_results/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 
 	COUNTER=$((COUNTER+1))

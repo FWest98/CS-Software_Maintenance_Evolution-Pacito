@@ -1,0 +1,440 @@
+
+--------- Original GoF Patterns ----------
+
+Singleton Pattern
+NullWritable is a Singleton class
+THIS is the Singleton instance
+get creates and returns THIS
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/NullWritable.java
+
+
+Decorator Pattern
+GlobFilter is a Decorator class
+accept is a decorate operation
+userFilter of type PathFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/GlobFilter.java
+
+Decorator Pattern
+CompressionInputStream is a Decorator class
+close is a decorate operation
+in of type InputStream is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressionInputStream.java
+
+Decorator Pattern
+CompressionOutputStream is a Decorator class
+close is a decorate operation
+out of type OutputStream is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressionOutputStream.java
+
+Decorator Pattern
+CompressionOutputStream is a Decorator class
+flush is a decorate operation
+out of type OutputStream is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressionOutputStream.java
+
+Chain of Responsibility Pattern
+CompressorStream is a Chain of Responsibility Handler class
+close is a handle operation
+out of type OutputStream propogates the request
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressorStream.java
+
+Chain of Responsibility Pattern
+DecompressorStream is a Chain of Responsibility Handler class
+close is a handle operation
+in of type InputStream propogates the request
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/DecompressorStream.java
+
+Decorator Pattern
+SocketOutputStream is a Decorator class
+close is a decorate operation
+channel of type WritableByteChannel is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/net/SocketOutputStream.java
+
+Chain of Responsibility Pattern
+SaslOutputStream is a Chain of Responsibility Handler class
+write is a handle operation
+outStream of type OutputStream propogates the request
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/security/SaslOutputStream.java
+
+Decorator Pattern
+SaslOutputStream is a Decorator class
+flush is a decorate operation
+outStream of type OutputStream is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/security/SaslOutputStream.java
+
+Decorator Pattern
+SaslOutputStream is a Decorator class
+close is a decorate operation
+outStream of type OutputStream is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/security/SaslOutputStream.java
+
+Decorator Pattern
+DataChecksum is a Decorator class
+getValue is a decorate operation
+summer of type Checksum is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/DataChecksum.java
+
+Decorator Pattern
+DataChecksum is a Decorator class
+reset is a decorate operation
+summer of type Checksum is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/DataChecksum.java
+
+Chain of Responsibility Pattern
+DataChecksum is a Chain of Responsibility Handler class
+update is a handle operation
+summer of type Checksum propogates the request
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/DataChecksum.java
+
+Decorator Pattern
+DataChecksum is a Decorator class
+update is a decorate operation
+summer of type Checksum is the Decoratee class
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/DataChecksum.java
+
+ OutputStream InputStream Checksum
+ PathFilter InputStream OutputStream WritableByteChannel Checksum
+Bridge Pattern.
+CompressorStream is abstract.
+Compressor is an interface.
+CompressorStream delegates Compressor.
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressorStream.java,
+               /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/Compressor.java
+
+Bridge Pattern.
+DecompressorStream is abstract.
+Decompressor is an interface.
+DecompressorStream delegates Decompressor.
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/DecompressorStream.java,
+               /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/Decompressor.java
+
+Strategy Pattern.
+MonitorJob is the Context class.
+Monitored is the Strategy interface.
+Concrete Strategy classes:  LogParser ShellParser HadoopLogParser SystemLogParser CPUParser SensorsParser
+Delegation through job of type Monitored
+File Location: /data/s4040112/sourcecodes/hadoop/src/contrib/failmon/src/java/org/apache/hadoop/contrib/failmon/MonitorJob.java,
+               /data/s4040112/sourcecodes/hadoop/src/contrib/failmon/src/java/org/apache/hadoop/contrib/failmon/Monitored.java
+
+Strategy Pattern.
+HashFunction is the Context class.
+Hash is the Strategy interface.
+Concrete Strategy classes:  JenkinsHash MurmurHash
+Delegation through hashFunction of type Hash
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/bloom/HashFunction.java,
+               /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/hash/Hash.java
+
+Strategy Pattern.
+KVGenerator is the Context class.
+DiscreteRNG is the Strategy interface.
+Concrete Strategy classes:  Flat Zipf Binomial
+Delegation through keyLenRNG of type DiscreteRNG
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/KVGenerator.java,
+               /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/RandomDistribution.java
+
+Strategy Pattern.
+KVGenerator is the Context class.
+DiscreteRNG is the Strategy interface.
+Concrete Strategy classes:  Flat Zipf Binomial
+Delegation through valLenRNG of type DiscreteRNG
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/KVGenerator.java,
+               /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/RandomDistribution.java
+
+Strategy Pattern.
+KeySampler is the Context class.
+DiscreteRNG is the Strategy interface.
+Concrete Strategy classes:  Flat Zipf Binomial
+Delegation through keyLenRNG of type DiscreteRNG
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/KeySampler.java,
+               /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/RandomDistribution.java
+
+Strategy Pattern.
+KFSEmulationImpl is the Context class.
+FileSystem is the Strategy interface.
+Concrete Strategy classes:  FilterFileSystem RawLocalFileSystem NativeS3FileSystem S3FileSystem KosmosFileSystem FTPFileSystem
+Delegation through localFS of type FileSystem
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/fs/kfs/KFSEmulationImpl.java,
+               /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/FileSystem.java
+
+Strategy Pattern.
+RpcMgt is the Context class.
+Server is the Strategy interface.
+Concrete Strategy classes:  Server TestServer TestServer
+Delegation through myServer of type Server
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/ipc/metrics/RpcMgt.java,
+               /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/ipc/Server.java
+
+Flyweight Pattern.
+CommonConfigurationKeys is a flyweight factory.
+IO_NATIVE_LIB_AVAILABLE_KEY is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/CommonConfigurationKeys.java
+
+Flyweight Pattern.
+LocalFileSystemConfigKeys is a flyweight factory.
+LOCAL_FS_BLOCK_SIZE_KEY is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/LocalFileSystemConfigKeys.java
+
+Flyweight Pattern.
+NullWritable is a flyweight factory.
+THIS is a flyweight object.
+get is the getFlyweight method.
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/NullWritable.java
+
+Flyweight Pattern.
+HashFunction is immutable.
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/bloom/HashFunction.java
+
+Flyweight Pattern.
+QuickSort is immutable.
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/QuickSort.java
+
+Flyweight Pattern.
+HeapSort is immutable.
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/HeapSort.java
+
+Flyweight Pattern.
+PolicyProvider is a flyweight factory.
+POLICY_PROVIDER_CONFIG is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/security/authorize/PolicyProvider.java
+
+Flyweight Pattern.
+MetricsBase is a flyweight factory.
+NO_DESCRIPTION is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/metrics/util/MetricsBase.java
+
+Flyweight Pattern.
+NodeBase is a flyweight factory.
+PATH_SEPARATOR_STR is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/net/NodeBase.java
+
+Flyweight Pattern.
+FsConstants is a flyweight factory.
+LOCAL_FS_URI is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/FsConstants.java
+
+Flyweight Pattern.
+S3FileSystemConfigKeys is a flyweight factory.
+S3_BLOCK_SIZE_KEY is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/s3/S3FileSystemConfigKeys.java
+
+Flyweight Pattern.
+S3NativeFileSystemConfigKeys is a flyweight factory.
+S3_NATIVE_BLOCK_SIZE_KEY is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/s3native/S3NativeFileSystemConfigKeys.java
+
+Flyweight Pattern.
+KFSConfigKeys is a flyweight factory.
+KFS_BLOCK_SIZE_KEY is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/kfs/KFSConfigKeys.java
+
+Composite pattern.
+TwoDArrayWritable is the composite class.
+values is the composite instance.
+Writable is the component class.
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/TwoDArrayWritable.java
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/Writable.java
+
+Template Method Found.
+FSOutputSummer is the template class
+writeChecksumChunk is the template method
+writeChunk is a primitive method
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/FSOutputSummer.java
+
+Template Method Found.
+CompressedWritable is the template class
+write is the template method
+writeCompressed is a primitive method
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/CompressedWritable.java
+
+Factory Method pattern.
+WritableFactory is a Factory Method class.
+FsServerDefaults$1 is a concrete Factory Method class.
+newInstance is a factory method returns  FsServerDefaults
+ which extends Writable
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/FsServerDefaults.java
+
+Observer Pattern.
+DataGenerator is an observer iterator.
+FileSystem is the generic type for the listeners.
+genDirStructure is the notify method.
+mkdirs is the update method.
+Subject class(es): DataGenerator
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/fs/loadGenerator/DataGenerator.java
+
+Mediator Pattern.
+Mediator: FSOutputSummer
+Colleagues:  SaslOutputStream PureJavaCrc32 DataChecksum BlockCompressorStream CBZip2OutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/FSOutputSummer.java
+
+Mediator Pattern.
+Mediator: CompressionInputStream
+Colleagues:  LineReader DecompressorStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressionInputStream.java
+
+Mediator Pattern.
+Mediator: CompressionOutputStream
+Colleagues:  CompressorStream BlockCompressorStream SocketOutputStream SaslOutputStream CBZip2OutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressionOutputStream.java
+
+Mediator Pattern.
+Mediator: CompressorStream
+Colleagues:  CompressionOutputStream Compressor BlockCompressorStream SocketOutputStream SaslOutputStream CBZip2OutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/CompressorStream.java
+
+Mediator Pattern.
+Mediator: SocketOutputStream
+Colleagues:  CompressionOutputStream SocketIOWithTimeout CompressorStream SaslOutputStream CBZip2OutputStream Writer
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/net/SocketOutputStream.java
+
+Mediator Pattern.
+Mediator: SaslOutputStream
+Colleagues:  BlockCompressorStream FSOutputSummer CompressorStream SocketOutputStream CBZip2OutputStream CompressionOutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/security/SaslOutputStream.java
+
+Mediator Pattern.
+Mediator: ToolRunner
+Colleagues:  DataGenerator Configurable GenericOptionsParser Tool
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/ToolRunner.java
+
+Mediator Pattern.
+Mediator: FSCmdExecutor
+Colleagues:  CommandExecutor ToolRunner
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/cli/util/CLICommands.java
+
+Mediator Pattern.
+Mediator: BlockCompressorStream
+Colleagues:  CompressionOutputStream Compressor CompressorStream FSOutputSummer SocketOutputStream SaslOutputStream CBZip2OutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/BlockCompressorStream.java
+
+Mediator Pattern.
+Mediator: CBZip2OutputStream
+Colleagues:  CompressionOutputStream CompressorStream SocketOutputStream SaslOutputStream
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/io/compress/bzip2/CBZip2OutputStream.java
+
+Mediator Pattern.
+Mediator: DataChecksum
+Colleagues:  FSOutputSummer PureJavaCrc32
+FileLocation: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/DataChecksum.java
+
+Adapter Pattern.
+Adapting classes:  Object PathFilter
+GlobFilter is an adapter class.
+GlobPattern is the adaptee class.
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/GlobFilter.java
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/GlobPattern.java
+
+Adapter Pattern.
+Adapting classes:  OutputStream Object Flushable Closeable AutoCloseable WritableByteChannel Channel
+SocketOutputStream is an adapter class.
+Writer is the adaptee class.
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/net/SocketOutputStream.java
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/net/SocketOutputStream.java
+
+Facade Pattern.
+GlobFilter is a facade class.
+Hidden types: GlobPattern Path
+Facade access types: GlobFilter
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/fs/GlobFilter.java
+
+Facade Pattern.
+Anonymizer is a facade class.
+Hidden types: SerializedRecord Environment
+Facade access types: Anonymizer
+File Location: /data/s4040112/sourcecodes/hadoop/src/contrib/failmon/src/java/org/apache/hadoop/contrib/failmon/Anonymizer.java
+
+Facade Pattern.
+CPUParser is a facade class.
+Hidden types: Environment EventRecord
+Facade access types: CPUParser
+File Location: /data/s4040112/sourcecodes/hadoop/src/contrib/failmon/src/java/org/apache/hadoop/contrib/failmon/CPUParser.java
+
+Facade Pattern.
+SensorsParser is a facade class.
+Hidden types: Environment EventRecord
+Facade access types: SensorsParser
+File Location: /data/s4040112/sourcecodes/hadoop/src/contrib/failmon/src/java/org/apache/hadoop/contrib/failmon/SensorsParser.java
+
+Facade Pattern.
+KVGenerator is a facade class.
+Hidden types: BytesWritable WritableComparator
+Facade access types: KVGenerator
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/KVGenerator.java
+
+Facade Pattern.
+KeySampler is a facade class.
+Hidden types: RawComparable BytesWritable
+Facade access types: KeySampler
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/io/file/tfile/KeySampler.java
+
+Facade Pattern.
+QuickSort is a facade class.
+Hidden types: IndexedSortable Progressable
+Facade access types: QuickSort
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/QuickSort.java
+
+Facade Pattern.
+HeapSort is a facade class.
+Hidden types: IndexedSortable Progressable
+Facade access types: HeapSort
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/HeapSort.java
+
+Facade Pattern.
+ToolRunner is a facade class.
+Hidden types: GenericOptionsParser Configurable Tool
+Facade access types: FSCmdExecutor DataGenerator
+File Location: /data/s4040112/sourcecodes/hadoop/src/java/org/apache/hadoop/util/ToolRunner.java
+
+Facade Pattern.
+DataGenerator is a facade class.
+Hidden types: ToolRunner Configuration FSDataOutputStream
+Facade access types: DataGenerator
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/fs/loadGenerator/DataGenerator.java
+
+Facade Pattern.
+KFSEmulationImpl is a facade class.
+Hidden types: FileSystem Path FileStatus BlockLocation
+Facade access types: KFSEmulationImpl
+File Location: /data/s4040112/sourcecodes/hadoop/src/test/core/org/apache/hadoop/fs/kfs/KFSEmulationImpl.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   1
+------------------------------
+Structural Patterns
+==============================
+Adapter                     2
+Bridge                      2
+Composite                   1
+Decorator                   5
+Facade                     11
+Flyweight                  13
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     3
+Mediator                   11
+Observer                    1
+State                       0
+Strategy                    7
+Template Method             2
+Visitor                     0
+------------------------------
+
+Number of classes processed: 166
+Number of files processed: 613
+Size of DelegationTable: 779
+Size of concrete class nodes: 119
+Size of undirected invocation edges: 72
+
+
+nMediatorFacadeDual/nMediator = 1/11
+nImmutable/nFlyweight = 3/13
+nFlyweightGoFVersion = 0

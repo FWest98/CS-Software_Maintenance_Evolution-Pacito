@@ -1,0 +1,365 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPreAdd is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+exceptionCaught is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+filterClose is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+filterWrite is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+messageReceived is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+messageSent is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPostAdd is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPreRemove is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionClosed is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionCreated is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionIdle is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionOpened is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+
+ IoFilter
+Bridge Pattern.
+IoFilterAdapter is abstract.
+NextFilter is an interface.
+IoFilterAdapter delegates NextFilter.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/filterchain/IoFilterAdapter.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/filterchain/IoFilter.java
+
+Bridge Pattern.
+CompositeByteArrayRelativeBase is abstract.
+Cursor is an interface.
+CompositeByteArrayRelativeBase delegates Cursor.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/byteaccess/CompositeByteArrayRelativeBase.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/byteaccess/ByteArray.java
+
+Bridge Pattern.
+TextLineDecoder is abstract.
+IoSession is an interface.
+TextLineDecoder delegates IoSession.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/session/IoSession.java
+
+Bridge Pattern.
+TextLineDecoder is abstract.
+ProtocolDecoderOutput is an interface.
+TextLineDecoder delegates ProtocolDecoderOutput.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput.java
+
+Bridge Pattern.
+AbstractMessageDecoder is abstract.
+ProtocolDecoderOutput is an interface.
+AbstractMessageDecoder delegates ProtocolDecoderOutput.
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AbstractMessageDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput.java
+
+Strategy Pattern.
+IoServiceStatistics is the Context class.
+AbstractIoService is the Strategy interface.
+Concrete Strategy classes:  AbstractIoConnector AbstractIoAcceptor
+Delegation through service of type AbstractIoService
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/service/IoServiceStatistics.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/service/AbstractIoService.java
+
+Strategy Pattern.
+Node is the Context class.
+ByteArray is the Strategy interface.
+Concrete Strategy classes:  AbstractByteArray
+Delegation through ba of type ByteArray
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/byteaccess/ByteArrayList.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/byteaccess/ByteArray.java
+
+Strategy Pattern.
+Context is the Context class.
+IoBuffer is the Strategy interface.
+Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
+Delegation through buf of type IoBuffer
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/buffer/IoBuffer.java
+
+Strategy Pattern.
+VmPipe is the Context class.
+IoHandler is the Strategy interface.
+Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ServerToProxyIoHandler
+Delegation through handler of type IoHandler
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/service/IoHandler.java
+
+Strategy Pattern.
+DecodingContext is the Context class.
+IoBuffer is the Strategy interface.
+Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
+Delegation through decodedBuffer of type IoBuffer
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/proxy/utils/IoBufferDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/buffer/IoBuffer.java
+
+Strategy Pattern.
+DecodingContext is the Context class.
+IoBuffer is the Strategy interface.
+Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
+Delegation through delimiter of type IoBuffer
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/proxy/utils/IoBufferDecoder.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/buffer/IoBuffer.java
+
+Strategy Pattern.
+SingletonStateContextLookup is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/SingletonStateContextLookup.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext.java
+
+Strategy Pattern.
+ImageCodecFactory is the Context class.
+ProtocolEncoder is the Strategy interface.
+Concrete Strategy classes:  DemuxingProtocolEncoder ProtocolEncoderAdapter SynchronizedProtocolEncoder MyResponseEncoder ImageRequestEncoder TextLineEncoder ObjectSerializationEncoder PrefixedStringEncoder ImageResponseEncoder
+Delegation through encoder of type ProtocolEncoder
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageCodecFactory.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder.java
+
+Strategy Pattern.
+ImageCodecFactory is the Context class.
+ProtocolDecoder is the Strategy interface.
+Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder DecodingStateProtocolDecoder PrefixedStringDecoder ImageResponseDecoder ImageRequestDecoder
+Delegation through decoder of type ProtocolDecoder
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageCodecFactory.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder.java
+
+Flyweight Pattern.
+IoSessionRecycler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/session/IoSessionRecycler.java
+
+Flyweight Pattern.
+IoEventQueueHandler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/executor/IoEventQueueHandler.java
+
+Flyweight Pattern.
+MessageDecoder is a flyweight factory.
+OK is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/demux/MessageDecoder.java
+
+Flyweight Pattern.
+SocksProxyConstants is a flyweight factory.
+KERBEROS_V5_OID is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/proxy/handlers/socks/SocksProxyConstants.java
+
+Flyweight Pattern.
+HttpProxyConstants is a flyweight factory.
+CONNECT is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/proxy/handlers/http/HttpProxyConstants.java
+
+Flyweight Pattern.
+MD4Provider is a flyweight factory.
+PROVIDER_NAME is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/proxy/utils/MD4Provider.java
+
+Template Method Found.
+AbstractIoSessionConfig is the template class
+setAll is the template method
+doSetAll is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/session/AbstractIoSessionConfig.java
+
+Factory Method pattern.
+StateContextFactory is a Factory Method class.
+DefaultStateContextFactory is a concrete Factory Method class.
+create is a factory method returns  DefaultStateContext
+ which extends StateContext
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/DefaultStateContextFactory.java
+
+Proxy Pattern.
+ClientPanel is a proxy.
+JPanel is a proxy interface.
+The real object(s): JTextField
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/udp/ClientPanel.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineEncoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineDecoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationEncoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationDecoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+PrefixedStringCodecFactory is an adapter class.
+PrefixedStringEncoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+PrefixedStringCodecFactory is an adapter class.
+PrefixedStringDecoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringCodecFactory.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringDecoder.java
+
+Facade Pattern.
+IoServiceStatistics is a facade class.
+Hidden types: IoServiceListenerSupport AbstractIoService
+Facade access types: IoServiceStatistics
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/core/service/IoServiceStatistics.java
+
+Facade Pattern.
+TextLineDecoder is a facade class.
+Hidden types: LineDelimiter IoSession IoBuffer ProtocolDecoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+Facade Pattern.
+TextLineEncoder is a facade class.
+Hidden types: IoSession IoBuffer LineDelimiter ProtocolEncoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Facade Pattern.
+ObjectSerializationEncoder is a facade class.
+Hidden types: IoBuffer ProtocolEncoderOutput
+Facade access types: ObjectSerializationCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder.java
+
+Facade Pattern.
+PrefixedStringDecoder is a facade class.
+Hidden types: IoBuffer ProtocolDecoderOutput
+Facade access types: PrefixedStringCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringDecoder.java
+
+Facade Pattern.
+PrefixedStringEncoder is a facade class.
+Hidden types: IoBuffer ProtocolEncoderOutput
+Facade access types: PrefixedStringCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringEncoder.java
+
+Facade Pattern.
+ImageResponseDecoder is a facade class.
+Hidden types: IoSession IoBuffer ProtocolDecoderOutput
+Facade access types: ImageResponseDecoder
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseDecoder.java
+
+Facade Pattern.
+ImageResponseEncoder is a facade class.
+Hidden types: ImageResponse IoBuffer ProtocolEncoderOutput
+Facade access types: ImageResponseEncoder
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseEncoder.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     6
+Bridge                      5
+Composite                   0
+Decorator                   1
+Facade                      8
+Flyweight                   6
+Proxy                       1
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    9
+Template Method             1
+Visitor                     0
+------------------------------
+
+Number of classes processed: 156
+Number of files processed: 559
+Size of DelegationTable: 634
+Size of concrete class nodes: 82
+Size of undirected invocation edges: 73
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/6
+nFlyweightGoFVersion = 0
