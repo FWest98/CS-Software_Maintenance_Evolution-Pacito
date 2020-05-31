@@ -25,7 +25,7 @@ public class CommitComparator {
     private static int counter = 1;
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "outputs-flink";
+    private static String analyzedProject = "Hadoop_results";
 
     public static void main(String[] args) throws IOException {
 
