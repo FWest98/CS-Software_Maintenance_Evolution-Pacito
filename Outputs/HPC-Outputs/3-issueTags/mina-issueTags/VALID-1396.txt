@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 58d114a15ce4dca264184af42dd83f3ea5e37d54
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1396.txt 
+
+commit 58d114a15ce4dca264184af42dd83f3ea5e37d54
+Author: Trustin Lee <trustin@apache.org>
+
+    Moved the duplicated code in (Un)OrderedThreadPoolExecutor to IoEventQueueHandler

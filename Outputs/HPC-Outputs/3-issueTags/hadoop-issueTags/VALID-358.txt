@@ -1,0 +1,22 @@
+Pattern changes caused by commit: c6bc36580ac93f54ab4063b37fd771d2efa36bc4
+
+From: Adapter-1
+To:   Adapter-2
+
+From: Decorator-4
+To:   Decorator-5
+
+From: Facade-10
+To:   Facade-11
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-358.txt 
+
+commit c6bc36580ac93f54ab4063b37fd771d2efa36bc4
+Author: Eli Collins <eli@apache.org>
+
+    HADOOP-6787. Factor out glob pattern code from FileContext and FileSystem. Contributed by Luke Lu.

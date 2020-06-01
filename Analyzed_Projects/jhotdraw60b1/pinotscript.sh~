@@ -1,5 +1,5 @@
 #!/bin/bash
-projectpath="/home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/jhotdraw60b1/"
+projectpath="/home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/jhotdraw60b1"
 projectname="jhotdraw"
 verbose=false
 TEMP=`getopt --long -o "p:v" "$@"`

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 894f68eac0ed4e45279316ea594b977174830420
+
+From: Bridge-4
+To:   Bridge-5
+
+From: Strategy-9
+To:   Strategy-10
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1522.txt 
+
+commit 894f68eac0ed4e45279316ea594b977174830420
+Author: Mark Webb <mwebb@apache.org>
+
+    Adding in the Composite IoBuffer code.  This is the initial check-in of the code.  I have verified all of the unit tests and code for any problems.

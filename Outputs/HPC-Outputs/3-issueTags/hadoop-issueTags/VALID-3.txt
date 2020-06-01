@@ -1,0 +1,22 @@
+Pattern changes caused by commit: cab0a4bf543f58600ae8499f5b219a452f89c827
+
+From: Facade-7
+To:   Facade-10
+
+From: Flyweight-12
+To:   Flyweight-13
+
+From: Strategy-3
+To:   Strategy-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3.txt 
+
+commit cab0a4bf543f58600ae8499f5b219a452f89c827
+Author: Owen O'Malley <omalley@apache.org>
+
+    HADOOP-4687 split the contrib dirs

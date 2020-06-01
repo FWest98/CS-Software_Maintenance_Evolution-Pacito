@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a1ac465be361ff478f9b66147731e588fef64ff3
+
+From: Facade-7
+To:   Facade-8
+
+From: Strategy-3
+To:   Strategy-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-323.txt 
+
+commit a1ac465be361ff478f9b66147731e588fef64ff3
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-276. Bookkeeper contribution (Flavio and Luca Telloli via mahadev)

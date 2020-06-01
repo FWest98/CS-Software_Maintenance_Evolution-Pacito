@@ -25,9 +25,7 @@ echo "Project path is NOT set"
 return
 fi
 if [[ $CLASSPATH != *"rt.jar"* ]] ; then
-export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/jdk1.8.0_251/jre/lib/\
-:/usr/lib/jvm/jdk1.8.0_251/jre/lib/rt.jar\
-:/usr/lib/jvm/jdk1.8.0_251/jre/bin/
+export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/jdk1.6.0_45/jre/lib/rt.jar
 fi
 
 #don't forget to run sudo updatedb, since locate finds all files but needs to be updated using this command
