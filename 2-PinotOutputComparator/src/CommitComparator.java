@@ -175,24 +175,23 @@ public class CommitComparator {
 
         File resultFile;
 
-        if (firstPatterns.equals(secondPatterns)){
-            resultFile = new File(".\\results-" + analyzedProject + "\\" + "No_differences-" + counter + ".txt");
-        }else{
+        if (!firstPatterns.equals(secondPatterns)){
             resultFile = new File(".\\results-" + analyzedProject + "\\" + "VALID-" + counter + ".txt");
+            //resultFile = new File(".\\results-" + analyzedProject + "\\" + "No_differences-" + counter + ".txt");
+
+            FileWriter writer = new FileWriter(resultFile);
+            BufferedWriter buffer = new BufferedWriter(writer);
+
+            buffer.write("Pattern changes caused by commit: " +  commitHash + "\n\n");
+
+            for (int i = 0; i < firstPatterns.size()-1; i++) {
+                if (!(firstPatterns.get(i).equals(secondPatterns.get(i)))){
+                    buffer.write("From: " + firstPatterns.get(i) + "\nTo:   " + secondPatterns.get(i) + "\n\n");
+                }
+            }
+            buffer.close();
         }
         counter++;
-
-        FileWriter writer = new FileWriter(resultFile);
-        BufferedWriter buffer = new BufferedWriter(writer);
-
-        buffer.write("Pattern changes caused by commit: " +  commitHash + "\n\n");
-
-        for (int i = 0; i < firstPatterns.size()-1; i++) {
-            if (!(firstPatterns.get(i).equals(secondPatterns.get(i)))){
-                buffer.write("From: " + firstPatterns.get(i) + "\nTo:   " + secondPatterns.get(i) + "\n\n");
-            }
-        }
-        buffer.close();
     }
 
     ///////////////////////

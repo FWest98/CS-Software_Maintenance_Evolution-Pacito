@@ -4,6 +4,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,7 +21,9 @@ system, to obtain information regarding several issue tags
 found on commit messages.
 
 @param the analyzedProject String needs to be changed to the name
-of the folder containing the issueTags from a certain project
+of the folder containing the issueTags from a certain project.
+VERY IMPORTANT: in the obtainIssueKey function, you will need to add 
+a line.contains() with the issueTag of the project you intend to analyze.
 
 @input a folder containing files holding the result from script
 issueTagExtractor.
@@ -88,11 +91,13 @@ public class JiraXMLIssueRequester {
     Function that scans a file which holds a commit message and
     checks if the projects issue tag is present.
 
-    NOTE: You will need to add the issue tag from the project you are analyzing
+    NOTE: You will need to add the issue tag from the project you are analyzing to the projectSpecificTags array
      */
     public static String obtainIssueKey(File analyzedFile) {
 
         String issueKey = null;
+
+        String[] projectSpecificTags = {"ZOOKEEPER-", "DIRMINA-", "HDFS-", "CASSANDRA-"};
 
         BufferedReader reader;
         try {
@@ -100,6 +105,17 @@ public class JiraXMLIssueRequester {
             String line = reader.readLine();
             while (line != null) {
 
+                if (stringContainsItemFromList(line,projectSpecificTags)){
+                    String[] segments = line.split(" |\\.|:|\\(|\\)");
+
+                    for (String segment : segments) {
+                        if(stringContainsItemFromList(segment,projectSpecificTags)){
+                            issueKey = segment;
+                        }
+                    }
+
+                }
+                /*
                 if (line.contains("ZOOKEEPER-") || line.contains("DIRMINA-") || line.contains("HDFS-") || line.contains("CASSANDRA-")) {
                     String[] segments = line.split(" |\\.|:|\\(|\\)");
 
@@ -109,6 +125,7 @@ public class JiraXMLIssueRequester {
                         }
                     }
                 }
+                 */
 
                 line = reader.readLine();
             }
@@ -118,6 +135,14 @@ public class JiraXMLIssueRequester {
         }
 
         return issueKey;
+    }
+
+    /*
+    Function to check if a String contains any word from an array of Strings
+    https://stackoverflow.com/a/8995988
+     */
+    public static boolean stringContainsItemFromList(String inputStr, String[] items) {
+        return Arrays.stream(items).parallel().anyMatch(inputStr::contains);
     }
 
 
@@ -274,7 +299,10 @@ public class JiraXMLIssueRequester {
                         "Composite","composite","Decorator","decorator","Facade","facade","Flyweight","flyweight",
                         "Proxy","proxy","Chain of Responsibility","chain of responsibility","Mediator","mediator",
                         "Observer","observer"," State "," state ","Strategy","strategy","Template Method","template method",
-                        "Visitor","visitor","Pattern","pattern"};
+                        "Visitor","visitor","Pattern","pattern", "factory","Factory", "adapt", "decorate", "mediate", "observe",
+                        "Builder","builder","prototype","Prototype","Command","command","Interpreter","interpreter","interprete",
+                        "Iterator","iterator","iterate","Memento","memento","template","Template", "Visitor", "visitor",
+                        "visit","chain", "Chain"};
 
                 for (String patternInstance : patternNames) {
                     if (summary.contains(patternInstance)) {
