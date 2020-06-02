@@ -12,7 +12,6 @@ public class Main {
         BufferedReader listOfFilesBReader = new BufferedReader(listOfFilesFReader);
 
         List<File> projectFiles = new ArrayList<>();
-        List<String> genericTypes = new ArrayList<>();
 
         String line;
         while ((line = listOfFilesBReader.readLine()) != null) {
@@ -25,6 +24,8 @@ public class Main {
 
         if (projectFiles != null) {
             for (File analysedFile : projectFiles) {
+
+                List<String> genericTypes = new ArrayList<>();
 
                 FileReader tempFR = new FileReader(analysedFile);
                 BufferedReader tempBR = new BufferedReader(tempFR);
@@ -39,27 +40,29 @@ public class Main {
                 String fileline;
                 while ((fileline = tempBR.readLine()) != null) {
 
-                    for (String genericType : genericTypes) {
-                        if (fileline.contains(genericType)){
-                            fileline = fileline.replace(genericType, "Object");
+                    if (!fileline.contains(" *")) {
+
+                        for (String genericType : genericTypes) {
+                            if (fileline.contains(genericType)) {
+                                fileline = fileline.replace(genericType, "Object");
+                            }
+                        }
+
+                        if (fileline.contains("@")) {
+                            if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
+                                String annotation = fileline.substring(fileline.indexOf("@"), fileline.indexOf(" ", fileline.indexOf("@")));
+                                fileline = fileline.replace(annotation + " ", "");
+                            }
+                        }
+
+                        if (fileline.contains("<") && fileline.contains(">")) {
+                            String regex = "(?<=<)(.*?)(?=>)";
+                            System.out.println(fileline);
+                            String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
+                            genericTypes.add(newGenericType);
+                            fileline = fileline.replaceAll(regex, "Object");
                         }
                     }
-
-                    if (fileline.contains("@")){
-                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1){
-                            String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@")));
-                            fileline = fileline.replace(annotation+" ","");
-                        }
-                    }
-
-                    if (fileline.contains("<") && fileline.contains(">")){
-                        String regex = "(?<=<)(.*?)(?=>)";
-                        System.out.println(fileline);
-                        String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
-                        genericTypes.add(newGenericType);
-                        fileline = fileline.replaceAll(regex, "Object");
-                    }
-
                     newFileBW.write(fileline+"\r\n");
 
                 }
