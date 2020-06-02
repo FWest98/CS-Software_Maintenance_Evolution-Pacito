@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -12,8 +13,8 @@ public class Main {
         FileReader listOfFilesFReader = new FileReader(projectName + "-files.list");
         BufferedReader listOfFilesBReader = new BufferedReader(listOfFilesFReader);
 
-        List<File> projectFiles = null;
-        List<String> genericTypes = null;
+        List<File> projectFiles = new ArrayList<>();
+        List<String> genericTypes = new ArrayList<>();
 
         String line;
         while ((line = listOfFilesBReader.readLine()) != null) {
