@@ -17,6 +17,7 @@ public class Main {
 
         String line;
         while ((line = listOfFilesBReader.readLine()) != null) {
+            System.out.println(line);
             projectFiles.add(new File(line));
         }
 
