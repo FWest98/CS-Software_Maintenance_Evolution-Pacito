@@ -16,7 +16,6 @@ public class Main {
 
         String line;
         while ((line = listOfFilesBReader.readLine()) != null) {
-            System.out.println(line);
             projectFiles.add(new File(line));
         }
 
@@ -54,8 +53,7 @@ public class Main {
                     }
 
                     if (fileline.contains("<") && fileline.contains(">")){
-                        System.out.println(fileline);
-                        String regex = "(?<=<)(.*?)(?=>)+";
+                        //String regex = "(?<=<)(.*?)(?=>)";
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
                         fileline = fileline.replaceAll(newGenericType, "Object");
