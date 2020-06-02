@@ -53,10 +53,10 @@ public class Main {
                     }
 
                     if (fileline.contains("<") && fileline.contains(">")){
-                        //String regex = "(?<=<)(.*?)(?=>)";
+                        String regex = "(?<=<)(.*?)(?=>)";
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
-                        fileline = fileline.replaceAll(newGenericType, "Object");
+                        fileline = fileline.replaceAll(regex, "Object");
                     }
 
                     newFileBW.write(fileline+"\r\n");
