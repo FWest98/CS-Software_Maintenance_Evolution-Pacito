@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -54,11 +53,12 @@ public class Main {
                         }
                     }
 
-                    if (Pattern.matches("(?<=<)(.*?)(?=>)+", fileline)){
+                    if (fileline.contains("<") && fileline.contains(">")){
                         System.out.println(fileline);
+                        String regex = "(?<=<)(.*?)(?=>)+";
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
-                        fileline = fileline.replace(newGenericType, "Object");
+                        fileline = fileline.replaceAll(newGenericType, "Object");
                     }
 
                     newFileBW.write(fileline+"\r\n");
