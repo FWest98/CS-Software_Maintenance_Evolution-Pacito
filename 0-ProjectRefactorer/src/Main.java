@@ -62,15 +62,11 @@ public class Main {
                 }
                 newFileBW.flush();
                 newFileFW.flush();
-                newFileBW.close();
-                newFileFW.close();
+
             }
         }
-
         newListOfFilesBW.flush();
-        newListOfFilesBW.close();
         newListOfFilesFW.flush();
-        newListOfFilesFW.close();
 
     }
 }
