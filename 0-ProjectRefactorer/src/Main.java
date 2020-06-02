@@ -1,5 +1,4 @@
 import java.io.*;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -50,18 +49,19 @@ public class Main {
 
                     if (fileline.contains("@")){
                         if (fileline.indexOf(" ", fileline.indexOf("@")) != -1){
-                            String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@"))-1);
-                            fileline = fileline.replace(annotation,"");
+                            String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@")));
+                            fileline = fileline.replace(annotation+" ","");
                         }
                     }
 
                     if (Pattern.matches("/[<>]+", fileline)){
+                        System.out.println(fileline);
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
                         fileline = fileline.replace(newGenericType, "Object");
                     }
 
-                    newFileBW.write(fileline);
+                    newFileBW.write(fileline+"\n");
 
                 }
                 newFileBW.flush();
