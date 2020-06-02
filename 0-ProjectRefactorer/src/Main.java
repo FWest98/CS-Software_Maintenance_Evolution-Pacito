@@ -42,16 +42,19 @@ public class Main {
                 String fileline;
                 while ((fileline = tempBR.readLine()) != null) {
 
+                    System.out.println(fileline);
+
                     for (String genericType : genericTypes) {
                         if (fileline.contains(genericType)){
                             fileline.replace(genericType, "Object");
-                            newFileBW.write(fileline);
                         }
                     }
 
                     if (fileline.contains("@")){
-                        String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@")));
-                        newFileBW.write(fileline.replace(annotation,""));
+                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1){
+                            String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@"))-1);
+                            fileline.replace(annotation,"");
+                        }
                     }
 
                     if (Pattern.matches("/[<>]+", fileline)){
@@ -59,6 +62,9 @@ public class Main {
                         genericTypes.add(newGenericType);
                         fileline.replace(newGenericType, "Object");
                     }
+
+                    newFileBW.write(fileline);
+
                 }
                 newFileBW.flush();
                 newFileFW.flush();
