@@ -54,7 +54,7 @@ public class Main {
                         }
                     }
 
-                    if (Pattern.matches("/(?<=\\<)(.*?)(?=\\>)+", fileline)){
+                    if (Pattern.matches("(?<=<)(.*?)(?=>)+", fileline)){
                         System.out.println(fileline);
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
