@@ -42,25 +42,23 @@ public class Main {
                 String fileline;
                 while ((fileline = tempBR.readLine()) != null) {
 
-                    System.out.println(fileline);
-
                     for (String genericType : genericTypes) {
                         if (fileline.contains(genericType)){
-                            fileline.replace(genericType, "Object");
+                            fileline = fileline.replace(genericType, "Object");
                         }
                     }
 
                     if (fileline.contains("@")){
                         if (fileline.indexOf(" ", fileline.indexOf("@")) != -1){
                             String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@"))-1);
-                            fileline.replace(annotation,"");
+                            fileline = fileline.replace(annotation,"");
                         }
                     }
 
                     if (Pattern.matches("/[<>]+", fileline)){
                         String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
                         genericTypes.add(newGenericType);
-                        fileline.replace(newGenericType, "Object");
+                        fileline = fileline.replace(newGenericType, "Object");
                     }
 
                     newFileBW.write(fileline);
