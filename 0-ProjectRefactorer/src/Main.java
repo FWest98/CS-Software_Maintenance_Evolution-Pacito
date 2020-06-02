@@ -61,7 +61,7 @@ public class Main {
                         fileline = fileline.replace(newGenericType, "Object");
                     }
 
-                    newFileBW.write(fileline+"\n");
+                    newFileBW.write(fileline+"\r\n");
 
                 }
                 newFileBW.flush();
