@@ -25,43 +25,45 @@ public class Main {
         BufferedWriter newListOfFilesBW = new BufferedWriter(newListOfFilesFW);
 
 
-        for (File analysedFile : projectFiles) {
+        if (projectFiles != null) {
+            for (File analysedFile : projectFiles) {
 
-            FileReader tempFR = new FileReader(analysedFile);
-            BufferedReader tempBR = new BufferedReader(tempFR);
+                FileReader tempFR = new FileReader(analysedFile);
+                BufferedReader tempBR = new BufferedReader(tempFR);
 
-            String newFilePath = analysedFile.getCanonicalPath().replace(".java","refactored.java");
+                String newFilePath = analysedFile.getCanonicalPath().replace(".java","refactored.java");
 
-            FileWriter newFileFW = new FileWriter(new File(newFilePath));
-            BufferedWriter newFileBW = new BufferedWriter(newFileFW);
+                FileWriter newFileFW = new FileWriter(new File(newFilePath));
+                BufferedWriter newFileBW = new BufferedWriter(newFileFW);
 
-            newListOfFilesBW.write(newFilePath+"\n");
+                newListOfFilesBW.write(newFilePath+"\n");
 
-            String fileline;
-            while ((fileline = tempBR.readLine()) != null) {
+                String fileline;
+                while ((fileline = tempBR.readLine()) != null) {
 
-                for (String genericType : genericTypes) {
-                    if (fileline.contains(genericType)){
-                        fileline.replace(genericType, "Object");
-                        newFileBW.write(fileline);
+                    for (String genericType : genericTypes) {
+                        if (fileline.contains(genericType)){
+                            fileline.replace(genericType, "Object");
+                            newFileBW.write(fileline);
+                        }
+                    }
+
+                    if (fileline.contains("@")){
+                        String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@")));
+                        newFileBW.write(fileline.replace(annotation,""));
+                    }
+
+                    if (Pattern.matches("/[<>]+", fileline)){
+                        String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
+                        genericTypes.add(newGenericType);
+                        fileline.replace(newGenericType, "Object");
                     }
                 }
-
-                if (fileline.contains("@")){
-                    String annotation = fileline.substring(fileline.indexOf("@"),fileline.indexOf(" ", fileline.indexOf("@")));
-                    newFileBW.write(fileline.replace(annotation,""));
-                }
-
-                if (Pattern.matches("/[<>]+", fileline)){
-                    String newGenericType = fileline.substring(fileline.indexOf("<")+1, fileline.indexOf(">"));
-                    genericTypes.add(newGenericType);
-                    fileline.replace(newGenericType, "Object");
-                }
+                newFileBW.flush();
+                newFileFW.flush();
+                newFileBW.close();
+                newFileFW.close();
             }
-            newFileBW.flush();
-            newFileFW.flush();
-            newFileBW.close();
-            newFileFW.close();
         }
 
         newListOfFilesBW.flush();
