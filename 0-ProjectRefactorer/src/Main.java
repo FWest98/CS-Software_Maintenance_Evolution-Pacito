@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String projectName = "mina";
+        String projectName = args[0];
 
         FileReader listOfFilesFReader = new FileReader(projectName + "-files.list");
         BufferedReader listOfFilesBReader = new BufferedReader(listOfFilesFReader);
