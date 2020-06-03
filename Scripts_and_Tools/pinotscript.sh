@@ -24,13 +24,11 @@ if [ "$projectpath" = "" ] ; then
 echo "Project path is NOT set"
 return
 fi
-source /etc/profile
+#source /etc/profile
 
 #if [[ $CLASSPATH != *"rt.jar"* ]] ; then
-#export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/jdk1.6.0_45/jre/lib/\
-#:/usr/lib/jvm/jdk1.6.0_45/jre/lib/rt.jar\
-#:/usr/lib/jvm/jdk1.6.0_45/jre/bin/\
-#:/home/filipe/Desktop/Internship_RuG_2020/Scripts_and_Tools/pinot-src/lib/rt.jar
+export CLASSPATH=
+export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar
 #fi
 
 #don't forget to run sudo updatedb, since locate finds all files but needs to be updated using this command
@@ -38,10 +36,12 @@ source /etc/profile
 find ${projectpath} -name '*.java' > ${projectname}-files.list
 #locate ${projectpath}**.java > ${projectname}-files.list
 
+java -jar ~/Desktop/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname delete
+
 if [ "$verbose" = true ] ; then
 echo "$(<${projectname}-files.list)"
 fi
-pinot @${projectname}-files.list 2>&1 | tee "pinot-ergebnis-${projectname}.txt"
+pinot @${projectname}-newfiles.list 2>&1 | tee "pinot-ergebnis-${projectname}.txt"
 #rm ${projectname}-files.list
 
 
