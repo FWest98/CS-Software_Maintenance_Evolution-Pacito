@@ -33,7 +33,9 @@ public class Main {
             String fileline;
 
             while ((fileline = tempBR.readLine()) != null) {
+                //Condition to not check comment lines
                 if (!fileline.contains(" *")) {
+                    //Loop through all found GenericTypes so far
                     for (String genericType : genericTypes) {
                         if (fileline.contains(genericType)) {
                             fileline = fileline.replace(genericType, "Object");
@@ -41,7 +43,8 @@ public class Main {
                     }
                     if (fileline.contains("@")) {
                         if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
-                            String annotation = fileline.substring(fileline.indexOf("@"), fileline.indexOf(" ", fileline.indexOf("@")));
+                            String annotation = fileline.substring(fileline.indexOf("@"),
+                                    fileline.indexOf(" ", fileline.indexOf("@")));
                             fileline = fileline.replace(annotation + " ", "");
                         }
                     }
@@ -49,7 +52,13 @@ public class Main {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
                             String regex = "<(?<=<)(.*?)(?=>)>";
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
-                            genericTypes.add(newGenericType);
+
+                            String[] multipleGenericTypes = newGenericType.replaceAll("<|>",",")
+                                    .split(",");
+
+                            for (String genericType: multipleGenericTypes) {
+                                genericTypes.add(genericType);
+                            }
                             fileline = fileline.replaceAll(regex, "");
                         }
                     }
