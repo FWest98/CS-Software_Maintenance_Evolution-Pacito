@@ -79,7 +79,7 @@ public class Main {
         }
         newListOfFilesBW.flush();
         newListOfFilesFW.flush();
-
+        /*
         if (args[1] != null){
             // This portion of the code is used to delete the new files in the end (if necessary)
             FileReader newListOfFilesFReader = new FileReader(projectName+"-files.list");
@@ -90,5 +90,7 @@ public class Main {
                 fileToDelete.deleteOnExit();
             }
         }
+
+         */
     }
 }
