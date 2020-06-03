@@ -50,9 +50,8 @@ public class Main {
                     }
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
-                            String newRegex = "(?<=[^[A-Za-z0-9])([A-Z])(?=[^[A-Za-z0-9])";
+                            String newRegex = "(?<=[^A-Za-z0-9])([A-Z])(?=[^A-Za-z0-9])";
                             String regex = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
-
 
                             /*
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
