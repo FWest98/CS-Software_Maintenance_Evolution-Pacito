@@ -50,9 +50,12 @@ public class Main {
                     }
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
+                            String newRegex = "(?<=[^[:alnum])([A-Z])(?=[^[:alnum])";
                             String regex = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
-                            String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
 
+
+                            /*
+                            String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
                             // If it is a nested generic
                             if (newGenericType.contains("<")){
                                 newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">")+1);
@@ -63,7 +66,6 @@ public class Main {
 
                                 //System.out.println("newGen2" + newGenericType);
                             }
-
                             String[] multipleGenericTypes = newGenericType.split(",");
 
                             for (String genericType: multipleGenericTypes) {
@@ -79,7 +81,9 @@ public class Main {
                                     }
                                 }
                             }
+                            */
                             fileline = fileline.replaceAll(regex, "");
+                            fileline = fileline.replace(newRegex, "Object");
                         }
                     }
                 }
@@ -87,9 +91,14 @@ public class Main {
             }
             newFileBW.flush();
             newFileFW.flush();
+            newFileBW.close();
+            newFileFW.close();
+
         }
         newListOfFilesBW.flush();
         newListOfFilesFW.flush();
+        newListOfFilesBW.close();
+        newListOfFilesFW.close();
         /*
         if (args[1] != null){
             // This portion of the code is used to delete the new files in the end (if necessary)
@@ -104,4 +113,5 @@ public class Main {
 
          */
     }
+
 }
