@@ -58,7 +58,7 @@ public class Main {
                         if (fileline.contains("<") && fileline.contains(">")) {
 
                             if(fileline.indexOf("<") < fileline.indexOf(">")){
-                                String regex = "(?<=<)(.*?)(?=>)";
+                                String regex = "<(?<=<)(.*?)(?=>)>";
                                 System.out.println(fileline);
                                 String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
                                 genericTypes.add(newGenericType);
