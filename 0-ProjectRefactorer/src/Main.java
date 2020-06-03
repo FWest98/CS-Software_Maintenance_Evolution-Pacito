@@ -54,8 +54,11 @@ public class Main {
                             
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
 
+                            System.out.println("newGen" + newGenericType);
+
                             if (newGenericType.contains("<")){
                                 newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">")+1);
+                                System.out.println("newGen2" + newGenericType);
                             }
 
                             String[] multipleGenericTypes = newGenericType.replaceAll("<|>",",")
