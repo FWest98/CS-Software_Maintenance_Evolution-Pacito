@@ -35,24 +35,12 @@ public class Main {
             while ((fileline = tempBR.readLine()) != null) {
                 //Condition to not check comment lines
                 if (!fileline.contains(" *")) {
-                    //Loop through all found GenericTypes so far
-                    for (String genericType : genericTypes) {
-                        if (fileline.contains(genericType)) {
-                            fileline = fileline.replace(genericType, "Object");
-                        }
-                    }
-                    if (fileline.contains("@")) {
-                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
-                            String annotation = fileline.substring(fileline.indexOf("@"),
-                                    fileline.indexOf(" ", fileline.indexOf("@")));
-                            fileline = fileline.replace(annotation + " ", "");
-                        }
-                    }
+
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
-                            String newRegex = "(?<=[^A-Za-z0-9])([A-Z])(?=[^A-Za-z0-9])";
-                            String regex = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
 
+                            String regexRemoveDiamonds = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
+                            fileline = fileline.replaceAll(regexRemoveDiamonds, "");
                             /*
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
                             // If it is a nested generic
@@ -81,10 +69,29 @@ public class Main {
                                 }
                             }
                             */
-                            fileline = fileline.replaceAll(regex, "");
-                            fileline = fileline.replace(newRegex, "Object");
+
+
                         }
                     }
+
+                    // REMOVE GENERIC TYPES OF A LINE
+                    String regexRemoveGenericTypes = "(?<=[^\\w])([A-Z])(?=[^\\w])";
+                    fileline = fileline.replace(regexRemoveGenericTypes, "Object");
+
+                    if (fileline.contains("@")) {
+                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
+                            String annotation = fileline.substring(fileline.indexOf("@"),
+                                    fileline.indexOf(" ", fileline.indexOf("@")));
+                            fileline = fileline.replace(annotation + " ", "");
+                        }
+                    }
+                    //Loop through all found GenericTypes so far
+                    /*for (String genericType : genericTypes) {
+                        if (fileline.contains(genericType)) {
+                            fileline = fileline.replace(genericType, "Object");
+                        }
+                    }
+                     */
                 }
                 newFileBW.write(fileline+"\r\n");
             }
