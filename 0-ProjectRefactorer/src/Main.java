@@ -69,13 +69,11 @@ public class Main {
                                 }
                             }
                             */
-
-
                         }
                     }
 
                     // REMOVE GENERIC TYPES OF A LINE
-                    String regexRemoveGenericTypes = "(?<=[^\\w])([A-Z])(?=[^\\w])";
+                    String regexRemoveGenericTypes = "(?<=[[^a-zA-Z0-9]])([A-Z])(?=[[^a-zA-Z0-9]])";
                     fileline = fileline.replace(regexRemoveGenericTypes, "Object");
 
                     if (fileline.contains("@")) {
