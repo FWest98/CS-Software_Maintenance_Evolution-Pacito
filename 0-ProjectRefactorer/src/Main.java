@@ -61,18 +61,21 @@ public class Main {
                                 newGenericType = newGenericType.substring(newGenericType.indexOf("<")+1,
                                         newGenericType.indexOf(">"));
 
-                                System.out.println("newGen2" + newGenericType);
+                                //System.out.println("newGen2" + newGenericType);
                             }
 
                             String[] multipleGenericTypes = newGenericType.split(",");
 
                             for (String genericType: multipleGenericTypes) {
                                 //Check if the genericType starts with upperCase
-                                char[] genericTypeIntoChars = genericType.toCharArray();
-                                if (Character.isUpperCase(genericTypeIntoChars[0])){
-                                    System.out.println(genericType);
-                                    if (genericType != "Object"){
-                                        genericTypes.add(genericType);
+
+                                if (genericType != null && !genericType.isEmpty()){
+                                    char[] genericTypeIntoChars = genericType.toCharArray();
+                                    if (Character.isUpperCase(genericTypeIntoChars[0])){
+                                        //System.out.println(genericType);
+                                        if (genericType != "Object"){
+                                            genericTypes.add(genericType);
+                                        }
                                     }
                                 }
                             }
