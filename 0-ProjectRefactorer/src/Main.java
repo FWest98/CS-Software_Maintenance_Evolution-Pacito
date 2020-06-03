@@ -50,7 +50,7 @@ public class Main {
                     }
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
-                            String newRegex = "(?<=[^[:alnum])([A-Z])(?=[^[:alnum])";
+                            String newRegex = "(?<=[^[A-Za-z0-9])([A-Z])(?=[^[A-Za-z0-9])";
                             String regex = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
 
 
