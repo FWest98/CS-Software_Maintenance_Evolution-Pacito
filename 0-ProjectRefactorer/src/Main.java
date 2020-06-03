@@ -50,23 +50,31 @@ public class Main {
                     }
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
-                            String regex = "<(?<=<)(.*?)(?=>)>";
-                            
+                            String regex = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
 
-                            System.out.println("newGen" + newGenericType);
-
+                            // If it is a nested generic
                             if (newGenericType.contains("<")){
                                 newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">")+1);
+
+                                // when there's a <HashMap<int,X>>, usually only the nested contains GenericTypes
+                                newGenericType = newGenericType.substring(newGenericType.indexOf("<")+1,
+                                        newGenericType.indexOf(">"));
+
                                 System.out.println("newGen2" + newGenericType);
                             }
 
-                            String[] multipleGenericTypes = newGenericType.replaceAll("<|>",",")
-                                    .split(",");
+                            String[] multipleGenericTypes = newGenericType.split(",");
 
                             for (String genericType: multipleGenericTypes) {
-                                System.out.println(genericType);
-                                genericTypes.add(genericType);
+                                //Check if the genericType starts with upperCase
+                                char[] genericTypeIntoChars = genericType.toCharArray();
+                                if (Character.isUpperCase(genericTypeIntoChars[0])){
+                                    System.out.println(genericType);
+                                    if (genericType != "Object"){
+                                        genericTypes.add(genericType);
+                                    }
+                                }
                             }
                             fileline = fileline.replaceAll(regex, "");
                         }
