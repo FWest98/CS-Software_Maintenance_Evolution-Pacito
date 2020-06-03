@@ -1,6 +1,6 @@
 Method(Class parameter){
 
-ArrayList<Object> newList = new ArrayList<Object>;
+ArrayList newList = new ArrayList;
 
 
 Object element = new Object();
