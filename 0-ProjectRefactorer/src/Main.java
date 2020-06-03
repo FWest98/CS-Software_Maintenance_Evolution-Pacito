@@ -51,7 +51,12 @@ public class Main {
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
                             String regex = "<(?<=<)(.*?)(?=>)>";
+                            
                             String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
+
+                            if (newGenericType.contains("<")){
+                                newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">")+1);
+                            }
 
                             String[] multipleGenericTypes = newGenericType.replaceAll("<|>",",")
                                     .split(",");
