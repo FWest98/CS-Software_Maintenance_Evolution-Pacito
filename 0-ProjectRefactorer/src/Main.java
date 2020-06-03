@@ -57,6 +57,7 @@ public class Main {
                                     .split(",");
 
                             for (String genericType: multipleGenericTypes) {
+                                System.out.println(genericType);
                                 genericTypes.add(genericType);
                             }
                             fileline = fileline.replaceAll(regex, "");
