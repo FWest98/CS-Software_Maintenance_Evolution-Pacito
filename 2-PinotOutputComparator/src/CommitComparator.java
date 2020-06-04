@@ -10,9 +10,10 @@ changes in the detected patterns between consecutive commits
 @param the analyzedProject String needs to be changed according to
 the name of the folder containing the pinot outputs
 
-@input a folder containing files obtained after executing the github-looper.sh script
-the path of the folder should be in the root of this project, namely
-~/Internship_RuG_2020/2-PinotOutputComparator/*nameOfInputFolder*
+@input The jar should be executed inside a folder which contains a folder named "projectName_results",
+inside this folder are the results from github-looper.sh after running on all commits of a project.
+The name of this folder is usually "projectName_results".
+
 
 @output a folder named results-*nameOfInputFolder*, containing several files,
 each corresponding to an analysis between two commits. Depending on the name it has
@@ -25,9 +26,18 @@ public class CommitComparator {
     private static int counter = 1;
 
     //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "Hadoop_results";
+    private static String analyzedProject;
 
     public static void main(String[] args) throws IOException {
+
+        if (args.length == 0){
+            System.out.println("Error: No correct folder name has been passed as an argument");
+            System.out.println("Example of proper usage is: java -jar " +
+                    "pinotAnalysisProgressChecker.jar \"Hadoop_results\"");
+            System.exit(0);
+        }
+
+        analyzedProject = args[0];
 
         //Create directory to store results if it does not exist already
         File directory = new File(".\\results-"+analyzedProject);

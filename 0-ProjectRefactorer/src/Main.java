@@ -4,11 +4,17 @@ import java.util.List;
 
 public class Main {
 
-    //How to run java -jar pathToJar nameOfTheProject booleanToDelete
+    //How to run java -jar pathToJar nameOfTheProject
     //nameOfTheProject is very important, should be the same name as the gitHub folder
     //If anything is written in the second argument booleanToDelete, the original files are deleted
 
     public static void main(String[] args) throws IOException {
+
+        if (args.length == 0){
+            System.out.println("Error: No project name (name of GitHub folder) has been passed as an argument");
+            System.out.println("Proper Usage is: java -jar 0-ProjectRefactorer.jar nameOfGitHubFolder");
+            System.exit(0);
+        }
 
         String projectName = args[0];
         FileReader listOfFilesFReader = new FileReader(projectName + "-files.list");

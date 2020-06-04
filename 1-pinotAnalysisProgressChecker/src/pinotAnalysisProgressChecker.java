@@ -10,10 +10,8 @@ This can have 3 states:
 @param This class receives as an arguments a folder-name in the variable projectName,
 which needs to be changed when running the program for different projects.
 
-@input The input folder needs to be in the same root directory as the project, in this case
-something like ~/Internship_RuG_2020/1-pinotAnalysisProgressChecker/*hadoop-hdfs-blanks.list*
-This input is supposed to be 3 different files, which are produced when running
-the script "blank-error-validChecker.sh" on the folder of the pinot analysis output
+@input This jar is supposed to be ran inside a folder containing the three files which were outputted from
+the script "blank-error-validChecker.sh".
 The three files are named *projectName*-valid.list, *projectName*-blank.list and
 *projectName*-error.list
 
@@ -25,9 +23,17 @@ This help in understanding how the outputs vary with the evolution of the projec
  */
 public class pinotAnalysisProgressChecker {
 
-    private static String projectName = "hadoop-hdfs";
-
     public static void main(String[] args) throws IOException {
+
+        if (args.length == 0){
+            System.out.println("Error: No project name has been passed as an argument, this argument should be the name" +
+                    "before the -blanks.list, -valid.list, -error.list files, for example, mina");
+            System.out.println("Proper Usage is: java -jar pinotAnalysisProgressChecker.jar projectName");
+            System.exit(0);
+        }
+
+        //name of the folder where the project intended to be analyzed is
+        String projectName = args[0];
 
         FileWriter finalProductFW = new FileWriter(projectName+"-finalAnalysis.csv");
         BufferedWriter finalProductBW = new BufferedWriter(finalProductFW);
@@ -89,9 +95,7 @@ public class pinotAnalysisProgressChecker {
         validBR.close();
         validFR.close();
 
-
         finalProductBW.flush();
         finalProductBW.close();
     }
-
 }

@@ -23,10 +23,11 @@ found on commit messages.
 @param the analyzedProject String needs to be changed to the name
 of the folder containing the issueTags from a certain project.
 VERY IMPORTANT: in the obtainIssueKey function, you will need to add 
-a line.contains() with the issueTag of the project you intend to analyze.
+an entry to projectSpecificTags with the name of the tag used by the JIRA
+repository.
 
 @input a folder containing files holding the result from script
-issueTagExtractor.
+issueTagExtractor, which contains issue tags from JIRA, this script needs to be run.
 
 @output a csv file containing all the information relevant for a
 certain project, containing information from the commit, the issue,
@@ -38,10 +39,20 @@ from JIRA.
 
 public class JiraXMLIssueRequester {
 
-    //Change according to the name of the folder where the pinot outputs are available
-    private static String analyzedProject = "mina-J7-issueTags";
+    //Change according to the name of the folder where the issueTags folder is located
+    private static String analyzedProject;
 
     public static void main(String[] args) throws IOException {
+
+
+        if (args.length == 0){
+            System.out.println("Error: No project name has been passed as an argument, this argument should be" +
+                    "\"projectName\"-issueTags");
+            System.out.println("Proper Usage is: java -jar JiraIssueParser.jar projectName-issueTags");
+            System.exit(0);
+        }
+
+        analyzedProject = args[0];
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
 
@@ -144,7 +155,6 @@ public class JiraXMLIssueRequester {
     public static boolean stringContainsItemFromList(String inputStr, String[] items) {
         return Arrays.stream(items).parallel().anyMatch(inputStr::contains);
     }
-
 
     /*
     Function responsible for contacting the JIRA's issue URL, and obtaining

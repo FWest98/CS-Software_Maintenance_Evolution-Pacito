@@ -68,7 +68,7 @@ do
 	java -jar /home/s4040112/data/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
 
-	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/Camel_results/$COUNTER-ID-$CURRENT_COMMIT.txt
+	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 	COUNTER=$((COUNTER+1))
 	git log -1 --pretty=format:"%h - %an, %ar"
