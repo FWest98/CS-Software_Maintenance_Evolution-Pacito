@@ -10,7 +10,7 @@ changes in the detected patterns between consecutive commits
 @param the analyzedProject String needs to be changed according to
 the name of the folder containing the pinot outputs
 
-@input The jar should be executed inside a folder which contains a folder named "projectName_results",
+@input The jar should be executed inside a folder which contains a folder named "outputs-projectName",
 inside this folder are the results from github-looper.sh after running on all commits of a project.
 The name of this folder is usually "projectName_results".
 
@@ -33,7 +33,7 @@ public class CommitComparator {
         if (args.length == 0){
             System.out.println("Error: No correct folder name has been passed as an argument");
             System.out.println("Example of proper usage is: java -jar " +
-                    "pinotAnalysisProgressChecker.jar \"Hadoop_results\"");
+                    "pinotAnalysisProgressChecker.jar \"outputs-hadoop\"");
             System.exit(0);
         }
 

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PinotOutputComparator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PinotOutputComparator_jar</output-path>
+    <root id="archive" name="PinotOutputComparator.jar">
+      <element id="module-output" name="PinotOutputComparator" />
+    </root>
+  </artifact>
+</component>
