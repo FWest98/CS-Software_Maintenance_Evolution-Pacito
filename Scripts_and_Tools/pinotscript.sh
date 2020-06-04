@@ -36,12 +36,23 @@ export CLASSPATH=${CLASSPATH}:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar
 find ${projectpath} -name '*.java' > ${projectname}-files.list
 #locate ${projectpath}**.java > ${projectname}-files.list
 
-java -jar ~/Desktop/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname delete
+java -jar ~/Desktop/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
 if [ "$verbose" = true ] ; then
 echo "$(<${projectname}-files.list)"
 fi
 pinot @${projectname}-newfiles.list 2>&1 | tee "pinot-ergebnis-${projectname}.txt"
-#rm ${projectname}-files.list
+
+
+rm ${projectname}-files.list
+find ${projectpath} -name '*.java' > ${projectname}-files.list
+
+while read line
+  do
+	rm line
+  done < ${projectname}-files.list
+
+rm ${projectname}-files.list
+
 
 
