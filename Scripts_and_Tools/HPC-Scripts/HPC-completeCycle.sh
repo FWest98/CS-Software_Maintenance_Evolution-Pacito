@@ -2,11 +2,11 @@
 #SBATCH --time=10-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --job-name=pinot_mina_refactor
+#SBATCH --job-name=complete_cycle_pinot_mina
 #SBATCH --mem=100GB
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=f.a.de.capela@student.rug.nl
-#SBATCH --output=job-%j-pinot_mina_refactor.log
+#SBATCH --output=job-%complete_cycle_pinot_mina.log
 #SBATCH --partition=regular
 
 module load Java/1.7.0_80
@@ -14,13 +14,13 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
-cd /data/s4040112/sourcecodes/camel
+cd /data/s4040112/sourcecodes/mina
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
 
 #depending on the project, the main branch can either be master or trunk
-git rev-list --reverse master > commitOrder.txt
-#git rev-list --reverse trunk > commitOrder.txt
+#git rev-list --reverse master > commitOrder.txt
+git rev-list --reverse trunk > commitOrder.txt
 
 filename=commitOrder.txt
 file_lines=`cat $filename`
