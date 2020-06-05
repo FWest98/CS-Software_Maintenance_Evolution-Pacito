@@ -82,16 +82,25 @@ public class Main {
                     String regexRemoveGenericTypes = "(?<=^|[^a-zA-Z0-9])([A-Z])(?=[^a-zA-Z0-9])";
                     fileline = fileline.replaceAll(regexRemoveGenericTypes, "Object");
 
+
+                    //String regexForAnnotations = "^|(@[a-zA-Z]+)$(?=\\s)";
+                    //fileline.replaceAll(regexForAnnotations,"");
+
+                    String regexForAtWhichAreNotAnnotations = "^|(@[^a-zA-Z])";
+
                     if (fileline.contains("@")) {
-                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
-                            String annotation = fileline.substring(fileline.indexOf("@"),
-                                    fileline.indexOf(" ", fileline.indexOf("@")));
-                            fileline = fileline.replace(annotation + " ", "");
-                        }
-                        else{
-                            fileline = "";
+                        if (!fileline.matches(regexForAtWhichAreNotAnnotations)){
+                            if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
+                                String annotation = fileline.substring(fileline.indexOf("@"),
+                                        fileline.indexOf(" ", fileline.indexOf("@")));
+                                fileline = fileline.replace(annotation + " ", "");
+                            }
+                            else{
+                                fileline = "";
+                            }
                         }
                     }
+
                     //Loop through all found GenericTypes so far
                     /*for (String genericType : genericTypes) {
                         if (fileline.contains(genericType)) {
