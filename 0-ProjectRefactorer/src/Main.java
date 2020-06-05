@@ -88,6 +88,9 @@ public class Main {
                                     fileline.indexOf(" ", fileline.indexOf("@")));
                             fileline = fileline.replace(annotation + " ", "");
                         }
+                        else{
+                            fileline = "";
+                        }
                     }
                     //Loop through all found GenericTypes so far
                     /*for (String genericType : genericTypes) {
