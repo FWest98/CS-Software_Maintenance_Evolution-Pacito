@@ -99,6 +99,9 @@ public class Main {
                                 fileline = "";
                             }
                         }
+                        else{
+                            System.out.println(fileline);
+                        }
                     }
 
                     //Loop through all found GenericTypes so far
