@@ -56,7 +56,7 @@ public class JiraXMLIssueRequester {
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
 
-        File finalCSVFile = new File(".\\finalResults-" + analyzedProject + "\\" + analyzedProject + "-CSV.csv");
+        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator + analyzedProject + "-CSV.csv");
 
         FileWriter fw = new FileWriter(finalCSVFile.getPath());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -88,11 +88,11 @@ public class JiraXMLIssueRequester {
     private static File[] createDirectoryAndFileArray() {
 
         //Create directory to store results if it does not exist already
-        File directory = new File(".\\finalResults-" + analyzedProject);
+        File directory = new File("finalResults-" + analyzedProject);
         directory.mkdir();
 
         //Store the files from issueTags outputs to an array
-        File[] files = new File(".\\" + analyzedProject).listFiles();
+        File[] files = new File(analyzedProject).listFiles();
 
         return files;
     }
@@ -195,7 +195,7 @@ public class JiraXMLIssueRequester {
             if (errNodes.getLength() > 0) {
                 Element err = (Element) errNodes.item(0);
 
-                File issueTagsFile = new File(".\\" + analyzedProject + "\\" + outputFile.getName());
+                File issueTagsFile = new File(analyzedProject + File.separator + outputFile.getName());
                 FileReader fileReaderForCommitID = new FileReader(issueTagsFile.getPath());
                 BufferedReader bufferedReaderForCommitID = new BufferedReader(fileReaderForCommitID);
                 String firstLine = bufferedReaderForCommitID.readLine();
@@ -261,7 +261,8 @@ public class JiraXMLIssueRequester {
                 ///// WRITE TO INDIVIDUAL FILES /////
                 /////////////////////////////////////
 
-                File finalResultsFile = new File(".\\finalResults-" + analyzedProject + "\\finalAnalysis-" + outputFile.getName());
+                File finalResultsFile = new File("finalResults-" + analyzedProject + File.separator +
+                        "finalAnalysis-" + outputFile.getName());
                 Files.copy(issueTagsFile.toPath(), finalResultsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 FileWriter fr = new FileWriter(finalResultsFile, true);
                 BufferedWriter br = new BufferedWriter(fr);
