@@ -6,9 +6,10 @@
 #SBATCH --mem=100GB
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=f.a.de.capela@student.rug.nl
-#SBATCH --output=job-complete_cycle_pinot_mina.log
+#SBATCH --output=job-%j-complete_cycle_pinot_mina.log
 #SBATCH --partition=regular
 
+module load Maven/3.5.2
 module load Java/1.7.0_80
 export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar
 

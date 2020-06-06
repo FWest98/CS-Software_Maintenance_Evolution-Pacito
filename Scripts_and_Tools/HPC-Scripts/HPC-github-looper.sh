@@ -14,7 +14,7 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
-cd /data/s4040112/sourcecodes/camel
+cd /data/s4040112/sourcecodes/mina
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
 
