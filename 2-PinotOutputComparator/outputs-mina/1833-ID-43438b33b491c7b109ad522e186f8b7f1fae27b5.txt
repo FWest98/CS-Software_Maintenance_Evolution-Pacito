@@ -1,0 +1,117 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Bridge Pattern.
+CompositeByteArrayRelativeBase is abstract.
+Cursor is an interface.
+CompositeByteArrayRelativeBase delegates Cursor.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/util/byteaccess/CompositeByteArrayRelativeBase.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/util/byteaccess/ByteArray.java
+
+Strategy Pattern.
+VmPipe is the Context class.
+IoHandler is the Strategy interface.
+Concrete Strategy classes:  IoHandlerAdapter AbstractIoConnector$1 SingleSessionIoHandlerDelegate
+Delegation through handler of type IoHandler
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/core/service/IoHandler.java
+
+Flyweight Pattern.
+IoEventQueueHandler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/executor/IoEventQueueHandler.java
+
+Flyweight Pattern.
+IoSessionRecycler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/core/session/IoSessionRecycler.java
+
+Flyweight Pattern.
+SocksProxyConstants is a flyweight factory.
+KERBEROS_V5_OID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/proxy/handlers/socks/SocksProxyConstants.java
+
+Flyweight Pattern.
+HttpProxyConstants is a flyweight factory.
+CONNECT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/proxy/handlers/http/HttpProxyConstants.java
+
+Factory Method pattern.
+StateContextFactory is a Factory Method class.
+DefaultStateContextFactory is a concrete Factory Method class.
+create is a factory method returns  DefaultStateContext
+ which extends StateContext
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/DefaultStateContextFactory.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineEncoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineDecoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationEncoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationDecoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     4
+Bridge                      1
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   4
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 56
+Number of files processed: 559
+Size of DelegationTable: 31
+Size of concrete class nodes: 21
+Size of undirected invocation edges: 9
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/4
+nFlyweightGoFVersion = 0

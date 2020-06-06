@@ -50,6 +50,10 @@ public class CommitComparator {
         //Alphabetically
         sortFilesByNumericalOrder(files);
 
+        for (File ficheiro : files) {
+            System.out.println(ficheiro.getCanonicalPath());
+        }
+
         //Where the comparison is made for all files
         patternComparator(files);
 
