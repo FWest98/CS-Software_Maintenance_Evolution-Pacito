@@ -14,6 +14,8 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 cd /data/s4040112/sourcecodes/mina
 
+git reset --hard 48366b31f2064777702e261aef79244d62bb8903
+
 projectpath="/data/s4040112/sourcecodes/mina"
 projectname="mina"
 verbose=false
