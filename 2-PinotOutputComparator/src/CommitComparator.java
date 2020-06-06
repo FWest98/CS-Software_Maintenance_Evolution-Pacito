@@ -40,11 +40,11 @@ public class CommitComparator {
         analyzedProject = args[0];
 
         //Create directory to store results if it does not exist already
-        File directory = new File(".\\results-"+analyzedProject);
+        File directory = new File("results-"+analyzedProject);
         directory.mkdir();
 
         //Store the files from pinot outputs to an array
-        File[] files = new File(".\\" + analyzedProject).listFiles();
+        File[] files = new File(analyzedProject).listFiles();
 
         //Sort files by numerical order, since by default they are sorted
         //Alphabetically
