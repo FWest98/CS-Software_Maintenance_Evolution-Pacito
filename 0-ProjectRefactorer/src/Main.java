@@ -83,15 +83,14 @@ public class Main {
                     fileline = fileline.replaceAll(regexRemoveGenericTypes, "Object");
 
 
-                    String regexForAnnotations = "^|(@[a-zA-Z]+)$(?=\\s)";
+                    //String regexForAnnotations = "^|(@[a-zA-Z]+)$(?=\\s)";
                     //String regexAnnotations = "(?<=^|)(@[a-zA-Z])";
                     //String anotherRegex = "(?<=.|^)(@[a-zA-Z].+?)(?=' '|$)";
                     //String regexAnnotation = "@[a-zA-Z].+?(?=$)";
-                    String dumbRegex = "@[a-zA-Z]";
-                    fileline.replaceAll(dumbRegex,"---");
-                    if (fileline.contains("---")){
-                        fileline = "";
-                    }
+                    //String dumbRegex = "(?<=^|.)@[a-zA-Z]";
+                    String maluco = "(?<=^|.)(@[a-zA-Z].+)";
+                    fileline.replaceAll(maluco,"");
+
 
                     /*if (fileline.contains("@")) {
                         if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
