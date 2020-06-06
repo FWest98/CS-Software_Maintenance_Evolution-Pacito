@@ -85,11 +85,11 @@ public class Main {
 
                     //String regexForAnnotations = "^|(@[a-zA-Z]+)$(?=\\s)";
                     //String regexAnnotations = "(?<=^|)(@[a-zA-Z])";
-                    //String anotherRegex = "(?<=.|^)(@[a-zA-Z].+?)(?=' '|$)";
+                    String anotherRegex = "(?<=.|^)(@[a-zA-Z].+?)(?=' '|$)";
                     //String regexAnnotation = "@[a-zA-Z].+?(?=$)";
                     //String dumbRegex = "(?<=^|.)@[a-zA-Z]";
-                    String maluco = "(?<=^|.)(@[a-zA-Z].+)";
-                    fileline.replaceAll(maluco,"");
+                    //String maluco = "(@[a-zA-Z].+$)";
+                    fileline = fileline.replaceAll(anotherRegex,"");
 
 
                     /*if (fileline.contains("@")) {
