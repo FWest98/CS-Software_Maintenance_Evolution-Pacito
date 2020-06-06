@@ -1,0 +1,14 @@
+Pattern changes caused by commit: fa289f636f85c0f9de72cb35ea511fdf75e73df9
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-5
+To:   Facade-4
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Proxy-1
+To:   Proxy-0
+

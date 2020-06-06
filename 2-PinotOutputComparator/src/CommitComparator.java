@@ -30,14 +30,14 @@ public class CommitComparator {
 
     public static void main(String[] args) throws IOException {
 
-        if (args.length == 0){
+        if (args.length != 0){
             System.out.println("Error: No correct folder name has been passed as an argument");
             System.out.println("Example of proper usage is: java -jar " +
                     "pinotAnalysisProgressChecker.jar \"outputs-hadoop\"");
             System.exit(0);
         }
 
-        analyzedProject = args[0];
+        analyzedProject = "outputs-mina";
 
         //Create directory to store results if it does not exist already
         File directory = new File("results-"+analyzedProject);
@@ -229,7 +229,7 @@ public class CommitComparator {
             private int extractNumber(String name) {
                 int i = 0;
                 try {
-                    String number = name.substring(0, name.indexOf('-')-1);
+                    String number = name.substring(0, name.indexOf('-'));
                     i = Integer.parseInt(number);
                 } catch(Exception e) {
                     i = 0; // if filename does not match the format
