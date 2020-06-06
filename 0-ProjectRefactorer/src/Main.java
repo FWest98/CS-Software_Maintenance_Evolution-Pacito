@@ -87,8 +87,9 @@ public class Main {
                     //fileline.replaceAll(regexForAnnotations,"");
                     //String regexAnnotations = "(?<=^|)(@[a-zA-Z])";
 
-                    String regexAnnotation = "@[a-zA-Z].+?(?=$)";
-                    fileline.replaceAll(regexAnnotation,"");
+                    String anotherRegex = "(?<=.|^)(@[a-zA-Z].+?)(?=\\s|$)";
+                    //String regexAnnotation = "@[a-zA-Z].+?(?=$)";
+                    fileline.replaceAll(anotherRegex,"");
 
                     /*if (fileline.contains("@")) {
                         if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
