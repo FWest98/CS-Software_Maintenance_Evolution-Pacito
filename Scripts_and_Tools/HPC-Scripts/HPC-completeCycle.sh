@@ -95,6 +95,9 @@ do
 	echo $(git log $CURRENT_COMMIT..$FINAL_COMMIT --pretty=oneline | wc -l) " - Number of commits left"
 done
 
+module load Java/1.8.0_192
+export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.8.0_192/jre/lib/rt.jar
+
 cd /data/s4040112
 
 #create directory to store one complete analysis
@@ -103,41 +106,50 @@ mkdir -p ${projectname}-completeCycle
 #mv the outputs from pinot to the specified folder
 mv /data/s4040112/Pinot_results/outputs-${projectname}/ ${projectname}-completeCycle/
 
-cd /data/s4040112/${projectname}-completeCycle/outputs-${projectname}/
+cd /data/s4040112/${projectname}-completeCycle/outputs-${projectname}
 
 cp /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/HPC-Scripts/HPC-blank-error-validChecker.sh .
+
+chmod +rwx HPC-blank-error-validChecker.sh
 
 #Create 4 files with information regarding empty, blank or valid files
 ./HPC-blank-error-validChecker.sh ${projectname}
 
+rm -rf HPC-blank-error-validChecker.sh
+
 mkdir -p additionalInformation
 
-mv ${projectname}-finalAnalysis.txt additionalInformation
+mv ${projectname}-finalAnalysis.txt ${projectname}-valid.txt ${projectname}-blanks.txt ${projectname}-errors.txt additionalInformation
+
+cd additionalInformation
 
 #Create csv with progress of analysis over time (error, blank, valid)
 java -jar /data/s4040112/Internship_RuG_2020/1-pinotAnalysisProgressChecker/out/artifacts/pinotAnalysisProgressChecker_jar/pinotAnalysisProgressChecker.jar $projectname
 
-mv ${projectname}-finalAnalysis.csv additionalInformation
+cd ..
+
+mv additionalInformation ..
 
 cd /data/s4040112/${projectname}-completeCycle
 
 #Scan consecutive commits for comparison of patterns
 java -jar /data/s4040112/Internship_RuG_2020/2-PinotOutputComparator/out/artifacts/PinotOutputComparator_jar/PinotOutputComparator.jar outputs-${projectname}
 
-cd results-${projectname}
+cd results-outputs-${projectname}
 
 cp /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/HPC-Scripts/HPC-issueTagExtractor.sh .
 
+chmod +rwx HPC-issueTagExtractor.sh
+
 ./HPC-issueTagExtractor.sh ${projectname}
 
-mv ${projectname}-issueTags/ ../
+rm -rf HPC-issueTagExtractor.sh
+
+mv ${projectname}-issueTags/ ..
+
+cd ..
 
 #Run java project to obtain information from JIRA's issue by using the XML information online
 java -jar /data/s4040112/Internship_RuG_2020/3-JiraIssueParser/out/artifacts/JiraIssueParser_jar/JiraIssueParser.jar ${projectname}-issueTags
 
-
-
-
-
-
-
+echo "Complete Cycle finished!"
