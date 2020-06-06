@@ -186,7 +186,7 @@ public class CommitComparator {
         File resultFile;
 
         if (!firstPatterns.equals(secondPatterns)){
-            resultFile = new File("results-" + analyzedProject + "\\" + "VALID-" + counter + ".txt");
+            resultFile = new File("results-" + analyzedProject + File.separator + "VALID-" + counter + ".txt");
             //resultFile = new File(".\\results-" + analyzedProject + "\\" + "No_differences-" + counter + ".txt");
 
             FileWriter writer = new FileWriter(resultFile);
