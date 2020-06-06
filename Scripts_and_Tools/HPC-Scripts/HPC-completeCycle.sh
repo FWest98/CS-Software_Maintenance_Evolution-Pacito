@@ -53,21 +53,41 @@ for line in $file_lines ;
 do
 	git reset --hard $line
     	CURRENT_COMMIT=$(git log -n1 --format=format:"%H")
-	#sh /home/p289550/tools/Pinot/HPC-pinotscript.sh 2>&1 | tee /data/p289550/Pinot_results/Mina_results/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 	#don't forget to run sudo updatedb, since locate finds all files but needs to be updated using this command
 	#updatedb
 
 	find ${projectpath} -name '*.java' > ${projectname}-files.list
-	#locate ${projectpath}**.java > ${projectname}-files.list
 
 	if [ "$verbose" = true ] ; then
 	echo "$(<${projectname}-files.list)"
 	fi
 
-	#java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
+	java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
-	/home/s4040112/tools/bin/pinot @${projectname}-files.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+	mvn dependency:copy-dependencies -DoutputDirectory=dependencies -Dhttps.protocols=TLSv1.2
+
+	find ${projectpath} -name '*.jar' > ${projectname}-jars.list
+
+	last_line=$(wc -l < ${projectname}-jars.list)
+	current_line=0
+
+	while read line
+ 	 do
+ 	   export CLASSPATH=${CLASSPATH}:$line
+	done < ${projectname}-jars.list
+
+	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+
+	rm ${projectname}-files.list
+	rm ${projectname}-newfiles.list
+
+	find ${projectpath} -name '*refactored.java' > ${projectname}-deletefiles.list
+
+	while read line
+	  do
+		rm $line
+  	done < ${projectname}-deletefiles.list
 
 	COUNTER=$((COUNTER+1))
 	git log -1 --pretty=format:"%h - %an, %ar"
