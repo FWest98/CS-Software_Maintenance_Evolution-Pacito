@@ -50,6 +50,8 @@ break;;
 esac
 done
 
+mkdir /data/s4040112/Pinot_results/outputs-${projectname}
+
 for line in $file_lines ; 
 do
 	git reset --hard $line
@@ -66,30 +68,36 @@ do
 
 	java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
-	mvn dependency:copy-dependencies -DoutputDirectory=dependencies -Dhttps.protocols=TLSv1.2
+  #find ${projectpath} -maxdepth 1 -name 'pom.xml' > ${projectname}-pom.list
 
-	find ${projectpath} -name '*.jar' > ${projectname}-jars.list
+  #NUM_LINES=$(wc -l < ${projectname}-pom.list)
 
-	last_line=$(wc -l < ${projectname}-jars.list)
-	current_line=0
-
-	while read line
- 	 do
- 	   export CLASSPATH=${CLASSPATH}:$line
-	done < ${projectname}-jars.list
-
+  #if [ $NUM_LINES -eq 1 ] ; then
+  #mvn dependency:copy-dependencies -DoutputDirectory=dependencies -Dhttps.protocols=TLSv1.2
+  
+ 	#find ${projectpath} -name '*.jar' > ${projectname}-jars.list
+ 
+	#while read line
+ 	# do
+ 	#   export CLASSPATH=${CLASSPATH}:$line
+	#done < ${projectname}-jars.list
+ 
+  #fi
+	
 	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 	rm ${projectname}-files.list
+ 
 	rm ${projectname}-newfiles.list
-  rm ${projectname}-jars.list
 
 	find ${projectpath} -name '*refactored.java' > ${projectname}-deletefiles.list
 
 	while read line
 	  do
 		rm $line
-  	done < ${projectname}-deletefiles.list
+ 	done < ${projectname}-deletefiles.list
+  
+  rm ${projectname}-deletefiles.list
 
 	COUNTER=$((COUNTER+1))
 	git log -1 --pretty=format:"%h - %an, %ar"
