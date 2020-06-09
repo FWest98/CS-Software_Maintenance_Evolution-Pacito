@@ -45,7 +45,7 @@ public class JiraXMLIssueRequester {
     public static void main(String[] args) throws IOException {
 
 
-        if (args.length == 0){
+        if (args.length != 2){
             System.out.println("Error: No project name has been passed as an argument, this argument should be" +
                     "\"projectName\"-issueTags numberOfIssues \n For more information regarding the number of issues" +
                     "a project contains, go to " +
