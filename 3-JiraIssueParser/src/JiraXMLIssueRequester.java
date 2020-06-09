@@ -47,8 +47,11 @@ public class JiraXMLIssueRequester {
 
         if (args.length == 0){
             System.out.println("Error: No project name has been passed as an argument, this argument should be" +
-                    "\"projectName\"-issueTags");
-            System.out.println("Proper Usage is: java -jar JiraIssueParser.jar projectName-issueTags");
+                    "\"projectName\"-issueTags numberOfIssues \n For more information regarding the number of issues" +
+                    "a project contains, go to " +
+                    "https://issues.apache.org/jira/projects/SPECIFICPROJECTISSUETAG/issues/filter=allissues and write " +
+                    "the number of the most recent issue");
+            System.out.println("Proper Usage is: java -jar JiraIssueParser.jar projectName-issueTags 1223");
             System.exit(0);
         }
 
@@ -66,6 +69,8 @@ public class JiraXMLIssueRequester {
         pw.flush();
         pw.close();
 
+        String projectIssueKey = null;
+
         /*
         This portion is responsible for checking whether a commit
         contains an issue tag on the commit message
@@ -76,6 +81,24 @@ public class JiraXMLIssueRequester {
 
             if (issueKey != null) {
                 get_response(issueKey, analyzedFile, finalCSVFile);
+                if (projectIssueKey == null){
+                    projectIssueKey = issueKey;
+                    projectIssueKey.substring(0,projectIssueKey.indexOf("-"));
+                }
+            }
+
+        }
+
+        //Create directory to store results if it does not exist already
+        File directory = new File("AllIssues-" + analyzedProject);
+        directory.mkdir();
+
+        int totalNumberOfIssues = Integer.parseInt(args[1]);
+
+        if (projectIssueKey != null){
+            for (int counter = 0; counter < totalNumberOfIssues; counter++){
+                String issueKey = projectIssueKey + "-" + String.valueOf(counter);
+                scanIssue(issueKey);
             }
         }
 
@@ -299,7 +322,6 @@ public class JiraXMLIssueRequester {
                     br.write("\n");
                 }
 
-
                 /*
                 Additional analysis is done here, where from an array of
                 words (patterns), the description and comments from an issue
@@ -318,7 +340,7 @@ public class JiraXMLIssueRequester {
                 for (String patternInstance : patternNames) {
                     if (summary.contains(patternInstance)) {
                         writePatternMentionsBW.write("On issue key " + parsedIssueKey + " the " + patternInstance +
-                                "pattern might have been discussed, namely here: \n");
+                                " pattern might have been discussed, namely here: \n");
                         writePatternMentionsBW.write("==============================\n");
                         for (String commentSmallerLine : textLimiter(summary, 90)) {
                             writePatternMentionsBW.write(commentSmallerLine);
@@ -327,7 +349,6 @@ public class JiraXMLIssueRequester {
                         writePatternMentionsBW.write("==============================\n\n");
                     }
                 }
-
 
                 NodeList commentsNodes = doc.getElementsByTagName("comments");
                 Element commentElement = (Element) commentsNodes.item(0);
@@ -343,7 +364,7 @@ public class JiraXMLIssueRequester {
                     for (String patternInstance : patternNames){
                         if (comment.contains(patternInstance)){
                             writePatternMentionsBW.write("On issue key " + parsedIssueKey + " the " + patternInstance
-                            + " pattern might have been discussed on the following comment: \n");
+                                    + " pattern might have been discussed on the following comment: \n");
                             writePatternMentionsBW.write("==============================\n");
                             for (String commentSmallerLine : textLimiter(comment, 90)) {
                                 writePatternMentionsBW.write(commentSmallerLine);
@@ -370,6 +391,107 @@ public class JiraXMLIssueRequester {
                 // success
             }
         } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    private static void scanIssue(String issueKey) {
+
+        try {
+            String format = "xml";
+            String url = "https://issues.apache.org/jira/si/jira.issueviews:issue-" + format + "/" + issueKey + "/" + issueKey + ".xml";
+
+            System.out.println(url);
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            int responseCode = con.getResponseCode();
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(response.toString())));
+            NodeList errNodes = doc.getElementsByTagName("item");
+
+            FileWriter writeIssueFW = new FileWriter(new File("AllIssues-" + analyzedProject + File.separator +
+                    issueKey + ".txt"));
+            BufferedWriter writeIssueBW = new BufferedWriter(writeIssueFW);
+
+            if (errNodes.getLength() > 0) {
+                Element err = (Element) errNodes.item(0);
+
+                String summary = err.getElementsByTagName("summary").item(0).getTextContent().replaceAll(",|;", "-");
+                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent().replaceAll(",|;", "-");
+
+            /*
+                Additional analysis is done here, where from an array of
+                words (patterns), the description and comments from an issue
+                are compared to check if these are discussed inside the issues
+                 */
+                String[] patternNames = {"Abstract Factory", "abstract factory", "Factory Method", "factory method",
+                        "Singleton", "singleton","Adapter","adapter","Bridge","bridge",
+                        "Composite","composite","Decorator","decorator","Facade","facade","Flyweight","flyweight",
+                        "Proxy","proxy","Chain of Responsibility","chain of responsibility","Mediator","mediator",
+                        "Observer","observer"," State "," state ","Strategy","strategy","Template Method","template method",
+                        "Visitor","visitor","Pattern","pattern", "factory","Factory", "adapt", "decorate", "mediate", "observe",
+                        "Builder","builder","prototype","Prototype","Command","command","Interpreter","interpreter","interprete",
+                        "Iterator","iterator","iterate","Memento","memento","template","Template", "Visitor", "visitor",
+                        "visit","chain", "Chain"};
+
+                for (String patternInstance : patternNames) {
+                    if (summary.contains(patternInstance)) {
+                        writeIssueBW.write("On issue key " + parsedIssueKey + " the " + patternInstance +
+                                " pattern might have been discussed, namely here: \n");
+                        writeIssueBW.write("==============================\n");
+                        for (String commentSmallerLine : textLimiter(summary, 90)) {
+                            writeIssueBW.write(commentSmallerLine);
+                            writeIssueBW.write("\n");
+                        }
+                        writeIssueBW.write("==============================\n\n");
+                    }
+                }
+
+                NodeList commentsNodes = doc.getElementsByTagName("comments");
+                Element commentElement = (Element) commentsNodes.item(0);
+
+                writeIssueBW.write("\n-----------------");
+                writeIssueBW.write("\n\n-----------------\n");
+                writeIssueBW.write("Comments: \n\n");
+
+                for (int i = 0; i < commentElement.getElementsByTagName("comment").getLength() -1; i++){
+                    String comment = commentElement.getElementsByTagName("comment").item(i).getTextContent()
+                            .replaceAll("<p>|<\\/p>", "");
+
+                    for (String patternInstance : patternNames){
+                        if (comment.contains(patternInstance)){
+                            writeIssueBW.write("On issue key " + parsedIssueKey + " the " + patternInstance
+                                    + " pattern might have been discussed on the following comment: \n");
+                            writeIssueBW.write("==============================\n");
+                            for (String commentSmallerLine : textLimiter(comment, 90)) {
+                                writeIssueBW.write(commentSmallerLine);
+                                writeIssueBW.write("\n");
+                            }
+                            writeIssueBW.write("==============================\n\n");
+                        }
+                    }
+
+                    writeIssueBW.write("New Comment: \n");
+                    for (String commentSmallerLine : textLimiter(comment, 90)) {
+                        writeIssueBW.write(commentSmallerLine);
+                        writeIssueBW.write("\n");
+                    }
+                    writeIssueBW.write("\n\n");
+                }
+            }
+        }
+        catch (Exception e) {
             System.out.println(e);
         }
     }
