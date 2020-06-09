@@ -15,6 +15,8 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
+NUMBEROFISSUES=1126
+
 cd /data/s4040112/sourcecodes/mina
 git pull
 FINAL_COMMIT=$(git show -s --format=%H)
@@ -128,7 +130,7 @@ rm -rf HPC-blank-error-validChecker.sh
 
 mkdir -p additionalInformation
 
-mv ${projectname}-finalAnalysis.txt ${projectname}-valid.txt ${projectname}-blanks.txt ${projectname}-errors.txt additionalInformation
+mv ${projectname}-finalAnalysis.txt ${projectname}-valid.list ${projectname}-blanks.list ${projectname}-errors.list additionalInformation
 
 cd additionalInformation
 
@@ -159,6 +161,6 @@ mv ${projectname}-issueTags/ ..
 cd ..
 
 #Run java project to obtain information from JIRA's issue by using the XML information online
-java -jar /data/s4040112/Internship_RuG_2020/3-JiraIssueParser/out/artifacts/JiraIssueParser_jar/JiraIssueParser.jar ${projectname}-issueTags
+java -jar /data/s4040112/Internship_RuG_2020/3-JiraIssueParser/out/artifacts/JiraIssueParser_jar/JiraIssueParser.jar ${projectname}-issueTags $NUMBEROFISSUES
 
 echo "Complete Cycle finished!"
