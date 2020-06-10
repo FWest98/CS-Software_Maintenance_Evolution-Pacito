@@ -96,8 +96,8 @@ public class JiraXMLIssueRequester {
         int totalNumberOfIssues = Integer.parseInt(args[1]);
 
         if (projectIssueKey != null){
-            for (int counter = 0; counter < totalNumberOfIssues; counter++){
-                String issueKey = projectIssueKey + "-" + String.valueOf(counter);
+            for (int counter = 1; counter <= totalNumberOfIssues; counter++){
+                String issueKey = projectIssueKey.substring(0,projectIssueKey.indexOf("-")) + "-" + String.valueOf(counter);
                 scanIssue(issueKey);
             }
         }
