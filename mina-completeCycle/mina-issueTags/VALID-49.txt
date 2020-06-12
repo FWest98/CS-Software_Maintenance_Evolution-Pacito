@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 44a28f65db21ec5929d4d4f347108319f86a2c4b
+
+From: Abstract Factory-7
+To:   Abstract Factory-6
+
+From: Factory Method-8
+To:   Factory Method-7
+
+From: Bridge-9
+To:   Bridge-8
+
+From: Facade-23
+To:   Facade-22
+
+From: Flyweight-15
+To:   Flyweight-17
+
+From: Mediator-54
+To:   Mediator-53
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-49.txt 
+
+commit 44a28f65db21ec5929d4d4f347108319f86a2c4b
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added IoSessionConfig and its implementations
+    * Added IoServiceConfig and its implementations
+    * Added IoAcceptorConfig and its implementations
+    * Added IoConnectorConfig and its implementations
+    * Replaced all transport-type specific properties with the Config classes above

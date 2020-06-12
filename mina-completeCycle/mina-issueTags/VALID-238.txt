@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f1cf9724a9b2aca59a301c28eac721af07d3425c
+
+From: Flyweight-20
+To:   Flyweight-19
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-238.txt 
+
+commit f1cf9724a9b2aca59a301c28eac721af07d3425c
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-240 (VmPipeConnectors hands out non-unique AnonymousSocketAddresses)

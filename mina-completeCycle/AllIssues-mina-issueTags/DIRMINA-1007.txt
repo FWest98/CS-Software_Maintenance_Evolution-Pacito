@@ -1,0 +1,150 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Can you give code sample or logs ? 
+
+
+New Comment: 
+What kind of code do you want ?<br/>sample FTP server or sample client that sends AUTH
+TLS\r\nFEAT ? 
+
+
+New Comment: 
+the code that does the plain text injection 
+
+
+On issue key FTPSERVER-467 the command pattern might have been discussed on the following comment: 
+==============================
+We found the vulnerability by modifying  the source code of Open SSL3 in this way:<br/>In
+s_client.c change the line<br/>BIO_printf(sbio,"AUTH
+TLS\r\n");<br/>With<br/>BIO_printf(sbio,"AUTH TLS\r\nFEAT\r\n");<br/>and recompileThen run
+the command:<br/>./openssl s_client -connect ip_of_ftp_server:21 -starttls ftp -cipher
+EXP-RC4-MD5 -tls1 -showcerts 
+==============================
+
+New Comment: 
+We found the vulnerability by modifying  the source code of Open SSL3 in this way:<br/>In
+s_client.c change the line<br/>BIO_printf(sbio,"AUTH
+TLS\r\n");<br/>With<br/>BIO_printf(sbio,"AUTH TLS\r\nFEAT\r\n");<br/>and recompileThen run
+the command:<br/>./openssl s_client -connect ip_of_ftp_server:21 -starttls ftp -cipher
+EXP-RC4-MD5 -tls1 -showcerts 
+
+
+New Comment: 
+So my undertstanding is that the MINA code is on the server side and should handle the
+"AUTH TLS" message. Can you give us you server code ? 
+
+
+New Comment: 
+I suspect it's more a pb in FtpServer 
+
+
+On issue key FTPSERVER-467 the command pattern might have been discussed on the following comment: 
+==============================
+I will send sample code but I think that the problem is in the mina code (not in the ftp
+server code) since mina is responsible for parsing of the commands and sending them to the
+server and when the "FEAT" command reaches the server there is no information if the
+command was sent as plain text or encoded. 
+==============================
+
+New Comment: 
+I will send sample code but I think that the problem is in the mina code (not in the ftp
+server code) since mina is responsible for parsing of the commands and sending them to the
+server and when the "FEAT" command reaches the server there is no information if the
+command was sent as plain text or encoded. 
+
+
+New Comment: 
+Correction : MINA is <b>not</b> responsible for the decoding of message. <b>your</b>
+decoder is.Keep in mind that MINA is just a dumb NIO framework that knows nothing about
+the protocol you are using. 
+
+
+New Comment: 
+I did not get that you were using MINA FtpServer. You should move the issue to <a
+href="https://issues.apache.org/jira/browse/FTPSERVER" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/FTPSERVER</a> instead 
+
+
+On issue key FTPSERVER-467 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Just one last clarification.<br/>From what I see the classes that are parsing the commands
+(TextLineDecoder) and that are calling our FTP server handler are in
+mina-core.jar.<br/>Here is the stack
+trace:Our_FeatCommand(StAbstractCommand).execute(FtpIoSession, FtpServerContext,
+FtpRequest) line: 65	<br/>Our_Custom_FtpHandler.messageReceived(FtpIoSession, FtpRequest)
+line: 288	<br/>Our_Custom_FtpHandlerAdapter.messageReceived(IoSession, Object) line: 69 //
+HERE THE SECOND PARAMETER IS A STRING “FEAT”.IF IT IS AN OBJECT THAT CONTAINS INFORMATION
+WHETHER THE COMMAND IS RECEIVED VIA SSL WE CAN EASY IGNORE THE COMMAND IF IT IS RECEIVED
+AS A PLAIN TEXT AFTER “AUTH TLS” IS ALREADY
+RECEIVED.DefaultIoFilterChain$TailFilter.messageReceived(IoFilter$NextFilter, IoSession,
+Object) line: 716	<br/>DefaultIoFilterChain.callNextMessageReceived(IoFilterChain$Entry,
+IoSession, Object) line: 434	<br/>DefaultIoFilterChain.access$5(DefaultIoFilterChain,
+IoFilterChain$Entry, IoSession, Object) line:
+429	<br/>DefaultIoFilterChain$EntryImpl$1.messageReceived(IoSession, Object) line:
+796	<br/>ProtocolCodecFilter$ProtocolDecoderOutputImpl.flush(IoFilter$NextFilter,
+IoSession) line: 467	<br/>ProtocolCodecFilter.messageReceived(IoFilter$NextFilter,
+IoSession, Object) line:
+285<br/>DefaultIoFilterChain.callNextMessageReceived(IoFilterChain$Entry, IoSession,
+Object) line: 434	<br/>DefaultIoFilterChain.access$5(DefaultIoFilterChain,
+IoFilterChain$Entry, IoSession, Object) line:
+429	<br/>DefaultIoFilterChain$EntryImpl$1.messageReceived(IoSession, Object) line:
+796	<br/>IoFilterEvent.fire() line: 75	<br/>IoFilterEvent(IoEvent).run() line: 63I think
+that the solution is to change the classes from this stack trace to pass to our ftp server
+an object that contains the ftp command and information if the command is received via
+ssl.The SSL filter class also should be changed a little to put the information that the
+command is received via SSL. 
+==============================
+
+On issue key FTPSERVER-467 the Command pattern might have been discussed on the following comment: 
+==============================
+Just one last clarification.<br/>From what I see the classes that are parsing the commands
+(TextLineDecoder) and that are calling our FTP server handler are in
+mina-core.jar.<br/>Here is the stack
+trace:Our_FeatCommand(StAbstractCommand).execute(FtpIoSession, FtpServerContext,
+FtpRequest) line: 65	<br/>Our_Custom_FtpHandler.messageReceived(FtpIoSession, FtpRequest)
+line: 288	<br/>Our_Custom_FtpHandlerAdapter.messageReceived(IoSession, Object) line: 69 //
+HERE THE SECOND PARAMETER IS A STRING “FEAT”.IF IT IS AN OBJECT THAT CONTAINS INFORMATION
+WHETHER THE COMMAND IS RECEIVED VIA SSL WE CAN EASY IGNORE THE COMMAND IF IT IS RECEIVED
+AS A PLAIN TEXT AFTER “AUTH TLS” IS ALREADY
+RECEIVED.DefaultIoFilterChain$TailFilter.messageReceived(IoFilter$NextFilter, IoSession,
+Object) line: 716	<br/>DefaultIoFilterChain.callNextMessageReceived(IoFilterChain$Entry,
+IoSession, Object) line: 434	<br/>DefaultIoFilterChain.access$5(DefaultIoFilterChain,
+IoFilterChain$Entry, IoSession, Object) line:
+429	<br/>DefaultIoFilterChain$EntryImpl$1.messageReceived(IoSession, Object) line:
+796	<br/>ProtocolCodecFilter$ProtocolDecoderOutputImpl.flush(IoFilter$NextFilter,
+IoSession) line: 467	<br/>ProtocolCodecFilter.messageReceived(IoFilter$NextFilter,
+IoSession, Object) line:
+285<br/>DefaultIoFilterChain.callNextMessageReceived(IoFilterChain$Entry, IoSession,
+Object) line: 434	<br/>DefaultIoFilterChain.access$5(DefaultIoFilterChain,
+IoFilterChain$Entry, IoSession, Object) line:
+429	<br/>DefaultIoFilterChain$EntryImpl$1.messageReceived(IoSession, Object) line:
+796	<br/>IoFilterEvent.fire() line: 75	<br/>IoFilterEvent(IoEvent).run() line: 63I think
+that the solution is to change the classes from this stack trace to pass to our ftp server
+an object that contains the ftp command and information if the command is received via
+ssl.The SSL filter class also should be changed a little to put the information that the
+command is received via SSL. 
+==============================
+
+On issue key FTPSERVER-467 the command pattern might have been discussed on the following comment: 
+==============================
+Just one last clarification.<br/>From what I see the classes that are parsing the commands
+(TextLineDecoder) and that are calling our FTP server handler are in
+mina-core.jar.<br/>Here is the stack
+trace:Our_FeatCommand(StAbstractCommand).execute(FtpIoSession, FtpServerContext,
+FtpRequest) line: 65	<br/>Our_Custom_FtpHandler.messageReceived(FtpIoSession, FtpRequest)
+line: 288	<br/>Our_Custom_FtpHandlerAdapter.messageReceived(IoSession, Object) line: 69 //
+HERE THE SECOND PARAMETER IS A STRING “FEAT”.IF IT IS AN OBJECT THAT CONTAINS INFORMATION
+WHETHER THE COMMAND IS RECEIVED VIA SSL WE CAN EASY IGNORE THE COMMAND IF IT IS RECEIVED
+AS A PLAIN TEXT AFTER “AUTH TLS” IS ALREADY
+RECEIVED.DefaultIoFilterChain$TailFilter.messageReceived(IoFilter$NextFilter, IoSession,
+Object) line: 716	<br/>DefaultIoFilterChain.callNextMessageReceived(IoFilterChain$Entry,
+IoSession, Object) line: 434	<br/>DefaultIoFilterChain.access$5(DefaultIoFilterChain,
+IoFilterChain$Entry, IoSession, Object) line:
+429	<br/>DefaultIoFilterChain$EntryImpl$1.messageReceived(IoSession, Object) line:
+796	<br/>ProtocolCodecFilter$ProtocolDecoderOutputImpl.flush(IoFilter$NextFilter,
+IoSession) line: 467	<br/>Protoco

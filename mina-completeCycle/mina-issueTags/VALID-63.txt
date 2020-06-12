@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 5a5b96abf0b31e18148c99ed69b647ad2ab899e3
+
+From: Mediator-67
+To:   Mediator-68
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-63.txt 
+
+commit 5a5b96abf0b31e18148c99ed69b647ad2ab899e3
+Author: Niklas Therning <niklas@apache.org>
+
+    Added attributes to IoSessionConfig

@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 876fbd31662543b51e41471ada81e79e0097846e
+
+From: Abstract Factory-6
+To:   Abstract Factory-7
+
+From: Adapter-15
+To:   Adapter-12
+
+From: Facade-27
+To:   Facade-22
+
+From: Mediator-65
+To:   Mediator-57
+
+From: Strategy-43
+To:   Strategy-35
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-313.txt 
+
+commit 876fbd31662543b51e41471ada81e79e0097846e
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-267 - Allow usage of an Executor for launching threads in processors/acceptors
+
+
+
+==================================
+ Issue DIRMINA-267 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-267] Use Executor for launching process/acceptor threads
+-----------------
+
+-----------------
+Summary: Use Executor for launching process/acceptor threads
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 17 Sep 2006 21:33:05 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 17 Sep 2006 21:58:08 +0000
+-----------------
+
+-----------------
+Assigned to: Peter A Royal Jr.
+-----------------
+
+-----------------
+Description: 
+
+use the Executor vs new Thread() for launching processor/acceptor threads. Default
+behavior will be to keep 'new Thread' behavior.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Done! 
+
+

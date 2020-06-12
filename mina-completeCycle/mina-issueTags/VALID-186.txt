@@ -1,0 +1,19 @@
+Pattern changes caused by commit: c7b41628bbfd46b3e26e2faff809cadaadccc28e
+
+From: Mediator-65
+To:   Mediator-68
+
+From: Observer-1
+To:   Observer-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-186.txt 
+
+commit c7b41628bbfd46b3e26e2faff809cadaadccc28e
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-184 - Alternate ThreadPoolFilter that uses a pluggable thead pool. A Leader-Follower implementation, as well a java5 based pool that uses an ExecutorService

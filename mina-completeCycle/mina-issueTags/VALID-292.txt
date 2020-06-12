@@ -1,0 +1,17 @@
+Pattern changes caused by commit: ce67655b579b798bf1d9453daba3b3ec67441816
+
+From: Observer-3
+To:   Observer-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-292.txt 
+
+commit ce67655b579b798bf1d9453daba3b3ec67441816
+Author: Julien Vermillard <jvermillard@apache.org>
+
+     * more javadoc
+     * remove all the IoSessionStat from the sessions when the collector is shutdowned

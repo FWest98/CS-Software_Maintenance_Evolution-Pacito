@@ -1,0 +1,210 @@
+Pattern changes caused by commit: 8bce21536c429ce90f23a3fe09477d683b69a600
+
+From: Abstract Factory-5
+To:   Abstract Factory-6
+
+From: Factory Method-7
+To:   Factory Method-8
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-137.txt 
+
+commit 8bce21536c429ce90f23a3fe09477d683b69a600
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-165 (Easy and performant copy of the ByteBuffer)
+    * Added duplicate(), slice(), and asReadOnlyBuffer() to Bytebuffer
+    * Implemented these three methods for all allocator implementations
+
+
+
+==================================
+ Issue DIRMINA-165 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-165] Easy and performant copy of the ByteBuffer
+-----------------
+
+-----------------
+Summary: Easy and performant copy of the ByteBuffer
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 13 Jan 2006 21:34:58 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 22 Mar 2006 17:03:07 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Until now if you wish to broadcast a message you must create by your own the bytebuffer
+copies, it would be better to provide a ByteBuffer.asReadOnly() method that create a copy
+that share the data with the original ByteBuffer
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+In the MINA byteBuffer.asReadOnly() I create a new mina DefaultByteBuffer container and
+get into that the nio.buffer copy and the reference to the original mina bytebuffer, and a
+boolean flag that says if the DefaultByteBuffer wrap a readOnly copy or a real writable
+nio.bytebuffer. I do an aquire() of the original MINA byteBuffer.<br/>(Errata Corrige:
+instead of the flag I have used the reference to the original buffer: if it is null I
+think that it is not a copy)So when the MINA ByteBuffer copy is released, the release
+method just look at the flag and release the original mina bytebuffer.<br/>The MINA
+bytebuffer copy <em>must</em> be not pooled obviusly.In this way there is no need to make
+a copy of the data, but only a new nio.bytebuffer that use the same byte[] or direct
+array, and the original ByteBuffer will be released only when all the copies will be
+already written to the channel.This implementation do not work well with the expand
+features.<br/>All the stuff I have added are marked with a "DIRMINA 165" comment. 
+
+
+New Comment: 
+The ByteBuffer version I have published is not a good solution, I have modified it so I
+have the last version and an echo TCP server that does broadcast with the messages
+received.Somebody who have the power can remove here the ByteBuffer so I can publish the
+right version with the example? 
+
+
+New Comment: 
+The original attachment has been removed 
+
+
+New Comment: 
+Thanks a lot Niklas 8)<br/>This is the MINA broadcast test server, I have just modified
+the echoserver, the code is very trivial.<br/>Tested and well-working 
+
+
+New Comment: 
+And this is the modified (and working) ByteBuffer, with the asReadOnly() method.<br/>See
+the hubserver for an example of the right usage. 
+
+
+New Comment: 
+Your patch is very error-prone.  What about this?<ul>	<li>Provide all methods like
+duplicate, asReadOnlyBuffer, slice, ...</li>	<li>To invoke these methods, 'pooled'
+property must be false.</li>	<li>'pooled' property of all derived buffers and its parent
+buffer must be 'false' and cannot be changed anymore.</li></ul>In case of broadcasting
+only, we could provide more effective solution as we discussed in <a
+href="https://issues.apache.org/jira/browse/DIRMINA-42" title="SessionManagers should
+manage list of sessions being managed." class="issue-link"
+data-issue-key="DIRMINA-42"><del>DIRMINA-42</del></a>.WDYT? 
+
+
+New Comment: 
+I've already implemented slice() but haven't committed it yet. I've also added a
+slice(offset, length) method which uses the passed in values instead of the current
+postion and limit. I think it will be quite useful. I haven't thought of checking pooled
+== false. I will have to add that before committing.slice() becomes:public ByteBuffer
+slice()<br/>{<br/>  assertNotPooled(); // Throws IllegalStateException if pooled ==
+true<br/>  return wrap( buf().slice() );<br/>}Does this look OK? If it does the rest of
+the methods (duplicate(), asReadOnlyBuffer()) could be implemented like this. 
+
+
+New Comment: 
+There could also be a ByteBuffer.unpool() method which returns an unpooled copy of the
+buffer. If the buffer isn't pooled it will simply return itself: 
+
+
+New Comment: 
+I agree that buffers need all the duplicate-like methods, but what about pooling them?If
+all the buffers copied <em>and the parent too</em> have to be unpooled, it may increase a
+lot the time of allocation for direct buffers, especially in case of a massive use of
+copies that could be very light for CPU.It is certainly better than all the copies have
+pooled = false, and could not be changed, but the parent can be pooled, I think, after
+that all the copies have been released.<br/>WDYT? 
+
+
+New Comment: 
+Will fix this in 0.9.3 due to high demand 
+
+
+New Comment: 
+Another solution:Wrap underlying NIO buffer with UnexpandableByteBuffer (MINA buffer). 
+The eventual MINA buffer we use wraps UnexpandableByteBuffer.  In other words, we can
+solve this problem by maintaining reference count in two-level. 
+
+
+New Comment: 
+I realized the solution I mentioned above was not really easy to implement after wasting
+an hour. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/>Federico's solution doesn't resolve the problem in
+the following scenario:    buf = ...;<br/>    dupBuf = buf.duplicate();<br/>   
+buf.release();<br/>    newBuf = ByteBuffer.allocate( ... ); // newBuf can be the same
+instance with buf<br/>    dupBuf.release(); // This will lead us to a big mess. 
+
+
+New Comment: 
+It's hard to  duplicate buffers safely with autoExpand.There are two solutions
+AFAIK:<ul>	<li>Force 'autoExpand' property to be 'false' always, once duplication is
+invoked.</li></ul>In this workaround, reference count is shared among the original buffer
+and the derived ones.  It becomes hard to detect wrong number of releases spreaded over
+multiple duplicate buffers.<ul>	<li>Force both 'pooled' and 'autoExpand' property to be
+'false' always, once duplication is invoked.</li></ul>In this workaround, there's no need
+to manage a referemce count at all. 
+
+
+New Comment: 
+I agree about keeping autoExpand "false" after a duplication.Personally I thought a lot
+about this problem, and I suggest having a refCount object, shared between all the copies
+and the originalBuffer (I consider the original as a copy like the others), and having an
+unshared refCount, used privately by each copy.<br/>SharedRefCount should be an object
+wich has a reference to the original nio.bytebuffer.<br/>Then, when we create a copy, its
+own refCount is set to 1 by default, and we should give the copy the sharedRefCount
+increased by 1.<br/>When an acquire() or release() method is invoked it will
+increase/decrease the private refCount and the sharedRefCount.In this way, whenever
+calling a release(),and the privateRefCount goes to zero, we check if the sharedRefCount
+is higher than zero, and we simply discard the underlying nio.bytebuffer (because it is a
+copy).<br/>Instead, if the sharedRefCount is zero, we discard, as usual, our
+nio.bytebuffer, and then we pool the original nio.ByteBuffer, obtained from our
+sharedRefCount.This way of doing should be effective with duplicate() and asReadOnly()
+methods, because we are sure we don't pool any of the copied nio.bytebuffers that are
+dangerous to be used, and we manage the privateRefCounts properly.WDYT? 
+
+
+New Comment: 
+I think <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/help_16.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> I agree with Federico. I don't see why we
+need to lose the pooling of the original buffer in the case where you slice the buffer,
+although obviously you need to prevent auto expand.In the implementation I did as a quick
+test, I created a subclass of DefaultByteBuffer - I called it SlicedByteBuffer - which had
+its own reference count and held a reference to the original (parent) byte buffer it came
+from.  When you call slice on a DefaultByteBuffer, that increment the reference count and
+returns a SlicedByteBuffer. Calling release() on the SlicedByteBuffer decrements the
+slice's reference count and once that reaches zero it calls release() on the parent.So in
+Trustin's example:    buf = ...;<br/>    dupBuf = buf.duplicate(); // this increments the
+ref count of buf and returns a subclass that has different release() implementation<br/>  
+ buf.release(); // ref count is still 1 so buffer is not released into the pool<br/>   
+newBuf = ByteBuffer.allocate( ... ); // this is now fine<br/>    dupBuf.release(); // this
+releases both the dupBuf and buf instancesObviously SlicedByteBuffer cannot be pooled nor
+can it autoexpand. 
+
+

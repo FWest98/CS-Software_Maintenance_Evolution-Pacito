@@ -1,0 +1,75 @@
+Pattern changes caused by commit: 805db5f3926a9e51d8b9b8539186029e70e7eae9
+
+From: Mediator-67
+To:   Mediator-68
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-236.txt 
+
+commit 805db5f3926a9e51d8b9b8539186029e70e7eae9
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-243 (mark() and autoexpand)
+    * Made sure mark is preserved after expansion
+    * Refactored ByteBuffer implementation
+      * Most base implementation has been extracted into BaseByteBuffer to remove code duplication
+    * Added ByteBuffer.capacity()
+
+
+
+==================================
+ Issue DIRMINA-243 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-243] Mark is lost after buffer expansion (autoexpand)
+-----------------
+
+-----------------
+Summary: Mark is lost after buffer expansion (autoexpand)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 10 Aug 2006 18:37:23 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Aug 2006 05:46:23 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Is there any way how to prevent MINA ByteBuffer from losing the previously set mark()
+when autoexpanding?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I checked in the fix.  Please check out the trunk and test if my fix works.  Please close
+this issue after your confirmation. 
+
+

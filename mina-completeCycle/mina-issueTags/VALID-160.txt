@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 22e94f4685c5618ae19000c0e7e77e350fe046ff
+
+From: Bridge-14
+To:   Bridge-15
+
+From: Mediator-71
+To:   Mediator-73
+
+From: Strategy-35
+To:   Strategy-36
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-160.txt 
+
+commit 22e94f4685c5618ae19000c0e7e77e350fe046ff
+Author: Niklas Therning <niklas@apache.org>
+
+    Added example of a simple tunneling proxy.

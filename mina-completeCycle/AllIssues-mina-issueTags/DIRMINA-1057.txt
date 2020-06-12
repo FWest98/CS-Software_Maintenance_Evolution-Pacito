@@ -1,0 +1,372 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hmmmm, sounds like a bug. Do you have a reproductible test case ? 
+
+
+New Comment: 
+not at present. will try and produce one. 
+
+
+New Comment: 
+Andre, how did you test this ? We think that we have the same issue. 
+
+
+On issue key DIRMINA-1057 the Chain pattern might have been discussed on the following comment: 
+==============================
+I don't think that I understand this code well but is it the case that if one is using a
+<tt>ProtocolCodecFilter</tt> - that contains an <tt>IoBuffer</tt> -
+<tt>ScheduledWriteMessages</tt> will not be incremented ?<br/>The fragment below from
+<tt>DefaultIoFilterChain</tt> (for the referenced version, start line 734) suggests that
+<tt>ScheduledWriteBytes</tt> or <tt>ScheduledWriteMessages</tt> will be incremented, not
+both.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-comment">// Maintain
+counters.</span>            <span class="code-keyword">if</span>
+(writeRequest.getMessage() <span class="code-keyword">instanceof</span> IoBuffer) {       
+        IoBuffer buffer = (IoBuffer) writeRequest.getMessage();                <span
+class="code-comment">// I/O processor implementation will call buffer.reset()</span>      
+         <span class="code-comment">// it after the write operation is finished,
+because</span>                <span class="code-comment">// the buffer will be specified
+with messageSent event.</span>                buffer.mark();                <span
+class="code-object">int</span> remaining = buffer.remaining();                <span
+class="code-keyword">if</span> (remaining &gt; 0) {                   
+s.increaseScheduledWriteBytes(remaining);                }            } <span
+class="code-keyword">else</span> {                s.increaseScheduledWriteMessages();     
+      } </pre></div></div> 
+==============================
+
+New Comment: 
+I don't think that I understand this code well but is it the case that if one is using a
+<tt>ProtocolCodecFilter</tt> - that contains an <tt>IoBuffer</tt> -
+<tt>ScheduledWriteMessages</tt> will not be incremented ?<br/>The fragment below from
+<tt>DefaultIoFilterChain</tt> (for the referenced version, start line 734) suggests that
+<tt>ScheduledWriteBytes</tt> or <tt>ScheduledWriteMessages</tt> will be incremented, not
+both.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-comment">// Maintain
+counters.</span>            <span class="code-keyword">if</span>
+(writeRequest.getMessage() <span class="code-keyword">instanceof</span> IoBuffer) {       
+        IoBuffer buffer = (IoBuffer) writeRequest.getMessage();                <span
+class="code-comment">// I/O processor implementation will call buffer.reset()</span>      
+         <span class="code-comment">// it after the write operation is finished,
+because</span>                <span class="code-comment">// the buffer will be specified
+with messageSent event.</span>                buffer.mark();                <span
+class="code-object">int</span> remaining = buffer.remaining();                <span
+class="code-keyword">if</span> (remaining &gt; 0) {                   
+s.increaseScheduledWriteBytes(remaining);                }            } <span
+class="code-keyword">else</span> {                s.increaseScheduledWriteMessages();     
+      } </pre></div></div> 
+
+
+New Comment: 
+There might be a race condition, where the <tt>scheduledWriteMessages</tt> is decremented
+before being incremented.Now this counter is not really interesting : it just count the
+number of messages waiting to be sent (or fully written) to the client. Ultimately, it
+should be 0 most of the time. 
+
+
+New Comment: 
+In <tt>AbstractIoSession</tt> - the method <tt>decreaseScheduledBytesAndMessages</tt>
+decrements the message count when the buffer is empty. This is  called from
+<tt>clearWriteRequestQueue(S session)</tt> in <tt>AbstractPollinIoProcessor</tt>. I think
+that in cases where the message is <tt>IoBuffer</tt> the message count is only
+decremented. I don't know how to write a unit test for this but if I write messages with a
+delay <tt>session.write(news).await(10);</tt> or wait uninterruptedly I can see the result
+of <tt>getScheduledWriteMessages()</tt> decrementing constantly while
+<tt>getScheduledWriteBytes()</tt> remains 0.If I don't wait the <tt>sceduledMsgBytes</tt>
+increases due to the buffer and <tt>getScheduledWriteMessages</tt> remains 0, presumably
+as a result of the code below. line 1012 in <tt>AbstractIoSession</tt> .I was thinking
+that the "WriteMessages" does not make sense when the message is an IoBuffer but I doubt
+that I understand the intent of this code.<blockquote>Oct 07, 2017 4:33:06 PM
+org.apache.mina.filter.logging.LoggingFilter log</blockquote><blockquote>INFO: SENT:
+8=FIX.4.4�9=25�35=B�148=Headline : 7784�10=048�</blockquote><blockquote>scheduled write
+messages -7785</blockquote><blockquote>scheduled write bytes 0</blockquote><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">/**     * Decrease the counters of written messages and written bytes
+when a message has been written     *      * @param request The written message     */   
+<span class="code-keyword">public</span> <span class="code-keyword">final</span> void
+decreaseScheduledBytesAndMessages(WriteRequest request) {        <span
+class="code-object">Object</span> message = request.getMessage();                <span
+class="code-keyword">if</span> (message <span class="code-keyword">instanceof</span>
+IoBuffer) {            IoBuffer b = (IoBuffer) message;                        <span
+class="code-keyword">if</span> (b.hasRemaining()) {               
+increaseScheduledWriteBytes(-((IoBuffer) message).remaining());            } <span
+class="code-keyword">else</span> {                decreaseScheduledWriteMessages();       
+    }        } <span class="code-keyword">else</span> {           
+decreaseScheduledWriteMessages();        }    }</pre></div></div> 
+
+
+New Comment: 
+Test example can be found at <a
+href="https://github.com/david-gibbs-ig/mina-test-case/tree/mina-only-case"
+class="external-link"
+rel="nofollow">https://github.com/david-gibbs-ig/mina-test-case/tree/mina-only-case</a> 
+
+
+New Comment: 
+Okay, I pulled the <tt>tag/2.0.16</tt> and found <tt>FileRegion</tt> writes increase the
+write counter and decrease the backlog causing a negative backlog because the
+<tt>FileRegion</tt> never increases the backlog.  Are you writing Files at all?Also
+<tt>decreaseScheduledBytesAndMessages</tt> is called during close and not during the
+normal course of operation.  What you should look at is
+<tt>session.increaseWrittenBytes</tt> because it in turn decreases backlog by calling
+<tt>increaseScheduledBytes</tt>The function <tt>increaseScheduledBytes</tt> is only called
+by:<ul>	<li><tt>AbstractIoSession#decreaseScheduledBytesAndMessages</tt></li>	<li><tt>HeadFilter#filterWrite</tt></li>	<li><tt>AbstractIoSession#increaseWrittenBytes</tt></li></ul>Ignore
+<tt>AbstractIoSession#decreaseScheduledBytesAndMessages</tt>  because that only occurs
+during an Error or Close.  Here is the call stack:&gt;
+<tt>AbstractIoSession#decreaseScheduledBytesAndMessages</tt> <br/>&gt;&gt;
+<tt>AbstractPollingIoProcessor#clearWriteRequestQueue</tt><br/>&gt;&gt;&gt;<tt>AbstractPollingIoProcessor#removeNow</tt> 
+
+
+New Comment: 
+Thank you Jonathan, I started investigating as it seems as if a QuickfFIX/J feature that
+relies on getScheduledMessages to detect slow consumers did not behave as I expected.
+getScheduledBytes does seem to work. I attached a link to an example that shows
+getScheduledMessages decrementing to large negative numbers. It's not writing files.Master
+shows the example with some QuickFIX/J classes <br/><a
+href="https://github.com/david-gibbs-ig/mina-test-case/commits/master"
+class="external-link"
+rel="nofollow">https://github.com/david-gibbs-ig/mina-test-case/commits/master</a>the
+branch here is mina only.<br/><a
+href="https://github.com/david-gibbs-ig/mina-test-case/tree/mina-only-case"
+class="external-link"
+rel="nofollow">https://github.com/david-gibbs-ig/mina-test-case/tree/mina-only-case</a> 
+
+
+New Comment: 
+Can you check <tt>session.getWriteRequestQueue().size()</tt> and see if that goes
+negative? 
+
+
+New Comment: 
+No it doesn't seem to go negative.<blockquote>scheduled write messages
+-23922</blockquote><blockquote>scheduled write bytes 0</blockquote><blockquote>scheduled
+write request queue size 0</blockquote><blockquote>in writer : writing
+23922</blockquote><blockquote>scheduled write messages
+-23923</blockquote><blockquote>scheduled write bytes 0</blockquote><blockquote>scheduled
+write request queue size 0</blockquote> 
+
+
+New Comment: 
+Ignore - was looking in the wrong class - I pulled the examples and am working it out now. 
+
+
+On issue key DIRMINA-1057 the chain pattern might have been discussed on the following comment: 
+==============================
+Okay, sorry for all the edits of the previous comment.Here is the deal. 
+<ul>	<li><tt>org.apache.mina.filter.codec.ProtocolCodecFilter</tt> produces two
+WriteRequest objects for every 1
+input.</li>	<li><tt>DefaultIoFilterChain$HeadFilter#filterWrite</tt> only called
+<tt>increaseScheduledWriteMessages</tt> when <tt>getMessage()</tt> was not an instanceof
+<tt>IoBuffer</tt> which causes other problems because both File and IoBuffer requests are
+transferred down the <tt>fireMessageSent</tt> chain and cause the count to go negative
+also.</li>	<li><tt>DefaultIoFilterChain#fireMessageSent</tt> discriminates against Encoded
+requests and will not allow them down the
+chain.</li>	<li><tt>AbstractPollingIoProcessor#writeBuffer</tt> contains a couple of
+errors when dealing with empty write requests or null checks for the existance of an
+OriginalRequest.</li></ul><h3><a name="FixHeadFilter"></a><b>Fix HeadFilter</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">public</span> void filterWrite(NextFilter
+nextFilter, IoSession session, WriteRequest writeRequest) <span
+class="code-keyword">throws</span> Exception		{			AbstractIoSession s =
+(AbstractIoSession) session;			<span class="code-comment">// Maintain
+counters.</span>			<span class="code-keyword">if</span> (writeRequest.getMessage() <span
+class="code-keyword">instanceof</span> IoBuffer)			{				IoBuffer buffer = (IoBuffer)
+writeRequest.getMessage();				<span class="code-comment">// I/O processor implementation
+will call buffer.reset()</span>				<span class="code-comment">// it after the write
+operation is finished, because</span>				<span class="code-comment">// the buffer will be
+specified with messageSent event.</span>				buffer.mark();				<span
+class="code-object">int</span> remaining = buffer.remaining();				<span
+class="code-keyword">if</span> (remaining &gt;
+0)				{					s.increaseScheduledWriteBytes(remaining);				}			}			<span
+class="code-keyword">if</span>
+(!writeRequest.isEncoded())			{				s.increaseScheduledWriteMessages();			}			WriteRequestQueue
+writeRequestQueue = s.getWriteRequestQueue();			<span class="code-keyword">if</span>
+(!s.isWriteSuspended())			{				<span class="code-keyword">if</span>
+(writeRequestQueue.isEmpty(session))				{					<span class="code-comment">// We can write
+directly the message</span>					s.getProcessor().write(s, writeRequest);				}				<span
+class="code-keyword">else</span>				{					s.getWriteRequestQueue().offer(s,
+writeRequest);					s.getProcessor().flush(s);				}			}			<span
+class="code-keyword">else</span>			{				s.getWriteRequestQueue().offer(s,
+writeRequest);			}		}</pre></div></div><h3><a
+name="FixAbstractPollingIoProcessor"></a><b>Fix AbstractPollingIoProcessor</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">private</span> <span
+class="code-object">int</span> writeBuffer(S session, WriteRequest req, <span
+class="code-object">boolean</span> hasFragmentation, <span class="code-object">int</span>
+maxLength, <span class="code-object">long</span> currentTime) <span
+class="code-keyword">throws</span> Exception	{		IoBuffer buf = (IoBuffer)
+req.getMessage();		<span class="code-object">int</span> localWrittenBytes = 0;		<span
+class="code-keyword">if</span> (buf.hasRemaining())		{			<span
+class="code-object">int</span> length;			<span class="code-keyword">if</span>
+(hasFragmentation)			{				length = <span
+class="code-object">Math</span>.min(buf.remaining(), maxLength);			}			<span
+class="code-keyword">else</span>			{				length = buf.remaining();			}			<span
+class="code-keyword">try</span>			{				localWrittenBytes = <span
+class="code-keyword">this</span>.write(session, buf, length);			}			<span
+class="code-keyword">catch</span> (IOException ioe)			{				ioe.printStackTrace();				<span
+class="code-comment">// We have had an issue <span class="code-keyword">while</span>
+trying to send data to the</span>				<span class="code-comment">// peer : let's close the
+session.</span>				buf.free();				session.closeNow();				<span
+class="code-keyword">this</span>.removeNow(session);				<span
+class="code-keyword">return</span>
+0;			}			session.increaseWrittenBytes(localWrittenBytes, currentTime);			<span
+class="code-comment">// Now, forward the original message</span>			<span
+class="code-keyword">if</span> (!buf.hasRemaining() || (!hasFragmentation &amp;&amp;
+(localWrittenBytes != 0)))			{				WriteRequest originalRequest =
+req.getOriginalRequest();				<span class="code-keyword">if</span> (originalRequest !=
+<span class="code-keyword">null</span>)				{					<span class="code-object">Object</span>
+originalMessage = originalRequest.getMessage();					<span class="code-keyword">if</span>
+(originalMessage <span class="code-keyword">instanceof</span> IoBuffer)					{						buf =
+(IoBuffer) originalMessage;						<span class="code-object">int</span> pos =
+buf.position();						buf.reset();						<span
+class="code-keyword">this</span>.fireMessageSent(session, req);						<span
+class="code-comment">// And set it back to its
+position</span>						buf.position(pos);					}					<span
+class="code-keyword">else</span>					{						<span
+class="code-keyword">this</span>.fireMessageSent(session, req);					}				}				<span
+class="code-keyword">else</span>				{					<span
+class="code-keyword">this</span>.fireMessageSent(session, req);				}			}		}		<span
+class="code-keyword">else</span>		{			<span
+class="code-keyword">this</span>.fireMessageSent(session, req);		}		<span
+class="code-keyword">return</span> localWrittenBytes;	}</pre></div></div>Update: Fixed
+double lookup for getOriginalRequest and getOriginalMessage 
+==============================
+
+On issue key DIRMINA-1057 the Chain pattern might have been discussed on the following comment: 
+==============================
+Okay, sorry for all the edits of the previous comment.Here is the deal. 
+<ul>	<li><tt>org.apache.mina.filter.codec.ProtocolCodecFilter</tt> produces two
+WriteRequest objects for every 1
+input.</li>	<li><tt>DefaultIoFilterChain$HeadFilter#filterWrite</tt> only called
+<tt>increaseScheduledWriteMessages</tt> when <tt>getMessage()</tt> was not an instanceof
+<tt>IoBuffer</tt> which causes other problems because both File and IoBuffer requests are
+transferred down the <tt>fireMessageSent</tt> chain and cause the count to go negative
+also.</li>	<li><tt>DefaultIoFilterChain#fireMessageSent</tt> discriminates against Encoded
+requests and will not allow them down the
+chain.</li>	<li><tt>AbstractPollingIoProcessor#writeBuffer</tt> contains a couple of
+errors when dealing with empty write requests or null checks for the existance of an
+OriginalRequest.</li></ul><h3><a name="FixHeadFilter"></a><b>Fix HeadFilter</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">public</span> void filterWrite(NextFilter
+nextFilter, IoSession session, WriteRequest writeRequest) <span
+class="code-keyword">throws</span> Exception		{			AbstractIoSession s =
+(AbstractIoSession) session;			<span class="code-comment">// Maintain
+counters.</span>			<span class="code-keyword">if</span> (writeRequest.getMessage() <span
+class="code-keyword">instanceof</span> IoBuffer)			{				IoBuffer buffer = (IoBuffer)
+writeRequest.getMessage();				<span class="code-comment">// I/O processor implementation
+will call buffer.reset()</span>				<span class="code-comment">// it after the write
+operation is finished, because</span>				<span class="code-comment">// the buffer will be
+specified with messageSent event.</span>				buffer.mark();				<span
+class="code-object">int</span> remaining = buffer.remaining();				<span
+class="code-keyword">if</span> (remaining &gt;
+0)				{					s.increaseScheduledWriteBytes(remaining);				}			}			<span
+class="code-keyword">if</span>
+(!writeRequest.isEncoded())			{				s.increaseScheduledWriteMessages();			}			WriteRequestQueue
+writeRequestQueue = s.getWriteRequestQueue();			<span class="code-keyword">if</span>
+(!s.isWriteSuspended())			{				<span class="code-keyword">if</span>
+(writeRequestQueue.isEmpty(session))				{					<span class="code-comment">// We can write
+directly the message</span>					s.getProcessor().write(s, writeRequest);				}				<span
+class="code-keyword">else</span>				{					s.getWriteRequestQueue().offer(s,
+writeRequest);					s.getProcessor().flush(s);				}			}			<span
+class="code-keyword">else</span>			{				s.getWriteRequestQueue().offer(s,
+writeRequest);			}		}</pre></div></div><h3><a
+name="FixAbstractPollingIoProcessor"></a><b>Fix AbstractPollingIoProcessor</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">private</span> <span
+class="code-object">int</span> writeBuffer(S session, WriteRequest req, <span
+class="code-object">boolean</span> hasFragmentation, <span class="code-object">int</span>
+maxLength, <span class="code-object">long</span> currentTime) <span
+class="code-keyword">throws</span> Exception	{		IoBuffer buf = (IoBuffer)
+req.getMessage();		<span class="code-object">int</span> localWrittenBytes = 0;		<span
+class="code-keyword">if</span> (buf.hasRemaining())		{			<span
+class="code-object">int</span> length;			<span class="code-keyword">if</span>
+(hasFragmentation)			{				length = <span
+class="code-object">Math</span>.min(buf.remaining(), maxLength);			}			<span
+class="code-keyword">else</span>			{				length = buf.remaining();			}			<span
+class="code-keyword">try</span>			{				localWrittenBytes = <span
+class="code-keyword">this</span>.write(session, buf, length);			}			<span
+class="code-keyword">catch</span> (IOException ioe)			{				ioe.printStackTrace();				<span
+class="code-comment">// We have had an issue <span class="code-keyword">while</span>
+trying to send data to the</span>				<span class="code-comment">// peer : let's close the
+session.</span>				buf.free();				session.closeNow();				<span
+class="code-keyword">this</span>.removeNow(session);				<span
+class="code-keyword">return</span>
+0;			}			session.increaseWrittenBytes(localWrittenBytes, currentTime);			<span
+class="code-comment">// Now, forward the original message</span>			<span
+class="code-keyword">if</span> (!buf.hasRemaining() || (!hasFragmentation &amp;&amp;
+(localWrittenBytes != 0)))			{				WriteRequest originalRequest =
+req.getOriginalRequest();				<span class="code-keyword">if</span> (originalRequest !=
+<span class="code-keyword">null</span>)				{					<span class="code-object">Object</span>
+originalMessage = originalRequest.getMessage();					<span class="code-keyword">if</span>
+(originalMessage <span class="code-keyword">instanceof</span> IoBuffer)					{						buf =
+(IoBuffer) originalMessage;						<span class="code-object">int</span> pos =
+buf.position();						buf.reset();						<span
+class="code-keyword">this</span>.fireMessageSent(session, req);						<span
+class="code-comment">// And set it back to its
+position</span>						buf.position(pos);					}					<span
+class="code-keyword">else</span>					{						<span
+class="code-keyword">this</span>.fireMessageSent(session, req);					}				}				<span
+class="code-keyword">else</span>				{					<span
+class="code-keyword">this</span>.fireMessageSent(session, req);				}			}		}		<span
+class="code-keyword">else</span>		{			<span
+class="code-keyword">this</span>.fireMessageSent(session, req);		}		<span
+class="code-keyword">return</span> localWrittenBytes;	}</pre></div></div>Update: Fixed
+double lookup for getOriginalRequest and getOriginalMessage 
+==============================
+
+New Comment: 
+Okay, sorry for all the edits of the previous comment.Here is the deal. 
+<ul>	<li><tt>org.apache.mina.filter.codec.ProtocolCodecFilter</tt> produces two
+WriteRequest objects for every 1
+input.</li>	<li><tt>DefaultIoFilterChain$HeadFilter#filterWrite</tt> only called
+<tt>increaseScheduledWriteMessages</tt> when <tt>getMessage()</tt> was not an instanceof
+<tt>IoBuffer</tt> which causes other problems because both File and IoBuffer requests are
+transferred down the <tt>fireMessageSent</tt> chain and cause the count to go negative
+also.</li>	<li><tt>DefaultIoFilterChain#fireMessageSent</tt> discriminates against Encoded
+requests and will not allow them down the
+chain.</li>	<li><tt>AbstractPollingIoProcessor#writeBuffer</tt> contains a couple of
+errors when dealing with empty write requests or null checks for the existance of an
+OriginalRequest.</li></ul><h3><a name="FixHeadFilter"></a><b>Fix HeadFilter</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">public</span> void filterWrite(NextFilter
+nextFilter, IoSession session, WriteRequest writeRequest) <span
+class="code-keyword">throws</span> Exception		{			AbstractIoSession s =
+(AbstractIoSession) session;			<span class="code-comment">// Maintain
+counters.</span>			<span class="code-keyword">if</span> (writeRequest.getMessage() <span
+class="code-keyword">instanceof</span> IoBuffer)			{				IoBuffer buffer = (IoBuffer)
+writeRequest.getMessage();				<span class="code-comment">// I/O processor implementation
+will call buffer.reset()</span>				<span class="code-comment">// it after the write
+operation is finished, because</span>				<span class="code-comment">// the buffer will be
+specified with messageSent event.</span>				buffer.mark();				<span
+class="code-object">int</span> remaining = buffer.remaining();				<span
+class="code-keyword">if</span> (remaining &gt;
+0)				{					s.increaseScheduledWriteBytes(remaining);				}			}			<span
+class="code-keyword">if</span>
+(!writeRequest.isEncoded())			{				s.increaseScheduledWriteMessages();			}			WriteRequestQueue
+writeRequestQueue = s.getWriteRequestQueue();			<span class="code-keyword">if</span>
+(!s.isWriteSuspended())			{				<span class="code-keyword">if</span>
+(writeRequestQueue.isEmpty(session))				{					<span class="code-comment">// We can write
+directly the message</span>					s.getProcessor().write(s, writeRequest);				}				<span
+class="code-keyword">else</span>				{					s.getWriteRequestQueue().offer(s,
+writeRequest);					s.getProcessor().flush(s);				}			}			<span
+class="code-keyword">else</span>			{				s.getWriteRequestQueue().offer(s,
+writeRequest);			}		}</pre></div></div><h3><a
+name="FixAbstractPollingIoProcessor"></a><b>Fix AbstractPollingIoProcessor</b></h3><div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">private</span> <span
+class="code-object">int</span> writeBuffer(S session, WriteRequest req, <span
+class="code-object">boolean</span> hasFragmentation, <span class="code-object">int</span>
+maxLength, <span class="code-object">long</span> currentTime) <span
+class="code-keyword">throws</span> Exception	{		IoBuffer buf = (IoBuffer)
+req.getMessage();		<span class="code-object">int</span> localWrittenBytes = 0;		<span
+class="code-keyword">if</span> (buf.hasRemaining())		{			<span
+class="code-object">int</span> length;			<span class="code-keyword">if</span>
+(hasFragmentation)			{				length = <span
+class="code-object">Math</span>.min(buf.remaining(), maxLength);			}			<span
+class="code-keyword">else</span>			{				length = buf.remaining();			}			<span
+class="code-keyword">try</span>			{				localWrittenBytes = <span
+class="code-keyword">this</span>.write(session,

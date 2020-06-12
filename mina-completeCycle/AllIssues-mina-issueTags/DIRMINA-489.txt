@@ -1,0 +1,122 @@
+On issue key DIRMINA-489 the Composite pattern might have been discussed, namely here: 
+==============================
+Composite IoBuffer 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-489 the Composite pattern might have been discussed on the following comment: 
+==============================
+In addition to the mentioned benefits, this could also serve as the way to introduce
+gathering write to the framework by adding IoBuffer.isComposite(),
+IoBuffer.getComposites(), in the same style of having backing arrays. That being unless I
+missed something, which could happen as I do not know the framework that well.This same
+class could also be used to implement scatter read, but as far as I can see, that would
+mean every instance of IoAcceptor (or SessionConfig?) would need a specific
+IoBufferAllocator. 
+==============================
+
+New Comment: 
+In addition to the mentioned benefits, this could also serve as the way to introduce
+gathering write to the framework by adding IoBuffer.isComposite(),
+IoBuffer.getComposites(), in the same style of having backing arrays. That being unless I
+missed something, which could happen as I do not know the framework that well.This same
+class could also be used to implement scatter read, but as far as I can see, that would
+mean every instance of IoAcceptor (or SessionConfig?) would need a specific
+IoBufferAllocator. 
+
+
+New Comment: 
+Thanks Johannes for the comment.  It is very helpful.  Please keep posting any new ideas
+so we can roll out something cool. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+On issue key DIRMINA-489 the Composite pattern might have been discussed on the following comment: 
+==============================
+Attaching file from this message (<a
+href="http://www.nabble.com/Re%3A-Streams-and-disposal-of-ByteBuffers--Was%3A-Re%3A-Redesigning-IoBuffer...--p17251948.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Re%3A-Streams-and-disposal-of-ByteBuffers--Was%3A-Re%3A-Redesigning-IoBuffer...--p17251948.html</a>),
+to make license approval explicit.Note that ByteArrayList contains code I originally wrote
+for the Commons Collections project, although I lost the previous license headers
+somewhere along the way.Excerpt from email:Since my last email I've spent a bit of time
+playing around with a set of classes and interfaces that (hopefully) provide the sort of
+functionality that we talk about. They're not quite ready, but I think it might be worth
+sharing them, so you can consider them for your new branch.I've attached the source for
+these files. They're not complete yet or very well tested (e.g. flushing doesn't work
+properly), but I think I'm reasonably happy with the design. Notably there's no mark/reset
+functionality, nor is there support for reading/writing a wide variety of types (just
+byte/ByteBuffer/int). These features should be easy to add. I just wanted to keep it as
+simple as possible initially.The key thing I've done is factored the design into multiple
+classes and interfaces. This move away from a single, monolithic class is intentional.
+Having multiple classes allows users to pick the implementation that suits a particular
+usage. It also dramatically simplifies implementation since we can use lower-level classes
+to build our higher-level ones, rather than trying to do everything within a single class.
+e.g. Stream classes are much easier to write once a good composite buffer class has been
+written.Here's a summary of the classes: (Names are just placeholders.)<ul
+class="alternate" type="square">	<li>BufferByteArray: A class that wraps ByteBuffer,
+providing simple utility methods and especially a free method to support
+pooling.</li>	<li>CompositeByteArray: There is a class with the same interface that
+supports multiple buffers with O(1) adding and removing.</li>	<li>*ByteArray.Cursor:
+Stores position information for a ByteArray. Keeping this information separate makes the
+classes simpler, and gives users more flexibility (e.g. reading and writing at separate
+positions at the same time).</li>	<li>CompositeByteArrayRelativeReader/Writer:
+Restrictive, relative-access-only stream interfaces, backed by a CompositeByteArray. The
+benefit of these stream interfaces is that they control access to the underlying buffers,
+and so can do certain things automatically for the user (e.g. freeing
+buffers).</li></ul>Anyway the design should allow all the big features we've been talking
+about:<ul class="alternate" type="square">	<li>zero-copy reads</li>	<li>gathering
+writes</li>	<li>optional asynchronous stream interface with
+auto-freeing/auto-allocating/auto-flushing of ByteBuffers</li></ul> 
+==============================
+
+On issue key DIRMINA-489 the composite pattern might have been discussed on the following comment: 
+==============================
+Attaching file from this message (<a
+href="http://www.nabble.com/Re%3A-Streams-and-disposal-of-ByteBuffers--Was%3A-Re%3A-Redesigning-IoBuffer...--p17251948.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Re%3A-Streams-and-disposal-of-ByteBuffers--Was%3A-Re%3A-Redesigning-IoBuffer...--p17251948.html</a>),
+to make license approval explicit.Note that ByteArrayList contains code I originally wrote
+for the Commons Collections project, although I lost the previous license headers
+somewhere along the way.Excerpt from email:Since my last email I've spent a bit of time
+playing around with a set of classes and interfaces that (hopefully) provide the sort of
+functionality that we talk about. They're not quite ready, but I think it might be worth
+sharing them, so you can consider them for your new branch.I've attached the source for
+these files. They're not complete yet or very well tested (e.g. flushing doesn't work
+properly), but I think I'm reasonably happy with the design. Notably there's no mark/reset
+functionality, nor is there support for reading/writing a wide variety of types (just
+byte/ByteBuffer/int). These features should be easy to add. I just wanted to keep it as
+simple as possible initially.The key thing I've done is factored the design into multiple
+classes and interfaces. This move away from a single, monolithic class is intentional.
+Having multiple classes allows users to pick the implementation that suits a particular
+usage. It also dramatically simplifies implementation since we can use lower-level classes
+to build our higher-level ones, rather than trying to do everything within a single class.
+e.g. Stream classes are much easier to write once a good composite buffer class has been
+written.Here's a summary of the classes: (Names are just placeholders.)<ul
+class="alternate" type="square">	<li>BufferByteArray: A class that wraps ByteBuffer,
+providing simple utility methods and especially a free method to support
+pooling.</li>	<li>CompositeByteArray: There is a class with the same interface that
+supports multiple buffers with O(1) adding and removing.</li>	<li>*ByteArray.Cursor:
+Stores position information for a ByteArray. Keeping this information separate makes the
+classes simpler, and gives users more flexibility (e.g. reading and writing at separate
+positions at the same time).</li>	<li>CompositeByteArrayRelativeReader/Writer:
+Restrictive, relative-access-only stream interfaces, backed by a CompositeByteArray. The
+benefit of these stream interfaces is that they control access to the underlying buffers,
+and so can do certain things automatically for the user (e.g. freeing
+buffers).</li></ul>Anyway the design should allow all the big features we've been talking
+about:<ul class="alternate" type="square">	<li>zero-copy reads</li>	<li>gathering
+writes</li>	<li>optional asynchronous stream interface with
+auto-freeing/auto-allocating/auto-flushing of ByteBuffers</li></ul> 
+==============================
+
+New Comment: 
+Attaching file from this message (<a
+href="http://www.nabble.com/Re%3A-Streams-and-disposal-of-ByteBuffers--Was%3A-Re%3A-Redesigning-IoBuffer...--p17251948.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Re%3A-Streams-and-d

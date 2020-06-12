@@ -1,0 +1,153 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Are you sure it is actually using 100% of a cpu and not just showing up as busy?  If you
+run <tt>top</tt> is the java process showing 100%? 
+
+
+New Comment: 
+Please build a <a href="https://github.com/brendangregg/FlameGraph" class="external-link"
+rel="nofollow">flamegraph</a> and post that up here.  Set the sample interval to very low
+and let it run for 10 minutes. 
+
+
+New Comment: 
+Hi Jonathan,Thanks for looking into this, PFA htop.png, that shows you that if execute the
+program and monitor the top or htop, there is process that consumes the 100% cpu. will
+work on flamegragh and update you further meanwhile if you have any question please let me
+know. Thanks,Hrushi 
+
+
+New Comment: 
+Hi, I am trying for flamegraph. In first step - Linux Perf_events,  faced some issue and
+have sorted out. But now facing issue below error, do you have idea on
+this.<br/>group03@group03:~/Downloads/LDAP-663$ sudo perf script &gt; out.perf<br/>Failed
+to open /tmp/perf-12427.map, continuing without symbols<br/>Attaching the log file for
+task that we did till now.Thanks,Hrushi 
+
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,I have executed the flame graph
+steps mentioned in this portal
+"http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html#Java" from section 8 JAVA.I
+am attaching "flamerelated.zip" which has below stuff -<ul class="alternate"
+type="square">	<li>generated svg file</li>	<li>htop screenshot that shows java process
+(pid- 16280) is 100% CPU utilization.</li>	<li>steps that I have executed at my
+end.</li></ul>I have executed simple standalone java class through jar and take above
+results. If needed, I can share the sample java project.Please let me know if you need
+anything more.<br/> Thanks,<br/> Hrushi 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=hagrawal"
+class="user-hover" rel="hagrawal">Hrushikesh Agrawal</a> You have to generate the symbols
+for Java otherwise the flame graph isn't much use.  <a
+href="https://medium.com/@maheshsenni/java-performance-profiling-using-flame-graphs-e29238130375"
+class="external-link"
+rel="nofollow">https://medium.com/@maheshsenni/java-performance-profiling-using-flame-graphs-e29238130375</a><br/><a
+href="http://psy-lob-saw.blogspot.com/2017/02/flamegraphs-intro-fire-for-everyone.html"
+class="external-link"
+rel="nofollow">http://psy-lob-saw.blogspot.com/2017/02/flamegraphs-intro-fire-for-everyone.html</a> 
+
+
+On issue key DIRMINA-1114 the command pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Thanks for help.  As suggested, I
+have executed the flame graph steps mentioned in given link.I am attaching "29thMay.zip"
+which has below stuff -<ul class="alternate" type="square">	<li>generated svg
+file</li>	<li>generated svg color file</li>	<li>steps that I have executed at my
+end.</li>	<li>Java project execution command</li></ul>Please let me know if you need
+anything more.Thanks,<br/>Hrushi 
+==============================
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Thanks for help.  As suggested, I
+have executed the flame graph steps mentioned in given link.I am attaching "29thMay.zip"
+which has below stuff -<ul class="alternate" type="square">	<li>generated svg
+file</li>	<li>generated svg color file</li>	<li>steps that I have executed at my
+end.</li>	<li>Java project execution command</li></ul>Please let me know if you need
+anything more.Thanks,<br/>Hrushi 
+
+
+New Comment: 
+If you look in your flamechart there is "java" and "<span
+class="error">&#91;unknown&#93;</span>".  When you correctly grab the symbols from the
+running JVM these will be replaced with the Java class names and the flamegraph will
+become much more complicated.  For example here, <a
+href="https://medium.com/netflix-techblog/java-in-flames-e763b3d32166"
+class="external-link"
+rel="nofollow">https://medium.com/netflix-techblog/java-in-flames-e763b3d32166</a> the
+flamegraph shows "Lio/netty" which is a Java class.You also need to let your Java
+application run for a few minutes before capturing the flamegraph.I'll check my flamegraph
+setup and make some instructions. 
+
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,I am not sure about "java" and
+"<span class="error">&#91;unknown&#93;</span>", I have followed the mentioned steps.
+Please help me on this if we need that class name for these.Still I have capture one more
+graph and attaching here "graph1_color.svg". If I opened the graph in internet explorer
+and do the mouse over on any java stack then its gives package name and class name, method
+name. Thanks,Hrushi 
+
+
+New Comment: 
+I'm following the steps to configure everything and I will post in a bit. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=hagrawal"
+class="user-hover" rel="hagrawal">Hrushikesh Agrawal</a> It looks like you are capturing
+from a virtual machine?  I was testing today and it appears that virtual machines cause
+problems with the flamegraphs showing correctly.  Was there high cpu when you captured
+this flamegaph labled "29thMay" ? 
+
+
+On issue key DIRMINA-1114 the command pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Thanks for looking into this. I
+have executed below commands and its confirmed that, machine is NOT* Virtual machine, and
+its physical machine.group03@group03:~/Downloads/LDAP-663$
+imvirt<br/>Physical<br/>group03@group03:~/Downloads/LDAP-663$ dmesg | grep -i "Hypervisor
+detected"<br/>group03@group03:~/Downloads/LDAP-663$
+<br/>group03@group03:~/Downloads/LDAP-663$ hostnamectl status<br/> Static hostname:
+group03<br/> Icon name: computer-desktop<br/> Chassis: desktop<br/> Machine ID:
+9982cd822cde4d3bb226805f177c5c5a<br/> Boot ID: fb57668868fb4ea1a80b9352ff13bba6<br/>
+Operating System: Ubuntu 18.04.1 LTS<br/> Kernel: Linux 4.15.0-50-generic<br/>
+Architecture: x86-64<br/>group03@group03:~/Downloads/LDAP-663$ systemd-detect-virt
+<br/>noneYes, every time you could see the 100% CPU usage, attaching the htop.png which
+shows the 100% CPU usage.Thanks,Hrushi   
+==============================
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Thanks for looking into this. I
+have executed below commands and its confirmed that, machine is NOT* Virtual machine, and
+its physical machine.group03@group03:~/Downloads/LDAP-663$
+imvirt<br/>Physical<br/>group03@group03:~/Downloads/LDAP-663$ dmesg | grep -i "Hypervisor
+detected"<br/>group03@group03:~/Downloads/LDAP-663$
+<br/>group03@group03:~/Downloads/LDAP-663$ hostnamectl status<br/> Static hostname:
+group03<br/> Icon name: computer-desktop<br/> Chassis: desktop<br/> Machine ID:
+9982cd822cde4d3bb226805f177c5c5a<br/> Boot ID: fb57668868fb4ea1a80b9352ff13bba6<br/>
+Operating System: Ubuntu 18.04.1 LTS<br/> Kernel: Linux 4.15.0-50-generic<br/>
+Architecture: x86-64<br/>group03@group03:~/Downloads/LDAP-663$ systemd-detect-virt
+<br/>noneYes, every time you could see the 100% CPU usage, attaching the htop.png which
+shows the 100% CPU usage.Thanks,Hrushi   
+
+
+On issue key DIRMINA-1114 the command pattern might have been discussed on the following comment: 
+==============================
+ <span class="nobr"><a
+href="https://issues.apache.org/jira/secure/attachment/12970317/12970317_nio-metal-example.svg"
+title="nio-metal-example.svg attached to DIRMINA-1114">nio-metal-example.svg<sup><img
+class="rendericon" src="https://issues.apache.org/jira/images/icons/link_attachment_7.gif"
+height="

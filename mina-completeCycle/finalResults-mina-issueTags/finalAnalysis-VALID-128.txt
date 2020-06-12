@@ -1,0 +1,99 @@
+Pattern changes caused by commit: b4f6595f2352fa4763007beb26b9205838355e44
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Facade-25
+To:   Facade-26
+
+From: Flyweight-18
+To:   Flyweight-19
+
+From: Mediator-70
+To:   Mediator-71
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-128.txt 
+
+commit b4f6595f2352fa4763007beb26b9205838355e44
+Author: Trustin Lee <trustin@apache.org>
+
+    * Resolved issue: DIRMINA-190 (ThreadModel interface which encapsulates ThreadPoolFilter composition.)
+    ** Added ThreadModel
+    ** Added PooledThreadModel
+    ** Adjusted default maximum pool size to 16
+
+
+
+==================================
+ Issue DIRMINA-190 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-190] ThreadModel interface which encapsulates ThreadPoolFilter composition.
+-----------------
+
+-----------------
+Summary: ThreadModel interface which encapsulates ThreadPoolFilter composition.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 12 Mar 2006 17:24:56 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 12 Mar 2006 17:38:58 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Since ServiceRegistry has been removed from the core API, users had to add
+ThreadPoolFilters manually.  It would be great if there's a way to configure
+ThreadPoolFilters more easily.  My suggestion is add a ThreadModel interface.  Here's an
+example:
+
+acceptor.getConfig().setThreadModel( ThreadModel.MANUAL ); // Single thread
+mode<br/>acceptor.getConfig().setThreadModel( new PooledThreadModel( "LDAP", 16 ) ); //
+One thread pool with max. 16 threads.
+
+The default property will be: new
+PooledThreadModel( "AnonymousIoService", 16 ).  This means you have to change your code to
+retain the previous thread pool composition:
+<ul>	<li>call setThreadModel(
+ThreadModel.MANUAL ),</li>	<li>or remove your code that adds a thread pool
+filter.</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Done:<a href="http://svn.apache.org/viewcvs?rev=385262&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs?rev=385262&amp;view=rev</a><br/><a
+href="http://svn.apache.org/viewcvs?rev=385263&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs?rev=385263&amp;view=rev</a><br/><a
+href="http://svn.apache.org/viewcvs?rev=385266&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs?rev=385266&amp;view=rev</a> 
+
+

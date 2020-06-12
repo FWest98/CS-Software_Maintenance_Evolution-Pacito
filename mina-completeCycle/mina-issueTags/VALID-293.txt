@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 03b05af6361719eaef3d5a8a2a8197d0b6b6ed85
+
+From: Adapter-14
+To:   Adapter-15
+
+From: Facade-25
+To:   Facade-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-293.txt 
+
+commit 03b05af6361719eaef3d5a8a2a8197d0b6b6ed85
+Author: Trustin Lee <trustin@apache.org>
+
+    Publicized event firing methods in IoFilterChain

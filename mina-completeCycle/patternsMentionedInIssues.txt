@@ -1,0 +1,419 @@
+On issue key DIRMINA-209 the singleton pattern might have been discussed, namely here: 
+==============================
+SocketIoProcessor singleton causes performance wall under load 
+==============================
+
+On issue key DIRMINA-185 the decorator pattern might have been discussed on the following comment: 
+==============================
+I would like to see the IoFilterLCM go away.IoFilter's that want the current behavior can
+implement ref'counting themselves (via a decorator or abstract superclass). 
+==============================
+
+On issue key DIRMINA-185 the decorator pattern might have been discussed on the following comment: 
+==============================
+I agree with Peter.  So, here's my idea:<ul>	<li>Remove IoFilter.init() and
+IoFilter.destroy();</li>	<li>Create a new utility decorator class. say,
+'IoFilterWithLifeCycle' (Please suggest better names), which</li>	<li>provides a protected
+void init() and destroy().</li>	<li>implements other lifecycle methods in IoFilter so it
+calls init() and destroy() properly.</li></ul>WDYT? 
+==============================
+
+On issue key DIRMINA-184 the Chain pattern might have been discussed on the following comment: 
+==============================
+Peter, I have a few questions about your commit:1)<br/>At line 187 of
+LeaderFollowerThreadPool:    //TODO this should be in the filter, inits on pre-add if we
+have not been init'ed<br/>    public void onPreAdd( IoFilterChain parent, String name,
+IoFilter.NextFilter nextFilter )<br/>        throws Exception<br/>    {<br/>        if(
+leader == null )        {            init();        }    }Do we need this method?  I guess
+this method is not invoked by anyone.2) If LeaderFollowerThreadPool and
+ThreadPoolThreadPoolFilter provides exactly the same functionality with ThreadPoolFilter,
+why don't we replace it?  ThreadPoolThreadPoolFilter could become a ThreadPoolFilter which
+uses LeaderFollowerThreadPool by default, and the pool implementation could be changed if
+a user specifies his or her favorite pool implementation.3) Can't we simply expose
+ProcessEventRunnable to users and make ThreadPool.submit accept it instead of Object? 
+==============================
+
+On issue key DIRMINA-162 the builder pattern might have been discussed on the following comment: 
+==============================
+I think you're right on the issue with sessions being opened / closed. Main thing is that
+only the higher level protocol (on top of UDP) can really determine the meaning of
+a<br/>'session' in its very own context. It might be possible to design some kind of
+protocol filter which implements generic session tracking on top of simple message
+delivery by:<ul class="alternate" type="square">	<li>tracking received message from the
+remote peer and fire off a sessionOpened() event BEFORE passing the message onto the next
+filter in the chain</li>	<li>implement a timeout-based mechanism that tracks the data
+messages passing through and closes the session if the timeout passes by (including firing
+the event)<br/>But it does not seem feasible to implement this as a generic behauviour of
+the datagram acceptor (as there are protocol which do not have the concept of a session at
+all)</li></ul>But I do think that it is a bug in the implementation of the datagram
+acceptor if it does not assembly the filter chains when the individual session get create.
+I understand that it is currently needed ot create a session per received message but it
+should then assemble the filter chain per session as one should expect from the
+documentation. It would then be <br/>necessary to document this as an user might need to
+take special precautions in this chain builder implementation. 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+I think you're right on the issue with sessions being opened / closed. Main thing is that
+only the higher level protocol (on top of UDP) can really determine the meaning of
+a<br/>'session' in its very own context. It might be possible to design some kind of
+protocol filter which implements generic session tracking on top of simple message
+delivery by:<ul class="alternate" type="square">	<li>tracking received message from the
+remote peer and fire off a sessionOpened() event BEFORE passing the message onto the next
+filter in the chain</li>	<li>implement a timeout-based mechanism that tracks the data
+messages passing through and closes the session if the timeout passes by (including firing
+the event)<br/>But it does not seem feasible to implement this as a generic behauviour of
+the datagram acceptor (as there are protocol which do not have the concept of a session at
+all)</li></ul>But I do think that it is a bug in the implementation of the datagram
+acceptor if it does not assembly the filter chains when the individual session get create.
+I understand that it is currently needed ot create a session per received message but it
+should then assemble the filter chain per session as one should expect from the
+documentation. It would then be <br/>necessary to document this as an user might need to
+take special precautions in this chain builder implementation. 
+==============================
+
+On issue key DIRMINA-162 the strategy pattern might have been discussed on the following comment: 
+==============================
+This is a great idea.  We could provide a generic session tracking strategy interface so
+users can choose their favorite session management method.  For instance:/** A kind of
+cache? */<br/>public interface ConnectionlessSessionTracker {<br/>    /**<ul>	<li>@return
+null if no session is found<br/>     */<br/>    IoSession getSession( SocketAddress
+localAddress, SocketAddress remoteAddress );<br/>}</li></ul>WDYT? 
+==============================
+
+On issue key DIRMINA-162 the facade pattern might have been discussed on the following comment: 
+==============================
+I already approached this but I found out that it will not work without a acceptor facade
+which encapsulates the "real" datagram acceptor and does the session tarcking on behalf
+of<br/>the client. This thing is in fact second-next on my to-do list for my current
+project. <br/>Once this facade works, it can easily implement the proposed tracker
+interface. If it works, I will supply my implementation as a diff to mina-0.9.0 
+==============================
+
+On issue key DIRMINA-162 the strategy pattern might have been discussed on the following comment: 
+==============================
+Here's my first stab at fixing this. Could somebody please review it? I haven't touched
+the MINA code before just tonight <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The attached diff is against svn revision
+440993, the current trunk at this time.Basically, you can implement the methods	void
+sessionCreated(IoSession session);<br/>	IoSession getSession(SocketAddress localAddress,
+SocketAddress remoteAddress);in a ConnectionlessSessionTracker, and assign that to a
+DatagramSessionConfig. From then on, the tracker will perform session management for the
+transport.The only current problem is that the session cannot be retrieved until the
+remote socket address is known. In DatagramChannel, this happen upon read, so the session
+cannot be queried for its read buffer size. I think it should still be the same, but once
+again, please review it.Here is also a testing version of a ConnectionlessSessionTracker
+(don't use, it doesn't expire or do anything advanced enough):import
+java.net.InetSocketAddress;<br/>import java.net.SocketAddress;<br/>import
+java.util.HashMap;<br/>import java.util.Map;import
+org.apache.mina.common.ConnectionlessSessionTracker;<br/>import
+org.apache.mina.common.IoSession;public class TestSessionTracker implements
+ConnectionlessSessionTracker<br/>{<br/>	private Map&lt;String, IoSession&gt; sessionMap =
+new HashMap&lt;String, IoSession&gt;();	public IoSession getSession(SocketAddress
+localAddress, SocketAddress remoteAddress)	{		InetSocketAddress localIsa =
+(InetSocketAddress) localAddress;		InetSocketAddress remoteIsa = (InetSocketAddress)
+remoteAddress;		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		return
+sessionMap.get(key);	}	public void sessionCreated(IoSession
+session)<br/>	{<br/>		InetSocketAddress localIsa = (InetSocketAddress)
+session.getLocalAddress();<br/>		InetSocketAddress remoteIsa = (InetSocketAddress)
+session.getRemoteAddress();		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		if
+(!sessionMap.containsKey(key))		{			sessionMap.put(key, session);		}	}<br/>}I imagine that
+by integrating iofilters that know of the session tracker, etc you could implement just
+about any session management strategy.Let me know what you think! 
+==============================
+
+On issue key DIRMINA-162 the Builder pattern might have been discussed on the following comment: 
+==============================
+Here's my first stab at fixing this. Could somebody please review it? I haven't touched
+the MINA code before just tonight <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The attached diff is against svn revision
+440993, the current trunk at this time.Basically, you can implement the methods	void
+sessionCreated(IoSession session);<br/>	IoSession getSession(SocketAddress localAddress,
+SocketAddress remoteAddress);in a ConnectionlessSessionTracker, and assign that to a
+DatagramSessionConfig. From then on, the tracker will perform session management for the
+transport.The only current problem is that the session cannot be retrieved until the
+remote socket address is known. In DatagramChannel, this happen upon read, so the session
+cannot be queried for its read buffer size. I think it should still be the same, but once
+again, please review it.Here is also a testing version of a ConnectionlessSessionTracker
+(don't use, it doesn't expire or do anything advanced enough):import
+java.net.InetSocketAddress;<br/>import java.net.SocketAddress;<br/>import
+java.util.HashMap;<br/>import java.util.Map;import
+org.apache.mina.common.ConnectionlessSessionTracker;<br/>import
+org.apache.mina.common.IoSession;public class TestSessionTracker implements
+ConnectionlessSessionTracker<br/>{<br/>	private Map&lt;String, IoSession&gt; sessionMap =
+new HashMap&lt;String, IoSession&gt;();	public IoSession getSession(SocketAddress
+localAddress, SocketAddress remoteAddress)	{		InetSocketAddress localIsa =
+(InetSocketAddress) localAddress;		InetSocketAddress remoteIsa = (InetSocketAddress)
+remoteAddress;		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		return
+sessionMap.get(key);	}	public void sessionCreated(IoSession
+session)<br/>	{<br/>		InetSocketAddress localIsa = (InetSocketAddress)
+session.getLocalAddress();<br/>		InetSocketAddress remoteIsa = (InetSocketAddress)
+session.getRemoteAddress();		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		if
+(!sessionMap.containsKey(key))		{			sessionMap.put(key, session);		}	}<br/>}I imagine that
+by integrating iofilters that know of the session tracker, etc you could implement just
+about any session management strategy.Let me know what you think! 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+Attached is the next version with IoSessionRecycler per Trustin's and my comments. I still
+am not sure about the read buffer size issue (marked by a TODO in the code). Also, after
+some thought I don't think this is applicable to transports with connections (seems like
+too much abstraction, and doesn't fit well with the MINA session paradigm).I also added a
+default implementation, ExpiringSessionRecycler, which uses an ExpiringMap to recycle
+sessions. It also calls sessionClosed on the session's filterchain when a session
+expires.I hope this helps! I definitely want to contribute something nice that will speed
+MINA along to 1.0 <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Let me know what you think! 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+Minor change to build filter chain only when a session isn't recycled (save some clocks
+<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+And, in an astounding extra $0.02, I also wanted to remind you to update the IoHandler
+javadoc since it indicates that sessionOpened/etc will not be called for UDP. I'd also
+like to put out there that sessionCreated could be called on the session's filter chain
+when it is first created (before sessionOpened), this would make all MINA events
+applicable to the UDP transport. I know it doesn't really mean anything different, but it
+might be the least surprise to the user.And on that note, I'm going to go do something
+else for a while so I don't think of anything else to spam the mailing list with updates
+about <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+No problem, happy to lend a hand <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> MINA makes my work easier, so it's more
+than a fair trade.I can get to patching the remaining stuff (IoHandler, defaulting to
+ExpiringSessionRecycler) within the next couple of days or so. I agree that
+ExpiringSessionRecycler should be the default now that I think about all the events flying
+around the filter chain with NOOP, and starting the expiration after the first put is a
+good compromise. Nice to have util-concurrent for that, since a double check lock is
+actually thread-safe with ReentrantReadWriteLock.Do you want me to add an IdentityHashMap
+for session lookup? It would mean extra synchronization, and it would affect only the
+'remove(IoSession)' method AFAIK. Are the costs to generate the key high enough to justify
+that? 
+==============================
+
+On issue key DIRMINA-162 the  state  pattern might have been discussed on the following comment: 
+==============================
+Yargh. In this one (v7), I do the lock upgrade correctly in the startExpiringIfNotStarted
+method of ExpiringMap. Sorry 'bout that. Somebody may want to refactor that state locking
+code to some common class, cause it would minimize the chances to create bugs like that
+<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-176 the  state  pattern might have been discussed on the following comment: 
+==============================
+I'd like time out for ByteBuffers too, it is all we need.To implement application
+specified strategies of pooling there will be the JMX support <a
+href="https://issues.apache.org/jira/browse/DIRMINA-29" title="JMX integration"
+class="issue-link" data-issue-key="DIRMINA-29"><del>DIRMINA-29</del></a>.<br/>With the JMX
+we could monitor and manage the pool state for user-defined strategies. 
+==============================
+
+On issue key DIRMINA-176 the strategy pattern might have been discussed on the following comment: 
+==============================
+Retaining smaller buffers can also cause a problem depending on an application's memory
+usage characterstics.  What about providing both strategy at the same time? 
+==============================
+
+On issue key DIRMINA-176 the command pattern might have been discussed on the following comment: 
+==============================
+Yes, but, by the pool point of view, what is regarded as a smaller buffer and a bigger
+buffer? Supposing to have an application that uses 30 byte buffers and occasionally some
+2kb buffers (this is the case of one of the ones I'm working on now), the pool would have
+serious problems to understand which ones are "smaller" and "bigger", since all of them
+are of the smallest or biggest size available.In this case not to cache smallest and
+biggest buffer is a problem, and to limit the maximum size would certainly not be an
+improvement.But many low-level byte protocols use short fixed lenght packets for "command"
+messages and use long variable lenght packets for "transport" messages, so my case is a
+common case.I think what you're suggesting is very good for protocols which use many
+different-sized buffers, and should therefore be implemented, but we should also let users
+chose whether to use it or not.In the overload control, we should also think about
+interrupting  the work when the memory limit of the pool is exceeded, in order to permit
+the application to flush and release the buffers that haven't been written yet. 
+==============================
+
+On issue key DIRMINA-176 the factory pattern might have been discussed on the following comment: 
+==============================
+This jakarta api seems to be the right solution, we can do a GenericObjectPool for each
+buffer size, at the same way we mantain multiple stacks now.<br/>This api provides the
+timeout we thought, it provides also the method that block if the objects are not
+available (in case we are over the maximum size of the pool, and we cannot allocate other
+buffers).<br/>We have to define better some things, but it looks great to me.One thing is
+the following: in this jakarta pool the new objects are provided by a factory that
+allocate all the objects equals. So for each partition we will be obliged to allocate only
+one kind of buffer, the higher size buffer of the partition, right? I'm not so good with
+english, so I hope I have well explained my doubt. 
+==============================
+
+On issue key DIRMINA-187 the Factory pattern might have been discussed on the following comment: 
+==============================
+This solution looks a little bit complicated IMHO.  What do you think about this:interface
+IoHandlerFactory<br/>{<br/>    IoHandler getHandler( IoSession session );<br/>}interface
+IoAcceptor<br/>{<br/>    void bind( SocketAddress address, IoHandler handler ); // one
+handler handles multiple sessions<br/>    void bind( SocketAddress address,
+IoHandlerFactory handlerFactory ); // multiple handler handler multiple sessions<br/>   
+void bind( SocketAddress address, Class&lt;IoHandler&gt; handlerClass ); // multiple
+handler multiple sessions, handlerClass is instantiated whenever a new session is
+created.<br/>}&lt;usage 1&gt;class MyHandlerFactory implements IoHandlerFactory<br/>{<br/>
+   IoHandler getHandler( IoSession session )    {        return new MyHandler();  //
+MyHandler implements IoHandler    }}acceptor.bind( ..., new MyHandlerFactory() );&lt;usage
+2&gt;<br/>acceptor.bind(..., MyHandler.class);This will seamlessly integrate per-session
+handlers retaining backward compatibility. 
+==============================
+
+On issue key DIRMINA-187 the Factory pattern might have been discussed on the following comment: 
+==============================
+The third option that takes a class should be an IoHandlerFactory that the project
+supplies, not a separate method. 
+==============================
+
+On issue key DIRMINA-187 the Adapter pattern might have been discussed on the following comment: 
+==============================
+I'm a bit confused about the following code inside SingleSessionIoHandlerAdapter class:   
+public void sessionClosed() throws Exception     {        SessionUtil.initialize(
+getSession() );    }Shouldn't this code be placed inside the sessionCreated() method? 
+==============================
+
+On issue key DIRMINA-231 the adapt pattern might have been discussed on the following comment: 
+==============================
+Attaching ConnectingTest which shows problem using VmPipes as well (adapted from <a
+href="http://issues.apache.org/jira/secure/attachment/20356/ConnectionTest.java"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/20356/ConnectionTest.java</a>). 
+==============================
+
+On issue key DIRMINA-231 the chain pattern might have been discussed on the following comment: 
+==============================
+Warning - running attached ConnectionTest may bring your machine to its knees!The
+PooledThreadModel which is used by the default configuration creates a new
+ThreadPoolFilter which is what is creating these wayward threads. I don't think the
+destroy method of this filter ever gets called. If the PooledThreadModel used a
+ReferenceCountingIoFilter to wrap the ThreadPoolFilter before adding it to the chain then
+would destroy be called? 
+==============================
+
+On issue key DIRMINA-231 the  state  pattern might have been discussed on the following comment: 
+==============================
+To shut them down you will have to call destory() on the
+ThreadPoolFilter:session.getFilterChain().get(PooledThreadModel.class.getName()).destroy();or
+you create your own ThreadModel which wraps the ThreadPoolFilter in a
+ReferenceCountingIoFilter instance.If you weren't using a ThreadPoolFilter with MINA 0.8
+and you want the same behaviour with MINA 0.9 you must specify the ThreadModel.MANUAL
+thread model as you suggest in <a href="http://www.quickfixj.org/jira/browse/QFJ-34"
+class="external-link" rel="nofollow">http://www.quickfixj.org/jira/browse/QFJ-34</a>.If
+you use the default config each connection will get its own thread pool. The threads in
+the pool (these are named AnonymousIoService-x-y by default) will by default be terminated
+after 1 minute of inactivity. If the threads do hang around for more than 1 minute that
+would be a bug. In QFJ-34 you state that the Anonymous... threads never die off so there
+may very well be a bug here.Is there anyway you could refactor your code to use a single
+shared connector? Or use a shared ThreadPoolFilter (use MANUAL and add your own
+ThreadPoolFilter to each connectors filter chain)? I think this is more "in tune" with how
+MINA is supposed to be used. 
+==============================
+
+On issue key DIRMINA-231 the chain pattern might have been discussed on the following comment: 
+==============================
+To shut them down you will have to call destory() on the
+ThreadPoolFilter:session.getFilterChain().get(PooledThreadModel.class.getName()).destroy();or
+you create your own ThreadModel which wraps the ThreadPoolFilter in a
+ReferenceCountingIoFilter instance.If you weren't using a ThreadPoolFilter with MINA 0.8
+and you want the same behaviour with MINA 0.9 you must specify the ThreadModel.MANUAL
+thread model as you suggest in <a href="http://www.quickfixj.org/jira/browse/QFJ-34"
+class="external-link" rel="nofollow">http://www.quickfixj.org/jira/browse/QFJ-34</a>.If
+you use the default config each connection will get its own thread pool. The threads in
+the pool (these are named AnonymousIoService-x-y by default) will by default be terminated
+after 1 minute of inactivity. If the threads do hang around for more than 1 minute that
+would be a bug. In QFJ-34 you state that the Anonymous... threads never die off so there
+may very well be a bug here.Is there anyway you could refactor your code to use a single
+shared connector? Or use a shared ThreadPoolFilter (use MANUAL and add your own
+ThreadPoolFilter to each connectors filter chain)? I think this is more "in tune" with how
+MINA is supposed to be used. 
+==============================
+
+On issue key DIRMINA-231 the Chain pattern might have been discussed on the following comment: 
+==============================
+To shut them down you will have to call destory() on the
+ThreadPoolFilter:session.getFilterChain().get(PooledThreadModel.class.getName()).destroy();or
+you create your own ThreadModel which wraps the ThreadPoolFilter in a
+ReferenceCountingIoFilter instance.If you weren't using a ThreadPoolFilter with MINA 0.8
+and you want the same behaviour with MINA 0.9 you must specify the ThreadModel.MANUAL
+thread model as you suggest in <a href="http://www.quickfixj.org/jira/browse/QFJ-34"
+class="external-link" rel="nofollow">http://www.quickfixj.org/jira/browse/QFJ-34</a>.If
+you use the default config each connection will get its own thread pool. The threads in
+the pool (these are named AnonymousIoService-x-y by default) will by default be terminated
+after 1 minute of inactivity. If the threads do hang around for more than 1 minute that
+would be a bug. In QFJ-34 you state that the Anonymous... threads never die off so there
+may very well be a bug here.Is there anyway you could refactor your code to use a single
+shared connector? Or use a shared ThreadPoolFilter (use MANUAL and add your own
+ThreadPoolFilter to each connectors filter chain)? I think this is more "in tune" with how
+MINA is supposed to be used. 
+==============================
+
+On issue key DIRMINA-176 the  state  pattern might have been discussed on the following comment: 
+==============================
+I'd like time out for ByteBuffers too, it is all we need.To implement application
+specified strategies of pooling there will be the JMX support <a
+href="https://issues.apache.org/jira/browse/DIRMINA-29" title="JMX integration"
+class="issue-link" data-issue-key="DIRMINA-29"><del>DIRMINA-29</del></a>.<br/>With the JMX
+we could monitor and manage the pool state for user-defined strategies. 
+==============================
+
+On issue key DIRMINA-176 the strategy pattern might have been discussed on the following comment: 
+==============================
+Retaining smaller buffers can also cause a problem depending on an application's memory
+usage characterstics.  What about providing both strategy at the same time? 
+==============================
+
+On issue key DIRMINA-176 the command pattern might have been discussed on the following comment: 
+==============================
+Yes, but, by the pool point of view, what is regarded as a smaller buffer and a bigger
+buffer? Supposing to have an application that uses 30 byte buffers and occasionally some
+2kb buffers (this is the case of one of the ones I'm working on now), the pool would have
+serious problems to understand which ones are "smaller" and "bigger", since all of them
+are of the smallest or biggest size available.In this case not to cache smallest and
+biggest buffer is a problem, and to limit the maximum size would certainly not be an
+improvement.But many low-level byte protocols use short fixed lenght packets for "command"
+messages and use long variable lenght packets for "transport" messages, so my case is a
+common case.I think what you're suggesting is very good for protocols which use many
+different-sized buffers, and should therefore be implemented, but we should also let users
+chose whether to use it or not.In the overload control, we should also think about
+interrupting  the work when the memory limit of the pool is exceeded, in order to permit
+the application to flush and release the buffers that haven't been written yet. 
+==============================
+
+On issue key DIRMINA-176 the factory pattern might have been discussed on the following comment: 
+==============================
+This jakarta api seems to be the right solution, we can do a GenericObjectPool for each
+buffer size, at the same way we mantain multiple stacks now.<br/>This api provides the
+timeout we thought, it provides also the method that block if the objects are not
+available (in case we are over the maximum size of the pool, and we cannot allocate other
+buffers).<br/>We have to define better some things, but it looks great to me.One thing is
+the following: in this jakarta pool the new objects are provided by a factory that
+allocate all the objects equals. So for each partition we will be obliged to allocate only
+one kind of buffer, the higher size buffer of the partition, right? I'm not so good with
+english, so I hope I have well explained my doubt. 
+==============================
+

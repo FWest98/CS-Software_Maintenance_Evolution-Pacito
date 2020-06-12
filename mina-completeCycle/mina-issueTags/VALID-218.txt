@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 9b353be9c76e2ec8946b0be30d78c94430400ed4
+
+From: Facade-22
+To:   Facade-23
+
+From: Flyweight-19
+To:   Flyweight-20
+
+From: Mediator-65
+To:   Mediator-67
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-218.txt 
+
+commit 9b353be9c76e2ec8946b0be30d78c94430400ed4
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-206 - Filter that watches the total amount queue'd for a connection in the ThreadPoolFilter and will disable reads for a connection when a configurable (default 1mb) limit is reached.

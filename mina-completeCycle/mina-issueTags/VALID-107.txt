@@ -1,0 +1,17 @@
+Pattern changes caused by commit: fecec15d8dc2bc9dcf5529180eae351e6e007c72
+
+From: Adapter-19
+To:   Adapter-20
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-107.txt 
+
+commit fecec15d8dc2bc9dcf5529180eae351e6e007c72
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added PooledByteBufferAllocator.dispose() for users who want to destroy an expirer thread
+    * Made sure the allocation cannot happen since the allocator is disposed.

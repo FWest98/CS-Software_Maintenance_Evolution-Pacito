@@ -1,0 +1,783 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-1067 the Factory pattern might have been discussed on the following comment: 
+==============================
+GitHub user ppalaga opened a pull request:    <a
+href="https://github.com/apache/mina/pull/12" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12</a>    A reproducer for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a> checkClientTrusted() invoked
+just once on IBM JREYou can merge this pull request into a Git repository by running:    $
+git pull <a href="https://github.com/ppalaga/mina" class="external-link"
+rel="nofollow">https://github.com/ppalaga/mina</a> <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a>Alternatively you can review and
+apply these changes as the patch at:    <a
+href="https://github.com/apache/mina/pull/12.patch" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12.patch</a>To close this pull request,
+make a commit to your master/trunk branch<br/>with (at least) the following in the commit
+message:    This closes #12<hr />commit
+1223863fdcba6848db3ee9f2e381f45df75ef999<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-05T18:16:24Z    Release the In and Out net
+buffer when we get a SSLException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-968" title="Memory leak in SSL
+Handshake errors" class="issue-link"
+data-issue-key="DIRMINA-968"><del>DIRMINA-968</del></a>). Note : we don't have a test case
+to reproduce the issue,<br/>    so it's a kind of blind attempt to solve it.commit
+e0da8d7fdecf9d412063089b860a960caa0795bf<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T20:21:46Z    Fix for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-629" title="The IoServiceStatistics
+methods are called for every new session creation" class="issue-link"
+data-issue-key="DIRMINA-629"><del>DIRMINA-629</del></a> : used a lock around all the
+methods to avoid<br/>    concurrent issues. Removed the AtomicXXX which are not anymore
+useful.commit 5ffd8c02a8ffcb4671d3db80598a851143f79d6f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T21:04:04Z    Added some information to
+the error message when we try to bind<br/>    (socketAddress) See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add host and port info to
+BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>commit
+67240409a2537972d6998f26ed83d99265a6de09<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T05:01:23Z    Had to intialize the cause
+outside of the constructor to please Java 5<br/>    (no constructor with the message and
+the cause in Java5)commit de58078ce2139cffbec84da63b5030e77e592dac<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T06:32:23Z    o Added a thread
+to cleanup the expired sessions<br/>    o Used ConcurrentHshMap instead of
+SynchronizedMap<br/>    o Added a lock to be sure we don't have concurrent access to the
+map<br/>    (it's needed even if the map is protected against concurrent access, as<br/>  
+ we update the map in different places)    This filter is an example of what should
+<b>not</b> be accepted in out code<br/>    base...commit
+faa8e58e11a3fa50e5169f6f9c1119d275199fec<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T07:48:42Z    Accept addresses like
+0.0.0.0 or :: (IPV4 and IPV6)in the inSubnet()<br/>    method (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-773"
+title="org.apache.mina.filter.firewall.Subnet should  consider 0.0.0.0/0 as a subnet that
+contains &#39;all the ipv4 addresses&#39;" class="issue-link"
+data-issue-key="DIRMINA-773"><del>DIRMINA-773</del></a>)commit
+9d7d823edacede56813674b94cba2ae65977426f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T12:22:06Z    o Added some info when a
+IOException occurs (<a href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add
+host and port info to BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>)<br/>    o Close the channel when
+we get an IOException (<a href="https://issues.apache.org/jira/browse/DIRMINA-928"
+title="when client want to connect to server by binding wrong ip address,there is a bug."
+class="issue-link" data-issue-key="DIRMINA-928"><del>DIRMINA-928</del></a>)commit
+3852d253911a7ad666605a230e27debf4b4bd56d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T15:23:53Z    Added a test for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-777"
+title="IoSessionConfig.setUseReadOperation(true) doesn&#39;t seem to work"
+class="issue-link" data-issue-key="DIRMINA-777"><del>DIRMINA-777</del></a>commit
+9645bc04739faa55f1aae396fb42d5221f5efddd<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:28:46Z    Backporting <a
+href="https://issues.apache.org/jira/browse/DIRMINA-931" title="HTTP header decoding is
+broken" class="issue-link" data-issue-key="DIRMINA-931"><del>DIRMINA-931</del></a> to
+2.0commit ccbf33f9457bd7ecc3376928ee8bdf8687afa09d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:38:53Z    Add Informational status
+codescommit 81f55c8f6de1a73c2f999fd4cf20546fd54c09a0<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T19:35:31Z    Moved the
+increaseWrittenMessages method to the TailFilter (See<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-631" title="AbstractIoFilter:
+increment writen- and receivedMessages statistics on application end of filter chain"
+class="issue-link" data-issue-key="DIRMINA-631"><del>DIRMINA-631</del></a>)commit
+1781aab8d06a1b60e7e90386dd9aa1dee816a4d2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:18:14Z    Avoided to loop from 1 to
+1024, as we will never run this test under a<br/>    priviledged user.commit
+3cf5bcdc800db329400193f24afa0613b7d3178e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:42:05Z    Added the supported
+ciphers in the SSLHandler (see <a href="https://issues.apache.org/jira/browse/DIRMINA-760"
+title="Client fails to detect disconnection" class="issue-link"
+data-issue-key="DIRMINA-760"><del>DIRMINA-760</del></a>)commit
+d500b2e9727675abe9c325da7587b20dcaf95890<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T10:28:23Z    Sadly, the
+getSupportedSSLParameters() method is not available in Java<br/>    5. Used
+getServerSocketFactory().getSupportedCipherSuites() instead.commit
+478a8a87de9128bdbbc6d38c8b320d769f5d1441<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T12:13:09Z    Called the statistic
+updateThroughput metho din the TailFilter, so that<br/>    the user don't have to do it.
+See <a href="https://issues.apache.org/jira/browse/DIRMINA-967" title="IoSession
+updateThroughput not automatically called" class="issue-link"
+data-issue-key="DIRMINA-967"><del>DIRMINA-967</del></a>commit
+5955d7281936d97f5ca39d9619692f05e48140d9<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T15:18:47Z    Added a destroy(session),
+as suggested in <a href="https://issues.apache.org/jira/browse/DIRMINA-942"
+title="Infinite loop flushing to broken pipe" class="issue-link"
+data-issue-key="DIRMINA-942"><del>DIRMINA-942</del></a>commit
+3ebfb8c09444ce5dc7cd68d673df7c7f11f38503<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:33:40Z    Printed out the sent
+message (we were getting an empty byte before).<br/>    That will fix <a
+href="https://issues.apache.org/jira/browse/DIRMINA-833" title="LoggingFilter does not log
+SENT bytes when used with a ProtocolCodecFilter" class="issue-link"
+data-issue-key="DIRMINA-833"><del>DIRMINA-833</del></a>commit
+ba995db5e653307dd0bf6dc7ba5deeb903f83366<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:42:24Z    Made teh AttributeKey
+ENCODER and DECODER static, so that we don't<br/>    create them everytime we instanciate
+the ProtocolCodecFIlter (see<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-838" title="Redundant AttributeKey
+allocation resulting  in high garbage collector activity" class="issue-link"
+data-issue-key="DIRMINA-838"><del>DIRMINA-838</del></a>)commit
+64c80b9044fe1ec1c976d8022411d25f923aebd2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:27:02Z    Added a printstacktrace
+when we get a ClosedSelectorException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-978" title="ClosedSelectorException
+handling in AbstractPollingIoProcessor" class="issue-link"
+data-issue-key="DIRMINA-978"><del>DIRMINA-978</del></a>)commit
+2cb34e5389c552603d77648cc852692a3c3ed728<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:29:31Z    Replaced the
+printStacktrace by a call to exceptionCaught()commit
+46f929204de3efa24ceffd2e87838eb85005d194<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T12:40:59Z    Added the localAddress in
+the NioSocketConnector (<a href="https://issues.apache.org/jira/browse/DIRMINA-816"
+title="NioSocketConnector missing defaultLocalAddress" class="issue-link"
+data-issue-key="DIRMINA-816"><del>DIRMINA-816</del></a>)commit
+dd83fecdbb85fdd2276a350e509f91aa12e9e3ce<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Added support of IPV6 for
+the BlackListFiltercommit 53ab404aed6e5b50f42c91ff6289e0c73d553181<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Calling the
+preAdd and postAdd in the replace methods. See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-977"
+title="DefaultIoFilterChain.replace does not call register/deregister" class="issue-link"
+data-issue-key="DIRMINA-977"><del>DIRMINA-977</del></a>commit
+691c418312ce9445721a71cac2b2771e3555ad88<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T22:13:09Z    Merge branch '2.0' of <a
+href="http://git-wip-us.apache.org/repos/asf/mina" class="external-link"
+rel="nofollow">http://git-wip-us.apache.org/repos/asf/mina</a> into 2.0commit
+56a6e58004ea4a6af5640f03d1f6796a073c5d62<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T06:17:04Z    Added a lock, instead of
+synchrnizing teh whole section. We now prtect<br/>    the write and read as a whole (that
+should be a fix for <a href="https://issues.apache.org/jira/browse/DIRMINA-779"
+title="SSLHandler can re-order data that it reads" class="issue-link"
+data-issue-key="DIRMINA-779"><del>DIRMINA-779</del></a>)commit
+af34f5087926b6e44c62033567123244cabed1f8<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T07:31:06Z    Applied the suggested
+patch from <a href="https://issues.apache.org/jira/browse/DIRMINA-972" title="NPE during
+handshake on Android using SSLFilter" class="issue-link"
+data-issue-key="DIRMINA-972"><del>DIRMINA-972</del></a>commit
+1c95e0ddfce293abaa0821ebecba17ab84951fed<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T13:58:03Z    Don't catch Throwable.
+Catch Exception only (<a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>)commit
+232bff322f0278f614b8b35545655d94465b9e7a<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:38:12Z    Stip catching Throwable.
+Replaced by catch (Exception e) all over the<br/>    code (except in
+DefaultIoFilterChain). See <a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>commit
+404352c427a92efb2b80d2e5b7d5bb84693c7a7c<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:49:45Z    Some more catch
+(Throwable) replaced by catch (Exception)commit
+f04184d9f2ddb9694a38dbd183af7ebcec538e1e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T16:43:35Z    Added the sessionClosed
+event in the IoServiceListener.<hr /> 
+==============================
+
+On issue key DIRMINA-1067 the chain pattern might have been discussed on the following comment: 
+==============================
+GitHub user ppalaga opened a pull request:    <a
+href="https://github.com/apache/mina/pull/12" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12</a>    A reproducer for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a> checkClientTrusted() invoked
+just once on IBM JREYou can merge this pull request into a Git repository by running:    $
+git pull <a href="https://github.com/ppalaga/mina" class="external-link"
+rel="nofollow">https://github.com/ppalaga/mina</a> <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a>Alternatively you can review and
+apply these changes as the patch at:    <a
+href="https://github.com/apache/mina/pull/12.patch" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12.patch</a>To close this pull request,
+make a commit to your master/trunk branch<br/>with (at least) the following in the commit
+message:    This closes #12<hr />commit
+1223863fdcba6848db3ee9f2e381f45df75ef999<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-05T18:16:24Z    Release the In and Out net
+buffer when we get a SSLException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-968" title="Memory leak in SSL
+Handshake errors" class="issue-link"
+data-issue-key="DIRMINA-968"><del>DIRMINA-968</del></a>). Note : we don't have a test case
+to reproduce the issue,<br/>    so it's a kind of blind attempt to solve it.commit
+e0da8d7fdecf9d412063089b860a960caa0795bf<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T20:21:46Z    Fix for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-629" title="The IoServiceStatistics
+methods are called for every new session creation" class="issue-link"
+data-issue-key="DIRMINA-629"><del>DIRMINA-629</del></a> : used a lock around all the
+methods to avoid<br/>    concurrent issues. Removed the AtomicXXX which are not anymore
+useful.commit 5ffd8c02a8ffcb4671d3db80598a851143f79d6f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T21:04:04Z    Added some information to
+the error message when we try to bind<br/>    (socketAddress) See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add host and port info to
+BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>commit
+67240409a2537972d6998f26ed83d99265a6de09<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T05:01:23Z    Had to intialize the cause
+outside of the constructor to please Java 5<br/>    (no constructor with the message and
+the cause in Java5)commit de58078ce2139cffbec84da63b5030e77e592dac<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T06:32:23Z    o Added a thread
+to cleanup the expired sessions<br/>    o Used ConcurrentHshMap instead of
+SynchronizedMap<br/>    o Added a lock to be sure we don't have concurrent access to the
+map<br/>    (it's needed even if the map is protected against concurrent access, as<br/>  
+ we update the map in different places)    This filter is an example of what should
+<b>not</b> be accepted in out code<br/>    base...commit
+faa8e58e11a3fa50e5169f6f9c1119d275199fec<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T07:48:42Z    Accept addresses like
+0.0.0.0 or :: (IPV4 and IPV6)in the inSubnet()<br/>    method (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-773"
+title="org.apache.mina.filter.firewall.Subnet should  consider 0.0.0.0/0 as a subnet that
+contains &#39;all the ipv4 addresses&#39;" class="issue-link"
+data-issue-key="DIRMINA-773"><del>DIRMINA-773</del></a>)commit
+9d7d823edacede56813674b94cba2ae65977426f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T12:22:06Z    o Added some info when a
+IOException occurs (<a href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add
+host and port info to BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>)<br/>    o Close the channel when
+we get an IOException (<a href="https://issues.apache.org/jira/browse/DIRMINA-928"
+title="when client want to connect to server by binding wrong ip address,there is a bug."
+class="issue-link" data-issue-key="DIRMINA-928"><del>DIRMINA-928</del></a>)commit
+3852d253911a7ad666605a230e27debf4b4bd56d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T15:23:53Z    Added a test for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-777"
+title="IoSessionConfig.setUseReadOperation(true) doesn&#39;t seem to work"
+class="issue-link" data-issue-key="DIRMINA-777"><del>DIRMINA-777</del></a>commit
+9645bc04739faa55f1aae396fb42d5221f5efddd<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:28:46Z    Backporting <a
+href="https://issues.apache.org/jira/browse/DIRMINA-931" title="HTTP header decoding is
+broken" class="issue-link" data-issue-key="DIRMINA-931"><del>DIRMINA-931</del></a> to
+2.0commit ccbf33f9457bd7ecc3376928ee8bdf8687afa09d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:38:53Z    Add Informational status
+codescommit 81f55c8f6de1a73c2f999fd4cf20546fd54c09a0<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T19:35:31Z    Moved the
+increaseWrittenMessages method to the TailFilter (See<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-631" title="AbstractIoFilter:
+increment writen- and receivedMessages statistics on application end of filter chain"
+class="issue-link" data-issue-key="DIRMINA-631"><del>DIRMINA-631</del></a>)commit
+1781aab8d06a1b60e7e90386dd9aa1dee816a4d2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:18:14Z    Avoided to loop from 1 to
+1024, as we will never run this test under a<br/>    priviledged user.commit
+3cf5bcdc800db329400193f24afa0613b7d3178e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:42:05Z    Added the supported
+ciphers in the SSLHandler (see <a href="https://issues.apache.org/jira/browse/DIRMINA-760"
+title="Client fails to detect disconnection" class="issue-link"
+data-issue-key="DIRMINA-760"><del>DIRMINA-760</del></a>)commit
+d500b2e9727675abe9c325da7587b20dcaf95890<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T10:28:23Z    Sadly, the
+getSupportedSSLParameters() method is not available in Java<br/>    5. Used
+getServerSocketFactory().getSupportedCipherSuites() instead.commit
+478a8a87de9128bdbbc6d38c8b320d769f5d1441<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T12:13:09Z    Called the statistic
+updateThroughput metho din the TailFilter, so that<br/>    the user don't have to do it.
+See <a href="https://issues.apache.org/jira/browse/DIRMINA-967" title="IoSession
+updateThroughput not automatically called" class="issue-link"
+data-issue-key="DIRMINA-967"><del>DIRMINA-967</del></a>commit
+5955d7281936d97f5ca39d9619692f05e48140d9<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T15:18:47Z    Added a destroy(session),
+as suggested in <a href="https://issues.apache.org/jira/browse/DIRMINA-942"
+title="Infinite loop flushing to broken pipe" class="issue-link"
+data-issue-key="DIRMINA-942"><del>DIRMINA-942</del></a>commit
+3ebfb8c09444ce5dc7cd68d673df7c7f11f38503<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:33:40Z    Printed out the sent
+message (we were getting an empty byte before).<br/>    That will fix <a
+href="https://issues.apache.org/jira/browse/DIRMINA-833" title="LoggingFilter does not log
+SENT bytes when used with a ProtocolCodecFilter" class="issue-link"
+data-issue-key="DIRMINA-833"><del>DIRMINA-833</del></a>commit
+ba995db5e653307dd0bf6dc7ba5deeb903f83366<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:42:24Z    Made teh AttributeKey
+ENCODER and DECODER static, so that we don't<br/>    create them everytime we instanciate
+the ProtocolCodecFIlter (see<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-838" title="Redundant AttributeKey
+allocation resulting  in high garbage collector activity" class="issue-link"
+data-issue-key="DIRMINA-838"><del>DIRMINA-838</del></a>)commit
+64c80b9044fe1ec1c976d8022411d25f923aebd2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:27:02Z    Added a printstacktrace
+when we get a ClosedSelectorException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-978" title="ClosedSelectorException
+handling in AbstractPollingIoProcessor" class="issue-link"
+data-issue-key="DIRMINA-978"><del>DIRMINA-978</del></a>)commit
+2cb34e5389c552603d77648cc852692a3c3ed728<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:29:31Z    Replaced the
+printStacktrace by a call to exceptionCaught()commit
+46f929204de3efa24ceffd2e87838eb85005d194<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T12:40:59Z    Added the localAddress in
+the NioSocketConnector (<a href="https://issues.apache.org/jira/browse/DIRMINA-816"
+title="NioSocketConnector missing defaultLocalAddress" class="issue-link"
+data-issue-key="DIRMINA-816"><del>DIRMINA-816</del></a>)commit
+dd83fecdbb85fdd2276a350e509f91aa12e9e3ce<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Added support of IPV6 for
+the BlackListFiltercommit 53ab404aed6e5b50f42c91ff6289e0c73d553181<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Calling the
+preAdd and postAdd in the replace methods. See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-977"
+title="DefaultIoFilterChain.replace does not call register/deregister" class="issue-link"
+data-issue-key="DIRMINA-977"><del>DIRMINA-977</del></a>commit
+691c418312ce9445721a71cac2b2771e3555ad88<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T22:13:09Z    Merge branch '2.0' of <a
+href="http://git-wip-us.apache.org/repos/asf/mina" class="external-link"
+rel="nofollow">http://git-wip-us.apache.org/repos/asf/mina</a> into 2.0commit
+56a6e58004ea4a6af5640f03d1f6796a073c5d62<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T06:17:04Z    Added a lock, instead of
+synchrnizing teh whole section. We now prtect<br/>    the write and read as a whole (that
+should be a fix for <a href="https://issues.apache.org/jira/browse/DIRMINA-779"
+title="SSLHandler can re-order data that it reads" class="issue-link"
+data-issue-key="DIRMINA-779"><del>DIRMINA-779</del></a>)commit
+af34f5087926b6e44c62033567123244cabed1f8<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T07:31:06Z    Applied the suggested
+patch from <a href="https://issues.apache.org/jira/browse/DIRMINA-972" title="NPE during
+handshake on Android using SSLFilter" class="issue-link"
+data-issue-key="DIRMINA-972"><del>DIRMINA-972</del></a>commit
+1c95e0ddfce293abaa0821ebecba17ab84951fed<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T13:58:03Z    Don't catch Throwable.
+Catch Exception only (<a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>)commit
+232bff322f0278f614b8b35545655d94465b9e7a<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:38:12Z    Stip catching Throwable.
+Replaced by catch (Exception e) all over the<br/>    code (except in
+DefaultIoFilterChain). See <a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>commit
+404352c427a92efb2b80d2e5b7d5bb84693c7a7c<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:49:45Z    Some more catch
+(Throwable) replaced by catch (Exception)commit
+f04184d9f2ddb9694a38dbd183af7ebcec538e1e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T16:43:35Z    Added the sessionClosed
+event in the IoServiceListener.<hr /> 
+==============================
+
+On issue key DIRMINA-1067 the Chain pattern might have been discussed on the following comment: 
+==============================
+GitHub user ppalaga opened a pull request:    <a
+href="https://github.com/apache/mina/pull/12" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12</a>    A reproducer for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a> checkClientTrusted() invoked
+just once on IBM JREYou can merge this pull request into a Git repository by running:    $
+git pull <a href="https://github.com/ppalaga/mina" class="external-link"
+rel="nofollow">https://github.com/ppalaga/mina</a> <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a>Alternatively you can review and
+apply these changes as the patch at:    <a
+href="https://github.com/apache/mina/pull/12.patch" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12.patch</a>To close this pull request,
+make a commit to your master/trunk branch<br/>with (at least) the following in the commit
+message:    This closes #12<hr />commit
+1223863fdcba6848db3ee9f2e381f45df75ef999<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-05T18:16:24Z    Release the In and Out net
+buffer when we get a SSLException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-968" title="Memory leak in SSL
+Handshake errors" class="issue-link"
+data-issue-key="DIRMINA-968"><del>DIRMINA-968</del></a>). Note : we don't have a test case
+to reproduce the issue,<br/>    so it's a kind of blind attempt to solve it.commit
+e0da8d7fdecf9d412063089b860a960caa0795bf<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T20:21:46Z    Fix for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-629" title="The IoServiceStatistics
+methods are called for every new session creation" class="issue-link"
+data-issue-key="DIRMINA-629"><del>DIRMINA-629</del></a> : used a lock around all the
+methods to avoid<br/>    concurrent issues. Removed the AtomicXXX which are not anymore
+useful.commit 5ffd8c02a8ffcb4671d3db80598a851143f79d6f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T21:04:04Z    Added some information to
+the error message when we try to bind<br/>    (socketAddress) See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add host and port info to
+BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>commit
+67240409a2537972d6998f26ed83d99265a6de09<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T05:01:23Z    Had to intialize the cause
+outside of the constructor to please Java 5<br/>    (no constructor with the message and
+the cause in Java5)commit de58078ce2139cffbec84da63b5030e77e592dac<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T06:32:23Z    o Added a thread
+to cleanup the expired sessions<br/>    o Used ConcurrentHshMap instead of
+SynchronizedMap<br/>    o Added a lock to be sure we don't have concurrent access to the
+map<br/>    (it's needed even if the map is protected against concurrent access, as<br/>  
+ we update the map in different places)    This filter is an example of what should
+<b>not</b> be accepted in out code<br/>    base...commit
+faa8e58e11a3fa50e5169f6f9c1119d275199fec<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T07:48:42Z    Accept addresses like
+0.0.0.0 or :: (IPV4 and IPV6)in the inSubnet()<br/>    method (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-773"
+title="org.apache.mina.filter.firewall.Subnet should  consider 0.0.0.0/0 as a subnet that
+contains &#39;all the ipv4 addresses&#39;" class="issue-link"
+data-issue-key="DIRMINA-773"><del>DIRMINA-773</del></a>)commit
+9d7d823edacede56813674b94cba2ae65977426f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T12:22:06Z    o Added some info when a
+IOException occurs (<a href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add
+host and port info to BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>)<br/>    o Close the channel when
+we get an IOException (<a href="https://issues.apache.org/jira/browse/DIRMINA-928"
+title="when client want to connect to server by binding wrong ip address,there is a bug."
+class="issue-link" data-issue-key="DIRMINA-928"><del>DIRMINA-928</del></a>)commit
+3852d253911a7ad666605a230e27debf4b4bd56d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T15:23:53Z    Added a test for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-777"
+title="IoSessionConfig.setUseReadOperation(true) doesn&#39;t seem to work"
+class="issue-link" data-issue-key="DIRMINA-777"><del>DIRMINA-777</del></a>commit
+9645bc04739faa55f1aae396fb42d5221f5efddd<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:28:46Z    Backporting <a
+href="https://issues.apache.org/jira/browse/DIRMINA-931" title="HTTP header decoding is
+broken" class="issue-link" data-issue-key="DIRMINA-931"><del>DIRMINA-931</del></a> to
+2.0commit ccbf33f9457bd7ecc3376928ee8bdf8687afa09d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:38:53Z    Add Informational status
+codescommit 81f55c8f6de1a73c2f999fd4cf20546fd54c09a0<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T19:35:31Z    Moved the
+increaseWrittenMessages method to the TailFilter (See<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-631" title="AbstractIoFilter:
+increment writen- and receivedMessages statistics on application end of filter chain"
+class="issue-link" data-issue-key="DIRMINA-631"><del>DIRMINA-631</del></a>)commit
+1781aab8d06a1b60e7e90386dd9aa1dee816a4d2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:18:14Z    Avoided to loop from 1 to
+1024, as we will never run this test under a<br/>    priviledged user.commit
+3cf5bcdc800db329400193f24afa0613b7d3178e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:42:05Z    Added the supported
+ciphers in the SSLHandler (see <a href="https://issues.apache.org/jira/browse/DIRMINA-760"
+title="Client fails to detect disconnection" class="issue-link"
+data-issue-key="DIRMINA-760"><del>DIRMINA-760</del></a>)commit
+d500b2e9727675abe9c325da7587b20dcaf95890<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T10:28:23Z    Sadly, the
+getSupportedSSLParameters() method is not available in Java<br/>    5. Used
+getServerSocketFactory().getSupportedCipherSuites() instead.commit
+478a8a87de9128bdbbc6d38c8b320d769f5d1441<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T12:13:09Z    Called the statistic
+updateThroughput metho din the TailFilter, so that<br/>    the user don't have to do it.
+See <a href="https://issues.apache.org/jira/browse/DIRMINA-967" title="IoSession
+updateThroughput not automatically called" class="issue-link"
+data-issue-key="DIRMINA-967"><del>DIRMINA-967</del></a>commit
+5955d7281936d97f5ca39d9619692f05e48140d9<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T15:18:47Z    Added a destroy(session),
+as suggested in <a href="https://issues.apache.org/jira/browse/DIRMINA-942"
+title="Infinite loop flushing to broken pipe" class="issue-link"
+data-issue-key="DIRMINA-942"><del>DIRMINA-942</del></a>commit
+3ebfb8c09444ce5dc7cd68d673df7c7f11f38503<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:33:40Z    Printed out the sent
+message (we were getting an empty byte before).<br/>    That will fix <a
+href="https://issues.apache.org/jira/browse/DIRMINA-833" title="LoggingFilter does not log
+SENT bytes when used with a ProtocolCodecFilter" class="issue-link"
+data-issue-key="DIRMINA-833"><del>DIRMINA-833</del></a>commit
+ba995db5e653307dd0bf6dc7ba5deeb903f83366<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:42:24Z    Made teh AttributeKey
+ENCODER and DECODER static, so that we don't<br/>    create them everytime we instanciate
+the ProtocolCodecFIlter (see<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-838" title="Redundant AttributeKey
+allocation resulting  in high garbage collector activity" class="issue-link"
+data-issue-key="DIRMINA-838"><del>DIRMINA-838</del></a>)commit
+64c80b9044fe1ec1c976d8022411d25f923aebd2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:27:02Z    Added a printstacktrace
+when we get a ClosedSelectorException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-978" title="ClosedSelectorException
+handling in AbstractPollingIoProcessor" class="issue-link"
+data-issue-key="DIRMINA-978"><del>DIRMINA-978</del></a>)commit
+2cb34e5389c552603d77648cc852692a3c3ed728<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:29:31Z    Replaced the
+printStacktrace by a call to exceptionCaught()commit
+46f929204de3efa24ceffd2e87838eb85005d194<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T12:40:59Z    Added the localAddress in
+the NioSocketConnector (<a href="https://issues.apache.org/jira/browse/DIRMINA-816"
+title="NioSocketConnector missing defaultLocalAddress" class="issue-link"
+data-issue-key="DIRMINA-816"><del>DIRMINA-816</del></a>)commit
+dd83fecdbb85fdd2276a350e509f91aa12e9e3ce<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Added support of IPV6 for
+the BlackListFiltercommit 53ab404aed6e5b50f42c91ff6289e0c73d553181<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Calling the
+preAdd and postAdd in the replace methods. See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-977"
+title="DefaultIoFilterChain.replace does not call register/deregister" class="issue-link"
+data-issue-key="DIRMINA-977"><del>DIRMINA-977</del></a>commit
+691c418312ce9445721a71cac2b2771e3555ad88<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T22:13:09Z    Merge branch '2.0' of <a
+href="http://git-wip-us.apache.org/repos/asf/mina" class="external-link"
+rel="nofollow">http://git-wip-us.apache.org/repos/asf/mina</a> into 2.0commit
+56a6e58004ea4a6af5640f03d1f6796a073c5d62<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T06:17:04Z    Added a lock, instead of
+synchrnizing teh whole section. We now prtect<br/>    the write and read as a whole (that
+should be a fix for <a href="https://issues.apache.org/jira/browse/DIRMINA-779"
+title="SSLHandler can re-order data that it reads" class="issue-link"
+data-issue-key="DIRMINA-779"><del>DIRMINA-779</del></a>)commit
+af34f5087926b6e44c62033567123244cabed1f8<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T07:31:06Z    Applied the suggested
+patch from <a href="https://issues.apache.org/jira/browse/DIRMINA-972" title="NPE during
+handshake on Android using SSLFilter" class="issue-link"
+data-issue-key="DIRMINA-972"><del>DIRMINA-972</del></a>commit
+1c95e0ddfce293abaa0821ebecba17ab84951fed<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T13:58:03Z    Don't catch Throwable.
+Catch Exception only (<a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>)commit
+232bff322f0278f614b8b35545655d94465b9e7a<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:38:12Z    Stip catching Throwable.
+Replaced by catch (Exception e) all over the<br/>    code (except in
+DefaultIoFilterChain). See <a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>commit
+404352c427a92efb2b80d2e5b7d5bb84693c7a7c<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:49:45Z    Some more catch
+(Throwable) replaced by catch (Exception)commit
+f04184d9f2ddb9694a38dbd183af7ebcec538e1e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T16:43:35Z    Added the sessionClosed
+event in the IoServiceListener.<hr /> 
+==============================
+
+New Comment: 
+GitHub user ppalaga opened a pull request:    <a
+href="https://github.com/apache/mina/pull/12" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12</a>    A reproducer for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a> checkClientTrusted() invoked
+just once on IBM JREYou can merge this pull request into a Git repository by running:    $
+git pull <a href="https://github.com/ppalaga/mina" class="external-link"
+rel="nofollow">https://github.com/ppalaga/mina</a> <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1067" title="checkClientTrusted()
+invoked just once on IBM JRE" class="issue-link"
+data-issue-key="DIRMINA-1067"><del>DIRMINA-1067</del></a>Alternatively you can review and
+apply these changes as the patch at:    <a
+href="https://github.com/apache/mina/pull/12.patch" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/12.patch</a>To close this pull request,
+make a commit to your master/trunk branch<br/>with (at least) the following in the commit
+message:    This closes #12<hr />commit
+1223863fdcba6848db3ee9f2e381f45df75ef999<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-05T18:16:24Z    Release the In and Out net
+buffer when we get a SSLException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-968" title="Memory leak in SSL
+Handshake errors" class="issue-link"
+data-issue-key="DIRMINA-968"><del>DIRMINA-968</del></a>). Note : we don't have a test case
+to reproduce the issue,<br/>    so it's a kind of blind attempt to solve it.commit
+e0da8d7fdecf9d412063089b860a960caa0795bf<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T20:21:46Z    Fix for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-629" title="The IoServiceStatistics
+methods are called for every new session creation" class="issue-link"
+data-issue-key="DIRMINA-629"><del>DIRMINA-629</del></a> : used a lock around all the
+methods to avoid<br/>    concurrent issues. Removed the AtomicXXX which are not anymore
+useful.commit 5ffd8c02a8ffcb4671d3db80598a851143f79d6f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-06T21:04:04Z    Added some information to
+the error message when we try to bind<br/>    (socketAddress) See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add host and port info to
+BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>commit
+67240409a2537972d6998f26ed83d99265a6de09<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T05:01:23Z    Had to intialize the cause
+outside of the constructor to please Java 5<br/>    (no constructor with the message and
+the cause in Java5)commit de58078ce2139cffbec84da63b5030e77e592dac<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T06:32:23Z    o Added a thread
+to cleanup the expired sessions<br/>    o Used ConcurrentHshMap instead of
+SynchronizedMap<br/>    o Added a lock to be sure we don't have concurrent access to the
+map<br/>    (it's needed even if the map is protected against concurrent access, as<br/>  
+ we update the map in different places)    This filter is an example of what should
+<b>not</b> be accepted in out code<br/>    base...commit
+faa8e58e11a3fa50e5169f6f9c1119d275199fec<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T07:48:42Z    Accept addresses like
+0.0.0.0 or :: (IPV4 and IPV6)in the inSubnet()<br/>    method (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-773"
+title="org.apache.mina.filter.firewall.Subnet should  consider 0.0.0.0/0 as a subnet that
+contains &#39;all the ipv4 addresses&#39;" class="issue-link"
+data-issue-key="DIRMINA-773"><del>DIRMINA-773</del></a>)commit
+9d7d823edacede56813674b94cba2ae65977426f<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T12:22:06Z    o Added some info when a
+IOException occurs (<a href="https://issues.apache.org/jira/browse/DIRMINA-825" title="Add
+host and port info to BindException thrown by NioSocketAcceptor#open" class="issue-link"
+data-issue-key="DIRMINA-825"><del>DIRMINA-825</del></a>)<br/>    o Close the channel when
+we get an IOException (<a href="https://issues.apache.org/jira/browse/DIRMINA-928"
+title="when client want to connect to server by binding wrong ip address,there is a bug."
+class="issue-link" data-issue-key="DIRMINA-928"><del>DIRMINA-928</del></a>)commit
+3852d253911a7ad666605a230e27debf4b4bd56d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T15:23:53Z    Added a test for <a
+href="https://issues.apache.org/jira/browse/DIRMINA-777"
+title="IoSessionConfig.setUseReadOperation(true) doesn&#39;t seem to work"
+class="issue-link" data-issue-key="DIRMINA-777"><del>DIRMINA-777</del></a>commit
+9645bc04739faa55f1aae396fb42d5221f5efddd<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:28:46Z    Backporting <a
+href="https://issues.apache.org/jira/browse/DIRMINA-931" title="HTTP header decoding is
+broken" class="issue-link" data-issue-key="DIRMINA-931"><del>DIRMINA-931</del></a> to
+2.0commit ccbf33f9457bd7ecc3376928ee8bdf8687afa09d<br/>Author: Jeff MAURY
+&lt;jeffmaury@apache.org&gt;<br/>Date:   2014-09-07T16:38:53Z    Add Informational status
+codescommit 81f55c8f6de1a73c2f999fd4cf20546fd54c09a0<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-07T19:35:31Z    Moved the
+increaseWrittenMessages method to the TailFilter (See<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-631" title="AbstractIoFilter:
+increment writen- and receivedMessages statistics on application end of filter chain"
+class="issue-link" data-issue-key="DIRMINA-631"><del>DIRMINA-631</del></a>)commit
+1781aab8d06a1b60e7e90386dd9aa1dee816a4d2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:18:14Z    Avoided to loop from 1 to
+1024, as we will never run this test under a<br/>    priviledged user.commit
+3cf5bcdc800db329400193f24afa0613b7d3178e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T08:42:05Z    Added the supported
+ciphers in the SSLHandler (see <a href="https://issues.apache.org/jira/browse/DIRMINA-760"
+title="Client fails to detect disconnection" class="issue-link"
+data-issue-key="DIRMINA-760"><del>DIRMINA-760</del></a>)commit
+d500b2e9727675abe9c325da7587b20dcaf95890<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T10:28:23Z    Sadly, the
+getSupportedSSLParameters() method is not available in Java<br/>    5. Used
+getServerSocketFactory().getSupportedCipherSuites() instead.commit
+478a8a87de9128bdbbc6d38c8b320d769f5d1441<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T12:13:09Z    Called the statistic
+updateThroughput metho din the TailFilter, so that<br/>    the user don't have to do it.
+See <a href="https://issues.apache.org/jira/browse/DIRMINA-967" title="IoSession
+updateThroughput not automatically called" class="issue-link"
+data-issue-key="DIRMINA-967"><del>DIRMINA-967</del></a>commit
+5955d7281936d97f5ca39d9619692f05e48140d9<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-08T15:18:47Z    Added a destroy(session),
+as suggested in <a href="https://issues.apache.org/jira/browse/DIRMINA-942"
+title="Infinite loop flushing to broken pipe" class="issue-link"
+data-issue-key="DIRMINA-942"><del>DIRMINA-942</del></a>commit
+3ebfb8c09444ce5dc7cd68d673df7c7f11f38503<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:33:40Z    Printed out the sent
+message (we were getting an empty byte before).<br/>    That will fix <a
+href="https://issues.apache.org/jira/browse/DIRMINA-833" title="LoggingFilter does not log
+SENT bytes when used with a ProtocolCodecFilter" class="issue-link"
+data-issue-key="DIRMINA-833"><del>DIRMINA-833</del></a>commit
+ba995db5e653307dd0bf6dc7ba5deeb903f83366<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-09T05:42:24Z    Made teh AttributeKey
+ENCODER and DECODER static, so that we don't<br/>    create them everytime we instanciate
+the ProtocolCodecFIlter (see<br/>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-838" title="Redundant AttributeKey
+allocation resulting  in high garbage collector activity" class="issue-link"
+data-issue-key="DIRMINA-838"><del>DIRMINA-838</del></a>)commit
+64c80b9044fe1ec1c976d8022411d25f923aebd2<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:27:02Z    Added a printstacktrace
+when we get a ClosedSelectorException<br/>    (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-978" title="ClosedSelectorException
+handling in AbstractPollingIoProcessor" class="issue-link"
+data-issue-key="DIRMINA-978"><del>DIRMINA-978</del></a>)commit
+2cb34e5389c552603d77648cc852692a3c3ed728<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T09:29:31Z    Replaced the
+printStacktrace by a call to exceptionCaught()commit
+46f929204de3efa24ceffd2e87838eb85005d194<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T12:40:59Z    Added the localAddress in
+the NioSocketConnector (<a href="https://issues.apache.org/jira/browse/DIRMINA-816"
+title="NioSocketConnector missing defaultLocalAddress" class="issue-link"
+data-issue-key="DIRMINA-816"><del>DIRMINA-816</del></a>)commit
+dd83fecdbb85fdd2276a350e509f91aa12e9e3ce<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Added support of IPV6 for
+the BlackListFiltercommit 53ab404aed6e5b50f42c91ff6289e0c73d553181<br/>Author: Emmanuel
+Lécharny &lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T14:40:30Z    Calling the
+preAdd and postAdd in the replace methods. See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-977"
+title="DefaultIoFilterChain.replace does not call register/deregister" class="issue-link"
+data-issue-key="DIRMINA-977"><del>DIRMINA-977</del></a>commit
+691c418312ce9445721a71cac2b2771e3555ad88<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-10T22:13:09Z    Merge branch '2.0' of <a
+href="http://git-wip-us.apache.org/repos/asf/mina" class="external-link"
+rel="nofollow">http://git-wip-us.apache.org/repos/asf/mina</a> into 2.0commit
+56a6e58004ea4a6af5640f03d1f6796a073c5d62<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T06:17:04Z    Added a lock, instead of
+synchrnizing teh whole section. We now prtect<br/>    the write and read as a whole (that
+should be a fix for <a href="https://issues.apache.org/jira/browse/DIRMINA-779"
+title="SSLHandler can re-order data that it reads" class="issue-link"
+data-issue-key="DIRMINA-779"><del>DIRMINA-779</del></a>)commit
+af34f5087926b6e44c62033567123244cabed1f8<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T07:31:06Z    Applied the suggested
+patch from <a href="https://issues.apache.org/jira/browse/DIRMINA-972" title="NPE during
+handshake on Android using SSLFilter" class="issue-link"
+data-issue-key="DIRMINA-972"><del>DIRMINA-972</del></a>commit
+1c95e0ddfce293abaa0821ebecba17ab84951fed<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T13:58:03Z    Don't catch Throwable.
+Catch Exception only (<a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>)commit
+232bff322f0278f614b8b35545655d94465b9e7a<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:38:12Z    Stip catching Throwable.
+Replaced by catch (Exception e) all over the<br/>    code (except in
+DefaultIoFilterChain). See <a href="https://issues.apache.org/jira/browse/DIRMINA-941"
+title="DefaultIoFilterChain (or any other class) should not catch Throwable without
+re-throwing" class="issue-link"
+data-issue-key="DIRMINA-941"><del>DIRMINA-941</del></a>commit
+404352c427a92efb2b80d2e5b7d5bb84693c7a7c<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T15:49:45Z    Some more catch
+(Throwable) replaced by catch (Exception)commit
+f04184d9f2ddb9694a38dbd183af7ebcec538e1e<br/>Author: Emmanuel Lécharny
+&lt;elecharny@symas.com&gt;<br/>Date:   2014-09-11T16:43:35Z    Added the sessionClosed
+event in the IoServiceListener.<hr /> 
+
+
+New Comment: 
+The thing is that you call 3 times the <tt>connectAndSend</tt> method. If you call it 4
+times, the certificate is checked 4 times (I did the test).IMO, the IBM JDK should cache
+the result of the certificate check, thus avoiding doing it again when it receives the
+exact same certificate another time, something the Oracle JDK does not do. In any case, I
+don't think there is a problem in MINA, as we are dealing with a brand new connection
+everytime (beside teh obvious cost of checking the same certificate over and over)... 
+
+
+On issue key DIRMINA-1067 the observe pattern might have been discussed on the following comment: 
+==============================
+Thanks for looking at this and for the hint that the IBM JVM could cache the results of
+the TrustManager queries, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>. Although, I have not got a 100%
+certainty that IBM is really doing that, having tried intercepting the communication pipe
+earlier in <tt>SSLEngine</tt>, I was able to observe consistent behavior between IBM and
+Oracle/OpenJDK JVMs, which effectivelly means that this neither a bug in Apache Mina nor a
+bug in any of the JVMs.So, for others, who might be interested in how to check/test what
+SSL certs an LDAP client is sending, this an approach that worked for me: Have a custom
+<tt>LdapsInitializer</tt> in your test class path that replaces the default
+<tt>LdapsInitializer</tt> delivered by ApacheDS. In that <tt>LdapsInitializer</tt>, create
+an install an <tt>SSLFilter</tt> with a a custom <tt>SSLContext</tt>. The custom
+<tt>SSLContext</tt> produces a custom <tt>SSLEngine</tt> where we watch all
+<tt>wrap()</tt> and <tt>unwrap()</tt> methods. As soon as any of the <tt>wrap()</tt> and
+<tt>unwrap()</tt> methods returns <tt>HandshakeStatus.FINISHED</tt>, we call
+<tt>getSession().getPeerCertificateChain()</tt> and check if the cert chain is as
+expected. Here is my code: <a href="https://github.com/wildfly/wildfly/pull/10209"
+class="external-link" rel="nofollow">https://github.com/wildfly/wildfly/pull/10209</a> 
+==============================
+
+On issue key DIRMINA-1067 the chain pattern might have been discussed on the following comment: 
+==============================
+Thanks for looking at this and for the hint that the IBM JVM could cache the results of
+the TrustManager queries, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>. Although, I have not got a 100%
+certainty that IBM is really doing that, having tried intercepting the communication pipe
+earlier in <tt>SSLEngine</tt>, I was able to observe consistent behavior between IBM and
+Oracle/OpenJDK JVMs, which effectivelly means that this neither a bug in Apache Mina nor a
+bug in any of the JVMs.So, for others, who might be interested in how to check/test what
+SSL certs an LDAP client is sending, this an approach that worked for me: Have a custom
+<tt>LdapsInitializer</tt> in your test class path that replaces the default
+<tt>LdapsInitializer</tt> delivered by ApacheDS. In that <tt>LdapsInitializer</tt>, create
+an install an <tt>SSLFilter</tt> with a a custom <tt>SSLContext</tt>. The custom
+<tt>SSLContext</tt> produces a custom <tt>SSLEngine</tt> where we watch all
+<tt>wrap()</tt> and <tt>unwrap()</tt> methods. As soon as any of the <tt>wrap()</tt> and
+<tt>unwrap()</tt> methods returns <tt>HandshakeStatus.FINISHED</tt>, we call
+<tt>getSession().getPeerCertificateChain()</tt> and check if the cert chain is as
+expected. Here is my code: <a href="https://github.com/wildfly/wildfly/pull/10209"
+class="external-link" rel="nofollow">https://github.com/wildfly/wildfly/pull/10209</a> 
+==============================
+
+On issue key DIRMINA-1067 the Chain pattern might have been discussed on the following comment: 
+==============================
+Thanks for looking at this and for the hint that the IBM JVM could cache the results of
+the TrustManager queries, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>. Although, I have not got a 100%
+certainty that IBM is really doing that, having tried intercepting the communication pipe
+earlier in <tt>SSLEngine</tt>, I was able to observe consistent behavior between IBM and
+Oracle/OpenJDK JVMs, which effectivelly means that this neither a bug in Apache Mina nor a
+bug in any of the JVMs.So, for others, who might be interested in how to check/test what
+SSL certs an LDAP client is sending, this an approach that worked for me: Have a custom
+<tt>LdapsInitializer</tt> in your test class path that replaces the default
+<tt>LdapsInitializer</tt> delivered by ApacheDS. In that <tt>LdapsInitializer</tt>, create
+an install an <tt>SSLFilter</tt> with a a custom <tt>SSLContext</tt>. The custom
+<tt>SSLContext</tt> produces a custom <tt>SSLEngine</tt> where we watch all
+<tt>wrap()</tt> and <tt>unwrap()</tt> methods. As soon as any of the <tt>wrap()</tt> and
+<tt>unwrap()</tt> methods returns <tt>HandshakeStatus.FINISHED</tt>, we call
+<tt>getSession().getPeerCertificateChain()</tt> and check if the cert chain is as
+expected. Here is my code: <a href="https://github.com/wildfly/wildfly/pull/10209"
+class="external-link" rel="nofollow">https://github.com/wildfly/wildfly/pull/10209</a> 
+==============================
+
+New Comment: 
+Thanks for looking at this and for the hint that the IBM JVM could cache the results of
+the TrustManager queries, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>. Although, I have not got a 100%
+certainty that IBM is really doing that, having tried intercepting the communication pipe
+earlier in <tt>SSLEngine</tt>, I was able to observe consistent behavior between IBM and

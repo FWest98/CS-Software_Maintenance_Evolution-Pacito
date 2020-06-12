@@ -1,0 +1,30 @@
+Pattern changes caused by commit: 957d6c95b0134453429123aca46ed79bce6a8a0f
+
+From: Adapter-15
+To:   Adapter-14
+
+From: Facade-26
+To:   Facade-25
+
+From: Mediator-72
+To:   Mediator-68
+
+From: Observer-4
+To:   Observer-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-289.txt 
+
+commit 957d6c95b0134453429123aca46ed79bce6a8a0f
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-245 (MINA does not fire read events)
+    Resolved issue: DIRMINA-260 (Utilize backport-util-concurrent Executor)
+    * Renamed:
+    ** ThreadPoolFilter -> ExecutorFilter
+    ** PooledThreadModel -> ExecutorThreadModel
+    ** org.apache.mina.filter.thread -> org.apache.mina.filter.executor

@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 41aae707c731ff2bdaa22e61ebc9172dbe035f30
+
+From: Flyweight-19
+To:   Flyweight-20
+
+From: Mediator-67
+To:   Mediator-68
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-201.txt 
+
+commit 41aae707c731ff2bdaa22e61ebc9172dbe035f30
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-215 (IoFuture.Callback.CLOSE)
+    * Added IoFuture.Callback.CLOSE
+
+
+
+==================================
+ Issue DIRMINA-215 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-215] IoFuture.Callback.CLOSE
+-----------------
+
+-----------------
+Summary: IoFuture.Callback.CLOSE
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 15 May 2006 15:48:52 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 17 May 2006 10:59:24 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+When you want to close the connection when the last message is sent, you usually choose
+one of two approaches:
+
+1) session.write(message).join();<br/>    session.close();
+
+2)
+session.write(message).setCallback(new Callback() {<br/>            public void
+operationComplete(IoFuture future) 
+{                future.getSession().close();         
+  }
+);
+
+The first approach is very good from the viewpoint of simplicity, but it won't
+work in a single thread mode.  The second one works in a single thread mode, but it's very
+verbose.  To relax the code complexity of the approach 2, it would be nice if we have a
+predefined Callback for closing a session.  The new code will be:
+
+2)
+session.write(message).setCallback(Callback.CLOSE);
+
+which is much better than before.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+HTH 
+
+
+New Comment: 
+This issue got more simplified thanks to <a
+href="https://issues.apache.org/jira/browse/DIRMINA-217" title="Make IoFuture and its
+subclasses interfaces" class="issue-link"
+data-issue-key="DIRMINA-217"><del>DIRMINA-217</del></a> 
+
+

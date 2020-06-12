@@ -1,0 +1,1178 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Get the same exception in sessionClosed() in some reasons by calling toString() on the
+session. 
+
+
+New Comment: 
+Seems that logging the session (toString()) is a deadly operation. Get it again in
+onPostRemove(). 
+
+
+New Comment: 
+This can certainly be improved. The stack trace is generated because for some reason, we
+try to get the localAddress, and it's already closed.However, this is not really a
+critical error. 
+
+
+New Comment: 
+To be fixed in 2.0.0 
+
+
+New Comment: 
+It seems to have been fixed in rev 785102 : <a
+href="http://svn.apache.org/viewvc?view=revision&amp;revision=785102"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?view=revision&amp;revision=785102</a>, so
+before 2.0.0-RC1.I find it very strange that some stackTrace are present when we catch all
+the exceptions instead of propagating them. Is it possible hat you tested with an older
+version ? 
+
+
+New Comment: 
+Postponed to 2.0.1 
+
+
+New Comment: 
+To me, the problem has already fixed a long time ago : if the localAddress is closed, we
+won't get an Exception, but a message indicating that "Session is disconnecting ..." 
+
+
+New Comment: 
+Closing issues 
+
+
+On issue key DIRMINA-771 the Adapter pattern might have been discussed on the following comment: 
+==============================
+This issue is still in 2.0.2.<br/>Calling NioSocketSession.toString() in all MINA
+callbacks can lead to Exceptions.<br/>Found it still in 2.0.2 in
+IoFutureListener&lt;CloseFuture&gt;.operationComplete(final CloseFuture f) registered to
+closeFuture, IoSessionInitializer&lt;ConnectFuture&gt;.initializeSession() callback,
+IoFutureListener&lt;ConnectFuture&gt;.operationComplete(final ConnectFuture f) and
+IoHandlerAdapter extension in all callbacks. I have multiple client connections via a low
+bandwidth satellite link to multiple servers. Established connections are often closed by
+counterpart server, before initializeSession is completed/started, or during messages are
+sent or received. I implemented also a reconnection mode, which initiates a immediate
+NIOSocketConnector.connect after connection is broken. This works fine for a while, but
+NioSocketConnector thread stops performing connects on TCP/IP level on a while. Connects
+are then lost in MINA and the corresponding connect future listener is never
+called...Automatic stoped. Do you have any idea about this issue... 
+==============================
+
+On issue key DIRMINA-771 the mediate pattern might have been discussed on the following comment: 
+==============================
+This issue is still in 2.0.2.<br/>Calling NioSocketSession.toString() in all MINA
+callbacks can lead to Exceptions.<br/>Found it still in 2.0.2 in
+IoFutureListener&lt;CloseFuture&gt;.operationComplete(final CloseFuture f) registered to
+closeFuture, IoSessionInitializer&lt;ConnectFuture&gt;.initializeSession() callback,
+IoFutureListener&lt;ConnectFuture&gt;.operationComplete(final ConnectFuture f) and
+IoHandlerAdapter extension in all callbacks. I have multiple client connections via a low
+bandwidth satellite link to multiple servers. Established connections are often closed by
+counterpart server, before initializeSession is completed/started, or during messages are
+sent or received. I implemented also a reconnection mode, which initiates a immediate
+NIOSocketConnector.connect after connection is broken. This works fine for a while, but
+NioSocketConnector thread stops performing connects on TCP/IP level on a while. Connects
+are then lost in MINA and the corresponding connect future listener is never
+called...Automatic stoped. Do you have any idea about this issue... 
+==============================
+
+New Comment: 
+This issue is still in 2.0.2.<br/>Calling NioSocketSession.toString() in all MINA
+callbacks can lead to Exceptions.<br/>Found it still in 2.0.2 in
+IoFutureListener&lt;CloseFuture&gt;.operationComplete(final CloseFuture f) registered to
+closeFuture, IoSessionInitializer&lt;ConnectFuture&gt;.initializeSession() callback,
+IoFutureListener&lt;ConnectFuture&gt;.operationComplete(final ConnectFuture f) and
+IoHandlerAdapter extension in all callbacks. I have multiple client connections via a low
+bandwidth satellite link to multiple servers. Established connections are often closed by
+counterpart server, before initializeSession is completed/started, or during messages are
+sent or received. I implemented also a reconnection mode, which initiates a immediate
+NIOSocketConnector.connect after connection is broken. This works fine for a while, but
+NioSocketConnector thread stops performing connects on TCP/IP level on a while. Connects
+are then lost in MINA and the corresponding connect future listener is never
+called...Automatic stoped. Do you have any idea about this issue... 
+
+
+New Comment: 
+I double checked the NioSocketSession.toString() method, and I don't really see how we can
+have some NPE. We will swallow it in the toString() metho :    public String toString()
+{<br/>        if (isConnected() || isClosing()) {<br/>            try {<br/>              
+ SocketAddress remote = getRemoteAddress();<br/>                SocketAddress local =
+getLocalAddress();                if (getService() instanceof IoAcceptor) {               
+    return "(" + getIdAsString() + ": " + getServiceName() + ", server, " + remote + "
+=&gt; " + local                            + ')';                }                return
+"(" + getIdAsString() + ": " + getServiceName() + ", client, " + local + " =&gt; " +
+remote + ')';<br/>            } catch (Exception e) {                return "Session is
+disconnecting ...";            }        }        return "Session disconnected ...";<br/>  
+ }Do you have any stacktrace ? 
+
+
+On issue key DIRMINA-771 the Builder pattern might have been discussed on the following comment: 
+==============================
+I build a IoSessionUtil.toString(ioSession) static method to fetch all the exceptions.
+Here is the first. More follows...<br/>java.lang.Error: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at
+sun.nio.ch.Net.localAddress(Net.java:128)<br/>        at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)<br/>        at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)<br/>        at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)<br/>
+       at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)<br/> 
+      at java.lang.String.valueOf(String.java:2826)<br/>        at
+java.lang.StringBuilder.append(StringBuilder.java:115)<br/>        at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:319)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:292)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.notifyListener(DefaultIoFuture.java:377)<br/> 
+      at
+org.apache.mina.core.future.DefaultIoFuture.notifyListeners(DefaultIoFuture.java:367)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.setValue(DefaultIoFuture.java:290)<br/>       
+at
+org.apache.mina.core.future.DefaultCloseFuture.setClosed(DefaultCloseFuture.java:47)<br/> 
+      at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:381)<br/>
+       at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)<br/>
+       at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>      
+ at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at sun.nio.ch.Net.localInetAddress(Native
+Method)<br/>        at sun.nio.ch.Net.localAddress(Net.java:125)<br/>        ... 25 more 
+==============================
+
+On issue key DIRMINA-771 the chain pattern might have been discussed on the following comment: 
+==============================
+I build a IoSessionUtil.toString(ioSession) static method to fetch all the exceptions.
+Here is the first. More follows...<br/>java.lang.Error: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at
+sun.nio.ch.Net.localAddress(Net.java:128)<br/>        at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)<br/>        at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)<br/>        at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)<br/>
+       at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)<br/> 
+      at java.lang.String.valueOf(String.java:2826)<br/>        at
+java.lang.StringBuilder.append(StringBuilder.java:115)<br/>        at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:319)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:292)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.notifyListener(DefaultIoFuture.java:377)<br/> 
+      at
+org.apache.mina.core.future.DefaultIoFuture.notifyListeners(DefaultIoFuture.java:367)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.setValue(DefaultIoFuture.java:290)<br/>       
+at
+org.apache.mina.core.future.DefaultCloseFuture.setClosed(DefaultCloseFuture.java:47)<br/> 
+      at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:381)<br/>
+       at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)<br/>
+       at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>      
+ at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at sun.nio.ch.Net.localInetAddress(Native
+Method)<br/>        at sun.nio.ch.Net.localAddress(Net.java:125)<br/>        ... 25 more 
+==============================
+
+On issue key DIRMINA-771 the Chain pattern might have been discussed on the following comment: 
+==============================
+I build a IoSessionUtil.toString(ioSession) static method to fetch all the exceptions.
+Here is the first. More follows...<br/>java.lang.Error: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at
+sun.nio.ch.Net.localAddress(Net.java:128)<br/>        at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)<br/>        at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)<br/>        at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)<br/>
+       at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)<br/> 
+      at java.lang.String.valueOf(String.java:2826)<br/>        at
+java.lang.StringBuilder.append(StringBuilder.java:115)<br/>        at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:319)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:292)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.notifyListener(DefaultIoFuture.java:377)<br/> 
+      at
+org.apache.mina.core.future.DefaultIoFuture.notifyListeners(DefaultIoFuture.java:367)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.setValue(DefaultIoFuture.java:290)<br/>       
+at
+org.apache.mina.core.future.DefaultCloseFuture.setClosed(DefaultCloseFuture.java:47)<br/> 
+      at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:381)<br/>
+       at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)<br/>
+       at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>      
+ at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at sun.nio.ch.Net.localInetAddress(Native
+Method)<br/>        at sun.nio.ch.Net.localAddress(Net.java:125)<br/>        ... 25 more 
+==============================
+
+New Comment: 
+I build a IoSessionUtil.toString(ioSession) static method to fetch all the exceptions.
+Here is the first. More follows...<br/>java.lang.Error: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at
+sun.nio.ch.Net.localAddress(Net.java:128)<br/>        at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)<br/>        at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)<br/>        at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)<br/>
+       at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)<br/> 
+      at java.lang.String.valueOf(String.java:2826)<br/>        at
+java.lang.StringBuilder.append(StringBuilder.java:115)<br/>        at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:319)<br/>
+       at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.Sessions$DisconnectListener.operationComplete(Sessions.java:292)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.notifyListener(DefaultIoFuture.java:377)<br/> 
+      at
+org.apache.mina.core.future.DefaultIoFuture.notifyListeners(DefaultIoFuture.java:367)<br/>
+       at
+org.apache.mina.core.future.DefaultIoFuture.setValue(DefaultIoFuture.java:290)<br/>       
+at
+org.apache.mina.core.future.DefaultCloseFuture.setClosed(DefaultCloseFuture.java:47)<br/> 
+      at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:381)<br/>
+       at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)<br/>
+       at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>      
+ at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/>        at sun.nio.ch.Net.localInetAddress(Native
+Method)<br/>        at sun.nio.ch.Net.localAddress(Net.java:125)<br/>        ... 25 more 
+
+
+On issue key DIRMINA-771 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Next:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.MinaCecsIoHandler.sessionClosed(MinaCecsIoHandler.java:73)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:665)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 48 more 
+==============================
+
+On issue key DIRMINA-771 the Builder pattern might have been discussed on the following comment: 
+==============================
+Next:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.MinaCecsIoHandler.sessionClosed(MinaCecsIoHandler.java:73)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:665)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 48 more 
+==============================
+
+On issue key DIRMINA-771 the chain pattern might have been discussed on the following comment: 
+==============================
+Next:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.MinaCecsIoHandler.sessionClosed(MinaCecsIoHandler.java:73)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:665)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 48 more 
+==============================
+
+On issue key DIRMINA-771 the Chain pattern might have been discussed on the following comment: 
+==============================
+Next:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.MinaCecsIoHandler.sessionClosed(MinaCecsIoHandler.java:73)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:665)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 48 more 
+==============================
+
+New Comment: 
+Next:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.MinaCecsIoHandler.sessionClosed(MinaCecsIoHandler.java:73)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:665)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 48 more 
+
+
+On issue key DIRMINA-771 the Adapter pattern might have been discussed on the following comment: 
+==============================
+One more:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.resetStatus(KeepAliveFilter.java:271)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.onPostRemove(KeepAliveFilter.java:142)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 51 more 
+==============================
+
+On issue key DIRMINA-771 the Builder pattern might have been discussed on the following comment: 
+==============================
+One more:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.resetStatus(KeepAliveFilter.java:271)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.onPostRemove(KeepAliveFilter.java:142)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 51 more 
+==============================
+
+On issue key DIRMINA-771 the chain pattern might have been discussed on the following comment: 
+==============================
+One more:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.resetStatus(KeepAliveFilter.java:271)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.onPostRemove(KeepAliveFilter.java:142)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 51 more 
+==============================
+
+On issue key DIRMINA-771 the Chain pattern might have been discussed on the following comment: 
+==============================
+One more:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.resetStatus(KeepAliveFilter.java:271)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.onPostRemove(KeepAliveFilter.java:142)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 51 more 
+==============================
+
+New Comment: 
+One more:<br/>java.lang.Error: java.net.SocketException: Socket operation on nonsocket:
+getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.resetStatus(KeepAliveFilter.java:271)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.KeepAliveFilter.onPostRemove(KeepAliveFilter.java:142)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 51 more 
+
+
+On issue key DIRMINA-771 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Maby same as previous...<br/>java.lang.Error: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.compression.CompressionFilter.onPostRemove(CompressionFilter.java:250)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 50 more 
+==============================
+
+On issue key DIRMINA-771 the Builder pattern might have been discussed on the following comment: 
+==============================
+Maby same as previous...<br/>java.lang.Error: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.compression.CompressionFilter.onPostRemove(CompressionFilter.java:250)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 50 more 
+==============================
+
+On issue key DIRMINA-771 the chain pattern might have been discussed on the following comment: 
+==============================
+Maby same as previous...<br/>java.lang.Error: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.compression.CompressionFilter.onPostRemove(CompressionFilter.java:250)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 50 more 
+==============================
+
+On issue key DIRMINA-771 the Chain pattern might have been discussed on the following comment: 
+==============================
+Maby same as previous...<br/>java.lang.Error: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.compression.CompressionFilter.onPostRemove(CompressionFilter.java:250)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localInetAddress(Native Method)	at
+sun.nio.ch.Net.localAddress(Net.java:125)	... 50 more 
+==============================
+
+New Comment: 
+Maby same as previous...<br/>java.lang.Error: java.net.SocketException: Socket operation
+on nonsocket: getsockname	at sun.nio.ch.Net.localAddress(Net.java:128)	at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:423)	at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)	at
+java.net.Socket.getLocalSocketAddress(Socket.java:717)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:112)	at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:43)	at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1201)	at
+java.lang.String.valueOf(String.java:2826)	at
+java.lang.StringBuilder.append(StringBuilder.java:115)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.IoSessionUtil.toString(IoSessionUtil.java:36)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.compression.CompressionFilter.onPostRemove(CompressionFilter.java:250)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.deregister(DefaultIoFilterChain.java:309)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.clear(DefaultIoFilterChain.java:264)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.sessionClosed(DefaultIoFilterChain.java:675)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ThroughputCounterFilter.sessionClosed(ThroughputCounterFilter.java:28)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.sessionClosed(ProtocolCodecFilter.java:387)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+com.ndsatcom.cecsdatamodel.cecsclient.newmulti.mina.ConnectionLoggingFilter.sessionClosed(ConnectionLoggingFilter.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$900(DefaultIoFilterChain.java:46)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:781)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:95)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:395)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:388)	at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:244)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeNow(AbstractPollingIoProcessor.java:580)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.removeSessions(AbstractPollingIoProcessor.java:540)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1087)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)Caused by

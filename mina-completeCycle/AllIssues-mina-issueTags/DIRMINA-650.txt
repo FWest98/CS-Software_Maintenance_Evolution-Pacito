@@ -1,0 +1,153 @@
+On issue key DIRMINA-650 the Factory pattern might have been discussed, namely here: 
+==============================
+Mina server does not recieve all data sent by client using SSLSocketFactory 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+run with 'mvn test' 
+
+
+On issue key DIRMINA-650 the Factory pattern might have been discussed on the following comment: 
+==============================
+Hmmm... Strange. I have tested your program, with slight modifications (basically, adding
+logs and using KeyManagerFactory.getDefaultAlgorithm() instead of the static "SunX509"
+string - a good habit, not all of us are running with a sun VM). Here are the logs I get
+:Client sending: hello<br/>&gt;&gt;&gt; Session /127.0.0.1:59476 created<br/>+++ Session
+/127.0.0.1:59476 opened<br/>Client sending: send<br/>Server got: 'hello', waiting for
+'send'<br/>Server got: 'send', sending 'data'<br/>... Sending data to Session
+/127.0.0.1:59476 created<br/>Client got: data<br/>&gt;&gt;&gt; Session /127.0.0.1:59477
+created<br/>+++ Session /127.0.0.1:59477 opened<br/>Client sending: hello<br/>Client
+sending: send<br/>&lt;&lt;&lt; Session /127.0.0.1:59476 closed<br/>Server got: 'hello',
+waiting for 'send'<br/>.......As you can see, it blocks on the second send, the server
+never receives the second hello.Have you tried MINA 2.0.0-M4 ? 
+==============================
+
+New Comment: 
+Hmmm... Strange. I have tested your program, with slight modifications (basically, adding
+logs and using KeyManagerFactory.getDefaultAlgorithm() instead of the static "SunX509"
+string - a good habit, not all of us are running with a sun VM). Here are the logs I get
+:Client sending: hello<br/>&gt;&gt;&gt; Session /127.0.0.1:59476 created<br/>+++ Session
+/127.0.0.1:59476 opened<br/>Client sending: send<br/>Server got: 'hello', waiting for
+'send'<br/>Server got: 'send', sending 'data'<br/>... Sending data to Session
+/127.0.0.1:59476 created<br/>Client got: data<br/>&gt;&gt;&gt; Session /127.0.0.1:59477
+created<br/>+++ Session /127.0.0.1:59477 opened<br/>Client sending: hello<br/>Client
+sending: send<br/>&lt;&lt;&lt; Session /127.0.0.1:59476 closed<br/>Server got: 'hello',
+waiting for 'send'<br/>.......As you can see, it blocks on the second send, the server
+never receives the second hello.Have you tried MINA 2.0.0-M4 ? 
+
+
+New Comment: 
+It doesn't block on the send, the send succeeds. If a 3rd send is done by the client the
+server will receive all the data, or if the server responds to the first send everything
+will also work correctly. If the SSLSession is not reused (eg, the server calls
+SSLSession.invalidate()) the problem also goes away.I haven't tried 2.0.0-M4 yet, I didn't
+have time to rework the code to the new API. My primary concern is with 1.1 as this
+affects production code. 
+
+
+On issue key DIRMINA-650 the chain pattern might have been discussed on the following comment: 
+==============================
+In the test I have done with your code, the second 'send' never make it through the chain
+up to the messageReceived() method, this is what I wanted to say. Sorry if it wasn't
+clear.There is something wrong, obviously. I will try to investigate tomorrow... 
+==============================
+
+New Comment: 
+In the test I have done with your code, the second 'send' never make it through the chain
+up to the messageReceived() method, this is what I wanted to say. Sorry if it wasn't
+clear.There is something wrong, obviously. I will try to investigate tomorrow... 
+
+
+New Comment: 
+Hi,I just wanted to tell you that this problem also occurs within the version
+2.0.0-RC-1<br/>Here are the attached sources modified for 2.x.Regards 
+
+
+New Comment: 
+Hi again,I sent a mail in the mailing list, <a
+href="http://old.nabble.com/SSL-and-mina-ts26680309.html" class="external-link"
+rel="nofollow">http://old.nabble.com/SSL-and-mina-ts26680309.html</a> .<br/>I think I
+found the problem:<br/>As I said, the problem is when Mina is processing 1 message that
+contains 3 parts (or more) containing first the end of the handshake and then 2 different
+messages to process.Calls are the
+following:<br/>SslHandler.unwrapHandshake<br/>calls<br/>res = unwrap0()<br/>if
+(handshakeStatus == SSLEngineResult.HandshakeStatus.FINISHED<br/>               
+&amp;&amp; res.getStatus() == SSLEngineResult.Status.OK<br/>                &amp;&amp;
+inNetBuffer.hasRemaining());Now, inside unwrap0, the condition of the do while
+is:<br/>((res.getStatus() == SSLEngineResult.Status.OK || res.getStatus() ==
+SSLEngineResult.Status.BUFFER_OVERFLOW) &amp;&amp;<br/>                 (handshakeComplete
+&amp;&amp; res.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING
+||<br/>                  res.getHandshakeStatus() ==
+SSLEngineResult.HandshakeStatus.NEED_UNWRAP));but the problem is that handshakeComplete
+has not been set to true (it will be just after). So, thanks to do while, first message is
+processed but not the second one!I attached a modification of the SslHandler to resolve
+this.<br/>I have just created a new method unwrap0(boolean finished), calling it when
+doing hanshake, and checking (finished || handshakeComplete) inside of just
+handshake.Maybe you want to change it another way (I didn't watch carefully to all the
+remaining part).Hope it would helpRegards 
+
+
+New Comment: 
+I can't believe we let such a crappy test get into the code ...((res.getStatus() ==
+SSLEngineResult.Status.OK || res.getStatus() == SSLEngineResult.Status.BUFFER_OVERFLOW)
+&amp;&amp;<br/>                 (handshakeComplete &amp;&amp; res.getHandshakeStatus() ==
+SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING ||<br/>                 
+res.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_UNWRAP)); Yuk ! 
+
+
+New Comment: 
+Seems to work with your patch.Honnestly, all this part of the code must be heavily
+reviewed, it's a serious crap.Thanks for the report and the proposed solution, I'm
+currently investigating it. 
+
+
+New Comment: 
+Question : Cédric, may I inject the test you have created in the base code ? You have to
+check the 'Grant license to ASF for inclusion in ASF works (as per the Apache License §5)
+" checkbox for this file.thanks ! 
+
+
+New Comment: 
+Fixed in 2.0.0-RC1 :<br/><a href="http://svn.apache.org/viewvc?rev=889025&amp;view=rev"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=889025&amp;view=rev</a>Thanks for the
+report Kevin, many thanks for the proposed solution Cedric !If any of you want to review
+this pile of sh*t^H^H^H^Hcode, you are welcome ! 
+
+
+New Comment: 
+Sorry, I didn't know what it meant first time I posted it. Sure you can use it. This is
+just an up-to-date from Kevin's test so I have absolutly no right for this.<br/>By the
+way, I don't find any checkbox :s.<br/>So I delete and add againTell me if there was
+another way (for future)And thanks for correcting this <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>. I hope it will be in next release 
+
+
+New Comment: 
+Ok, thanks !I have added the test in MINA. :<br/><a
+href="http://svn.apache.org/viewvc?rev=889151&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=889151&amp;view=rev</a> 
+
+
+On issue key DIRMINA-650 the factory pattern might have been discussed on the following comment: 
+==============================
+I tried with multiple clients (by threading all of them) and I had some connection reset
+with this piece of code.<br/>The problem was from the creation of the socket client. So if
+you don't want to get into this problem in the SSLTest.java (sometimes, it can happen),
+you should change the line:<br/>factory.createSocket(parent,
+address.getCanonicalHostName(), "5555", true);<br/>with<br/>factory.createSocket(parent,
+address.getCanonicalHostName(), "5555", false);which is the auto-close parameterNow the
+test works perfectly 
+==============================
+
+New Comment: 
+I tried with multiple clients (by threading all of them) and I had some connection reset
+with this piece of code.<br/>The problem was from the creation of the socket client. So if
+you don't want to get in

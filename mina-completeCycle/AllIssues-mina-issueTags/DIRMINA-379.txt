@@ -1,0 +1,261 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-379 the pattern pattern might have been discussed on the following comment: 
+==============================
+The only similar issue I found on the internet searching for my exception is this: <a
+href="https://issues.apache.org/jira/browse/HTTPCORE-29"
+title="DefaultConnectingIOReactor.execute propagates IOException, but isn&#39;t really
+re-callable" class="issue-link"
+data-issue-key="HTTPCORE-29"><del>HTTPCORE-29</del></a><br/>Maybe the comments to that
+issue make sense to some of you <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> even if it is not MINA related it anyway
+something related to the reactor pattern on nio and setTcpNoDelay call. 
+==============================
+
+New Comment: 
+The only similar issue I found on the internet searching for my exception is this: <a
+href="https://issues.apache.org/jira/browse/HTTPCORE-29"
+title="DefaultConnectingIOReactor.execute propagates IOException, but isn&#39;t really
+re-callable" class="issue-link"
+data-issue-key="HTTPCORE-29"><del>HTTPCORE-29</del></a><br/>Maybe the comments to that
+issue make sense to some of you <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> even if it is not MINA related it anyway
+something related to the reactor pattern on nio and setTcpNoDelay call. 
+
+
+New Comment: 
+I don't understand why these two sentences are causing the socket exception.  I don't have
+vista installed yet.  Let me test as soon as possible. 
+
+
+New Comment: 
+Can't reproduce in my Windows Vista.  Please try to upgrade your JDK.  If it still doesn't
+work with the latest build, please reopen. 
+
+
+New Comment: 
+I can confirm this bug under Windows Vista with JRE 1.6.0 Update 3. As far as I know it is
+caused by the JRE, not Mina. I'll try upgrading to Update 5 and check if it still exist. 
+
+
+New Comment: 
+Fully updated Windows Vista, JRE 1.6.0_06 and it is still
+there:org.apache.mina.common.RuntimeIoException: java.net.SocketException: Invalid
+argument: sun.nio.ch.Net.setIntOption<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession$SessionConfigImpl.setKeepAlive(NioSocketSession.java:146)<br/>
+       at
+org.apache.mina.transport.socket.AbstractSocketSessionConfig.doSetAll(AbstractSocketSessionConfig.java:39)<br/>
+       at
+org.apache.mina.common.AbstractIoSessionConfig.setAll(AbstractIoSessionConfig.java:59)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketSession.&lt;init&gt;(NioSocketSession.java:77)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketConnector.newSession(NioSocketConnector.java:154)<br/>
+       at
+org.apache.mina.transport.socket.nio.NioSocketConnector.newSession(NioSocketConnector.java:45)<br/>
+       at
+org.apache.mina.common.AbstractPollingIoConnector.processSessions(AbstractPollingIoConnector.java:255)<br/>
+       at
+org.apache.mina.common.AbstractPollingIoConnector.access$500(AbstractPollingIoConnector.java:41)<br/>
+       at
+org.apache.mina.common.AbstractPollingIoConnector$Worker.run(AbstractPollingIoConnector.java:299)<br/>
+       at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:51)<br/>      
+ at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>      
+ at java.lang.Thread.run(Thread.java:619)<br/>Caused by: java.net.SocketException: Invalid
+argument: sun.nio.ch.Net.setIntOption<br/>        at sun.nio.ch.Net.setIntOption0(Native
+Method)<br/>        at sun.nio.ch.Net.setIntOption(Net.java:154)<br/>        at
+sun.nio.ch.SocketChannelImpl$1.setInt(SocketChannelImpl.java:406)<br/>        at
+sun.nio.ch.SocketOptsImpl.setBoolean(SocketOptsImpl.java:38)<br/>        at
+sun.nio.ch.SocketOptsImpl.keepAlive(SocketOptsImpl.java:92)<br/>        at
+sun.nio.ch.SocketOptsImpl$IP$TCP.keepAlive(SocketOptsImpl.java:268)<br/>        at
+sun.nio.ch.OptionAdaptor.setKeepAlive(OptionAdaptor.java:139)<br/>        at
+sun.nio.ch.SocketAdaptor.setKeepAlive(SocketAdaptor.java:322)<br/>        at
+org.apache.mina.transport.socket.nio.NioSocketSession$SessionConfigImpl.setKeepAlive(NioSocketSession.java:144)<br/>
+       ... 12 more 
+
+
+New Comment: 
+Updated to jdk6 update 6 and now I see it more rarely, but after some run I saw the same
+exception a couple of times.<br/>I don't know if this could be something wrong I do with
+mina and threads because I'm not a mina expert, but the same code in XP and linux works. 
+
+
+New Comment: 
+May it be connected to this description : ?<a
+href="http://communitygrids.blogspot.com/2007/09/windows-vista-sockets-java-nio-and.html"
+class="external-link"
+rel="nofollow">http://communitygrids.blogspot.com/2007/09/windows-vista-sockets-java-nio-and.html</a> 
+
+
+New Comment: 
+Yes, I think this could be the reason. I tried the following now:           
+this.connector = new NioSocketConnector(thread_pool, new NioProcessor(thread_pool));<br/> 
+          this.connector.getSessionConfig().setReuseAddress(true);<br/>            etc.The
+exception is still thrown, so maybe the Mina SessionConfigImpl used in
+org.apache.mina.transport.socket.nio.NioSocketSession internally does not set ReuseAddress
+before KeepAlive as mentioned in the description you added. Maybe changing the internal
+order can fix it. I also suggest setting ReuseAddress by default to true, if it is not yet
+the default behaviour.<hr />I took a look. The problem is
+locatedin<br/>org.apache.mina.transport.socket.AbstractSocketSessionConfig$doSetAll<br/>called
+by<br/>org.apache.mina.common.AbstractIoSessionConfig$setAll<br/>of course inherited
+by<br/>org.apache.mina.transport.socket.nio.NioSocketSession$SocketConfigImpl           
+setKeepAlive(cfg.isKeepAlive());<br/>            setOobInline(cfg.isOobInline());<br/>    
+       setReceiveBufferSize(cfg.getReceiveBufferSize());<br/>           
+setReuseAddress(cfg.isReuseAddress());<br/>           
+setSendBufferSize(cfg.getSendBufferSize());<br/>           
+setSoLinger(cfg.getSoLinger());<br/>            setTcpNoDelay(cfg.isTcpNoDelay());in
+conjunction with            private static boolean DEFAULT_REUSE_ADDRESS =
+false;in<br/>org.apache.mina.transport.socket.DefaultSocketSessionConfig 
+
+
+New Comment: 
+I checked out the latest 1.1 branch (1.1.8-SNAPSHOT).<br/>The first time I ran the tests
+SocketBindTest failed with the usuale setInt exception.<br/>Then I've never been able to
+reproduce that failure in mina tests.My application still show the issue so I changed the
+order of the setReuseAddress and setKeepAlive, but my application still failed. So I also
+added a check on the keepAlive to call the setter only when the value is really changed
+and now I don't see the issue anymore.Here is the patch I'm using:Index:
+mina-core-1.1/src/main/java/org/apache/mina/transport/socket/nio/SocketSessionImpl.java<br/>===================================================================<br/>&#8212;
+mina-core-1.1/src/main/java/org/apache/mina/transport/socket/nio/SocketSessionImpl.java	(revision
+651305)<br/>+++
+mina-core-1.1/src/main/java/org/apache/mina/transport/socket/nio/SocketSessionImpl.java	(working
+copy)<br/>@@ -98,10 +98,10 @@<br/>         IoSessionConfig sessionConfig =
+serviceConfig.getSessionConfig();<br/>         if (sessionConfig instanceof
+SocketSessionConfig) {<br/>             SocketSessionConfig cfg = (SocketSessionConfig)
+sessionConfig;<br/>+            this.config.setReuseAddress(cfg.isReuseAddress());<br/>   
+         this.config.setKeepAlive(cfg.isKeepAlive());<br/>            
+this.config.setOobInline(cfg.isOobInline());<br/>            
+this.config.setReceiveBufferSize(cfg.getReceiveBufferSize());<ul class="alternate"
+type="square">	<li>this.config.setReuseAddress(cfg.isReuseAddress());<br/>            
+this.config.setSendBufferSize(cfg.getSendBufferSize());<br/>            
+this.config.setSoLinger(cfg.getSoLinger());<br/>            
+this.config.setTcpNoDelay(cfg.isTcpNoDelay());<br/>@@ -229,7 +229,9 @@</li></ul>        
+public void setKeepAlive(boolean on) {<br/>             try {<ul class="alternate"
+type="square">	<li>ch.socket().setKeepAlive<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/lightbulb_on.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>;<br/>+            	  if
+(ch.socket().getKeepAlive() != on) {+            	  	ch.socket().setKeepAlive(on);+       
+    	  }             } catch (SocketException e) {                 throw new
+RuntimeIOException(e);             }</li></ul>I'll do more tests as soon as I find the
+time for them. 
+
+
+New Comment: 
+My patch above didn't fix the issue. <br/>Now I get the same exception on the
+getKeepAlive:2974 <span class="error">&#91;SocketConnector-0&#93;</span> WARN
+org.apache.mina.common.support.DefaultExceptionMonitor - Unexpected
+exception.<br/>org.apache.mina.common.RuntimeIOException: java.net.SocketException:
+Invalid argument: sun.nio.ch.Net.setIntOption<br/>	at
+org.apache.mina.transport.socket.nio.SocketSessionImpl$SessionConfigImpl.setKeepAlive(SocketSessionImpl.java:238)<br/>	at
+org.apache.mina.transport.socket.nio.SocketSessionImpl.&lt;init&gt;(SocketSessionImpl.java:102)<br/>	at
+org.apache.mina.transport.socket.nio.SocketConnector.newSession(SocketConnector.java:341)<br/>	at
+org.apache.mina.transport.socket.nio.SocketConnector.processSessions(SocketConnector.java:295)<br/>	at
+org.apache.mina.transport.socket.nio.SocketConnector.access$800(SocketConnector.java:53)<br/>	at
+org.apache.mina.transport.socket.nio.SocketConnector$Worker.run(SocketConnector.java:383)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:51)<br/>	at
+java.lang.Thread.run(Thread.java:619)<br/>Caused by: java.net.SocketException: Invalid
+argument: sun.nio.ch.Net.setIntOption<br/>	at sun.nio.ch.Net.getIntOption0(Native
+Method)<br/>	at sun.nio.ch.Net.getIntOption(Net.java:143)<br/>	at
+sun.nio.ch.SocketChannelImpl$1.getInt(SocketChannelImpl.java:401)<br/>	at
+sun.nio.ch.SocketOptsImpl.getBoolean(SocketOptsImpl.java:34)<br/>	at
+sun.nio.ch.SocketOptsImpl.keepAlive(SocketOptsImpl.java:88)<br/>	at
+sun.nio.ch.SocketOptsImpl$IP$TCP.keepAlive(SocketOptsImpl.java:268)<br/>	at
+sun.nio.ch.OptionAdaptor.getKeepAlive(OptionAdaptor.java:147)<br/>	at
+sun.nio.ch.SocketAdaptor.getKeepAlive(SocketAdaptor.java:326)<br/>	at
+org.apache.mina.transport.socket.nio.SocketSessionImpl$SessionConfigImpl.setKeepAlive(SocketSessionImpl.java:234)<br/>	...
+7 more 
+
+
+New Comment: 
+For 2.0.0-M1 the fix is:Change    private static boolean DEFAULT_REUSE_ADDRESS = false;to 
+  private static boolean DEFAULT_REUSE_ADDRESS = true;in
+socket.DefaultSocketSessionConfigAnd change    setKeepAlive(cfg.isKeepAlive());<br/>   
+setOobInline(cfg.isOobInline());<br/>   
+setReceiveBufferSize(cfg.getReceiveBufferSize());<br/>   
+setReuseAddress(cfg.isReuseAddress());to    setReuseAddress(cfg.isReuseAddress());<br/>   
+setKeepAlive(cfg.isKeepAlive());<br/>    setOobInline(cfg.isOobInline());<br/>   
+setReceiveBufferSize(cfg.getReceiveBufferSize());in
+socket.AbstractSocketSessionConfigSeems to work as far as I can tell. Unfortunately I'm
+neigher familar with the 1.x branch nor with diff but maybe you can create a patch
+accordingly. The change applied to the default reuse behaviour is required, because the
+default values are set before anyone is able to override them inside the NioSessionConfig
+constructor.Edit: Oh, just looked around the sources again: I may be wrong with the
+default setting. But without changing it, the same app will work on xp/linux but not on
+vista without setting ReuseAddress explicitly. 
+
+
+On issue key DIRMINA-379 the command pattern might have been discussed on the following comment: 
+==============================
+Tanks guys !Seems that we are progressing in the good direction <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>FYI, generating a diff is just as simple
+as typing this command :svn diff &gt; diff.txtYou have to be on the root of the MINA
+source directory (ie, if you did a svn co <a href="http://svn...(blah)/mina/trunk"
+class="external-link" rel="nofollow">http://svn...(blah)/mina/trunk</a> mina-2.0.0-M1, you
+have to be into mina-2.0.0-M1 directory to pass the command, so that the complete path
+will be stored into the diff file).Thanks ! 
+==============================
+
+New Comment: 
+Tanks guys !Seems that we are progressing in the good direction <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>FYI, generating a diff is just as simple
+as typing this command :svn diff &gt; diff.txtYou have to be on the root of the MINA
+source directory (ie, if you did a svn co <a href="http://svn...(blah)/mina/trunk"
+class="external-link" rel="nofollow">http://svn...(blah)/mina/trunk</a> mina-2.0.0-M1, you
+have to be into mina-2.0.0-M1 directory to pass the command, so that the complete path
+will be stored into the diff file).Thanks ! 
+
+
+On issue key DIRMINA-379 the adapter pattern might have been discussed on the following comment: 
+==============================
+A message from Alan Bateman:Trustin,I had a mail yesterday from someone that asked me to
+comment on this issue:<br/> <a href="https://issues.apache.org/jira/browse/DIRMINA-379"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-379</a>I don't have a login
+on that site so I cannot reply but I see you are "Assignee" so I figured I would mail
+you.A long standing issue with the socket adapters is that they aren't synchronized with
+the closing of the channel. In order words, if you invoke methods on the Socket obtained
+from the socket channel's socket method then it does not throw an exception to indicate
+that the socket is closed. The typical error will be an "Invalid argument" error but it
+can vary by platform. For Windows Vista it will typically be an error to say the handle
+isn't a socket. We have replaced this code as part of the implementation of NIO2 so it
+will not be an issue in the future. I can't say for sure that your issue 379 is the same
+thing but if you can duplicate the problem easily then it would be great if you test if
+the channel is open or closed by invoking the isOpen method. If its closed that will
+explain the issue. If the channel is open then it may be an issue we haven't seen before,
+in which case it would be great if you could forward it to bugs.sun.com.Thanks,Alan. 
+==============================
+
+On issue key DIRMINA-379 the adapt pattern might have been discussed on the following comment: 
+==============================
+A message from Alan Bateman:Trustin,I had a mail yesterday from someone that asked me to
+comment on this issue:<br/> <a href="https://issues.apache.org/jira/browse/DIRMINA-379"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-379</a>I don't have a login
+on that site so I cannot reply but I see you are "Assignee" so I figured I would mail
+you.A long standing issue with the socket adapters is that they aren't synchronized with
+the closing of the channel. In order words, if you invoke methods on the Socket obtained
+from the socket channel's socket method then it does not throw an exception to indicate
+that the socket is closed. The typical error will be an "Invalid argument" error but it
+can vary by platform. For Windows Vista it will typically be an error to say the handle
+isn't a socket. We have replaced this code as part of the implementation of NIO2 so it
+will not be an issue in the future. I can't say for sure that your issue 379 is the same
+thing but if you can duplicate the problem easily then it would be great if you test if
+the channel is open or closed by invoking the isOpen method. If its closed that will
+explain the issue. If the channel is open then it may be an issue we haven't seen before,
+in which case it would be great if you could forward it to bugs.sun.com.Thanks,Alan. 
+==============================
+
+New Comment: 
+A message from Alan Bateman:Trustin,I had a mail yesterday from someone that as

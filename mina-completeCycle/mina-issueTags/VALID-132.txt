@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4cf54c9ba411b594d1fda0ae0aab3a12b6bdb87a
+
+From: Adapter-23
+To:   Adapter-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-132.txt 
+
+commit 4cf54c9ba411b594d1fda0ae0aab3a12b6bdb87a
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a problem that a thread pool is shared among different services

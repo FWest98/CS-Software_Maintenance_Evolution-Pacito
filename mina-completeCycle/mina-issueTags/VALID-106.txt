@@ -1,0 +1,19 @@
+Pattern changes caused by commit: dbc76f7b45f0261cbfc3e87dfd9020f3b49f554d
+
+From: Composite-2
+To:   Composite-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-106.txt 
+
+commit dbc76f7b45f0261cbfc3e87dfd9020f3b49f554d
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-176 (ByteBuffer pool manager which prevents endlessly increasing pool size.)
+    * Added ExpiringStack to expire too old buffers
+    * PooledByteBufferAllocator now expires buffers which has not been in use for the period user specified (timeout).
+    * Added a test case for the change above.

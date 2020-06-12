@@ -1,0 +1,121 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Is this reproducible ?<br/>If so, could you provide us with a simple TestCase ?Does it
+only occur under high load ? 
+
+
+New Comment: 
+It is reproducible, and happens all the time, no significant load.I don't even know where
+to begin trying to create a test case, but if you're willing to grab the project from SVN
+at <a href="https://avis.svn.sourceforge.net/svnroot/avis/trunk" class="external-link"
+rel="nofollow">https://avis.svn.sourceforge.net/svnroot/avis/trunk</a> and run the test
+case in server/src/test/org/avis/federation/JUTestFederation.java  (JUnit 4.1), you should
+find it fails on WinXP. If you have ant 1.7, "cd server &amp;&amp; ant tests" will do it
+(I'm running it in JUnit under Eclipse).I've run the exact same test on Mac OS X on both a
+G4 Powerbook and an Intel Mac Pro, and it runs fine there. It also runs on an (old'ish)
+FC3 Linux box.Like I said, very odd. 
+
+
+New Comment: 
+What's really odd is that the NPE is thrown from ConcurrentHashMap.hash().  The hash()
+method has nowhere to throw such an exception because its purely an arithmetic function. 
+If the returned IoSession is null, the NPE should be thrown from putIfAbsent()
+method.Could you try to upgrade the JRE?  Let me run the tests too soon. 
+
+
+New Comment: 
+I can't reproduce the problem due to some test problem. 
+trustin@primary:~/workspace/checkout/avis/java/server$ ant testsBuildfile:
+build.xmlcompile:compile:compile-main:compile-tests:compile:compile-main:compile-tests:compile:tests:tests:<br/>
+   <span class="error">&#91;junit&#93;</span> Running org.avis.config.JUTestOptions<br/>  
+ <span class="error">&#91;junit&#93;</span> Testsuite: org.avis.config.JUTestOptions<br/> 
+  <span class="error">&#91;junit&#93;</span> Tests run: 4, Failures: 0, Errors: 0, Time
+elapsed: 0.036 sec<br/>    <span class="error">&#91;junit&#93;</span> Tests run: 4,
+Failures: 0, Errors: 0, Time elapsed: 0.036 sec<br/>    <span
+class="error">&#91;junit&#93;</span> <br/>    <span class="error">&#91;junit&#93;</span>
+Testcase: basic took 0.013 sec<br/>    <span class="error">&#91;junit&#93;</span>
+Testcase: caseIndependence took 0.001 sec<br/>    <span
+class="error">&#91;junit&#93;</span> Testcase: units took 0.001 sec<br/>    <span
+class="error">&#91;junit&#93;</span> Testcase: multipleInherit took 0.001 sec<br/>   
+<span class="error">&#91;junit&#93;</span> Running
+org.avis.federation.JUTestAstXdrCoding<br/>    <span class="error">&#91;junit&#93;</span>
+Testsuite: org.avis.federation.JUTestAstXdrCoding<br/>    <span
+class="error">&#91;junit&#93;</span> Tests run: 1, Failures: 0, Errors: 0, Time elapsed:
+0.075 sec<br/>    <span class="error">&#91;junit&#93;</span> Tests run: 1, Failures: 0,
+Errors: 0, Time elapsed: 0.075 sec<br/>    <span class="error">&#91;junit&#93;</span>
+<br/>    <span class="error">&#91;junit&#93;</span> Testcase: astIO took 0.059 sec<br/>   
+<span class="error">&#91;junit&#93;</span> Running
+org.avis.federation.JUTestFederation<br/>    <span class="error">&#91;junit&#93;</span>
+Testsuite: org.avis.federation.JUTestFederation<br/>    <span
+class="error">&#91;junit&#93;</span> Tests run: 7, Failures: 0, Errors: 5, Time elapsed:
+1.54 sec<br/>    <span class="error">&#91;junit&#93;</span> Tests run: 7, Failures: 0,
+Errors: 5, Time elapsed: 1.54 sec<br/>    <span class="error">&#91;junit&#93;</span>
+------------- Standard Output ---------------<br/>    <span
+class="error">&#91;junit&#93;</span> 오후 6:59:28: Info: Federation incoming link
+established with "primary/127.0.0.1", remote server domain "server1", federation class
+"null"<br/>    <span class="error">&#91;junit&#93;</span> 오후 6:59:28: Info: Federation
+outgoing link for ewaf://localhost:29171 established with "primary/127.0.0.1", remote
+server domain "server2"<br/>    <span class="error">&#91;junit&#93;</span> 오후 6:59:28:
+Info: Federation link for ewaf://localhost:29171 with "primary/127.0.0.1"
+disconnected<br/>    <span class="error">&#91;junit&#93;</span> 오후 6:59:28: Info:
+Federation link with "primary/127.0.0.1" disconnected<br/>    <span
+class="error">&#91;junit&#93;</span> ------------- ---------------- ---------------<br/>  
+ <span class="error">&#91;junit&#93;</span> <br/>    <span
+class="error">&#91;junit&#93;</span> Testcase: security took 1.455 sec<br/>    <span
+class="error">&#91;junit&#93;</span> Testcase: connectTimeout took 0.006 sec<br/>    <span
+class="error">&#91;junit&#93;</span>     Caused an ERROR<br/>    <span
+class="error">&#91;junit&#93;</span> Address already in use<br/>    <span
+class="error">&#91;junit&#93;</span> java.net.BindException: Address already in use<br/>  
+ <span class="error">&#91;junit&#93;</span>     at sun.nio.ch.Net.bind(Native Method)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:119)<br/>    <span
+class="error">&#91;junit&#93;</span>     at
+sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:59)<br/>    <span
+class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor.registerNew(SocketAcceptor.java:400)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor.access$900(SocketAcceptor.java:55)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor$Worker.run(SocketAcceptor.java:235)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:43)<br/>   
+<span class="error">&#91;junit&#93;</span>     at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+ <span class="error">&#91;junit&#93;</span>     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>   
+<span class="error">&#91;junit&#93;</span>     at
+java.lang.Thread.run(Thread.java:619)<br/>    <span class="error">&#91;junit&#93;</span>
+<br/>    <span class="error">&#91;junit&#93;</span> Testcase: uri took 0.013 sec<br/>   
+<span class="error">&#91;junit&#93;</span> Testcase: basic took 0.005 sec<br/>    <span
+class="error">&#91;junit&#93;</span>     Caused an ERROR<br/>    <span
+class="error">&#91;junit&#93;</span> Address already in use<br/>    <span
+class="error">&#91;junit&#93;</span> java.net.BindException: Address already in use<br/>  
+ <span class="error">&#91;junit&#93;</span>     at sun.nio.ch.Net.bind(Native Method)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:119)<br/>    <span
+class="error">&#91;junit&#93;</span>     at
+sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:59)<br/>    <span
+class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor.registerNew(SocketAcceptor.java:400)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor.access$900(SocketAcceptor.java:55)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.transport.socket.nio.SocketAcceptor$Worker.run(SocketAcceptor.java:235)<br/>
+   <span class="error">&#91;junit&#93;</span>     at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:43)<br/>   
+<span class="error">&#91;junit&#93;</span>     at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)<br/>  
+ <span class="error">&#91;junit&#93;</span>     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)<br/>   
+<span class="error">&#91;junit&#93;</span>     at
+java.lang.Thread.run(Thread.java:619)<br/>    <span class="error">&#91;junit&#93;</span>
+<br/>    <span class="error">&#91;junit&#93;</span> Testcase: addAttributes took 0.007
+sec<br/>    <span class="error">&#91;junit&#93;</span>     Caused an ERROR<br/>    <span
+class="error">&#91;junit&#93;</span> Address already in use<br/>    <span
+class="error">&#91;junit&#93;</span> java.net.BindException: Address already in use<br/>  
+ <span class="error">&#91;junit&#93;</span>     at sun.nio.ch.Net.bind(Na

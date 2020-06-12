@@ -1,0 +1,1478 @@
+On issue key DIRMINA-995 the proxy pattern might have been discussed, namely here: 
+==============================
+Deadlock when using SSL and proxy 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Have you tried with 2.0.9 ? 
+
+
+On issue key DIRMINA-995 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.proxy.filter.ProxyFilter.messageReceived(ProxyFilter.java:153)</li>	<li>locked
+&lt;0x98935280&gt; (a org.apache.mina.proxy.handlers.socks.Socks5LogicHandler)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"Thread-102" prio=10 tid=0x8c20e000
+nid=0x4560 waiting on condition <span class="error">&#91;0x8c1ad000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x988a3ce0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.run(xxx.java:219)<br/>	at java.lang.Thread.run(Unknown Source)</li></ul> 
+==============================
+
+On issue key DIRMINA-995 the Proxy pattern might have been discussed on the following comment: 
+==============================
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.proxy.filter.ProxyFilter.messageReceived(ProxyFilter.java:153)</li>	<li>locked
+&lt;0x98935280&gt; (a org.apache.mina.proxy.handlers.socks.Socks5LogicHandler)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"Thread-102" prio=10 tid=0x8c20e000
+nid=0x4560 waiting on condition <span class="error">&#91;0x8c1ad000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x988a3ce0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.run(xxx.java:219)<br/>	at java.lang.Thread.run(Unknown Source)</li></ul> 
+==============================
+
+On issue key DIRMINA-995 the proxy pattern might have been discussed on the following comment: 
+==============================
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.proxy.filter.ProxyFilter.messageReceived(ProxyFilter.java:153)</li>	<li>locked
+&lt;0x98935280&gt; (a org.apache.mina.proxy.handlers.socks.Socks5LogicHandler)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"Thread-102" prio=10 tid=0x8c20e000
+nid=0x4560 waiting on condition <span class="error">&#91;0x8c1ad000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x988a3ce0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.run(xxx.java:219)<br/>	at java.lang.Thread.run(Unknown Source)</li></ul> 
+==============================
+
+On issue key DIRMINA-995 the chain pattern might have been discussed on the following comment: 
+==============================
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.proxy.filter.ProxyFilter.messageReceived(ProxyFilter.java:153)</li>	<li>locked
+&lt;0x98935280&gt; (a org.apache.mina.proxy.handlers.socks.Socks5LogicHandler)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"Thread-102" prio=10 tid=0x8c20e000
+nid=0x4560 waiting on condition <span class="error">&#91;0x8c1ad000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x988a3ce0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.run(xxx.java:219)<br/>	at java.lang.Thread.run(Unknown Source)</li></ul> 
+==============================
+
+On issue key DIRMINA-995 the Chain pattern might have been discussed on the following comment: 
+==============================
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.proxy.filter.ProxyFilter.messageReceived(ProxyFilter.java:153)</li>	<li>locked
+&lt;0x98935280&gt; (a org.apache.mina.proxy.handlers.socks.Socks5LogicHandler)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"Thread-102" prio=10 tid=0x8c20e000
+nid=0x4560 waiting on condition <span class="error">&#91;0x8c1ad000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x988a3ce0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.run(xxx.java:219)<br/>	at java.lang.Thread.run(Unknown Source)</li></ul> 
+==============================
+
+New Comment: 
+Yes, I have tried with 2.0.9, but the condition seems more serious, the deadlock comes
+without proxy.2014-11-10 11:32:59<br/>Full thread dump Java HotSpot(TM) Client VM
+(20.4-b02 mixed mode):"NioProcessor-8" prio=10 tid=0x8c01e400 nid=0x466b waiting on
+condition <span class="error">&#91;0x8afee000&#93;</span><br/>   java.lang.Thread.State:
+WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul class="alternate"
+type="square">	<li>parking to wait for  &lt;0x99002710&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-4" prio=10 tid=0x8c02ec00
+nid=0x4655 in Object.wait() <span class="error">&#91;0x8e8e0000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<br/>	at java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)<ul
+class="alternate" type="square">	<li>locked &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-2" prio=10 tid=0x8c031400
+nid=0x4638 waiting on condition <span class="error">&#91;0x8b858000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterClose(SslFilter.java:672)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterClose(IoFilterAdapter.java:130)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterClose(DefaultIoFilterChain.java:958)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterClose(DefaultIoFilterChain.java:882)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterClose(DefaultIoFilterChain.java:644)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterClose(DefaultIoFilterChain.java:637)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:318)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.close(AbstractIoSession.java:297)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-6" prio=10 tid=0x8c056400
+nid=0x4568 in Object.wait() <span class="error">&#91;0x8b6fe000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (on object monitor)<br/>	at java.lang.Object.wait(Native
+Method)<ul class="alternate" type="square">	<li>waiting on &lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.lang.Object.wait(Object.java:485)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:199)</li>	<li>locked
+&lt;0x98828a98&gt; (a
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:481)<br/>	at
+xxx.messageReceived(xxx.java:360)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.logging.LoggingFilter.messageReceived(LoggingFilter.java:208)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)<br/>	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>	at
+java.lang.Thread.run(Unknown Source)</li></ul>"NioProcessor-3" prio=10 tid=0x09033400
+nid=0x4565 waiting on condition <span class="error">&#91;0x8eb68000&#93;</span><br/>  
+java.lang.Thread.State: WAITING (parking)<br/>	at sun.misc.Unsafe.park(Native Method)<ul
+class="alternate" type="square">	<li>parking to wait for  &lt;0x989458d0&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)<br/>	at
+java.util.concurrent.locks.LockSupport.park(Unknown Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown
+Source)<br/>	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown
+Source)<br/>	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(Unknown
+Source)<br/>	at java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:313)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.filterWrite(SslFilter.java:639)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.IoFilterAdapter.filterWrite(IoFilterAdapter.java:123)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1500(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:953)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:877)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:625)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:618)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:502)<br/>	at
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:447)<br/>	at
+xxx.messageReceived(xxx.java:74)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:854)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)<br/>	at
+org.apache.mina.filter.ssl.SslHandler.flushScheduledEvents(SslHandler.java:323)<br/>	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)<br/>	at
+org.apache.mina.core.filterchain.Defau

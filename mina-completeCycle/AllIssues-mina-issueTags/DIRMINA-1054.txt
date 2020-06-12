@@ -1,0 +1,141 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hi,the thread dump is not particularly interesting here : all the threads are blocked
+waiting for a notification (ie, they don't eat any CPU), except 7 running threads :<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>3	java.net.PlainSocketImpl.socketAccept(Native
+Method)3	sun.nio.ch.EPollArrayWrapper.epollWait(Native
+Method)1	sun.nio.ch.FileDispatcherImpl.read0(Native Method)</pre></div></div>which are not
+MINA methods (the socketAccept is just listening for incoming connections).It seems that
+our friends at Netty are facing teh same issue, as some other people not using MINA and
+Netty : <a href="https://github.com/netty/netty/issues/327" class="external-link"
+rel="nofollow">https://github.com/netty/netty/issues/327</a>It <b>may</b> be a JDK
+problem.What is the Java version you are using ? 
+
+
+New Comment: 
+Thanks for the reply, and sorry for the unhelpful thread dump - I just wanted to give
+everything we had which wasn't much.Current java version:<br/>openjdk version
+"1.8.0_111"<br/>OpenJDK Runtime Environment (build
+1.8.0_111-8u111-b14-2ubuntu0.16.04.2-b14)<br/>OpenJDK 64-Bit Server VM (build 25.111-b14,
+mixed mode) 
+
+
+New Comment: 
+bleeding edge..How many sessions do you have when it happens ? 
+
+
+New Comment: 
+Np, I was just stressing out the fact that the TD was not showing a lot.Have you attached
+a profiler to the process whil it was eating 100% CPU ? Is that possible to do so ? 
+
+
+New Comment: 
+Probably 300-350 sessions. 
+
+
+New Comment: 
+Not that many, except if they are all busy. You seems to have a CPU with 2 cores, is that
+correct ? 
+
+
+New Comment: 
+Only VisualVM's CPU sampler. It might be possible to do more, but I don't have much
+experience doing so and I'd want it to be as valuable to you as possible. So if you have a
+particular profiler in mind I can investigate whether it's reasonable for us to try to
+attach it in production.  If so, we could plan to update to the latest mina again and try
+it out. 
+
+
+New Comment: 
+VisualVM is a decent profiler. The thing is that we really need a trace of what's going on
+when the CPU is at 100% to get a clue on what's eating the cpu. A profiling capture when
+it happens could help.The only really impacting change in 2.0.15 (or 2.0.16, which is the
+version you should use) over 2.0.7 is that the selector is killed way more frequently in
+2.0.7, and that might hide the problem. The reason we have fixed the selector replacement
+is that it's also leading to a (reproductible) 100% CPU quite frequently. 
+
+
+New Comment: 
+It's an M3.medium AWS instance:&gt; lscpu<br/>Architecture:          x86_64<br/>CPU
+op-mode(s):        32-bit, 64-bit<br/>Byte Order:            Little Endian<br/>CPU(s):    
+           1<br/>On-line CPU(s) list:   0<br/>Thread(s) per core:    1<br/>Core(s) per
+socket:    1<br/>Socket(s):             1<br/>NUMA node(s):          1<br/>Vendor ID:     
+       GenuineIntel<br/>CPU family:            6<br/>Model:                 62<br/>Model
+name:            Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz<br/>Stepping:             
+4<br/>CPU MHz:               2494.024<br/>BogoMIPS:              4988.04<br/>Hypervisor
+vendor:     Xen<br/>Virtualization type:   full<br/>L1d cache:             32K<br/>L1i
+cache:             32K<br/>L2 cache:              256K<br/>L3 cache:             
+25600K<br/>NUMA node0 CPU(s):     0<br/>Flags:                 fpu de tsc msr pae cx8 apic
+sep cmov pat clflush mmx fxsr sse sse2 ss ht syscall nx lm constant_tsc rep_good nopl pni
+pclmulqdq ssse3 cx16 sse4_1 sse4_2 popcnt tsc_deadline_timer aes rdrand hypervisor lahf_lm
+epb fsgsbase erms dtherm ida arat pln pts 
+
+
+New Comment: 
+Just to be clear, when you refer to a "profiling capture" is that an NPS file obtained
+via: VisualVM (v1.3.9) -&gt; "Sampler" Tab -&gt; "Snapshot" button? If yes, I can work on
+getting that for you. 
+
+
+New Comment: 
+Most certainly. I haven't used VisualVM for a long time, but that's the idea : getting a
+snapshot I can load locally and see what is consuming CPU. 
+
+
+On issue key DIRMINA-1054 the proxy pattern might have been discussed on the following comment: 
+==============================
+I also have problems with cpu load but a slightly different one.On my method <em>public
+void messageReceived(IoSession session, Object message)</em> I have the following:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">@Override<span class="code-keyword">public</span> void
+messageReceived(IoSession session, <span class="code-object">Object</span> message) {   
+<span class="code-comment">//Sometimes happens that the message at <span
+class="code-keyword">this</span> point is <span class="code-keyword">null</span></span>   
+<span class="code-keyword">if</span> (message == <span class="code-keyword">null</span>) {
+        logger.error(<span class="code-quote">"Error on Antenna: "</span> + <span
+class="code-keyword">this</span>.source.getName() + <span class="code-quote">"
+(ID:"</span> + <span class="code-keyword">this</span>.source.getId() + <span
+class="code-quote">"): Message is <span class="code-keyword">null</span>"</span>);        
+<span class="code-keyword">return</span>;    }    ...}</pre></div></div>Sometimes it
+happens that this session somehow gets looked, my log only shows this error message and
+the server load spikes. All the other sessions (around 1200 sessions) are still working on
+background as the data keeps flowing but certain other threats stop responding. There's a
+thread running calling an API checking there are new session that need to be created or
+stopped and once it gets looked this api call stops happening.I've had this happening for
+a few hours and it generated a 45GB log file each hour just with this message:<div
+class="panel" style="border-width: 1px;"><div class="panelContent">2016-11-23 07:10:22,913
+ERROR <span class="error">&#91;NioDatagramAcceptor-441&#93;</span>
+com.vesseltracker.ais_proxy.logic.formatHandlers.NMEAFormatHandler: Error on Antenna:
+ChinaSource (ID:2405): Message is null</div></div>Closing the session doesn't stop the
+problem.And this is not a 15 minutes problem, it only stops when we restart the process
+and it only dies when we use kill -5 or -9<br/>Before we were using Ubuntu 12 and Mina
+2.0.7 and we didn't have this problem. It started when we upgraded the server and software
+running on itAfter the update we started by using mina 2.0.13 and it has followed all the
+new updates. The funny thing is that this only happens with 3 UDP connections coming from
+China (not simultaneously) and after the restart it works normallyWe are running:<br/>Mina
+2.0.16<br/>Ubuntu 16.04 LTS<br/>4.4.0-28-generic #47-Ubuntu SMP Fri Jun 24 10:09:13 UTC
+2016 x86_64 x86_64 x86_64 GNU/Linux<br/>java version "1.8.0_91"<br/>Java(TM) SE Runtime
+Environment (build 1.8.0_91-b14)<br/>Java HotSpot(TM) 64-Bit Server VM (build 25.91-b14,
+mixed mode)I would like to provide more infos but I don't know what you guys would need so
+please let me know and I will try to get those infos 
+==============================
+
+New Comment: 
+I also have problems with cpu load but a slightly different one.On my method <em>public
+void messageReceived(IoSession session, Object message)</em> I have the following:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">@Override<span class="code-keyword">public</span> void
+messageReceived(IoSession session, <span class="code-object">Object</span> message) {   
+<span class="code-comment">//Sometimes happens that the message at <span
+class="code-keyword">this</span> point is <span class="code-keyword">null</span></span>   
+<span class="code-keyword">if</span> (message == <span class="code-keyword">null</span>) {
+        logger.error(<span class="code-quote">"Error on Antenna: "</span> + <span
+class="code-keyword">this</span>.source.getName() + <span class="code-quote">"
+(ID:"</span> + <span class="code-keyword">this</span>.source.getId() + <span
+class="code-quote">"): Message is <span class="code-keyword">null</span>"</span>);    

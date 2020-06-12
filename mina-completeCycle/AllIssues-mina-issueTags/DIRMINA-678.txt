@@ -1,0 +1,576 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Following the suggestion from MINA maintainers, tried the IBM JDK and also reproduced the
+problem with the following version:Java(TM) SE Runtime Environment (build
+pxi3260sr4-20090219_01(SR4))<br/>IBM J9 VM (build 2.4, J2RE 1.6.0 IBM J9 2.4 Linux x86-32
+jvmxi3260-20090215_29883 (JIT enabled, AOT enabled) 
+
+
+New Comment: 
+This seems to be a serious bug we have to find a workaround for. Grizzly is trashing the
+whole selector when they detect that the epoll is going crazy. This is a bit overkilling,
+but if we can't do anything else ...I will discuss with Jean-François Arcand next week
+(during ApacheCon) to see if SUN is willing to fix the bug or not, or if we have to wait
+for IBM to swallow SUN and then ask IBM <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+JDK Fix may take a while. +1 for fixing it the Gizzly way and write another JIRA issue to
+keep track of JDK fix and roll back this fix once that is available 
+
+
+New Comment: 
+I think we won't have time to fix it for 2.0.0-RC1. I would give it a try when 2.0.0-RC1
+will be out. 
+
+
+New Comment: 
+I've got patches from Sun fixing this issue for JDK 1.6.0_12 and JDK 1.7.0 b50. According
+to them, the fix will go into 6u15 or 6u16. Servers are running for more than 10 hours
+with no problems after applying the patch.Unfortunately, it's for testers only and I'm not
+allowed to share it, so please don't ask.The root case of the problem is related to this
+bug: <a href="http://bugs.sun.com/view_bug.do?bug_id=6693490" class="external-link"
+rel="nofollow">http://bugs.sun.com/view_bug.do?bug_id=6693490</a> .Quoting JDK
+developer:"In summary, the bug we have in the epoll <br/>Selector relates to a timing
+issue between select and close that results <br/>in the preclose file descriptor getting
+registered with the epoll <br/>facility. The preclose file descriptor is connected to a
+socketpair <br/>where the other end is closed so the end that is registered in epoll is
+<br/>always pollable (and so causes the spin)." 
+
+
+New Comment: 
+From Jeanfrancois Arcand : <br/>""The fix for epoll "File exists" and spinning Selector
+issue this <br/>community has experienced will be available with jdk7 build 54. I
+<br/>recommend you test it and report any failure as this "fix" will be <br/>backported to
+JDK 6 eventually (no idea which version...will report as <br/>soon as I know)."" 
+
+
+New Comment: 
+I see a similar behavior on our production servers, with the same picture of CPU usage
+after several hours.<br/>But at the same time I can see that our server begins an
+intensive garbage allocation, so I am not sure yet whether this is the Selector problem or
+something wrong in our code. I will come back later to clarify the result.This problem of
+CPU usage occurs in our latest server version where we use NioSocketConnector and
+MinaSocketAcceptor.<br/>In previous versions, we used only NioSocketAcceptor and it worked
+well for weeks. 
+
+
+New Comment: 
+I was lucky enough to meet Jean-François Arcand last week, and Philip Hanik (Tomcat). All
+in all, Apache Conference are just made for that <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>We discussed about this epoll problem, and
+here is what they do when the problem arise : they ditch the selector, create a new one,
+and register all the socket on it. It works, even if its an hack.Now, the second question
+was : how do you detect that a selector is going crazy ? The answer was : it basically
+never returns any selected key. So if we change slightly the way acceptor and IoProcessor
+works, using a select(1000) instead of a select(), we have a chance to check if the
+selector is frozen. Of course, one more condition is that the selector has many keys
+registred, so the odd that no key return any data is pretty low.Beautifull hack, and
+should be easy to implement. 
+
+
+New Comment: 
+Just a question: was this high cpu usage accompanied by quick memory allocation and
+subsequent garbage collection (which occurs constantly)?<br/>I see many
+ConcurrentLInkedQueue$Node objects (almost all of them are EMPTY queue nodes) in our
+server which are created and garbage-collected is such cases. Since they are dead
+(unreferenced) objects, I can not understand where they were used - in mina or not. I will
+try to get allocation stack traces with a profiler, but this can be difficult on a
+production system. 
+
+
+New Comment: 
+GC was not a problem in my case and it didn't occur much more frequently in case of the
+bug described in this issue (according to the profiler snapshots). 
+
+
+New Comment: 
+Thanks Serge,<br/>in your profiler snapshots - in what methods / stack traces did CPU
+spend most of time? Was it epollWait() or nor? I mean - how can I identify this problem
+looking into profiler? 
+
+
+New Comment: 
+Yes, it was epollWait() in most of the traces. 
+
+
+New Comment: 
+But even in normal cases I often see epollWait() is stack traces - but CPU usage is ~ 0
+%.<br/>Is there any definitive test (client + server) that I could run for some time and
+reproduce the problem? 
+
+
+New Comment: 
+You will see that one of the NioProcessor threads starts to use 100% CPU, then another,
+then yet another. There is no definitive test I'm aware of. The problem occurs when about
+1000-2000 concurrent connections are being performed to the server for some time. 
+
+
+New Comment: 
+Interesting that I see no trace of 100% CPU usage for a long running (more then 2 days)
+server which is based on mina and I'm using 2.0.0-M4 version of mina.<br/>The server gets
+~3000/s hits for 100-500 seconds and waits for another run. I'll try to run clients for 1
+hour and see if this bug pops up.My environment is:<br/>kernel 2.6.18-53.el5, Oracle ELS
+5.1, Sun JDK 1.6.0_12, mina-2.0.0-M4 
+
+
+New Comment: 
+Move to 2.0-RC1.I'm afraid the solution will be something like the one implemented in
+Tomcat and Grizzly : kill the selector, and register all the keys again on a new selector.
+No fun :/ 
+
+
+New Comment: 
+I have created a branch (<a
+href="https://svn.apache.org/repos/asf/mina/branches/select-fix/" class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/mina/branches/select-fix/</a>) with a
+candidate fix for this problem.Woudl you mind to test it ?Thanks ! 
+
+
+New Comment: 
+We're sometimes seeing the 100% CPU / selector spinning on our servers too. I'm willing to
+deploy it in production if you can give me a patch for trunk or RC1 (currently deployed).
+We have 40ish Linux servers with the latest Java 6 and 20k+ concurrent connections.FYI:
+When I was at LimeWire we fixed it the exact same way.<a
+href="https://www.limewire.org/fisheye/browse/limecvs/components/nio/src/main/java/org/limewire/nio/NIODispatcher.java?r=1.18#l815"
+class="external-link"
+rel="nofollow">https://www.limewire.org/fisheye/browse/limecvs/components/nio/src/main/java/org/limewire/nio/NIODispatcher.java?r=1.18#l815</a>Same
+with Azureus/Vuze. Both run on a few million computers and I'm not really worried that
+swapping the Selector will break anything. 
+
+
+New Comment: 
+FYI, there's an easier/more efficient fix.  Just use separate threads for read and write
+selectors, and don't rely on interest ops to see if a channel is readable - assume that if
+it's selected, it's readable.  This is what I do in XNIO.  Then the handler is woken up,
+reads the -1 or ECONNRESET and all is well. 
+
+
+New Comment: 
+David,is this really a fix ? If so, that would be easy to implement it in MINA, for sure.
+Where did you found some clues about this trick ? I'm <b>really</b> interested.Roger, I
+can apply the patch I implemented in the branch to RC1, if you want to test it. Give me a
+couple of days (I will attach the patch to this JIRA)Many thanks ! 
+
+
+On issue key DIRMINA-678 the pattern pattern might have been discussed on the following comment: 
+==============================
+Yeah, it seems to work for me.  At least, using this technique I could not reproduce the
+issue.  I actually set out to design XNIO this way on purpose, and when I heard about this
+bug I realized that my design is probably immune.  The reason it works is that you're
+reading any channel which is in the ready set, even if there's no OP_READ; as soon as you
+read a -1 or IOException, you generally close the channel (at least, this is the behavior
+pattern in XNIO), so any "bad" channel (which isn't reporting OP_READ) is removed from the
+selector.Unfortunately, Grizzly can't take advantage of this fix, since they have a
+tighter coupling with selectors in the API (at least, this is the case in 1.x, not sure if
+they changed it in 2.x). 
+==============================
+
+New Comment: 
+Yeah, it seems to work for me.  At least, using this technique I could not reproduce the
+issue.  I actually set out to design XNIO this way on purpose, and when I heard about this
+bug I realized that my design is probably immune.  The reason it works is that you're
+reading any channel which is in the ready set, even if there's no OP_READ; as soon as you
+read a -1 or IOException, you generally close the channel (at least, this is the behavior
+pattern in XNIO), so any "bad" channel (which isn't reporting OP_READ) is removed from the
+selector.Unfortunately, Grizzly can't take advantage of this fix, since they have a
+tighter coupling with selectors in the API (at least, this is the case in 1.x, not sure if
+they changed it in 2.x). 
+
+
+New Comment: 
+Emmanuel: Ok, will deploy it ASAP once you've the patch ready. 
+
+
+New Comment: 
+I have committed a fix for this issue :<a
+href="http://svn.apache.org/viewvc?rev=888842&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=888842&amp;view=rev</a>Not sure that it
+will correct the problem, but at least it will allow people to test it for real. 
+
+
+New Comment: 
+I've updated to the latest revision of MINA (903897) and found that my integration tests
+fail on Windows platform.<br/>Reverting back to older revisions and running tests on each
+of them shows that the problem has been introduced by this patch.888197 - PASS<br/>888842
+- FAILI'm afraid that the fix is not correct and should be reverted, especially
+considering that the offending NIO bug has been fixed in the recently released JDK
+1.6.0_18. 
+
+
+New Comment: 
+Hello Serge, I haven't paid much attention to this issue but as you can see from the code
+comments Emmanuel is willing to revert the change if neccessary.Still, not all our users
+are going to upgrade Sun JDK 1.6_18 so it might be interesting that you provided more
+details on the failures you are having so we can provide  a solution for all the potential
+MINA users - this is ,of course, if the issue is 'easily fixable', otherwise updating to a
+non-buggy JDK version is the way to go. 
+
+
+On issue key DIRMINA-678 the proxy pattern might have been discussed on the following comment: 
+==============================
+The issue is that the connections stall randomly, no data is sent or received when curl is
+connecting to Apache server via MINA based proxy server.OS: Windows Vista 64-bit<br/>JDK:
+1.6.0_18 (32-bit)The proxy is similar to the one I've provided to another issue: <a
+href="https://issues.apache.org/jira/browse/DIRMINA-734" title="Regression with flushing
+in MINA 2.0.0-M7 trunk" class="issue-link"
+data-issue-key="DIRMINA-734"><del>DIRMINA-734</del></a> (mina-flush-regression.zip)You can
+try running it with the latest MINA revision and connect to some server using curl via
+this proxy, make several concurrent connections, and curl will hang waiting for the data
+from the server.<br/>No time for the isolated test case, sorry.I suggest making this
+workaround optional and enable it if JDK version is &lt; 1.6.0_18 or via some
+setting/property. 
+==============================
+
+New Comment: 
+The issue is that the connections stall randomly, no data is sent or received when curl is
+connecting to Apache server via MINA based proxy server.OS: Windows Vista 64-bit<br/>JDK:
+1.6.0_18 (32-bit)The proxy is similar to the one I've provided to another issue: <a
+href="https://issues.apache.org/jira/browse/DIRMINA-734" title="Regression with flushing
+in MINA 2.0.0-M7 trunk" class="issue-link"
+data-issue-key="DIRMINA-734"><del>DIRMINA-734</del></a> (mina-flush-regression.zip)You can
+try running it with the latest MINA revision and connect to some server using curl via
+this proxy, make several concurrent connections, and curl will hang waiting for the data
+from the server.<br/>No time for the isolated test case, sorry.I suggest making this
+workaround optional and enable it if JDK version is &lt; 1.6.0_18 or via some
+setting/property. 
+
+
+New Comment: 
+Hi Serge,thanks fror having tested the patch. Sadly, the latest version of the JDK does
+<b>not</b> ix the epoll spinning issue. This is what the patch was supposed to fix, but I
+agree that there is some other issue that make the server to stall under load.Another JIRA
+brings some more light on the issue : <br/><a
+href="https://issues.apache.org/jira/browse/DIRMINA-762" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-762</a>This is currently
+being investigated 
+
+
+New Comment: 
+Interesting, I've been running with a patch from Sun under JDK 1.6.0_12 on Linux for
+almost a year and no spinning selector bug. This patch should be in 1.6.0_18 as <a
+href="http://bugs.sun.com/view_bug.do?bug_id=6693490" class="external-link"
+rel="nofollow">http://bugs.sun.com/view_bug.do?bug_id=6693490</a> is fixed in this
+version.Maybe <a href="https://issues.apache.org/jira/browse/DIRMINA-762" title="WARN
+org.apache.mina.core.service.IoProcessor  - Create a new selector. Selected is 0, delta =
+0" class="issue-link" data-issue-key="DIRMINA-762"><del>DIRMINA-762</del></a> is about
+another unfixed bug. 
+
+
+New Comment: 
+This issue is supposed to fix <a href="http://bugs.sun.com/view_bug.do?bug_id=6670302"
+class="external-link" rel="nofollow">http://bugs.sun.com/view_bug.do?bug_id=6670302</a>,
+and it does. As you can see, the Java bug is not fixed, and it causes an infinite loop,
+causing a 100% CPU consomption.<a href="https://issues.apache.org/jira/browse/DIRMINA-762"
+title="WARN org.apache.mina.core.service.IoProcessor  - Create a new selector. Selected is
+0, delta = 0" class="issue-link" data-issue-key="DIRMINA-762"><del>DIRMINA-762</del></a>
+deals with some other problem, probably caused by the fix. 
+
+
+New Comment: 
+I'll stay on 1.6.0_12 + Sun patch then. As for MINA, I've updated to the recent revision
+and reverted just the selector patch revisions, it seems to work fine now (at least passes
+the tests, didn't try in the production yet). I still see no reason for this code to be
+active on Windows platform as it was never affected by the Linux selector bug, OS check +
+option to disable it on any platform until the proper working patch is provided would be
+nice. 
+
+
+New Comment: 
+Sergey, the patch your are talking about - can it be shared here or is it still "for
+testers only"? It is almost 1 year old <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><br/>Did you send you feedback to Sun?
+Maybe you (or someone of mina developers) could ask Sun about posting the patch
+here<br/>or just asking when this bug-fix will be publicly available?Also, we could try to
+look into open jdk - maybe, the patch is already there <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Also, it is interesting how the 2 bugs
+correlate with each other:<br/><a href="http://bugs.sun.com/view_bug.do?bug_id=6693490"
+class="external-link"
+rel="nofollow">http://bugs.sun.com/view_bug.do?bug_id=6693490</a><br/><a
+href="http://bugs.sun.com/view_bug.do?bug_id=6670302" class="external-link"
+rel="nofollow">http://bugs.sun.com/view_bug.do?bug_id=6670302</a> 
+
+
+On issue key DIRMINA-678 the mediate pattern might have been discussed on the following comment: 
+==============================
+To Serge :<br/>--------------<br/>The patch does <b>not</b> impact Windows in any case.
+It's a workaround when we met some very specific conditions, namely :<ul class="alternate"
+type="square">	<li>when select( 1000 ) does not block</li>	<li>and returns 0</li>	<li>and
+does it immediately</li>	<li>and the IoProcessor has not been waken up.</li></ul>On
+Windows, if those 4 conditions are not met, then the code provided in the patch will
+<b>never</b> be called. So no need to add some ugly 'à la C/C++' code to test the
+underlying OS version <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>To Victor :<br/>--------------<br/>It
+would be great if we could have OpenJDK working natively on Mac OS too :/ But this is not
+the case. This is the reason why we are stuck with Sun JVM, buggy as it is. But this is
+not horrible. We can deal with this bug. Now, I repeat myself, but <a
+href="https://issues.apache.org/jira/browse/DIRMINA-762" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-762</a>  is currently the
+problem that you will face when using the latest version of the trunk, we are working on
+it, it's not obvious, and it may take time. At this point, any help is welcomed.Thanks
+both of you ! 
+==============================
+
+New Comment: 
+To Serge :<br/>--------------<br/>The patch does <b>not</b> impact Windows in any case.
+It's a workaround when we met some very specific conditions, namely :<ul class="alternate"
+type="square">	<li>when select( 1000 ) does not block</li>	<li>and returns 0</li>	<li>and
+does it immediately</li>	<li>and the IoProcessor has not been waken up.</li></ul>On
+Windows, if those 4 conditions are not met, then the code provided in the patch will
+<b>never</b> be called. So no need to add some ugly 'à la C/C++' code to test the
+underlying OS version <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>To Victor :<br/>--------------<br/>It
+would be great if we could have OpenJDK working natively on Mac OS too :/ But this is not
+the case. This is the reason why we are stuck with Sun JVM, buggy as it is. But this is
+not horrible. We can deal with this bug. Now, I repeat myself, but <a
+href="https://issues.apache.org/jira/browse/DIRMINA-762" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-762</a>  is currently the
+problem that you will face when using the latest version of the trunk, we are working on
+it, it's not obvious, and it may take time. At this point, any help is welcomed.Thanks
+both of you ! 
+
+
+On issue key DIRMINA-678 the command pattern might have been discussed on the following comment: 
+==============================
+Victor, I've sent you a patch by e-mail. It's just a zip with classes which replace the
+default JDK implementation (run with -Xbootclasspath/p:patch.zip command line
+option).Emmanuel, it probably should not impact Windows in any case, but currently
+connections hang with no CPU usage when running latest MINA revision and everything works
+fine when running latest MINA revision, but without the selector code submitted as 888842.
+That's why I've reported it. Sorry if it was not clear. Your fix breaks MINA on Windows,
+at least for my application. 
+==============================
+
+New Comment: 
+Victor, I've sent you a patch by e-mail. It's just a zip with classes which replace the
+default JDK implementation (run with -Xbootclasspath/p:patch.zip command line
+option).Emmanuel, it probably should not impact Windows in any case, but currently
+connections hang with no CPU usage when running latest MINA revision and everything works
+fine when running latest MINA revision, but without the selector code submitted as 888842.
+That's why I've reported it. Sorry if it was not clear. Your fix breaks MINA on Windows,
+at least for my application. 
+
+
+New Comment: 
+Serge,I understand that. The problem is that it not only breaks on windows, but also on
+mac, and linux :/it <b>sucks</b>... IMO, there is something else going wild here. I have a
+test to reproduce the breakage, and I see no other option but running the test with all
+the revisions since RC1. It will probably take a day to do that. What a perfect day it
+will be :/ 
+
+
+New Comment: 
+Serge,<br/>This problem is not fixed. I am using Mina 2.0.1 and I still see this ePoll
+selector bug on Linux.<br/>JVM version: <br/>$ java -version<br/>java version
+"1.6.0_21"<br/>Java(TM) SE Runtime Environment (build 1.6.0_21-b06)<br/>Java HotSpot(TM)
+64-Bit Server VM (build 17.0-b16, mixed mode)$ uname -a<br/>Linux {myhost} 2.6.18-92.el5
+#1 SMP Tue Apr 29 13:16:15 EDT 2008 x86_64 x86_64 x86_64 GNU/LinuxCan this be fixed? 
+
+
+New Comment: 
+Is it the <b>exact</b> same problem ? If we detect that the selector is going mad, we
+delete itCan you reproduce this problem easily? 
+
+
+New Comment: 
+Yes it is the exact same problem. It is reproducable and I have a snapshot of the epoll
+selector spinning - strace output -<br/>(I see that your fix in 2.0.0 for
+registerNewSelector() is not in source for 2.0.1, is this an issue with the package or
+your fix got removed).<br/>I see this bug in both Mina 2.0.0 and 2.0.1. Here is the output
+from strace - <br/>$ strace -p 14005<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}},
+1024, 1000) = 1<br/>read(32, "\1", 128)                     = 1<br/>write(33, "\1", 1)    
+                 = 1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) =
+1<br/>read(32, "\1", 128)                     = 1<br/>write(33, "\1", 1)                  
+   = 1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32,
+"\1", 128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>read(32, "\1",
+128)                     = 1<br/>write(33, "\1", 1)                      =
+1<br/>epoll_wait(34, {{EPOLLIN, {u32=32, u64=32}}}, 1024, 1000) = 1<br/>...<br/>This
+problem is killing me on Lunix. Please let me know how this can be fixed? 
+
+
+New Comment: 
+Holly cow !I removed the protection against crazy epoll in 2.0.1 after having discussed
+the problem with some fellow developpers from HttpComponent, as they told me the problem
+has been solved in Java 1.6.0_18.The patch can be found here : <a
+href="http://svn.apache.org/viewvc/mina/branches/2.0.2/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc/mina/branches/2.0.2/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194</a>Ok,
+I will reapply it in 2.0.2 and try to release it ASAP.S Rao, can you confirm the problem
+is <b>not</b> present in 2.0.0 ?Many thanks ! 
+
+
+New Comment: 
+No it is <b>not</b> fixed in 2.0.0. Please read my notes again. <br/>It still has the same
+issue in both 2.0.0 and 2.0.1 with JVM 1.6.0_21 on Linux.<br/>Its a crazy issue somewhere.
+I changed your source locally and tried putting all kind of synchronization but nothing
+worked...so need your help!!! 
+
+
+New Comment: 
+I am fairly confident the epoll selector bug has been solved in JRE 1.6.0.21. Please note
+there might be other reasons for a selector thread spinning in a tight loop (for instance,
+if output interest  is not cleared for a channel, which has no pending output data).Oleg 
+
+
+New Comment: 
+Oleg, S Rao has the problem with Java 1.6.0_21 (which was just a rebranding from oracle,
+anyway). It would be interesting to check with Java 1.6.0_22 S Rao. 
+
+
+New Comment: 
+S Rao, (sorry, I don't know your real name :/ ), I would be <b>very</b> interested by a
+peice of code I can use to reproduce the problem.If you can't push such a code on JIRA,
+because it's not intended to go public, can you join me privately at elecharny@apache.org,
+to see if we can manage something under a confidential agreement, if necessary ?Tha ks ! 
+
+
+New Comment: 
+Oleg, Emanuel,<br/>Thanks for your suggestions. I will try some things out and get back to
+you. Will also try JVM upgrade to see if that helps. 
+
+
+New Comment: 
+Hi Emmanuel,<br/>the fixes your are trying to do - do they concert Acceptor only? or
+Connector too?I am not sure yet, but seems the problem is reproduced in our production
+system with 2.0.2. I will try to understand whether this is the Selector bug or not. 
+
+
+On issue key DIRMINA-678 the mediate pattern might have been discussed on the following comment: 
+==============================
+It's a selector problem, so the Connector should be hit too, but it's unlikely. The real
+issue is with the IoProcessor, that process the incoming and outgoing events.I can provide
+a patch for the Connector if needed.Basically, it's pretty ugly but simple :<ul
+class="alternate" type="square">	<li>when the selector() returns immediately, with a 0
+value, we are hit by the selector bug</li>	<li>we can improve the detection by looping a
+number of times before considering it's really the case, just to be sure</li>	<li>then,
+what we do is that we create a new selector, and register all the selectionKeys on this
+new selector</li>	<li>then we ditch the old selector and go back to the initial
+processing</li></ul>The removed part can be find in <a
+href="http://svn.apache.org/viewvc/mina/branches/2.0.3/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194&amp;diff_format=h"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc/mina/branches/2.0.3/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194&amp;diff_format=h</a> 
+==============================
+
+New Comment: 
+It's a selector problem, so the Connector should be hit too, but it's unlikely. The real
+issue is with the IoProcessor, that process the incoming and outgoing events.I can provide
+a patch for the Connector if needed.Basically, it's pretty ugly but simple :<ul
+class="alternate" type="square">	<li>when the selector() returns immediately, with a 0
+value, we are hit by the selector bug</li>	<li>we can improve the detection by looping a
+number of times before considering it's really the case, just to be sure</li>	<li>then,
+what we do is that we create a new selector, and register all the selectionKeys on this
+new selector</li>	<li>then we ditch the old selector and go back to the initial
+processing</li></ul>The removed part can be find in <a
+href="http://svn.apache.org/viewvc/mina/branches/2.0.3/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194&amp;diff_format=h"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc/mina/branches/2.0.3/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java?r1=1001894&amp;r2=1006194&amp;diff_format=h</a> 
+
+
+New Comment: 
+I have found a bug in our system, it was endless loop in our code and NOT in mina!We are
+using JDK 1.6.0_23 now (but it has some strange changes - it is difficult to monitor via
+jstack or jvisualvm, so maybe we will go back to 1.6.0_22 or 21),<br/>I will look how it
+is working now and whether the bug is reproduced. We use both Acceptors and Connectors and
+have tens of thousands IoSessions per server.If the problem is fixed in JDK itself (which
+build?), we do not need any patches of course! Is there any proof/link of this fix in JDK? 
+
+
+New Comment: 
+Good news !Regarding the fix in the JVM, I have been told it 1.6.0_18, and this was the
+reason I removed the workaround from the code (because it was a damn hack...).If I have a
+clear proof that the problem is still there, I'm of course ready to apply the patch again. 
+
+
+New Comment: 
+Hi to all,we may be facing the same issue, however I am not sure of it. We're using
+version 2.0.0.M6 and JDK under 2.6.X kernels (my local env is 2.6.32 and Prod environment
+is 2.6.18). The JDK version in Prod environment is 1.6.0_18.The thing is that our
+NIOProcessor thread is 100% of the time runnable (according to visualvm). However, I have
+debugged the method int select(long timeout) in NioProcessor class and for some reason it
+does not wait the for the timeout but it returns 0 (which makes no sense to me, maybe it's
+my mistake since I am quite new to NIO but I would swear that it should stop until he has
+some key or the timeout expires).Would you say I am experiencing that problem too?  I was
+thinking of upgrading to 2.0.2 and apply the patch that Emmanuel provided. Has it been
+tested and works?Thanks a lot. 
+
+
+New Comment: 
+2.0.0-M6 Is <b>utterly</b> buggy. You <b>have</b> to switch to 2.0.2. <br/>Java 1.6.0_18
+is also a bit old now, as 5 releases have been published.Bottom line :<ul
+class="alternate" type="square">	<li>switch to Mina 2.0.2</li>	<li>upgrade to Java
+1.6.0_23</li>	<li>test your application</li>	<li>if you get those 100% CPU with those two
+new versions, feel free to contact me, I have a patch for this e-poll problem which is
+supposed to have been fixed in recent JVM.</li></ul>In fact, I have removed the workaround
+in MINA 2.0.2, but I can reintroduce it quickly and deliver a 2.0.3 in 4 days. An
+alternative would be to test with 2.0.1 which has this workaround included (from the top
+of my head) 
+
+
+New Comment: 
+Hi Emmanuel,thanks for answering so fast!The most strange thing is that I don't have full
+100% usage, but I have strange and big CPU peaks, can that be related to this bug?I
+thought it could be related because of the 100% runnable time of NioProcessor which
+suggest that select(timeout) is performing no locking at all (even when returning 0
+keys).Thanks a lot. 
+
+
+New Comment: 
+Usually, as the bug is associated with the select() method, and as you have probably more
+than one IoProcessor, thus more than one Selector in use, you may have a 100% CPU on one
+core only.The best would be to check if one core is consumming 100% CPU, If you have a way
+to reproduce this behavior, I can provide a patched version of MINA (with the workaround)
+to test it. Just let me know. 
+
+
+New Comment: 
+Hi,I think that we don't have full CPU usage because we have only two IoProcessor but we
+have 4 processors with 4 cores each one so maybe it's taking over only 12,5% of the total
+power CPU power.Unfortunately I still don't have a way to reproduce those CPU peaks.
+Anyway if you could provide me the patched version it would be great so we can test it
+(after what you told we're going to upgrade to 2.0.2 version).Thanks a lot, 
+
+
+New Comment: 
+Will try to get it done tonite. I'll post the jars on my page when done. 
+
+
+New Comment: 
+Hi Emmanuel,which is your page?Thanks a lot 
+
+
+New Comment: 
+Sorry, I forgot that yesterday evening there was a football match (France/Brasil). And
+after the match, I had to celebrate. And this morning, I have a headhache <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" 

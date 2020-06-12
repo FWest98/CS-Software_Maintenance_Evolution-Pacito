@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 5f53d00241eaa484a4b04c50243ce66e89dcc0c1
+
+From: Abstract Factory-6
+To:   Abstract Factory-7
+
+From: Factory Method-7
+To:   Factory Method-8
+
+From: Mediator-53
+To:   Mediator-55
+
+From: Strategy-31
+To:   Strategy-32
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-53.txt 
+
+commit 5f53d00241eaa484a4b04c50243ce66e89dcc0c1
+Author: Trustin Lee <trustin@apache.org>
+
+    Added clone() method to
+    * DefaultIoFilterChainBuilder
+    * IoServiceConfig and its implementations
+    * IoSessionConfig and its implementations

@@ -1,0 +1,140 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+How do you create the Executor ? It's not shown in your code... 
+
+
+On issue key DIRMINA-1012 the Factory pattern might have been discussed on the following comment: 
+==============================
+For NioProcessor:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        ThreadPoolExecutor
+ioProcessorExecutor = <span class="code-keyword">new</span> ThreadPoolExecutor(1, 1,      
+         3L, TimeUnit.SECONDS,                <span class="code-keyword">new</span>
+LinkedBlockingQueue&lt;&gt;(),                <span class="code-keyword">new</span>
+DeamonThreadFactory(<span class="code-quote">"nio-polling-"</span>, <span
+class="code-keyword">false</span>));</pre></div></div>And for "outer" pool (variable
+"executor"):<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">                <span class="code-object">int</span>
+maxWorkerThreads = <span
+class="code-object">Runtime</span>.getRuntime().availableProcessors() * 2;               
+ThreadPoolExecutor serverProcessor = <span class="code-keyword">new</span>
+ThreadPoolExecutor(maxWorkerThreads, maxWorkerThreads,                        3L,
+TimeUnit.SECONDS,                        <span class="code-keyword">new</span>
+LinkedBlockingQueue&lt;&gt;(),                        <span
+class="code-keyword">new</span> DeamonThreadFactory(<span
+class="code-quote">"TSA-"</span>, <span class="code-keyword">false</span>));              
+ serverProcessor.allowCoreThreadTimeOut(<span
+class="code-keyword">true</span>);</pre></div></div> 
+==============================
+
+New Comment: 
+For NioProcessor:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        ThreadPoolExecutor
+ioProcessorExecutor = <span class="code-keyword">new</span> ThreadPoolExecutor(1, 1,      
+         3L, TimeUnit.SECONDS,                <span class="code-keyword">new</span>
+LinkedBlockingQueue&lt;&gt;(),                <span class="code-keyword">new</span>
+DeamonThreadFactory(<span class="code-quote">"nio-polling-"</span>, <span
+class="code-keyword">false</span>));</pre></div></div>And for "outer" pool (variable
+"executor"):<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">                <span class="code-object">int</span>
+maxWorkerThreads = <span
+class="code-object">Runtime</span>.getRuntime().availableProcessors() * 2;               
+ThreadPoolExecutor serverProcessor = <span class="code-keyword">new</span>
+ThreadPoolExecutor(maxWorkerThreads, maxWorkerThreads,                        3L,
+TimeUnit.SECONDS,                        <span class="code-keyword">new</span>
+LinkedBlockingQueue&lt;&gt;(),                        <span
+class="code-keyword">new</span> DeamonThreadFactory(<span
+class="code-quote">"TSA-"</span>, <span class="code-keyword">false</span>));              
+ serverProcessor.allowCoreThreadTimeOut(<span
+class="code-keyword">true</span>);</pre></div></div> 
+
+
+New Comment: 
+Added a comment... 
+
+
+New Comment: 
+Added a comment... 
+
+
+New Comment: 
+ok. A question : why would you put the SSL Filter after the Executor Filter ? 
+
+
+New Comment: 
+I whant network IO to be done in parallel. If I put Executor filter after the SslFilter,
+than SslFilter code will work in NioProcessor (network events discoverer) thread. I
+consider that it will bite server performance. 
+
+
+New Comment: 
+I read you.Now consider this : you will use a single selector for incoming connections, no
+matter what. When the initial SSL handshake is done, encrypting/decrypting the data is not
+really problematic, compared to any of the processing you are likely to do on your backend
+(it's pure CPU and memory).Have you already seing that as being a bottleneck ?That being
+said, you are right : the SSL Filter should work behind the executor filter. Do you have
+more info about what's wrong when it's not working ? 
+
+
+On issue key DIRMINA-1012 the chain pattern might have been discussed on the following comment: 
+==============================
+Really, encrypting/decrypting after initial handshake is not problematic, but overhead is
+overhead.<br/>We have no bottleneck yet, but we had a similar bottleneck in our Thin
+Architecture Server in GPS tracking system build on top of MINA (working with about 150
+parallel connections). There is no SslFilter. And when we moved ExecutorFilter on top of
+the filter chain, bottleneck went away.<br/>SslFilter bugs have such symptoms: sometimes
+we get an error "handshake failed", sometimes we get nothing and sometimes we get an error
+about mina buffer (IllegalArgumentException) in the following code, while buf.position()
+call:         <div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">            <span class="code-keyword">if</span>
+(isInboundDone()) {            <span class="code-comment">// Rewind the MINA buffer <span
+class="code-keyword">if</span> not all data is processed and inbound</span>           
+<span class="code-comment">// is finished.</span>            <span
+class="code-object">int</span> inNetBufferPosition = inNetBuffer == <span
+class="code-keyword">null</span> ? 0 : inNetBuffer.position();           
+buf.position(buf.position() - inNetBufferPosition);            <span
+class="code-keyword">if</span> (inNetBuffer != <span class="code-keyword">null</span>) {  
+             inNetBuffer.free();                inNetBuffer = <span
+class="code-keyword">null</span>;            }        }</pre></div></div> 
+==============================
+
+New Comment: 
+Really, encrypting/decrypting after initial handshake is not problematic, but overhead is
+overhead.<br/>We have no bottleneck yet, but we had a similar bottleneck in our Thin
+Architecture Server in GPS tracking system build on top of MINA (working with about 150
+parallel connections). There is no SslFilter. And when we moved ExecutorFilter on top of
+the filter chain, bottleneck went away.<br/>SslFilter bugs have such symptoms: sometimes
+we get an error "handshake failed", sometimes we get nothing and sometimes we get an error
+about mina buffer (IllegalArgumentException) in the following code, while buf.position()
+call:         <div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">            <span class="code-keyword">if</span>
+(isInboundDone()) {            <span class="code-comment">// Rewind the MINA buffer <span
+class="code-keyword">if</span> not all data is processed and inbound</span>           
+<span class="code-comment">// is finished.</span>            <span
+class="code-object">int</span> inNetBufferPosition = inNetBuffer == <span
+class="code-keyword">null</span> ? 0 : inNetBuffer.position();           
+buf.position(buf.position() - inNetBufferPosition);            <span
+class="code-keyword">if</span> (inNetBuffer != <span class="code-keyword">null</span>) {  
+             inNetBuffer.free();                inNetBuffer = <span
+class="code-keyword">null</span>;            }        }</pre></div></div> 
+
+
+New Comment: 
+I highly suspect that your backend was doing expensive things in a blocking way (like
+reading data from a DB), and with only nbProcessor+1 threads, you were facing a
+bottleneck. In this case, yes, an executor is the way to go.Now, as the SSL handling is
+pure CPU, unless you can dedicate processors to handle the SSL part, which is doubtful
+considering that your Acceptor is already configured to use all the existing processors,
+you won't see any gain in multithreading <b>before</b> the SSLFilter. Quite the opposite,
+in fact : as you have more threads than the existing processors, you will have a lot of
+context switches between threads, which will cost more than having a 1-1 relation between
+CPU intensive tasks and the physical processors. 
+
+
+On issue key DIRMINA-1012 the  state  pattern might have been discussed on the following comment: 
+==============================
+Ok.<br/>We have reconfigured our thread pool. And it consists of maximum number of t

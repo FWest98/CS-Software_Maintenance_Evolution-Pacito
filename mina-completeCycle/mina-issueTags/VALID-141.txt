@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 1a092a38d79058266cbb8c0ec860fc32f29c976e
+
+From: Flyweight-19
+To:   Flyweight-20
+
+From: Mediator-70
+To:   Mediator-71
+
+From: Strategy-33
+To:   Strategy-35
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-141.txt 
+
+commit 1a092a38d79058266cbb8c0ec860fc32f29c976e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-187 (Support IoHandler per IoSession (SingleSessionIoHandler))
+    * Applied Simon's patch.
+    ** classes are moved to org.apache.min.handler.multiton
+    ** fixed some JavaDoc errors

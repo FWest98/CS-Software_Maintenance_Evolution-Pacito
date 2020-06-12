@@ -1,0 +1,14 @@
+Pattern changes caused by commit: 9cf1bfdb9ba2ffa79733b57e824af93010e92488
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-232.txt 
+
+commit 9cf1bfdb9ba2ffa79733b57e824af93010e92488
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-231 (SocketConnector thread leak)
+    * PooledThreadModel now manages the instances of PooledThreadModels, and therefore the number of PooledThreadModel per service never exceeds 1.

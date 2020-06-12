@@ -1,0 +1,122 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-865 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Can't figure out how to attach anything so here's the test code for the server:import
+java.net.InetSocketAddress;<br/>import java.nio.charset.Charset;<br/>import
+java.util.ArrayList;<br/>import java.util.Date;<br/>import java.util.List;import
+org.apache.mina.core.future.WriteFuture;<br/>import
+org.apache.mina.core.service.IoHandlerAdapter;<br/>import
+org.apache.mina.core.session.IdleStatus;<br/>import
+org.apache.mina.core.session.IoSession;<br/>import
+org.apache.mina.filter.codec.ProtocolCodecFilter;<br/>import
+org.apache.mina.filter.codec.textline.TextLineCodecFactory;<br/>import
+org.apache.mina.transport.socket.SocketAcceptor;<br/>import
+org.apache.mina.transport.socket.SocketSessionConfig;<br/>import
+org.apache.mina.transport.socket.nio.NioSocketAcceptor;public class MinaTestServer extends
+IoHandlerAdapter {	private static final int PORT = 6667;	private List&lt;IoSession&gt;
+connections = new ArrayList&lt;IoSession&gt;();	public synchronized void
+addConnection(IoSession ses) {		connections.add(ses);	}	public synchronized void
+dropConnection(IoSession ses) {		connections.remove(ses);	}	public synchronized
+List&lt;IoSession&gt; getConnections() {		return connections;	}	public static void
+main(String[] args) throws Exception {<br/>		MinaTestServer srv = new
+MinaTestServer();<br/>		int n = 0;<br/>		int num = 1;<br/>		int burstrate = 1000,
+burstsize = 50;<br/>		for (; ++n &gt; 0<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> {<br/>			Thread.sleep(num);<br/>			for
+(IoSession ses : srv.getConnections()) {<br/>				String message = "HER ER EN LILLE BESKED
+TIL DIG FRA DIN RARE SERVER";<br/>				/*<ul>	<li>if (ses.getScheduledWriteMessages() &gt;
+burstsize) num = 0;</li>	<li>else<br/>				 */{					num = ((n % burstrate) == 0 ? burstsize
+: 1);				}				for (int m = 0; m &lt; num; ++m) {					WriteFuture wf =
+ses.write(message);				}				if ((n % 1000) == 0)<br/>					System.out.println(new Date() +
+": "<br/>							+ ses.getScheduledWriteBytes() + "/"<br/>							+
+ses.getScheduledWriteMessages());<br/>			}<br/>		}<br/>	}</li></ul>	public
+MinaTestServer() {<br/>		try {			SocketAcceptor acceptor = new NioSocketAcceptor();			//
+Bind			acceptor.setHandler(this);			acceptor.getFilterChain().addLast(					"codec",					new
+ProtocolCodecFilter(new
+TextLineCodecFactory(Charset							.forName("UTF-8"))));			acceptor.bind(new
+InetSocketAddress(PORT));			System.out.println("Listening on port " + PORT);		} catch
+(Exception ex) {			System.out.println("Woops:" + ex);		}	}	@Override<br/>	public void
+sessionCreated(IoSession session) {		session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE,
+10);		((SocketSessionConfig)
+session.getConfig()).setReceiveBufferSize(512);	}	@Override<br/>	public void
+sessionClosed(IoSession session) throws Exception
+{		System.out.println("CLOSED");		dropConnection(session);	}	@Override<br/>	public void
+sessionOpened(IoSession session) throws Exception
+{		System.out.println("OPENED");		addConnection(session);	}	@Override<br/>	public void
+sessionIdle(IoSession session, IdleStatus status) {		System.out.println("*** IDLE #"				+
+session.getIdleCount(IdleStatus.BOTH_IDLE) + " ***");	}	@Override<br/>	public void
+exceptionCaught(IoSession session, Throwable cause)
+{		session.close(true);	}	@Override<br/>	public void messageReceived(IoSession session,
+Object message)<br/>			throws Exception {<br/>	}<br/>} 
+==============================
+
+On issue key DIRMINA-865 the Factory pattern might have been discussed on the following comment: 
+==============================
+Can't figure out how to attach anything so here's the test code for the server:import
+java.net.InetSocketAddress;<br/>import java.nio.charset.Charset;<br/>import
+java.util.ArrayList;<br/>import java.util.Date;<br/>import java.util.List;import
+org.apache.mina.core.future.WriteFuture;<br/>import
+org.apache.mina.core.service.IoHandlerAdapter;<br/>import
+org.apache.mina.core.session.IdleStatus;<br/>import
+org.apache.mina.core.session.IoSession;<br/>import
+org.apache.mina.filter.codec.ProtocolCodecFilter;<br/>import
+org.apache.mina.filter.codec.textline.TextLineCodecFactory;<br/>import
+org.apache.mina.transport.socket.SocketAcceptor;<br/>import
+org.apache.mina.transport.socket.SocketSessionConfig;<br/>import
+org.apache.mina.transport.socket.nio.NioSocketAcceptor;public class MinaTestServer extends
+IoHandlerAdapter {	private static final int PORT = 6667;	private List&lt;IoSession&gt;
+connections = new ArrayList&lt;IoSession&gt;();	public synchronized void
+addConnection(IoSession ses) {		connections.add(ses);	}	public synchronized void
+dropConnection(IoSession ses) {		connections.remove(ses);	}	public synchronized
+List&lt;IoSession&gt; getConnections() {		return connections;	}	public static void
+main(String[] args) throws Exception {<br/>		MinaTestServer srv = new
+MinaTestServer();<br/>		int n = 0;<br/>		int num = 1;<br/>		int burstrate = 1000,
+burstsize = 50;<br/>		for (; ++n &gt; 0<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> {<br/>			Thread.sleep(num);<br/>			for
+(IoSession ses : srv.getConnections()) {<br/>				String message = "HER ER EN LILLE BESKED
+TIL DIG FRA DIN RARE SERVER";<br/>				/*<ul>	<li>if (ses.getScheduledWriteMessages() &gt;
+burstsize) num = 0;</li>	<li>else<br/>				 */{					num = ((n % burstrate) == 0 ? burstsize
+: 1);				}				for (int m = 0; m &lt; num; ++m) {					WriteFuture wf =
+ses.write(message);				}				if ((n % 1000) == 0)<br/>					System.out.println(new Date() +
+": "<br/>							+ ses.getScheduledWriteBytes() + "/"<br/>							+
+ses.getScheduledWriteMessages());<br/>			}<br/>		}<br/>	}</li></ul>	public
+MinaTestServer() {<br/>		try {			SocketAcceptor acceptor = new NioSocketAcceptor();			//
+Bind			acceptor.setHandler(this);			acceptor.getFilterChain().addLast(					"codec",					new
+ProtocolCodecFilter(new
+TextLineCodecFactory(Charset							.forName("UTF-8"))));			acceptor.bind(new
+InetSocketAddress(PORT));			System.out.println("Listening on port " + PORT);		} catch
+(Exception ex) {			System.out.println("Woops:" + ex);		}	}	@Override<br/>	public void
+sessionCreated(IoSession session) {		session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE,
+10);		((SocketSessionConfig)
+session.getConfig()).setReceiveBufferSize(512);	}	@Override<br/>	public void
+sessionClosed(IoSession session) throws Exception
+{		System.out.println("CLOSED");		dropConnection(session);	}	@Override<br/>	public void
+sessionOpened(IoSession session) throws Exception
+{		System.out.println("OPENED");		addConnection(session);	}	@Override<br/>	public void
+sessionIdle(IoSession session, IdleStatus status) {		System.out.println("*** IDLE #"				+
+session.getIdleCount(IdleStatus.BOTH_IDLE) + " ***");	}	@Override<br/>	public void
+exceptionCaught(IoSession session, Throwable cause)
+{		session.close(true);	}	@Override<br/>	public void messageReceived(IoSession session,
+Object message)<br/>			throws Exception {<br/>	}<br/>} 
+==============================
+
+On issue key DIRMINA-865 the Chain pattern might have been discussed on the following comment: 
+==============================
+Can't figure out how to attach anything so here's the test code for the server:import
+java.net.InetSocketAddress;<br/>import java.nio.charset.Charset;<br/>import
+java.util.ArrayList;<br/>import java.util.Date;<br/>import java.util.List;import
+org.apache.mina.core.future.WriteFuture;<br/>import
+org.apache.mina.core.service.IoHandlerAdapter;<br/>import
+org.apache.mina.core.session.IdleStatus;<br/>import
+org.apache.mina.core.session.IoSession;<br/>import
+org.apache.mina.filter.codec.ProtocolCodecFilter;<br/>import
+org.apache.mina.filter.codec.textline.TextLineCodecFactory;<br/>import
+org.apache.mina.transport.socket.SocketAcceptor;<br/>import
+org.apache.mina.transport.socket.SocketSessionConfig;<br/>import
+org.apache.mina.transport.socket.nio.NioSocketAcceptor;public clas

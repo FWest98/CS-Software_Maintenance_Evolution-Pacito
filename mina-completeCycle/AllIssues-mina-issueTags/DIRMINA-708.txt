@@ -1,0 +1,123 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+JIP output from short execution.Four different discovery cycles appear in the run, at time
+deltas:     0:27,    0:55,    2:06, and  2:42.Manually halted before fourth discovery
+attempt timed out.  ( Each protocol defines different time out rates, that last one was
+going to take several minutes ) 
+
+
+New Comment: 
+It has been over two weeks since I collected profile data and attached it to this ticket
+as requested.    Is anything going to be done about this or should I be digging into the
+Mina code trying to fix it myself??? 
+
+
+On issue key DIRMINA-708 the Builder pattern might have been discussed on the following comment: 
+==============================
+Hi,I have looked at the traces, but as you can imagine, it's far from being easy to
+analyze what's going on. Since you attached it, a major bug has been fixed, which took me
+3 full days (<a href="https://issues.apache.org/jira/browse/DIRMINA-712"
+title="DefaultIoFilterChainBuilder.replace(String, IoFilter) throws ClassCastException"
+class="issue-link" data-issue-key="DIRMINA-712"><del>DIRMINA-712</del></a>).I understand
+that it's a major issue for you, but you may also consider that as volunteers, we have a
+limited amount of time to work on the project. As a side effect, yes, sure, if you want to
+dig into the code, and find a fix, that would be greatly appreciated ! Anyone can help,
+this is basically how it works... 
+==============================
+
+On issue key DIRMINA-708 the Chain pattern might have been discussed on the following comment: 
+==============================
+Hi,I have looked at the traces, but as you can imagine, it's far from being easy to
+analyze what's going on. Since you attached it, a major bug has been fixed, which took me
+3 full days (<a href="https://issues.apache.org/jira/browse/DIRMINA-712"
+title="DefaultIoFilterChainBuilder.replace(String, IoFilter) throws ClassCastException"
+class="issue-link" data-issue-key="DIRMINA-712"><del>DIRMINA-712</del></a>).I understand
+that it's a major issue for you, but you may also consider that as volunteers, we have a
+limited amount of time to work on the project. As a side effect, yes, sure, if you want to
+dig into the code, and find a fix, that would be greatly appreciated ! Anyone can help,
+this is basically how it works... 
+==============================
+
+New Comment: 
+Hi,I have looked at the traces, but as you can imagine, it's far from being easy to
+analyze what's going on. Since you attached it, a major bug has been fixed, which took me
+3 full days (<a href="https://issues.apache.org/jira/browse/DIRMINA-712"
+title="DefaultIoFilterChainBuilder.replace(String, IoFilter) throws ClassCastException"
+class="issue-link" data-issue-key="DIRMINA-712"><del>DIRMINA-712</del></a>).I understand
+that it's a major issue for you, but you may also consider that as volunteers, we have a
+limited amount of time to work on the project. As a side effect, yes, sure, if you want to
+dig into the code, and find a fix, that would be greatly appreciated ! Anyone can help,
+this is basically how it works... 
+
+
+New Comment: 
+A quick look at the code shows that if the thread is locked, it's because the flush()
+method is not called. Let's walk the code :We have a writeMonitor which is used in two
+places ; the WriteWorker and the SerialIoProcessor. <ul class="alternate"
+type="square">	<li>In the WriteWorker :</li></ul>...<br/>                // wait for more
+data<br/>                synchronized (writeMonitor) {<br/>                    try {      
+                 writeMonitor.wait();                    } catch (InterruptedException e)
+{                        log.error("InterruptedException", e);                    }       
+        }<br/>...<ul class="alternate" type="square">	<li>in the SerialIoProcessor
+:<br/>...<br/>        public void flush(SerialSessionImpl session) {<br/>            if
+(writeWorker == null) {                writeWorker = new WriteWorker();               
+writeWorker.start();            } else <div class="error"><span class="error">Unknown
+macro: {                synchronized (writeMonitor) {                   
+writeMonitor.notifyAll();                }            }</span> </div>       
+}<br/>...</li></ul>This flush method is called by the SerialIoProcessor.remove() method,
+and the flush method is the only place the WriterWorker is created.Now note the sequence
+:<br/>1) we start the SerialSessionImpl<br/>2) It creates everything, and the remove()
+method is called when there is an exception<br/>3) The remove() method do some cleaning,
+and call the flush() method (this is the only place this method is called)<br/>4) The
+flush method create a new WriteWorker, as this is the only place we create it in the
+code<br/>5) The WriteWorker is started, calls flushWrites()<br/>6) When this methods
+returns, the WriteMonitor wait for notification<br/>7) As soon as the
+SerialIoProcessor.remove() method will be called, the flush(à method will be called and it
+will notify the WriteMonitor, releasing the thread, if it were blocked on a wait().The
+remove() is invoked when the session is closed. I don't have the code of your application,
+so I can't tell if you close the session, and when. Also there is something strange I see
+in the traces : if you check the thread 30, you can see that the
+SerialSessionImpl.flushWrites() method is called, and end with a call to
+PdrProtocolEngine.messageSent() method, which does not return. I'm wondering if this
+method is not supposed to timeout at some point, and then close the session, if it can't
+write to the client.This is a bit difficult to say what'ss really going in in your app, as
+I don't see the code, so consider those elements as semi blind guesses ... 
+
+
+On issue key DIRMINA-708 the Adapter pattern might have been discussed on the following comment: 
+==============================
+I'm unsure as to how anything could get stuck inside PdrProtocolEngine.messageSent(), the
+entire method is reproduced here:public abstract class PdrProtocolEngine extends
+IoHandlerAdapter {<br/>...<br/>    @Override<br/>    public final void
+messageSent(IoSession session, Object message) {        logger.debug("messageSent(session,
+" + message + ")");    }...<br/>}Is there some step I've missed that I should be doing in
+the overridden method??    This particular one was a placeholder we never went anywhere
+with; I'll try simply removing it to see if the problem disappears.<hr />I do recall one
+of the changes we had to do when updating to M4 (I think we were at M2 before that?)
+&#8211; we had been using IoSession.closeOnFlush() which got removed so we had to drop
+back to a straight close() method.      Since then our code has called close methods, but
+there is no flush anywhere that we use or that I am aware of.    Matter of fact, a search
+for flush through our project uncovers only my notes from that upgrade and from chasing
+this bug &#8211; we have zero specific flush calls in our code.    Is this a problem??   I
+assumed Mina will flush the sessions it is closing &#8211; or at least trigger whatever
+threads it may have launched to control that session.      Is there something more I
+should do beyond calling the IoSesison.close() method to bring down a session that fails
+discovery??<hr />Digging now... more later 
+==============================
+
+New Comment: 
+I'm unsure as to how anything could get stuck inside PdrProtocolEngine.messageSent(), the
+entire method is reproduced here:public abstract class PdrProtocolEngine extends
+IoHandlerAdapter {<br/>...<br/>    @Override<br/>    public final void
+messageSent(IoSession session, Object message) {        logger.debug("messageSent(session,
+" + message + ")");    }...<br/>}Is there some step I've missed that I should be doing in
+the overridden method??    This particular one was a placeholder we never went anywhere
+with; I'll try simply removing it to see if the problem disappears.<hr />I do recall one
+of the changes we had to do when updating to M4 (I think we were at M2 before that?)
+&#8211; we had been using IoSession.closeOnFlush() which got removed so we had to drop
+back to a straight close() method.      Since then our co

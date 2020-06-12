@@ -1,0 +1,135 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is not a bug, this is an implementation error.You have to understand that MINA is
+built on top of an asynchronous system, where you are in charge of controlling what's
+going on.Typically, if you face a slow client (ie, a client that does not read fast enough
+the message your server is producing), and don't miitgate that, you are going to be in big
+trouble.The only way to manage such a situation is <b>not</b> to write anything back to
+your client unless the last message have already been sent. There is a
+<tt>message_sent</tt> event that is generated in such a case, and you should process it in
+your <tt>IoHandler</tt> implementation.In other words, if you have no pending message,
+then write the response in the <tt>messageReceived</tt> method, and put a flag in your
+context to remember that a message is being sent. When you get a new message from your
+client, and want to send back a response, you just have to wait for the flag in your
+context to be flipped. At the same time, in the <tt>messageSent</tt> method, flip the flag
+so that the next message can be written.Now, if your client is a fast writer and a slow
+reader, it will be quickly blocked because its buffer will be full on its side.Note that
+it's just a possible solution. 
+
+
+On issue key DIRMINA-1039 the interprete pattern might have been discussed on the following comment: 
+==============================
+This issue was not caused by a slow-reading client. The client is able to both read and
+write messages fast. This issue addresses a problem on the server side, after the changes
+in mina 2. With mina 1, testing the server in the exact same conditions behaves
+correctly.When writing responses, if we assume the response is small in size and it is
+followed by a (empty message) marker in the queue (which is part of mina code). When
+writing, in AbstractPollingIoProcessor flushNow method, there is a check that
+(localWrittenBytes == 0), which holds true for the marker-WriteRequests. The comment in
+the code at this point, suggests that this is interpreted as kernel buffer being full,
+which is false. This check is true because we just processed a message marker. The return
+statement in this case will cause exiting the write-loop and starting to read messages
+again. It seems to me that this check here should be (localWrittenBytes == 0 &amp;&amp;
+isNotAnEmptyMessage). And also add another check below: if ((localWrittenBytes == 0
+&amp;&amp; isAnEmptyMessage), then simply set the session as interested in write and
+continue the write cycle. The loop will then exit the write cycle when will be the case
+(when the kernel buffer is full, or when the max written bytes is reached,
+etc).<br/>Otherwise, by design, mina allows reading multiple messages during one
+read-phase (which depends on the buffer size, message size) and then only allows writing
+one response during the write-phase and return to read-phase. It seems to me this can be
+fixed (I'm sure my suggestion above is not the only solution). I understand that this will
+not fix also the problem you <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> mentioned - which has to be
+handled at application implementation level. I am not sure the title of this issue is the
+best to describe this issue, this is why i tried to detail in this comment the problem and
+the possible fix. What do you think? 
+==============================
+
+New Comment: 
+This issue was not caused by a slow-reading client. The client is able to both read and
+write messages fast. This issue addresses a problem on the server side, after the changes
+in mina 2. With mina 1, testing the server in the exact same conditions behaves
+correctly.When writing responses, if we assume the response is small in size and it is
+followed by a (empty message) marker in the queue (which is part of mina code). When
+writing, in AbstractPollingIoProcessor flushNow method, there is a check that
+(localWrittenBytes == 0), which holds true for the marker-WriteRequests. The comment in
+the code at this point, suggests that this is interpreted as kernel buffer being full,
+which is false. This check is true because we just processed a message marker. The return
+statement in this case will cause exiting the write-loop and starting to read messages
+again. It seems to me that this check here should be (localWrittenBytes == 0 &amp;&amp;
+isNotAnEmptyMessage). And also add another check below: if ((localWrittenBytes == 0
+&amp;&amp; isAnEmptyMessage), then simply set the session as interested in write and
+continue the write cycle. The loop will then exit the write cycle when will be the case
+(when the kernel buffer is full, or when the max written bytes is reached,
+etc).<br/>Otherwise, by design, mina allows reading multiple messages during one
+read-phase (which depends on the buffer size, message size) and then only allows writing
+one response during the write-phase and return to read-phase. It seems to me this can be
+fixed (I'm sure my suggestion above is not the only solution). I understand that this will
+not fix also the problem you <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> mentioned - which has to be
+handled at application implementation level. I am not sure the title of this issue is the
+best to describe this issue, this is why i tried to detail in this comment the problem and
+the possible fix. What do you think? 
+
+
+New Comment: 
+Can't you suspend the reads when you are overflown ? (see
+<tt>IOSession.suspendRead()</tt>) 
+
+
+New Comment: 
+Hmm, I didn't think of this option. I could take a look to see if I can apply this and
+how. <br/>Still, if i don't misunderstand something, i think a change like the one I
+described above could be applied to address this issue at it's root. I actually have a
+patch (locally; tested) to mina-core, I could commit it on a branch for example for you to
+review it. But until now I didn't find any code-contribution guide.... 
+
+
+New Comment: 
+The simplest : fork the project on github (<tt><a
+href="https://github.com/apache/mina/tree/2.0" class="external-link"
+rel="nofollow">https://github.com/apache/mina/tree/2.0</a></tt>) and create a PR that you
+attach to this ticket.I'll reopen it. 
+
+
+New Comment: 
+GitHub user mariapetridean opened a pull request:    <a
+href="https://github.com/apache/mina/pull/9" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/9</a>    <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1039" title="Response messages queue
+up on the server side waiting to be written to socket, while the server continues to read
+more request messages, causing out of heap memory" class="issue-link"
+data-issue-key="DIRMINA-1039"><del>DIRMINA-1039</del></a> - continue process the write
+requests after handling an …    …empty message markerYou can merge this pull request into
+a Git repository by running:    $ git pull <a
+href="https://github.com/mariapetridean/mina" class="external-link"
+rel="nofollow">https://github.com/mariapetridean/mina</a> 2.0Alternatively you can review
+and apply these changes as the patch at:    <a
+href="https://github.com/apache/mina/pull/9.patch" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/9.patch</a>To close this pull request,
+make a commit to your master/trunk branch<br/>with (at least) the following in the commit
+message:    This closes #9<hr /><hr /> 
+
+
+New Comment: 
+PR attached <a href="https://github.com/apache/mina/pull/9" class="external-link"
+rel="nofollow">https://github.com/apache/mina/pull/9</a> 
+
+
+New Comment: 
+Hello <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> did you have time to review the
+patch attached to this item? I recently saw some activity to related to a new mina
+release. 
+
+
+New Comment: 
+Ah ! Thanks for reminding me about your PR !Yes, I will have a look at your proposal this
+week. I'm currently reviewing all bugs, for a release to come.Thanks for y

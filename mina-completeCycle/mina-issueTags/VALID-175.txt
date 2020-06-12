@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 144d8fea7c22b40b7f47593575e398c1542a8f9a
+
+From: Mediator-75
+To:   Mediator-76
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-175.txt 
+
+commit 144d8fea7c22b40b7f47593575e398c1542a8f9a
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-209 - The number of processors for socket connectors and acceptors can be specified via a cxtor parameter. By default, connectors and acceptors each use their own processor.
+    Additionally, the delegates have been removed helping to simplify the code.

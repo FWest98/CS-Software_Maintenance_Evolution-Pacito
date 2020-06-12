@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 72dfee362a425a31d0f7173e9a46f6c4c29d5ab5
+
+From: Adapter-13
+To:   Adapter-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-262.txt 
+
+commit 72dfee362a425a31d0f7173e9a46f6c4c29d5ab5
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-251 (PooledThreadModel must allow the application to specify a ThreadPool implementation)
+    * Added get/setThreadPool() to PooledThreadModel
+    * Removed all indirect methods which can be configured via getThreadPool()

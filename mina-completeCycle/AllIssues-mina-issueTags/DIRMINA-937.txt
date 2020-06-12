@@ -1,0 +1,1115 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Couldn't it be a problem with the cipher suite you use ?However, in any case, it should
+not hang. Can you share the code that you use so that I can debug the code using OpenJDK ?
+(just the initialization part, it should be enough) 
+
+
+On issue key DIRMINA-937 the Adapter pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+On issue key DIRMINA-937 the Proxy pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+On issue key DIRMINA-937 the Factory pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+On issue key DIRMINA-937 the adapt pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+On issue key DIRMINA-937 the chain pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+On issue key DIRMINA-937 the Chain pattern might have been discussed on the following comment: 
+==============================
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+connected<br/>== Info: successfully set certificate verify locations:<br/>== Info:  
+CAfile: none<br/>  CApath: /etc/ssl/certs<br/>== Info: SSLv3, TLS handshake, Client hello
+(1):<br/>=&gt; Send SSL data, 217 bytes (0xd9)<br/>0000: 01 00 00 d5 03 02 51 36 34 e6 ac
+2e e2 35 72 e1 ......Q64....5r.<br/>0010: 38 55 04 af 05 40 00 87 8e 47 e7 80 87 d4 d1 a6
+8U...@...G......<br/>0020: 43 82 2f e4 c7 3e 00 00 66 c0 14 c0 0a c0 22 c0
+C./..&gt;..f.....".<br/>0030: 21 00 39 00 38 00 88 00 87 c0 0f c0 05 00 35 00
+!.9.8.........5.<br/>0040: 84 c0 12 c0 08 c0 1c c0 1b 00 16 00 13 c0 0d c0
+................<br/>0050: 03 00 0a c0 13 c0 09 c0 1f c0 1e 00 33 00 32 00
+............3.2.<br/>0060: 9a 00 99 00 45 00 44 c0 0e c0 04 00 2f 00 96 00
+....E.D...../...<br/>0070: 41 c0 11 c0 07 c0 0c c0 02 00 05 00 04 00 15 00
+A...............<br/>0080: 12 00 09 00 14 00 11 00 08 00 06 00 03 00 ff 02
+................<br/>0090: 01 00 00 45 00 0b 00 04 03 00 01 02 00 0a 00 34
+...E...........4<br/>00a0: 00 32 00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09
+.2..............<br/>00b0: 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15
+................<br/>00c0: 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f
+................<br/>00d0: 00 10 00 11 00 0f 00 01 01                     
+.........<br/><span class="error">&#91;hung - should get server hello&#93;</span>and the
+echo server looks like:$ java -Djavax.net.debug=all
+-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -cp
+lib/*:mina-example/target/classes:mina-core/target/classes
+org.apache.mina.example.echoserver.Main<br/>***<br/>found key for : bogus<br/>chain <span
+class="error">&#91;0&#93;</span> = [<br/>[<br/>  Version: V1<br/>  Subject: CN=bogus.com,
+OU=XXX CA, O=Bogus Inc, L=Stockholm, ST=Stockholm, C=SE<br/>  Signature Algorithm:
+MD5withRSA, OID = 1.2.840.113549.1.1.4  Key:  Sun RSA public key, 511 bits<br/>  modulus:
+4716266305158955097619267184819536762192336460125269747936292391072221240753144246603767639670387155212663695306712305083753837008428026689179662428434397<br/>
+ public exponent: 65537<br/>  Validity: [From: Mon Mar 07 10:16:35 EST 2005,<br/>         
+     To: Thu Mar 05 10:16:35 EST 2015]<br/>  Issuer: CN=bogus.com, OU=XXX CA, O=Bogus Inc,
+L=Stockholm, ST=Stockholm, C=SE<br/>  SerialNumber: [    422c7053]]<br/>  Algorithm: <span
+class="error">&#91;MD5withRSA&#93;</span><br/>  Signature:<br/>0000: 49 40 0E D4 06 42 85
+18   B5 B3 61 9B EC 3F 3E B3  I@...B....a..?&gt;.<br/>0010: C2 D4 32 6E 28 DD F6 A2   85
+39 4F A7 64 6D 10 BA  ..2n(....9O.dm..<br/>0020: 03 1C 88 B4 D4 69 4A 45   09 35 A9 17 E8
+A4 CC E1  .....iJE.5......<br/>0030: 13 0B 40 17 79 20 F4 7C   0F 5B 92 95 A5 3A 6B 23 
+..@.y ...[...:k#]<br/>***<br/>trigger seeding of SecureRandom<br/>done seeding
+SecureRandom<br/>SSL ON<br/>Listening on port 4321<br/>R: 0.0, W: 0.0<br/>R: 0.0, W:
+0.0<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Adding the SSL Filter sslFilter to the
+chain<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>Using
+SSLEngineImpl.<br/>Allow unsafe renegotiation: false<br/>Allow legacy hello messages:
+true<br/>Is initial handshake: true<br/>Is secure renegotiation: false<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler
+Initialization done.<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - OPENED<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=222 cap=2048: 16 03 01 00 D9 01 00 00 D5 03
+02 51 36 35 B6 40...&#93;</span><br/><span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;Raw read&#93;</span>: length = 5<br/>0000: 16 03 01 00
+D9                                     .....<br/><span class="error">&#91;Raw
+read&#93;</span>: length = 217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79
+ ......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>NioProcessor-2, READ: TLSv1 Handshake, length = 217<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK
+state<ul>	<li>	<ul>		<li>		<ul>			<li>ClientHello, TLSv1.1<br/>RandomCookie:  GMT:
+1362506934 bytes = { 64, 199, 226, 255, 50, 121, 14, 153, 126, 176, 159, 243, 112, 102,
+233, 178, 7, 117, 209, 224, 125, 204, 45, 247, 130, 69, 163, 86 }Session ID: 
+{}<br/>Cipher Suites: <span class="error">&#91;TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, Unknown 0xc0:0x22, Unknown 0xc0:0x21,
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, Unknown 0x0:0x88,
+Unknown 0x0:0x87, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_RSA_WITH_AES_256_CBC_SHA, Unknown 0x0:0x84, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA, Unknown 0xc0:0x1c, Unknown 0xc0:0x1b,
+SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA,
+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+SSL_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, Unknown 0xc0:0x1f, Unknown 0xc0:0x1e,
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, Unknown 0x0:0x9a,
+Unknown 0x0:0x99, Unknown 0x0:0x45, Unknown 0x0:0x44, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, Unknown 0x0:0x96,
+Unknown 0x0:0x41, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
+TLS_ECDH_RSA_WITH_RC4_128_SHA, TLS_ECDH_ECDSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_SHA,
+SSL_RSA_WITH_RC4_128_MD5, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA,
+SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA,
+SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5, SSL_RSA_EXPORT_WITH_RC4_40_MD5,
+TLS_EMPTY_RENEGOTIATION_INFO_SCSV&#93;</span><br/>Compression Methods:  { 1, 0 }Extension
+ec_point_formats, formats: <span class="error">&#91;uncompressed,
+ansiX962_compressed_prime, ansiX962_compressed_char2&#93;</span><br/>Extension
+elliptic_curves, curve names: {sect571r1, sect571k1, secp521r1, sect409k1, sect409r1,
+secp384r1, sect283k1, sect283r1, secp256k1, secp256r1, sect239k1, sect233k1, sect233r1,
+secp224k1, secp224r1, sect193r1, sect193r2, secp192k1, secp192r1, sect163k1, sect163r1,
+sect163r2, secp160k1, secp160r1, secp160r2}Unsupported extension type_15, data:
+01<br/>***<br/><span class="error">&#91;read&#93;</span> MD5 and SHA1 hashes:  len =
+217<br/>0000: 01 00 00 D5 03 02 51 36   35 B6 40 C7 E2 FF 32 79 
+......Q65.@...2y<br/>0010: 0E 99 7E B0 9F F3 70 66   E9 B2 07 75 D1 E0 7D CC 
+......pf...u....<br/>0020: 2D F7 82 45 A3 56 00 00   66 C0 14 C0 0A C0 22 C0 
+-..E.V..f.....".<br/>0030: 21 00 39 00 38 00 88 00   87 C0 0F C0 05 00 35 00 
+!.9.8.........5.<br/>0040: 84 C0 12 C0 08 C0 1C C0   1B 00 16 00 13 C0 0D C0 
+................<br/>0050: 03 00 0A C0 13 C0 09 C0   1F C0 1E 00 33 00 32 00 
+............3.2.<br/>0060: 9A 00 99 00 45 00 44 C0   0E C0 04 00 2F 00 96 00 
+....E.D...../...<br/>0070: 41 C0 11 C0 07 C0 0C C0   02 00 05 00 04 00 15 00 
+A...............<br/>0080: 12 00 09 00 14 00 11 00   08 00 06 00 03 00 FF 02 
+................<br/>0090: 01 00 00 45 00 0B 00 04   03 00 01 02 00 0A 00 34 
+...E...........4<br/>00A0: 00 32 00 0E 00 0D 00 19   00 0B 00 0C 00 18 00 09 
+.2..............<br/>00B0: 00 0A 00 16 00 17 00 08   00 06 00 07 00 14 00 15 
+................<br/>00C0: 00 04 00 05 00 12 00 13   00 01 00 02 00 03 00 0F 
+................<br/>00D0: 00 10 00 11 00 0F 00 01   01                      
+.........<br/>matching alias: bogus<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/><span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #1 ***<br/>R: 0.0, W:
+0.0<br/>R: 0.0, W: 0.0<br/>R: 0.0, W: 0.0<br/><span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.mina.example.echoserver.EchoProtocolHandler - *** IDLE #2
+***</li>		</ul>		</li>	</ul>	</li></ul>and, again, switching to oracle's jvm and it works. 
+==============================
+
+New Comment: 
+&gt; Couldn't it be a problem with the cipher suite you use ?Perhaps - for instance,
+bouncy castle isn't in the class path - and it was an early suspect.  However, the only
+thing I change to get it working is the JVM - class paths are identical.The OpenJDK 6
+could do with an update, which I'll try once I've spun up a new test VM.&gt; However, in
+any case, it should not hang. Can you share the code that you use so that I can debug the
+code using OpenJDK ? (just the initialization part, it should be enough)This is the
+relevant part:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span>
+NioSocketAcceptor createNewAcceptor(InetSocketAddress address, KeyStoreProxy
+keyStoreProxy) <span class="code-keyword">throws</span> Exception {       
+NioSocketAcceptor acceptor = <span class="code-keyword">new</span>
+DefaultForwardingAcceptorFactory().createNioSocketAcceptor(<span
+class="code-keyword">null</span>);        logger.info(<span class="code-quote">"Network
+<span class="code-keyword">interface</span> {}"</span>, address);       
+acceptor.setDefaultLocalAddress(address);        <span class="code-keyword">if</span>
+(keyStoreProxy == <span class="code-keyword">null</span>) {            logger.info(<span
+class="code-quote">"SSL Disabled"</span>);        } <span class="code-keyword">else</span>
+{            logger.info(<span class="code-quote">"SSL enabled using key store {}"</span>,
+keyStoreProxy);            KeyStore keyStore = keyStoreProxy.loadKeyStore();           
+SslContextFactory sslContextFactory = <span class="code-keyword">new</span>
+SslContextFactory();            sslContextFactory.setKeyManagerFactoryKeyStore(keyStore); 
+         
+sslContextFactory.setKeyManagerFactoryKeyStorePassword(keyStoreProxy.getPassword());      
+     acceptor.getFilterChain().addLast(<span class="code-quote">"SslFilter"</span>, <span
+class="code-keyword">new</span> SslFilter(sslContextFactory.newInstance()));           
+acceptor.getFilterChain().addLast(<span class="code-quote">"logger"</span>, <span
+class="code-keyword">new</span> LoggingFilter());        }        logger.info(<span
+class="code-quote">"Installing network session adaptor"</span>);       
+acceptor.setHandler(<span class="code-keyword">new</span>
+NetworkServerSessionAdapter(<span class="code-keyword">this</span>));        <span
+class="code-keyword">return</span> acceptor;    }</pre></div></div>Hmm, however, I
+wonder....Tweaking examples.echoserver.Main to use a spare port and turn on ssl I can
+reproduce the behaviour using just mina:$ ls -1
+lib<br/>annotations-api-6.0.35.jar<br/>catalina-6.0.35.jar<br/>commons-lang-2.6.jar<br/>coyote-6.0.35.jar<br/>javassist-3.11.0.GA.jar<br/>javassist-3.7.ga.jar<br/>jcl-over-slf4j-1.6.6.jar<br/>juli-6.0.35.jar<br/>ognl-3.0.5.jar<br/>servlet-api-6.0.35.jar<br/>slf4j-api-1.7.2.jar<br/>slf4j-api-1.7.2-javadoc.jar<br/>slf4j-api-1.7.2-sources.jar<br/>slf4j-simple-1.7.2.jar<br/>slf4j-simple-1.7.2-javadoc.jar<br/>slf4j-simple-1.7.2-sources.jar<br/>spring-2.5.6.SEC03.jar<br/>sshd-core-0.9.0-SNAPSHOT.jar$
+java -version<br/>java version "1.6.0_27"<br/>OpenJDK Runtime Environment (IcedTea6
+1.12.1) (6b27-1.12.1-2ubuntu0.12.04.2)<br/>OpenJDK 64-Bit Server VM (build 20.0-b12, mixed
+mode)curl looks like:$ curl --trace - -k <a href="https://127.0.0.1:4321"
+class="external-link" rel="nofollow">https://127.0.0.1:4321</a><br/>== Info: About to
+connect() to 127.0.0.1 port 4321 (#0)<br/>== Info:   Trying 127.0.0.1... == Info:
+con

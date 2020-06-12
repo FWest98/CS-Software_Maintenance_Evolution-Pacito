@@ -1,0 +1,132 @@
+On issue key DIRMINA-1086 the Chain pattern might have been discussed, namely here: 
+==============================
+IoSessions closed by filterChain.fireExceptionCaught(e) are kept in memory 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Please provide a Test Case which causes the problem. 
+
+
+New Comment: 
+I have an ApacheDS M23 with mina 2.0.13 running on localhost and serving LDAP on 10389,
+and I have this test code: <div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">public</span> void ldap() <span class="code-keyword">throws</span>
+Exception {  <span class="code-keyword">final</span> <span class="code-object">int</span>
+NUM_THREADS = 200;  <span class="code-object">Thread</span>[] threads = <span
+class="code-keyword">new</span> <span class="code-object">Thread</span>[NUM_THREADS]; 
+<span class="code-keyword">for</span> (<span class="code-object">int</span> i = 0; i &lt;
+NUM_THREADS; i++) {    threads[i] = <span class="code-keyword">new</span> <span
+class="code-object">Thread</span>(<span class="code-keyword">new</span> <span
+class="code-object">Runnable</span>() {      @Override      <span
+class="code-keyword">public</span> void run() {        LdapConnection ldapConnection =
+<span class="code-keyword">new</span> LdapNetworkConnection(<span
+class="code-quote">"localhost"</span>, 10389);        <span
+class="code-keyword">while</span> (<span class="code-keyword">true</span>) {         
+<span class="code-keyword">try</span> {            ldapConnection.bind(<span
+class="code-quote">"uid=admin,ou=system"</span>, <span class="code-quote">"123"</span>);  
+         ldapConnection.unBind();          } <span class="code-keyword">catch</span>
+(LdapException le) {            le.printStackTrace();          }        }      }    });  }
+ <span class="code-keyword">for</span> (<span class="code-object">int</span> i = 0; i &lt;
+NUM_THREADS; i++) {    threads[i].start();  }  <span class="code-keyword">for</span>
+(<span class="code-object">int</span> i = 0; i &lt; NUM_THREADS; i++) {   
+threads[i].join();  }}</pre></div></div> Which is doing LDAP bind() and unbind()
+constantly with 200 threads. On the ApacheDS side, via jconsole, I can see memory usage go
+up linearly.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">LOG.warn( <span class="code-quote">"Unexpected
+exception forcing session to close: sending disconnect notice to client."</span>, cause
+);</pre></div></div>in LdapProtolHandler.java gets logged with the cause being connection
+reset by peer. Each session here corresponds to a session that is retained forever
+in IoServiceListenerSupport.managedSessions.Memory analysis with MAT shows that this
+ConcurrentHashMap represents more than 90% of heap space.I didn't test it with the latest
+ApacheDS and mina but I compared related code and they all remain the same. Let me test it
+on the latest ApacheDS and try to work out a simpler test case to reproduce this problem. 
+
+
+New Comment: 
+Thank you for the reply but the first thing we need to do is figure out whether ApacheDS
+could be at fault for the issue.  Please create a Test Case entirely in MINA showing the
+issue occurs in MINA without ApacheDS.The bug shows that you are using Mina 2.0.17 but you
+stated in a reply that you are using Mina 2.0.13, which is correct? 
+
+
+New Comment: 
+The <tt>fireSessionDestroyed</tt> method, which is the place where sessions are removed
+from the <tt>managedSessions</tt> map, is called by the <tt>removeNow</tt> method method,
+which is called by either the <tt>removeSessions</tt> or <tt>writeBuffer</tt> methods.The
+problem is that <tt>removeSessions</tt> only call the <tt>removeNow</tt> method when the
+session status is <tt>OPENED</tt>, which means the selectionKey is valid. Now, if you get
+an exception, the <tt>destroy</tt> function is called, which itself call
+<tt>SelectionKey.cancel</tt>, which will make the <tt>getState()</tt> method always return
+a session in sate <tt>CLOSING</tt>.So I think we should modify the <tt>removeSessions</tt>
+method to remove the 'dead' session from the listener queue. That could be done by calling
+<tt>removeNow</tt>, IMO. 
+
+
+New Comment: 
+IMHO we shouldn't assume any particular scenario is the cause of the issue until we can
+reproduce it, otherwise we're hunting in the dark. 
+
+
+New Comment: 
+The only place the map is emptied is in <tt>removeSessions</tt>, and only when the
+SelectionKey is still valid. If for any reason this SelectionKey has been cancelled, then
+we will never remove the session from the map...Anyway, testing it right now. 
+
+
+New Comment: 
+So I built my ApacheDS 2.0.0-M23 with mina 2.0.17, run it with LDAP port on 10389, and I
+have this test code:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">import</span> java.net.Socket;<span
+class="code-keyword">public</span> void resetTest() <span
+class="code-keyword">throws</span> Exception {  <span class="code-keyword">while</span>
+(<span class="code-keyword">true</span>) {    Socket socket = <span
+class="code-keyword">new</span> Socket(<span class="code-quote">"localhost"</span>,
+10389);    socket.setSoLinger(<span class="code-keyword">true</span>, 0);   
+socket.close();  }}</pre></div></div>which just constantly create a socket connection and
+send TCP reset in a loop. After running it I can see ApacheDS memory usage go from 50M to
+500M within seconds. Every single session is kept in the map we were talking about. 
+
+
+New Comment: 
+Hi Wenxiang, I just tested your second code. Here is the sequence of code that is ran when
+the <tt>socket.closed()</tt> is called :<ul>	<li>the <tt>IoProcessor</tt>
+<tt>select()</tt> is wakened up</li>	<li>a <tt>read</tt> is done, which obvioulsy fails as
+the socket has been closed <del>it's expected</del></li>	<li>the
+<tt>scheduleRemove(session)</tt> method is then called in the catch (in
+<tt>AbstractPollingIoProcessor.read</tt></li>	<li>the session is then added into the
+<tt>removingSessions</tt> map</li>	<li>the <tt>removeSessions()</tt> method is
+called</li>	<li>the <tt>IoSession</tt> status is <tt>OPENED</tt> so the map is properly
+cleaned up.</li></ul>So AFAICT, I don't see a memory leak here... 
+
+
+On issue key DIRMINA-1086 the Chain pattern might have been discussed on the following comment: 
+==============================
+Hi Emmanuel,Turns out I just didn't give ApacheDS the time to perform GC. No memory leak
+here with mina 2.0.17.This test code does cause memory leak with mina 2.0.13.
+SelectionKey.valid is set to false with the following
+callstack:AbstractSelectionKey#cancel()<br/>NioProcessor#destroy()<br/>AbstractPollingProcessor#writeBuffer()<br/>AbstractPollingProcessor#flushNow()<br/>AbstractPollingProcessor#flush()<br/>AbstractPollingProcessor$Processor#run()The
+reason it works fine with 2.0.17 is because a destroy() has been added to
+AbstractIoSession#closeNow() (called by filterChain.fireExceptionCaught(e)) which empties
+the session's writeRequestQueue and thus in AbstractPollingProcessor#flushNow(),
+writeBuffer() is not called.I'll try to find out other ways that would invalid a session's
+SelectionKey before it gets removed.  
+==============================
+
+New Comment: 
+Hi Emmanuel,Turns out I just didn't give ApacheDS the time to perform GC. No memory leak
+here with mina 2.0.17.This test code does cause memory leak with mina 2.0.13.
+SelectionKey.valid is set to false with the following
+callstack:AbstractSelectionKey#cancel()<br/>NioProcessor#destroy()<br/>AbstractPollingProcessor#writeBuffer()<br/>AbstractPollingProcessor#flushNow()<br/>AbstractPollingProcessor#flush()<br/>AbstractPollingProcessor$Processor#run()The
+reason it works fine with 2.0.17 is because a destroy() has been added to
+AbstractIoSession#closeNow() (called by filterChain.fireExceptionCaught(e)) which empties
+the session's writeRequestQueue and thus in AbstractPollingProcessor#flushNow(),
+writeBuffer() is not called.I'll try to find out other ways that would invalid a session's
+Se

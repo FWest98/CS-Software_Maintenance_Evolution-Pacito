@@ -1,0 +1,35 @@
+Pattern changes caused by commit: e2f3e703c93d3a38ea84793880a51b25f15ada96
+
+From: Factory Method-8
+To:   Factory Method-9
+
+From: Adapter-22
+To:   Adapter-21
+
+From: Bridge-15
+To:   Bridge-19
+
+From: Facade-25
+To:   Facade-24
+
+From: Mediator-78
+To:   Mediator-76
+
+From: Strategy-36
+To:   Strategy-37
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-196.txt 
+
+commit e2f3e703c93d3a38ea84793880a51b25f15ada96
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-217 (Make IoFuture and its subclasses interfaces)
+    * Changed IoFuture and its subclasses into interfaces
+    * Extracted their implementations to common.support.DefaultXxxFuture
+    * IoFilter.WriteRequest.UNUSED_FUTURE directly implements WriteFuture now.
+      * This change broke StreamWriterFilterTest. I fixed it, too.

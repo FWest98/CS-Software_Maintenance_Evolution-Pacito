@@ -1,0 +1,278 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I believe that MINA was designed to operate this way on purpose otherwise changing the
+SelectionKey interest to WRITE for every single UDP packet might cause a huge performance
+problem by requiring an epoll_ctrl() call every time. 
+
+
+On issue key DIRMINA-1095 the iterator pattern might have been discussed on the following comment: 
+==============================
+Not sure I get it... Here, for every selected key (and we may have many), we iterate over
+<b>all</b> the managed sessions. That seems to me really wasting CPU. If we want to flush
+all the pending session, we can do so outside the iterator loop, no ? 
+==============================
+
+On issue key DIRMINA-1095 the iterate pattern might have been discussed on the following comment: 
+==============================
+Not sure I get it... Here, for every selected key (and we may have many), we iterate over
+<b>all</b> the managed sessions. That seems to me really wasting CPU. If we want to flush
+all the pending session, we can do so outside the iterator loop, no ? 
+==============================
+
+New Comment: 
+Not sure I get it... Here, for every selected key (and we may have many), we iterate over
+<b>all</b> the managed sessions. That seems to me really wasting CPU. If we want to flush
+all the pending session, we can do so outside the iterator loop, no ? 
+
+
+On issue key DIRMINA-1095 the Iterator pattern might have been discussed on the following comment: 
+==============================
+Something like :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-keyword">while</span> (iterator.hasNext()) {            SelectionKey key =
+iterator.next();            DatagramChannel handle = (DatagramChannel) key.channel();     
+      iterator.remove();            <span class="code-keyword">try</span> {               
+<span class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {        
+           readHandle(handle);                }            } <span
+class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }        <span
+class="code-keyword">for</span> (IoSession session : getManagedSessions().values()) {     
+      scheduleFlush((NioSession) session);        }    }</pre></div></div>should also
+work. 
+==============================
+
+On issue key DIRMINA-1095 the iterator pattern might have been discussed on the following comment: 
+==============================
+Something like :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-keyword">while</span> (iterator.hasNext()) {            SelectionKey key =
+iterator.next();            DatagramChannel handle = (DatagramChannel) key.channel();     
+      iterator.remove();            <span class="code-keyword">try</span> {               
+<span class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {        
+           readHandle(handle);                }            } <span
+class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }        <span
+class="code-keyword">for</span> (IoSession session : getManagedSessions().values()) {     
+      scheduleFlush((NioSession) session);        }    }</pre></div></div>should also
+work. 
+==============================
+
+New Comment: 
+Something like :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-keyword">while</span> (iterator.hasNext()) {            SelectionKey key =
+iterator.next();            DatagramChannel handle = (DatagramChannel) key.channel();     
+      iterator.remove();            <span class="code-keyword">try</span> {               
+<span class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {        
+           readHandle(handle);                }            } <span
+class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }        <span
+class="code-keyword">for</span> (IoSession session : getManagedSessions().values()) {     
+      scheduleFlush((NioSession) session);        }    }</pre></div></div>should also
+work. 
+
+
+New Comment: 
+If we don't have to be compatible with JDK7 or prior, a Stream filter might<br/>be more
+efficient in this case.PaulOn Mon, Oct 1, 2018 at 6:41 AM Emmanuel Lecharny (JIRA)
+&lt;jira@apache.org&gt; 
+
+
+New Comment: 
+Never mind, looks like MINA is virtualizing the DatagramChannel.  I thought it was
+creating new Sockets.  The list of virtualized channels should really be associated with
+the DatagramChannel and only loop on the NioSessions which belong to that specific
+DatagramChannel.  Need something like <tt>getManagedSessions(DatagramChannel)</tt>. 
+
+
+New Comment: 
+I think it's eve simpler than that : there will always be only one session for a given
+DatagramChannel, from the top of my head. I have to double check the code, because there
+might be a reason why we loop on the managed sessions here... 
+
+
+New Comment: 
+The code as-is only performs that scheduling loop when the SelectionKey returns
+isWritable().  This is an optimization right there to prevent the scheduling from
+occurring every single time the SelectionKey is awake.  Either the NioSessions should be
+associated to a specific DatagramChannel and optimize there by only looping on ones
+belonging to that specific DatagramChannel or nothing should be done.  Either way, unless
+you are binding to lots of ports; any performance benefit from the association
+optimization would be minimal.P.S. Calling scheduleFlush(NioSession) multiple times has
+little negative performance impact because the NioSession is only added to the Queue once
+due to a boolean gate NioSession.setScheduleForFlush(). 
+
+
+New Comment: 
+True, the key has to be in OP_WRITE mode for the loop to be done. I misread the code...We
+can improve this code, but the impact should not be that enormous. It's just that it's,
+hmm, not really beautiful. 
+
+
+New Comment: 
+The most simple thing todo is add a boolean flag to prevent the loop from running twice
+within the same wakeup.  Not sure how much of a benefit that would actually be in
+real-world use when the Selector could be woken 5000 times a second. 
+
+
+New Comment: 
+If the selector is woken 5000 times per second, assuming all the keys are selected for
+write, then the loop of sessions is going to be atrocious, and the flag will clearly make
+a difference.Now, the time it will take to process many keys when the selector is awaken
+might also make it possible that the next call will be for more keys, and so on. Up to a
+point,that would stabilize, but we still don't want to process the loop over all the
+sessions in any case in production. 
+
+
+New Comment: 
+FYI Adding the boolean gate before the scheduler loop breaks the maven unit tests for
+mina-core. 
+
+
+On issue key DIRMINA-1095 the Iterator pattern might have been discussed on the following comment: 
+==============================
+What is the git diff ?FTR, I have modified the <tt>processReadySessions</tt> method this
+way :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-object">boolean</span> processManagedSession = <span
+class="code-keyword">true</span>;        <span class="code-keyword">while</span>
+(iterator.hasNext()) {            SelectionKey key = iterator.next();           
+DatagramChannel handle = (DatagramChannel) key.channel();            iterator.remove();   
+        <span class="code-keyword">try</span> {                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {              
+     readHandle(handle);                }                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isWritable()) {              
+     <span class="code-keyword">if</span> (processManagedSession) {                       
+<span class="code-keyword">for</span> (IoSession session : getManagedSessions().values())
+{                            scheduleFlush((NioSession) session);                        }
+                                               processManagedSession = <span
+class="code-keyword">false</span>;                    }                }            }
+<span class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }   
+}</pre></div></div>I have added a flag that makes it so the loop on managed sessions to be
+done only once. Tests are green. 
+==============================
+
+On issue key DIRMINA-1095 the iterator pattern might have been discussed on the following comment: 
+==============================
+What is the git diff ?FTR, I have modified the <tt>processReadySessions</tt> method this
+way :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-object">boolean</span> processManagedSession = <span
+class="code-keyword">true</span>;        <span class="code-keyword">while</span>
+(iterator.hasNext()) {            SelectionKey key = iterator.next();           
+DatagramChannel handle = (DatagramChannel) key.channel();            iterator.remove();   
+        <span class="code-keyword">try</span> {                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {              
+     readHandle(handle);                }                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isWritable()) {              
+     <span class="code-keyword">if</span> (processManagedSession) {                       
+<span class="code-keyword">for</span> (IoSession session : getManagedSessions().values())
+{                            scheduleFlush((NioSession) session);                        }
+                                               processManagedSession = <span
+class="code-keyword">false</span>;                    }                }            }
+<span class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }   
+}</pre></div></div>I have added a flag that makes it so the loop on managed sessions to be
+done only once. Tests are green. 
+==============================
+
+New Comment: 
+What is the git diff ?FTR, I have modified the <tt>processReadySessions</tt> method this
+way :<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {       
+Iterator&lt;SelectionKey&gt; iterator = handles.iterator();        <span
+class="code-object">boolean</span> processManagedSession = <span
+class="code-keyword">true</span>;        <span class="code-keyword">while</span>
+(iterator.hasNext()) {            SelectionKey key = iterator.next();           
+DatagramChannel handle = (DatagramChannel) key.channel();            iterator.remove();   
+        <span class="code-keyword">try</span> {                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isReadable()) {              
+     readHandle(handle);                }                <span
+class="code-keyword">if</span> (key.isValid() &amp;&amp; key.isWritable()) {              
+     <span class="code-keyword">if</span> (processManagedSession) {                       
+<span class="code-keyword">for</span> (IoSession session : getManagedSessions().values())
+{                            scheduleFlush((NioSession) session);                        }
+                                               processManagedSession = <span
+class="code-keyword">false</span>;                    }                }            }
+<span class="code-keyword">catch</span> (Exception e) {               
+ExceptionMonitor.getInstance().exceptionCaught(e);            }        }   
+}</pre></div></div>I have added a flag that makes it so the loop on managed sessions to be
+done only once. Tests are green. 
+
+
+New Comment: 
+That is exactly what I did and the unit test fails.  Are you working from 2.1.0 or the 2.0
+branch? 
+
+
+New Comment: 
+2.0.20-SNAPSHOT.What failure do you get ? 
+
+
+New Comment: 
+This is what I meant by filtering and if managed sessions are also filterable, it might be
+more efficient to do those in the same manner: <div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">private</span> void
+processReadySessions(Set&lt;SelectionKey&gt; handles) {    handles.stream().filter(key
+-&gt; key.isValid()).forEach(key -&gt; {        <span class="code-keyword">try</span> {   
+        <span class="code-keyword">if</span> (key.isReadable()) {               
+readHandle((DatagramChannel) key.channel());            }            <span
+class="code-keyword">if</span> (key.isWritable()) {               
+getManagedSessions().forEach((id, session) -&gt; {                   
+scheduleFlush((NioSession) session);                });            }        } <span
+class="code-keyword">catch</span> (Exception e) {           
+ExceptionMonitor.getInstance().exceptionCaught(e);        }    });}</pre></div></div> 
+
+
+New Comment: 
+The problem is that you need to call <tt>key.isvalid()</tt> twice : the kay may not be
+valid after a call to <tt>readHandle</tt> (yes, I know that even if you call
+<tt>key.isValid()</tt> just before <tt>key.isWritable()</tt>, the key may have switched
+too, but it's way unlikely).Also the <tt>foreach</tt> does nothing special, compared to
+the original loop. It's pretty much some syntaxic sugar... 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>Adding the boolean gate somehow
+causes this in the 2.1.0 branch.<span class="error">&#91;ERROR&#93;</span> Tests run: 5,
+Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 38.055 s &lt;&lt;&lt; FAILURE! - in
+org.apache.mina.filter.executor.PriorityThreadPoolExecutorTest<br/><span
+class="error">&#91;ERROR&#93;</span>
+testPrioritisation(org.apache.mina.filter.executor.PriorityThreadPoolExecutorTest)  Time
+elapsed: 38.054 s  &lt;&lt;&lt; FAILURE!<br/>java.lang.AssertionError: All other sessions
+should have finished later than the preferred session (but at least one did not).<br/>	at
+org.apache.mina.filter.executor.PriorityThreadPoolExecutorTest.testPrioritisation(PriorityThreadPoolExecutorTest.java:214) 
+
+
+New Comment: 
+There is more to Java Streams than syntactic-sugar; while my example is serial, Streams
+offer parallelism and Mina could certainly benefit from them. To quote the API:
+`Processing elements with an explicit {{for-}}loop is inherently serial. Streams
+facilitate parallel execution by reframing the computation as a pipeline of aggregate
+operations, rather than as imperative operations on each individual element. All streams
+operations can execute either in serial or in parallel. The stream implementations in the
+JDK create serial streams unless parallelism is explicitly requested.` 
+
+
+New Comment: 
+Uncontrolled parallelism is not good for a network application.  Java Streams were
+designed with good intentions but a total f

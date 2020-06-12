@@ -1,0 +1,956 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+First of all, upgrade to MINA 2.0.13. The version you are using is 5 years old,
+<b>many</b> bugs have been fixed since.Now, no, MINA does not truncate anything. Writes
+are done using what is in the queue, and as the remote peer might not read fast enough, we
+can only write as much data as the write buffer can accept. Sometime, this write buffer is
+almost full, and the message can only we written pieces by pieces.In your case it's very
+likely that the first 16 bytes have already been written, but there was not enough room in
+the write buffer to write the remaining bytes.Keep in mind that in TCP, you may have
+fragmented buffer. There is no guarantee whatsoever that a message will be sent as a whole
+in one write (the very same for reads). 
+
+
+New Comment: 
+Hi Emmanuel,<br/>yes, indeed our Mina version is a bit old.  We know there may have
+fragmented buffer in TCP, but no matter the messages in fragmented or non-fragmented, we
+shall be able to see the whole PDU from tcpdumps, but what we saw in the tcpdump or the
+Mina WriteRequest, it seemed to lose the 16 first bytes data, and we also didn't find
+those 16 bytes data in previous packages of tcpdump.  so we still think there may be some
+problem in Mina somehow lost those 16 bytes data. <br/>could you advise what we can should
+do to move forward?  Upgrade the Mina to 2.0.13 , plus adding some debug logs to trace the
+PDU sending ?please help to advise, thank you very much!BR/Silver 
+
+
+New Comment: 
+The very first thing to do is to migrate to a recent version of MINA. Do some test with
+it, and see if you still get this truncation. If not, assume that is a bug in MINA that
+has been fixed since 2.0.4.Otherwise, the problem is really unlikely to be a MINA problem,
+but more certainly a problem in your codec or IoHandler implementation. You can add the
+logger filter to get a dump of messages being received and/or sent. 
+
+
+New Comment: 
+ok, I will try to talk to our design team to upgrade the Mina along with some more dumps
+trace on iohandler and other concerning classes. will update you accordingly, thank you
+again! 
+
+
+On issue key DIRMINA-1040 the Chain pattern might have been discussed on the following comment: 
+==============================
+Hi Emmanuel,<br/>After upgraded to 2.0.13 version, we still have this PDU truncated
+issue(it occured at 2016-07-31, 04:20:44 UTC) in the send direction as before.  I added
+the debug traces of messages dump to below classes(please see the detail in attached doc
+file) :<br/>1. IoHandler implementation: NorthSmppIoHandler.java method
+_sendDeliverSM()<br/>2. AbstractIoSession.java method write()<br/>3.
+AbstractPollingIoProcessor.java method    flushNow() and writeBuffer()<br/>4.
+NioProcessor.java method write()<br/>5. DefaultIoFilterChain.java-&gt; private class
+HeadFilter --&gt;filterWrite()<br/>6. AbstractIoBuffer.java toString()from the debug
+traces(mina-debug-logging.log), and the tcpdump, it seemed Mina did the truncation indeed
+to below msg , no matter from the tcpdump or the mina debug logs, could you help to check?
+ Your support is always highly apprecaited! thank you in advance!===================this
+is the whole PDU of DeliverSM sent by IoHandler but got truncated in the end by Mina at
+~2016-07-31, 04:20:44 UTC(below timestamp is 7 hour diff from UTC)==========:
+<br/>2016-07-30 21:20:44,492 DEBUG (2017850780@WebForward 0.0.0.0:5001-2556)
+(121823e0cbff35a666c3) com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00
+00 00 bd 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00
+04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 31 36 30 37 33 30 32 31
+31 30 34 38 32 33 32 30 37 32 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73
+75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30 20 64 6f 6e 65 20 64 61 74
+65 3a 31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a
+30 30 30 20 74 65 78 74 3a 04 27 00 01 02 00 1e 00 14 31 31 36 30 37 33 30 32 31 31 30 34
+38 32 33 32 30 37 32 00===================this is the whole message received in Mina
+AbstractIoSession, same as the IoHandler=========<br/>2016-07-30 21:20:44,492 DEBUG
+(2017850780@WebForward 0.0.0.0:5001-2556) (121823e0cbff35a666c3)
+org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina AbstractIoSession write
+method Object message: 00 00 00 bd 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31
+36 39 31 34 35 36 34 39 00 04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a
+31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 20 73 75 62 3a 30 30 31 20 64 6c
+76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30
+20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3a 44 45 4c
+49 56 52 44 20 65 72 72 3a 30 30 30 20 74 65 78 74 3a 04 27 00 01 02 00 1e 00 14 31 31 36
+30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 00;===================BUT we saw there are
+25 bytes got truncated already in NioProcessor wirte method========<br/>2016-07-30
+21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04 09
+32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30
+34 38 32 33 32 30 37 32 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62
+6D 69 74 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A
+31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30
+30 20 74 65 78 74 3A 04 27 00 01 02 00 1E 00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32
+33 32 30 37 32 00;<br/>2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: HeapBuffer<span class="error">&#91;pos=16 lim=189 cap=189: 34 35 00
+04 09 32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31
+36...&#93;</span>; msg: {};<br/>2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method length: 189;buf: 34 35 36 34 39 00 04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00
+00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 20 73 75 62 3A 30
+30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74 20 64 61 74 65 3A 31 36 30 37 33
+30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 73 74 61
+74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30 30 20 74 65 78 74 3A 04 27 00 01 02 00 1E
+00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 00<br/>2016-07-30
+21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0  After NioProcessor write
+method, in Mina AbstractPollingIoProcessor writeBuffer  session's localWrittenBytes: 164 
+=================we also upload the tcpdump here and you can checked that package
+#25806(filter by "tcp.srcport==10001 and tcp.dstport==59638"), package #25806is the
+truncated message here,  we didn't see that missing 25 Bytes in other tcpdumps before or
+after this timestamp, either in mina debug logs================= 
+==============================
+
+New Comment: 
+Hi Emmanuel,<br/>After upgraded to 2.0.13 version, we still have this PDU truncated
+issue(it occured at 2016-07-31, 04:20:44 UTC) in the send direction as before.  I added
+the debug traces of messages dump to below classes(please see the detail in attached doc
+file) :<br/>1. IoHandler implementation: NorthSmppIoHandler.java method
+_sendDeliverSM()<br/>2. AbstractIoSession.java method write()<br/>3.
+AbstractPollingIoProcessor.java method    flushNow() and writeBuffer()<br/>4.
+NioProcessor.java method write()<br/>5. DefaultIoFilterChain.java-&gt; private class
+HeadFilter --&gt;filterWrite()<br/>6. AbstractIoBuffer.java toString()from the debug
+traces(mina-debug-logging.log), and the tcpdump, it seemed Mina did the truncation indeed
+to below msg , no matter from the tcpdump or the mina debug logs, could you help to check?
+ Your support is always highly apprecaited! thank you in advance!===================this
+is the whole PDU of DeliverSM sent by IoHandler but got truncated in the end by Mina at
+~2016-07-31, 04:20:44 UTC(below timestamp is 7 hour diff from UTC)==========:
+<br/>2016-07-30 21:20:44,492 DEBUG (2017850780@WebForward 0.0.0.0:5001-2556)
+(121823e0cbff35a666c3) com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00
+00 00 bd 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00
+04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 31 36 30 37 33 30 32 31
+31 30 34 38 32 33 32 30 37 32 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73
+75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30 20 64 6f 6e 65 20 64 61 74
+65 3a 31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a
+30 30 30 20 74 65 78 74 3a 04 27 00 01 02 00 1e 00 14 31 31 36 30 37 33 30 32 31 31 30 34
+38 32 33 32 30 37 32 00===================this is the whole message received in Mina
+AbstractIoSession, same as the IoHandler=========<br/>2016-07-30 21:20:44,492 DEBUG
+(2017850780@WebForward 0.0.0.0:5001-2556) (121823e0cbff35a666c3)
+org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina AbstractIoSession write
+method Object message: 00 00 00 bd 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31
+36 39 31 34 35 36 34 39 00 04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a
+31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 20 73 75 62 3a 30 30 31 20 64 6c
+76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30
+20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3a 44 45 4c
+49 56 52 44 20 65 72 72 3a 30 30 30 20 74 65 78 74 3a 04 27 00 01 02 00 1e 00 14 31 31 36
+30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 00;===================BUT we saw there are
+25 bytes got truncated already in NioProcessor wirte method========<br/>2016-07-30
+21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04 09
+32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30
+34 38 32 33 32 30 37 32 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62
+6D 69 74 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A
+31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30
+30 20 74 65 78 74 3A 04 27 00 01 02 00 1E 00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32
+33 32 30 37 32 00;<br/>2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: HeapBuffer<span class="error">&#91;pos=16 lim=189 cap=189: 34 35 00
+04 09 32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31
+36...&#93;</span>; msg: {};<br/>2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method length: 189;buf: 34 35 36 34 39 00 04 09 32 32 36 32 32 00 04 00 00 00 00 00 00 00
+00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 20 73 75 62 3A 30
+30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74 20 64 61 74 65 3A 31 36 30 37 33
+30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 73 74 61
+74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30 30 20 74 65 78 74 3A 04 27 00 01 02 00 1E
+00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32 33 32 30 37 32 00<br/>2016-07-30
+21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0  After NioProcessor write
+method, in Mina AbstractPollingIoProcessor writeBuffer  session's localWrittenBytes: 164 
+=================we also upload the tcpdump here and you can checked that package
+#25806(filter by "tcp.srcport==10001 and tcp.dstport==59638"), package #25806is the
+truncated message here,  we didn't see that missing 25 Bytes in other tcpdumps before or
+after this timestamp, either in mina debug logs================= 
+
+
+New Comment: 
+Hi , <br/>Could you help to check this case?  Your kind support is really highly
+appreciated!BR/Silver 
+
+
+New Comment: 
+Hi Emmanuel,<br/>This issue still occurred after upgrade mina to 2.0.13, and I also have
+the debug logs which are upload to this Jira case as well.  Could you help to have a check
+? <br/>Thank you for your usual supports!Best Regards<br/>Silver Cheng 
+
+
+New Comment: 
+Hi Silver,from the logs you provided, line 28538 to 28541, the only thing I can tell is
+that MINA is transmitting the buffer in two pieces : a first block of 16 bytes, then the
+remaining 163 bytes :<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>...2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***2 Mina
+AbstractPollingIoProcessor flushNow method msg: HeapBuffer[pos=0 lim=189 cap=189: 00 00 00
+BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00
+04...];2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: true ;  session:
+HeapBuffer[pos=0 lim=189 cap=189: 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01
+31 38 31 36 39 31 34 35 36 34 39 00 04...]; 2016-07-30 21:20:44,492 DEBUG (NioProcessor-2)
+() org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04 09
+32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30
+34 38 32 33 32 30 37 32 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62
+6D 69 74 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A
+31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30
+30 20 74 65 78 74 3A 04 27 00 01 02 00 1E 00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32
+33 32 30 37 32 00;2016-07-30 21:20:44,492 DEBUG (NioProcessor-2) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: HeapBuffer[pos=16 lim=189 cap=189: 34 35 00 04 09 32 32 36 32 00 00
+00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36...]; msg:
+{};...</pre></div></div>There is nothing wrong here : the <tt>flushNow</tt> method is
+called twice, trying to write the buffer into the socket's buffer, and if this socket's
+buffer is full, it will just write as much as possible (here, the first 16 bytes), then
+schedule another write later on when the <tt>selectedKey</tt> is ready for write (ie,
+there is some room in the socket's buffer, this is when the remaining 163 bytes are
+written). The place where data are written is in the <tt>NioProcessor.write()</tt> method,
+called by the <tt>AbstractPollingProcessor.writeBuffer()</tt> method. I would suggest that
+you add some log here, printing the buffer and the <tt>localWrittenBytes</tt> variable. If
+the buffer size and the <tt>localWrittenBytes</tt> value are different, that means the
+message is fragmented. At this point, this is all I can tell, I don't have you r code, I
+can't reproduce the problem, so there is not much I can do to help... 
+
+
+On issue key DIRMINA-1040 the Chain pattern might have been discussed on the following comment: 
+==============================
+hi Emmanuel,<br/>I am attaching all the code here based on 2.0.13, we didn't modify any
+logic to the mina-core, but just add the debug logger to the methods of below classes, we
+don't have better mina knowledge than your team <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>, could you guide me what kind of logger
+and where should I add,  so that we can collect all the logs that could help your debug?  
+ 2. AbstractIoSession.java method write()<br/> 3. AbstractPollingIoProcessor.java method
+flushNow() and writeBuffer()<br/> 4. NioProcessor.java method write()<br/> 5.
+DefaultIoFilterChain.java-&gt; private class HeadFilter --&gt;filterWrite()<br/> 6.
+AbstractIoBuffer.java toString()We are understanding the packaged may be sent into 2
+pieces, but no matter how many pieces were sent by Mina, we shall be able to see this
+message in the tcpdump, right? however, we didn't see those first 25 bytes(got truncated
+ones) in the tcpdump. that's the problem 
+==============================
+
+New Comment: 
+hi Emmanuel,<br/>I am attaching all the code here based on 2.0.13, we didn't modify any
+logic to the mina-core, but just add the debug logger to the methods of below classes, we
+don't have better mina knowledge than your team <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>, could you guide me what kind of logger
+and where should I add,  so that we can collect all the logs that could help your debug?  
+ 2. AbstractIoSession.java method write()<br/> 3. AbstractPollingIoProcessor.java method
+flushNow() and writeBuffer()<br/> 4. NioProcessor.java method write()<br/> 5.
+DefaultIoFilterChain.java-&gt; private class HeadFilter --&gt;filterWrite()<br/> 6.
+AbstractIoBuffer.java toString()We are understanding the packaged may be sent into 2
+pieces, but no matter how many pieces were sent by Mina, we shall be able to see this
+message in the tcpdump, right? however, we didn't see those first 25 bytes(got truncated
+ones) in the tcpdump. that's the problem 
+
+
+New Comment: 
+What we need to know is what is written in this method :<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>    private
+int writeBuffer(S session, WriteRequest req, boolean hasFragmentation, int maxLength, long
+currentTime)            throws Exception {        IoBuffer buf = (IoBuffer)
+req.getMessage();        int localWrittenBytes = 0;        if (buf.hasRemaining()) {      
+     int length;            if (hasFragmentation) {                length =
+Math.min(buf.remaining(), maxLength);            } else {                length =
+buf.remaining();            }            try {                localWrittenBytes =
+write(session, buf, length);            } catch (IOException ioe) {                // We
+have had an issue while trying to send data to the                // peer : let's close
+the session.                buf.free();                session.closeNow();               
+removeNow(session);                return 0;            }        }...</pre></div></div>The
+<tt>write()</tt> call simply pushes the buffer in the channel :<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>   
+protected int write(NioSession session, IoBuffer buf, int length) throws IOException {    
+   if (buf.remaining() &lt;= length) {            return
+session.getChannel().write(buf.buf());        }        int oldLimit = buf.limit();       
+buf.limit(buf.position() + length);        try {            return
+session.getChannel().write(buf.buf());        } finally {            buf.limit(oldLimit); 
+      }    }</pre></div></div>At this point, what get written in the channel is what is
+sent to the remote peer (or at least, that is what the Java SDK is supposed to do).So I'd
+like to know how many bytes are written for each call, and that is what the
+<tt>localWrittenBytes</tt> variable will contain (of course, we also need to know about
+the buffer being written).I agree that the tcpDump should show the 16 (not 25) first
+bytes. What bugs me at this point is that the lengths are not consistent : they suggest
+that 16 bytes are written, but the buffer starts at byte 25, which means the buffer get
+corrupted at some point...I suspect that the encoder method might not be thread safe and
+might corrupt the buffer while it's being written on the socket. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>  private int writeBuffer(S session, WriteRequest req, boolean
+hasFragmentation, int maxLength, long currentTime)            throws Exception {       
+IoBuffer buf = (IoBuffer) req.getMessage();        int localWrittenBytes = 0;             
+  //add by silver        if (DEBUG) {            LOGGER.debug( "***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: {} ;  session: {}; ",
+hasFragmentation,session.getCurrentWriteMessage());            LOGGER.debug( "***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: {} ;  buf: {};",
+maxLength,buf.getHexDump());            }        if (buf.hasRemaining()) {            int
+length;            if (hasFragmentation) {                length =
+Math.min(buf.remaining(), maxLength);            } else {                length =
+buf.remaining();            }            try {                localWrittenBytes =
+write(session, buf, length);            } catch (IOException ioe) {                // We
+have had an issue while trying to send data to the                // peer : let's close
+the session.                buf.free();                session.close(true);               
+destroy(session);                return 0;            }        }       
+session.increaseWrittenBytes(localWrittenBytes, currentTime);        //add by silver      
+ if(localWrittenBytes!=0){        	if (DEBUG) {            LOGGER.debug( "***5.0  After
+NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: {}  ", localWrittenBytes);            }        }else{        	if
+(DEBUG) {            LOGGER.debug( "***5.1  After NioProcessor write method, in Mina
+AbstractPollingIoProcessor writeBuffer  session's localWrittenBytes is ZERO ");           
+}        }        if (!buf.hasRemaining() || (!hasFragmentation &amp;&amp;
+(localWrittenBytes != 0))) {            // Buffer has been sent, clear the current
+request.            int pos = buf.position();            buf.reset();           
+fireMessageSent(session, req);            // And set it back to its position           
+buf.position(pos);        }        return localWrittenBytes;    }</pre></div></div>below
+wirte method I only print the  session.getCurrentWriteMessage, not the 
+session.getCurrentWriteRequest, not sure what's the difference between them, but the pos
+may be diff . <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>  @Override    protected int
+write(NioSession session, IoBuffer buf, int length) throws Exception {        if
+(buf.remaining() &lt;= length) {    		//add by silver    		if (DEBUG) {               
+Object msg = session.getCurrentWriteMessage();                           LOGGER.debug(
+"***4.0 Enter Mina NioProcessor write method buf.remaining: {}; msg: {};",
+buf.remaining(), msg);                LOGGER.debug( "***4.0 Enter Mina NioProcessor write
+method length: {};buf: {}", length,buf.getHexDump());                        }            
+return session.getChannel().write(buf.buf());        }        int oldLimit = buf.limit(); 
+      buf.limit(buf.position() + length);        try {    		//add by silver    		if
+(DEBUG) {                Object msg = session.getCurrentWriteMessage();                   
+       LOGGER.debug( "***4.1 Enter Mina NioProcessor write method msg: {};", msg);        
+       LOGGER.debug( "***4.1 Enter Mina NioProcessor write method length: {};buf: {}",
+length,buf.getHexDump());                        }            return
+session.getChannel().write(buf.buf());        } finally {            buf.limit(oldLimit); 
+      }    }</pre></div></div> 
+
+
+On issue key DIRMINA-1040 the Adapter pattern might have been discussed on the following comment: 
+==============================
+I attached a log which have one additional logging for the mina. see below  in line 46978,
+the pos indicated 16, but I don't know why there are 9 bytes "34 35 00 04 09 32 32 36 32"
+ahead of the PDU. <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46978: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina
+NioProcessor write method buf.remaining: HeapBuffer[pos=16 lim=189 cap=189: 34 35 00 04 09
+32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36...]; msg:
+{};</pre></div></div> while in line 46980 where we printed both getCurrentWriteMessage and
+getCurrentWriteRequest in our app, found the postion is not the same, for
+getCurrentWriteMessage, pos is 0; while for getCurrentWriteRequest, the pos is 25. and in
+line 46989, localWrittenBytes is 164, which mean only 164 bytes got written to channel,
+and we exactly lost the first 25 bytes in the tcpdump.  do you know if we have the thread
+safe for the buffer or writerequest?   <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>#46980:2016-07-30 21:20:44,492 INFO  (Timer-3) ()
+com.ipx.cpsmscapis.smpp.NorthSmppAdapter - SmppSystemId=02980, CompositeUserId=02980, SMPP
+Session: BindType=[Transceiver],
+Transmitter=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[null], CurrentWriteRequest=[null],
+Receiver=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[HeapBuffer[pos=0 lim=189 cap=189: 00 00 00 BD 00 00 00 05 00 00 00
+00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04...]],
+CurrentWriteRequest=[WriteRequest: HeapBuffer[pos=25 lim=189 cap=189: 34 35 36 34 39 00 04
+09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30
+37...]]</pre></div></div><div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46989: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 164  </pre></div></div> 
+==============================
+
+On issue key DIRMINA-1040 the Composite pattern might have been discussed on the following comment: 
+==============================
+I attached a log which have one additional logging for the mina. see below  in line 46978,
+the pos indicated 16, but I don't know why there are 9 bytes "34 35 00 04 09 32 32 36 32"
+ahead of the PDU. <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46978: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina
+NioProcessor write method buf.remaining: HeapBuffer[pos=16 lim=189 cap=189: 34 35 00 04 09
+32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36...]; msg:
+{};</pre></div></div> while in line 46980 where we printed both getCurrentWriteMessage and
+getCurrentWriteRequest in our app, found the postion is not the same, for
+getCurrentWriteMessage, pos is 0; while for getCurrentWriteRequest, the pos is 25. and in
+line 46989, localWrittenBytes is 164, which mean only 164 bytes got written to channel,
+and we exactly lost the first 25 bytes in the tcpdump.  do you know if we have the thread
+safe for the buffer or writerequest?   <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>#46980:2016-07-30 21:20:44,492 INFO  (Timer-3) ()
+com.ipx.cpsmscapis.smpp.NorthSmppAdapter - SmppSystemId=02980, CompositeUserId=02980, SMPP
+Session: BindType=[Transceiver],
+Transmitter=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[null], CurrentWriteRequest=[null],
+Receiver=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[HeapBuffer[pos=0 lim=189 cap=189: 00 00 00 BD 00 00 00 05 00 00 00
+00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04...]],
+CurrentWriteRequest=[WriteRequest: HeapBuffer[pos=25 lim=189 cap=189: 34 35 36 34 39 00 04
+09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30
+37...]]</pre></div></div><div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46989: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 164  </pre></div></div> 
+==============================
+
+New Comment: 
+I attached a log which have one additional logging for the mina. see below  in line 46978,
+the pos indicated 16, but I don't know why there are 9 bytes "34 35 00 04 09 32 32 36 32"
+ahead of the PDU. <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46978: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina
+NioProcessor write method buf.remaining: HeapBuffer[pos=16 lim=189 cap=189: 34 35 00 04 09
+32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36...]; msg:
+{};</pre></div></div> while in line 46980 where we printed both getCurrentWriteMessage and
+getCurrentWriteRequest in our app, found the postion is not the same, for
+getCurrentWriteMessage, pos is 0; while for getCurrentWriteRequest, the pos is 25. and in
+line 46989, localWrittenBytes is 164, which mean only 164 bytes got written to channel,
+and we exactly lost the first 25 bytes in the tcpdump.  do you know if we have the thread
+safe for the buffer or writerequest?   <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>#46980:2016-07-30 21:20:44,492 INFO  (Timer-3) ()
+com.ipx.cpsmscapis.smpp.NorthSmppAdapter - SmppSystemId=02980, CompositeUserId=02980, SMPP
+Session: BindType=[Transceiver],
+Transmitter=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[null], CurrentWriteRequest=[null],
+Receiver=[Local:127.0.0.1:10001,Remote:127.0.0.1:59638](0x00000BFB: nio socket, server,
+/127.0.0.1:59638 =&gt; /127.0.0.1:10001). Details --&gt; CreationTime=Sat Jul 30 10:53:40
+PDT 2016, LastIoTime=Sat Jul 30 21:20:44 PDT 2016, 	isClosing=false, isConnected=true,
+isBothIdle=false, isReaderIdle=false, isReadSuspended=false, isWriterIdle=false,
+isWriteSuspended=false, 	LastReadTime=Sat Jul 30 21:20:44 PDT 2016, LastReaderIdleTime=Sat
+Jul 30 10:53:40 PDT 2016, ReaderIdleCount=0, ReadBytes=8964432, ReadMessages=108521,
+	LastWriteTime=Sat Jul 30 21:20:44 PDT 2016, LastWriterIdleTime=Sat Jul 30 10:53:40 PDT
+2016, WriterIdleCount=0, WrittenBytes=14204045, WrittenMessages=108521,
+	CurrentWriteMessage=[HeapBuffer[pos=0 lim=189 cap=189: 00 00 00 BD 00 00 00 05 00 00 00
+00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04...]],
+CurrentWriteRequest=[WriteRequest: HeapBuffer[pos=25 lim=189 cap=189: 34 35 36 34 39 00 04
+09 32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30
+37...]]</pre></div></div><div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>#46989: 2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 164  </pre></div></div> 
+
+
+New Comment: 
+to debug further , do you think below logger is enough to fullfill your requirement on
+logger?" I'd like to know how many bytes are written for each call, and that is what the
+localWrittenBytes variable will contain (of course, we also need to know about the buffer
+being written)."1. print the buf.buf() in write method to know what exactly sent to the
+channel<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>    protected int write(NioSession session,
+IoBuffer buf, int length) throws Exception {        if (buf.remaining() &lt;= length) {   
+		//add by silver    		if (DEBUG) {                Object msg =
+session.getCurrentWriteMessage();                           LOGGER.debug( "***4.0 Enter
+Mina NioProcessor write method buf.remaining: {}; msg: {};", buf.remaining(), msg);       
+        LOGGER.debug( "***4.0 Enter Mina NioProcessor write method length: {};buf: {}",
+length,buf.getHexDump());                LOGGER.debug( "***4.0 Enter Mina NioProcessor
+write method buf.buf(): {}", buf.buf());             }             return
+session.getChannel().write(buf.buf());        }</pre></div></div>2. print the
+localWrittenBytes in writeBuffer method. <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>private int
+writeBuffer(S session, WriteRequest req, boolean hasFragmentation, int maxLength, long
+currentTime)            throws Exception {        IoBuffer buf = (IoBuffer)
+req.getMessage();        int localWrittenBytes = 0;                //add by silver       
+if (DEBUG) {            LOGGER.debug( "***3 Mina AbstractPollingIoProcessor writeBuffer 
+session's hasFragmentation: {} ;  session: {}; ",
+hasFragmentation,session.getCurrentWriteMessage());            LOGGER.debug( "***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: {} ;  buf: {};",
+maxLength,buf.getHexDump());            }        if (buf.hasRemaining()) {            int
+length;            if (hasFragmentation) {                length =
+Math.min(buf.remaining(), maxLength);            } else {                length =
+buf.remaining();            }            try {                localWrittenBytes =
+write(session, buf, length);            } catch (IOException ioe) {                // We
+have had an issue while trying to send data to the                // peer : let's close
+the session.                buf.free();                session.close(true);               
+destroy(session);                return 0;            }        }       
+session.increaseWrittenBytes(localWrittenBytes, currentTime);        //add by silver      
+ if(localWrittenBytes!=0){        	if (DEBUG) {            LOGGER.debug( "***5.0  After
+NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: {}  ", localWrittenBytes);            }        }else{        	if
+(DEBUG) {            LOGGER.debug( "***5.1  After NioProcessor write method, in Mina
+AbstractPollingIoProcessor writeBuffer  session's localWrittenBytes is ZERO ");           
+}        }        if (!buf.hasRemaining() || (!hasFragmentation &amp;&amp;
+(localWrittenBytes != 0))) {            // Buffer has been sent, clear the current
+request.            int pos = buf.position();            buf.reset();           
+fireMessageSent(session, req);            // And set it back to its position           
+buf.position(pos);        }        return localWrittenBytes;    }</pre></div></div>3. any
+other loggers you want to propose to locate the cause? 
+
+
+New Comment: 
+That should do the trick, IMO. 
+
+
+New Comment: 
+Hi ,<br/>BTW, even with above loggers added, we only know about there is mismatch between
+the buf and localwrittenbytes, but what's next step? <br/>You mentioned  "I suspect that
+the encoder method might not be thread safe and might corrupt the buffer while it's being
+written on the socket"  and does mina have the thread safe for the buffer or writerequest?
+ Do you know how to verify whether those kind of method(encoder, buffer, writerequest) is
+thread safe or not?  I am asking for this question just want to add all the traces we
+needed and ensure we can have a full log collection next time. thank you for your
+understanding.BR/Silver 
+
+
+New Comment: 
+Interesting...Between the <tt>writeBuffer()</tt> call and the <tt>write()</tt> call, the
+buffer has been modified :<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>...2016-07-30 21:20:44,492 DEBUG
+(NioProcessor-2) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: true ;  session:
+HeapBuffer[pos=0 lim=189 cap=189: 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01
+31 38 31 36 39 31 34 35 36 34 39 00 04...];2016-07-30 21:20:44,492 DEBUG (NioProcessor-2)
+() org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01 01 31 38 31 36 39 31 34 35 36 34 39 00 04 09
+32 32 36 32 32 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 31 36 30 37 33 30 32 31 31 30
+34 38 32 33 32 30 37 32 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62
+6D 69 74 20 64 61 74 65 3A 31 36 30 37 33 30 32 31 32 30 20 64 6F 6E 65 20 64 61 74 65 3A
+31 36 30 37 33 30 32 31 32 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 30 30
+30 20 74 65 78 74 3A 04 27 00 01 02 00 1E 00 14 31 31 36 30 37 33 30 32 31 31 30 34 38 32
+33 32 30 37 32 00;...</pre></div></div>and<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>2016-07-30
+21:20:44,492 DEBUG (NioProcessor-2) () org.apache.mina.transport.socket.nio.NioProcessor -
+***4.0 Enter Mina NioProcessor write method buf.remaining: HeapBuffer[pos=16 lim=189
+cap=189: 34 35 00 04 09 32 32 36 32 00 00 00 BD 00 00 00 05 00 00 00 00 00 01 18 11 00 01
+01 31 38 31 36...]; msg: {};</pre></div></div>Initally, its position was 0, then it's 16,
+and it's not even correct, because it's starting at position 25.There is definitively some
+other thread that is modifying this buffer. As I said previously, double check your
+encoder to see if it's not using a shared buffer across multiple threads (you have 3
+running, one per NioProcessor) 
+
+
+New Comment: 
+Nothing is thread safe as soon as you use global variable. You have to ensure that they
+are protected against concurrent access. MINA code itself <b>is</b> threadsafe, but that
+says nothing about your own code...Typically, if you have implemented your own
+encoder/decoder, you have to be extra careful to make this code thread-safe. 
+
+
+New Comment: 
+Hi,<br/>but our code is only implementing ioHanlder on top of original mina-core , and we
+didn't have other customized encoder/decoder within mina, just using the mina-core by
+default, we didn't change anything to the mina-core. BR/Silver 
+
+
+New Comment: 
+I can't tell, I don't have your code under my eyse. What I can tell is that
+<b>something</b> is feeding the HeapBuffer with data, and this is this <b>something</b>
+that has to be checked. MINA does not generate those data. 
+
+
+On issue key DIRMINA-1040 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Hi,<br/>Yes, we have the encoder which is called by Mina ProtocolCodecFilter
+filterWrite(), you can see our encoder code(copy here as FYI) is very simple, just simply
+fill the pdu to IoBuffer, seem thread safe.Below are one test call trace and the encoder
+codes<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>2016-08-04 14:00:23,406 DEBUG
+(1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00 00 00 9d 00 00 00 05 00
+00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00
+00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20
+73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a
+31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30
+30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74
+3a2016-08-04 14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina
+AbstractIoSession write method Object message: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00
+00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00
+00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30
+30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30
+34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61
+74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74 3a;2016-08-04
+14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder - ******SMPPEncoder Object message before
+out.write: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37
+00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31
+34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31
+20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64
+61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72
+72 3a 31 32 33 20 74 65 78 74 3a2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward
+0.0.0.0:5001-3) (1e813c48e90c2d162948) com.ipx.cpsmscapis.smpp.codec.SmppEncoder -
+[java.lang.Thread.getStackTrace(Thread.java:1479),
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder.encode(SmppEncoder.java:46),
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:298),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.filter.executor.ExecutorFilter.filterWrite(ExecutorFilter.java:611),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:900),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:623),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:563),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:499),
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler._sendDeliverSM(NorthSmppIoHandler.java:1143),
+2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.filterchain.DefaultIoFilterChain - **1.1**
+DefaultIoFilterChain write directly the message: HeapBuffer[pos=0 lim=157 cap=157: 00 00
+00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,410 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***2 Mina
+AbstractPollingIoProcessor flushNow method msg: HeapBuffer[pos=0 lim=157 cap=157: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: true ;  session:
+HeapBuffer[pos=0 lim=157 cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01
+31 32 33 34 35 36 37 00 01 01 38 30 30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3)
+() org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38
+30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31
+37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74
+20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30
+38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74
+65 78 74 3A;2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3.1  Before NioProcessor
+write method, in Mina AbstractPollingIoProcessor writeBuffer  session's buf.remaining:
+157;buf.position(): 0.2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: 157; session.getCurrentWriteMessage: HeapBuffer[pos=0 lim=157
+cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00
+01 01 38 30 30...];2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.position: 0; buf.buf(): java.nio.HeapByteBuffer[pos=0 lim=157
+cap=157]2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method length: 157;buf.getHexDump: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01
+01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64
+3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64
+6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30
+30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45
+4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74 65 78 74 3A2016-08-04 14:00:23,412 DEBUG
+(NioProcessor-3) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 157</pre></div></div><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>package
+com.ipx.cpsmscapis.smpp.codec;import java.util.Arrays;import
+org.apache.mina.core.buffer.IoBuffer;import org.apache.mina.core.session.IoSession;import
+org.apache.mina.filter.codec.ProtocolEncoderAdapter;import
+org.apache.mina.filter.codec.ProtocolEncoderOutput;import org.smpp.pdu.PDU;import
+org.slf4j.Logger;import org.slf4j.LoggerFactory;/** * Smpp Protocol Encoder */public class
+SmppEncoder extends ProtocolEncoderAdapter {	//added by Silver    /** A logger for this
+class */    static Logger LOGGER = LoggerFactory.getLogger(SmppEncoder.class);        /**
+A speedup for logs */    static boolean DEBUG = LOGGER.isDebugEnabled();	/* (non-Javadoc) 
+   * @see
+org.apache.mina.filter.codec.ProtocolEncoder#encode(org.apache.mina.core.session.IoSession,
+java.lang.Object, org.apache.mina.filter.codec.ProtocolEncoderOutput)     */    public
+void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception
+{        PDU pdu = (PDU) message;        if (DEBUG) {           
+LOGGER.debug("******SMPPEncoder Object message before out.write: {}", pdu.toString());    
+   }                 out.write(IoBuffer.wrap(pdu.getData().getBuffer()));               
+//if (DEBUG) {        //LOGGER.debug(Arrays.toString(new
+Thread().currentThread().getStackTrace()));        //}             }</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1040 the Factory pattern might have been discussed on the following comment: 
+==============================
+Hi,<br/>Yes, we have the encoder which is called by Mina ProtocolCodecFilter
+filterWrite(), you can see our encoder code(copy here as FYI) is very simple, just simply
+fill the pdu to IoBuffer, seem thread safe.Below are one test call trace and the encoder
+codes<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>2016-08-04 14:00:23,406 DEBUG
+(1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00 00 00 9d 00 00 00 05 00
+00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00
+00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20
+73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a
+31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30
+30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74
+3a2016-08-04 14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina
+AbstractIoSession write method Object message: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00
+00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00
+00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30
+30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30
+34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61
+74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74 3a;2016-08-04
+14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder - ******SMPPEncoder Object message before
+out.write: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37
+00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31
+34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31
+20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64
+61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72
+72 3a 31 32 33 20 74 65 78 74 3a2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward
+0.0.0.0:5001-3) (1e813c48e90c2d162948) com.ipx.cpsmscapis.smpp.codec.SmppEncoder -
+[java.lang.Thread.getStackTrace(Thread.java:1479),
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder.encode(SmppEncoder.java:46),
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:298),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.filter.executor.ExecutorFilter.filterWrite(ExecutorFilter.java:611),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:900),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:623),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:563),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:499),
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler._sendDeliverSM(NorthSmppIoHandler.java:1143),
+2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.filterchain.DefaultIoFilterChain - **1.1**
+DefaultIoFilterChain write directly the message: HeapBuffer[pos=0 lim=157 cap=157: 00 00
+00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,410 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***2 Mina
+AbstractPollingIoProcessor flushNow method msg: HeapBuffer[pos=0 lim=157 cap=157: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: true ;  session:
+HeapBuffer[pos=0 lim=157 cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01
+31 32 33 34 35 36 37 00 01 01 38 30 30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3)
+() org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38
+30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31
+37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74
+20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30
+38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74
+65 78 74 3A;2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3.1  Before NioProcessor
+write method, in Mina AbstractPollingIoProcessor writeBuffer  session's buf.remaining:
+157;buf.position(): 0.2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: 157; session.getCurrentWriteMessage: HeapBuffer[pos=0 lim=157
+cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00
+01 01 38 30 30...];2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.position: 0; buf.buf(): java.nio.HeapByteBuffer[pos=0 lim=157
+cap=157]2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method length: 157;buf.getHexDump: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01
+01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64
+3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64
+6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30
+30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45
+4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74 65 78 74 3A2016-08-04 14:00:23,412 DEBUG
+(NioProcessor-3) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 157</pre></div></div><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>package
+com.ipx.cpsmscapis.smpp.codec;import java.util.Arrays;import
+org.apache.mina.core.buffer.IoBuffer;import org.apache.mina.core.session.IoSession;import
+org.apache.mina.filter.codec.ProtocolEncoderAdapter;import
+org.apache.mina.filter.codec.ProtocolEncoderOutput;import org.smpp.pdu.PDU;import
+org.slf4j.Logger;import org.slf4j.LoggerFactory;/** * Smpp Protocol Encoder */public class
+SmppEncoder extends ProtocolEncoderAdapter {	//added by Silver    /** A logger for this
+class */    static Logger LOGGER = LoggerFactory.getLogger(SmppEncoder.class);        /**
+A speedup for logs */    static boolean DEBUG = LOGGER.isDebugEnabled();	/* (non-Javadoc) 
+   * @see
+org.apache.mina.filter.codec.ProtocolEncoder#encode(org.apache.mina.core.session.IoSession,
+java.lang.Object, org.apache.mina.filter.codec.ProtocolEncoderOutput)     */    public
+void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception
+{        PDU pdu = (PDU) message;        if (DEBUG) {           
+LOGGER.debug("******SMPPEncoder Object message before out.write: {}", pdu.toString());    
+   }                 out.write(IoBuffer.wrap(pdu.getData().getBuffer()));               
+//if (DEBUG) {        //LOGGER.debug(Arrays.toString(new
+Thread().currentThread().getStackTrace()));        //}             }</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1040 the chain pattern might have been discussed on the following comment: 
+==============================
+Hi,<br/>Yes, we have the encoder which is called by Mina ProtocolCodecFilter
+filterWrite(), you can see our encoder code(copy here as FYI) is very simple, just simply
+fill the pdu to IoBuffer, seem thread safe.Below are one test call trace and the encoder
+codes<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>2016-08-04 14:00:23,406 DEBUG
+(1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00 00 00 9d 00 00 00 05 00
+00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00
+00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20
+73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a
+31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30
+30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74
+3a2016-08-04 14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina
+AbstractIoSession write method Object message: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00
+00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00
+00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30
+30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30
+34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61
+74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74 3a;2016-08-04
+14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder - ******SMPPEncoder Object message before
+out.write: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37
+00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31
+34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31
+20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64
+61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72
+72 3a 31 32 33 20 74 65 78 74 3a2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward
+0.0.0.0:5001-3) (1e813c48e90c2d162948) com.ipx.cpsmscapis.smpp.codec.SmppEncoder -
+[java.lang.Thread.getStackTrace(Thread.java:1479),
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder.encode(SmppEncoder.java:46),
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:298),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.filter.executor.ExecutorFilter.filterWrite(ExecutorFilter.java:611),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:900),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:623),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:563),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:499),
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler._sendDeliverSM(NorthSmppIoHandler.java:1143),
+2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.filterchain.DefaultIoFilterChain - **1.1**
+DefaultIoFilterChain write directly the message: HeapBuffer[pos=0 lim=157 cap=157: 00 00
+00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,410 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***2 Mina
+AbstractPollingIoProcessor flushNow method msg: HeapBuffer[pos=0 lim=157 cap=157: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30
+30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's hasFragmentation: true ;  session:
+HeapBuffer[pos=0 lim=157 cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01
+31 32 33 34 35 36 37 00 01 01 38 30 30...];2016-08-04 14:00:23,411 DEBUG (NioProcessor-3)
+() org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3 Mina
+AbstractPollingIoProcessor writeBuffer  session's maxWrittenBytes: 98304 ;  buf: 00 00 00
+9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38
+30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64 3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31
+37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64 6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74
+20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30
+38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45 4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74
+65 78 74 3A;2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.core.polling.AbstractPollingIoProcessor - ***3.1  Before NioProcessor
+write method, in Mina AbstractPollingIoProcessor writeBuffer  session's buf.remaining:
+157;buf.position(): 0.2016-08-04 14:00:23,411 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.remaining: 157; session.getCurrentWriteMessage: HeapBuffer[pos=0 lim=157
+cap=157: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00
+01 01 38 30 30...];2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method buf.position: 0; buf.buf(): java.nio.HeapByteBuffer[pos=0 lim=157
+cap=157]2016-08-04 14:00:23,412 DEBUG (NioProcessor-3) ()
+org.apache.mina.transport.socket.nio.NioProcessor - ***4.0 Enter Mina NioProcessor write
+method length: 157;buf.getHexDump: 00 00 00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01
+01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6F 69 64
+3A 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3A 30 30 31 20 64
+6C 76 72 64 3A 30 30 31 20 73 75 62 6D 69 74 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30
+30 20 64 6F 6E 65 20 64 61 74 65 3A 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3A 44 45
+4C 49 56 52 44 20 65 72 72 3A 31 32 33 20 74 65 78 74 3A2016-08-04 14:00:23,412 DEBUG
+(NioProcessor-3) () org.apache.mina.core.polling.AbstractPollingIoProcessor - ***5.0 
+After NioProcessor write method, in Mina AbstractPollingIoProcessor writeBuffer  session's
+localWrittenBytes: 157</pre></div></div><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>package
+com.ipx.cpsmscapis.smpp.codec;import java.util.Arrays;import
+org.apache.mina.core.buffer.IoBuffer;import org.apache.mina.core.session.IoSession;import
+org.apache.mina.filter.codec.ProtocolEncoderAdapter;import
+org.apache.mina.filter.codec.ProtocolEncoderOutput;import org.smpp.pdu.PDU;import
+org.slf4j.Logger;import org.slf4j.LoggerFactory;/** * Smpp Protocol Encoder */public class
+SmppEncoder extends ProtocolEncoderAdapter {	//added by Silver    /** A logger for this
+class */    static Logger LOGGER = LoggerFactory.getLogger(SmppEncoder.class);        /**
+A speedup for logs */    static boolean DEBUG = LOGGER.isDebugEnabled();	/* (non-Javadoc) 
+   * @see
+org.apache.mina.filter.codec.ProtocolEncoder#encode(org.apache.mina.core.session.IoSession,
+java.lang.Object, org.apache.mina.filter.codec.ProtocolEncoderOutput)     */    public
+void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception
+{        PDU pdu = (PDU) message;        if (DEBUG) {           
+LOGGER.debug("******SMPPEncoder Object message before out.write: {}", pdu.toString());    
+   }                 out.write(IoBuffer.wrap(pdu.getData().getBuffer()));               
+//if (DEBUG) {        //LOGGER.debug(Arrays.toString(new
+Thread().currentThread().getStackTrace()));        //}             }</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1040 the Chain pattern might have been discussed on the following comment: 
+==============================
+Hi,<br/>Yes, we have the encoder which is called by Mina ProtocolCodecFilter
+filterWrite(), you can see our encoder code(copy here as FYI) is very simple, just simply
+fill the pdu to IoBuffer, seem thread safe.Below are one test call trace and the encoder
+codes<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>2016-08-04 14:00:23,406 DEBUG
+(1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler - Sending DeliverSM: 00 00 00 9d 00 00 00 05 00
+00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00
+00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20
+73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a
+31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30
+30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74
+3a2016-08-04 14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.session.AbstractIoSession - ***1 Enter Mina
+AbstractIoSession write method Object message: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00
+00 01 00 01 01 31 32 33 34 35 36 37 00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00
+00 6f 69 64 3a 31 36 30 38 30 34 31 34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30
+30 31 20 64 6c 76 72 64 3a 30 30 31 20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30
+34 31 34 30 30 20 64 6f 6e 65 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61
+74 3a 44 45 4c 49 56 52 44 20 65 72 72 3a 31 32 33 20 74 65 78 74 3a;2016-08-04
+14:00:23,407 DEBUG (1727921240@WebForward 0.0.0.0:5001-3) (1e813c48e90c2d162948)
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder - ******SMPPEncoder Object message before
+out.write: 00 00 00 9d 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 35 36 37
+00 01 01 38 30 30 38 30 30 00 04 00 00 00 00 00 00 00 00 6f 69 64 3a 31 36 30 38 30 34 31
+34 30 30 30 30 30 31 37 36 30 31 30 20 73 75 62 3a 30 30 31 20 64 6c 76 72 64 3a 30 30 31
+20 73 75 62 6d 69 74 20 64 61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 64 6f 6e 65 20 64
+61 74 65 3a 31 36 30 38 30 34 31 34 30 30 20 73 74 61 74 3a 44 45 4c 49 56 52 44 20 65 72
+72 3a 31 32 33 20 74 65 78 74 3a2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward
+0.0.0.0:5001-3) (1e813c48e90c2d162948) com.ipx.cpsmscapis.smpp.codec.SmppEncoder -
+[java.lang.Thread.getStackTrace(Thread.java:1479),
+com.ipx.cpsmscapis.smpp.codec.SmppEncoder.encode(SmppEncoder.java:46),
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:298),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.filter.executor.ExecutorFilter.filterWrite(ExecutorFilter.java:611),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1600(DefaultIoFilterChain.java:49),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:976),
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.filterWrite(DefaultIoFilterChain.java:900),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:630),
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireFilterWrite(DefaultIoFilterChain.java:623),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:563),
+org.apache.mina.core.session.AbstractIoSession.write(AbstractIoSession.java:499),
+com.ipx.cpsmscapis.smpp.NorthSmppIoHandler._sendDeliverSM(NorthSmppIoHandler.java:1143),
+2016-08-04 14:00:23,408 DEBUG (1727921240@WebForward 0.0.0.0:5001-3)
+(1e813c48e90c2d162948) org.apache.mina.core.filterchain.DefaultIoFilterChain - **1.1**
+DefaultIoFilterChain write directly the message: HeapBuffer[pos=0 lim=157 cap=157: 00 00
+00 9D 00 00 00 05 00 00 00 00 00 00 00 01 00 01 01 31 32 33 34 

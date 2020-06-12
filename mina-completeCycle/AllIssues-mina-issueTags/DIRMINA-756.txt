@@ -1,0 +1,1053 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-756 the  State  pattern might have been discussed on the following comment: 
+==============================
+Here are the current and updated version for all the used jars :<span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Legal<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependencies have newer
+versions:<br/><span class="error">&#91;INFO&#93;</span>   org.apache.maven:maven-model
+.......................... 2.0.7 -&gt; 2.2.1<br/><span class="error">&#91;INFO&#93;</span>
+  org.apache.maven:maven-plugin-api ..................... 2.0.7 -&gt; 2.2.1<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.maven:maven-project
+........................ 2.0.7 -&gt; 2.2.1<br/><span class="error">&#91;INFO&#93;</span>  
+org.apache.maven.plugins:maven-shade-plugin ............... 1.1 -&gt; 1.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.codehaus.plexus:plexus-utils
+...................... 1.4.4 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+pmd:pmd ................................................. 4.2 -&gt; 4.2.5<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Parent POM<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Core<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA APR Transport<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Compression Filter<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA State Machine<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JavaBeans Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA XBean Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA OGNL Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JMX Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Examples<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> No
+dependencies in Dependencies are using the newest version.<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> The
+following dependencies in Dependencies have newer versions:<br/><span
+class="error">&#91;INFO&#93;</span>   jmock:jmock ................................. 1.2.0
+-&gt; 20031129.200437<br/><span class="error">&#91;INFO&#93;</span> <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Serial Communication
+support<br/><span class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> The
+following dependencies in Dependencies are using the newest version:<br/><span
+class="error">&#91;INFO&#93;</span>   org.rxtx:rxtx
+.................................................. 2.1.7 
+==============================
+
+New Comment: 
+Here are the current and updated version for all the used jars :<span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Legal<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependencies have newer
+versions:<br/><span class="error">&#91;INFO&#93;</span>   org.apache.maven:maven-model
+.......................... 2.0.7 -&gt; 2.2.1<br/><span class="error">&#91;INFO&#93;</span>
+  org.apache.maven:maven-plugin-api ..................... 2.0.7 -&gt; 2.2.1<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.maven:maven-project
+........................ 2.0.7 -&gt; 2.2.1<br/><span class="error">&#91;INFO&#93;</span>  
+org.apache.maven.plugins:maven-shade-plugin ............... 1.1 -&gt; 1.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.codehaus.plexus:plexus-utils
+...................... 1.4.4 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+pmd:pmd ................................................. 4.2 -&gt; 4.2.5<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Parent POM<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Core<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA APR Transport<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Compression Filter<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA State Machine<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JavaBeans Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA XBean Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA OGNL Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JMX Integration<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Examples<br/><span
+class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> No
+dependencies in Dependencies are using the newest version.<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> The
+following dependencies in Dependencies have newer versions:<br/><span
+class="error">&#91;INFO&#93;</span>   jmock:jmock ................................. 1.2.0
+-&gt; 20031129.200437<br/><span class="error">&#91;INFO&#93;</span> <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Serial Communication
+support<br/><span class="error">&#91;INFO&#93;</span>    task-segment: <span
+class="error">&#91;versions:display-dependency-updates&#93;</span><br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following dependencies in Dependency Management
+have newer versions:<br/><span class="error">&#91;INFO&#93;</span>  
+com.agical.rmock:rmock ................................ 2.0.0 -&gt; 2.0.2<br/><span
+class="error">&#91;INFO&#93;</span>   jboss:javassist
+........................................ 3.7.ga -&gt; 3.0<br/><span
+class="error">&#91;INFO&#93;</span>   ognl:ognl
+............................................. 2.7.2 -&gt; 2.7.3<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.xbean:xbean-spring
+........................... 3.4.3 -&gt; 3.6<br/><span class="error">&#91;INFO&#93;</span> 
+ org.easymock:easymock ................................... 2.3 -&gt; 2.5.2<br/><span
+class="error">&#91;INFO&#93;</span>   org.easymock:easymockclassextension
+..................... 2.3 -&gt; 2.5.2<br/><span class="error">&#91;INFO&#93;</span>  
+org.slf4j:jcl-over-slf4j ............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-api
+.................................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.slf4j:slf4j-log4j12
+.............................. 1.5.2 -&gt; 1.5.10<br/><span
+class="error">&#91;INFO&#93;</span>   org.springframework:spring
+............................ 2.5.5 -&gt; 2.5.6<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span> The
+following dependencies in Dependencies are using the newest version:<br/><span
+class="error">&#91;INFO&#93;</span>   org.rxtx:rxtx
+.................................................. 2.1.7 
+
+
+On issue key DIRMINA-756 the  State  pattern might have been discussed on the following comment: 
+==============================
+And here are the latest maven plugin versions :<span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA 2.0.0-RC2-SNAPSHOT<br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-javadoc-plugin
+................................... 2.4 -&gt; 2.6.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-site-plugin ...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Legal
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-jar-plugin
+......................................... 2.2 -&gt; 2.3<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-site-plugin ...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Parent POM
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Core 2.0.0-RC2-SNAPSHOT<br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA APR Transport
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Compression Filter
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA State Machine
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JavaBeans Integration
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA XBean Integration
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-jar-plugin
+......................................... 2.2 -&gt; 2.3<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA OGNL Integration
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA JMX Integration
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Examples
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-jar-plugin
+......................................... 2.2 -&gt; 2.3<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3 
+==============================
+
+New Comment: 
+And here are the latest maven plugin versions :<span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA 2.0.0-RC2-SNAPSHOT<br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-javadoc-plugin
+................................... 2.4 -&gt; 2.6.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-site-plugin ...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Legal
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-jar-plugin
+......................................... 2.2 -&gt; 2.3<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-site-plugin ...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Parent POM
+2.0.0-RC2-SNAPSHOT<br/><span class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-beta-7 -&gt; 2.0-beta-9<br/><span class="error">&#91;INFO&#93;</span>  
+maven-remote-resources-plugin ............................ 1.0 -&gt; 1.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-site-plugin
+...................................... 2.0.1 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-source-plugin
+.................................. 2.0.4 -&gt; 2.1.1<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;WARNING&#93;</span> The
+following plugins do not have their version specified:<br/><span
+class="error">&#91;WARNING&#93;</span>   maven-clean-plugin
+........................................... 2.3<br/><span
+class="error">&#91;INFO&#93;</span> <br/><span class="error">&#91;INFO&#93;</span>        
+                                                                <br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> Building Apache MINA Core 2.0.0-RC2-SNAPSHOT<br/><span
+class="error">&#91;INFO&#93;</span>
+------------------------------------------------------------------------<br/><span
+class="error">&#91;INFO&#93;</span> The following plugin updates are available:<br/><span
+class="error">&#91;INFO&#93;</span>   org.apache.felix:maven-bundle-plugin
+................. 1.4.1 -&gt; 2.0.1<br/><span class="error">&#91;INFO&#93;</span>  
+maven-assembly-plugin ...................... 2.2-beta-3 -&gt; 2.2-beta-5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-compiler-plugin
+.................................. 2.0.2 -&gt; 2.1<br/><span
+class="error">&#91;INFO&#93;</span>   maven-deploy-plugin
+...................................... 2.4 -&gt; 2.5<br/><span
+class="error">&#91;INFO&#93;</span>   maven-release-plugin .......................
+2.0-

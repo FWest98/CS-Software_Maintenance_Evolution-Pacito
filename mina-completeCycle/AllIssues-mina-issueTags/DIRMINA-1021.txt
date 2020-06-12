@@ -1,0 +1,2043 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is not what happens.The <tt>removeSessions()</tt> polls the <tt>removingSessions</tt>
+queue, which means the session is removed from this queue. At this point, the session
+should be reclaimed by the GC, assuming nothing else is using it.The question is : what
+holds this session, causing the leak ? 
+
+
+New Comment: 
+I'm not sure I understand your comment entirely: this is exactly what happens, according
+to my analysis in a debugger.As you commented, <tt>removeSessions()</tt> polls the queue,
+which means the session is no longer in removingSessions. However, <tt>removeNow()</tt> is
+never called, which calls <tt>destroy()</tt> and the <tt>fireSessionDestroyed()</tt>
+handlers.Could this patch be masking the issue because the channel should be AutoCloseable
+and something is still holding a reference, keeping the channel open? Maybe calling
+<tt>removeNow()</tt> is masking the problem by forcibly closing the underlying channel and
+calling <tt>fireSessionDestroyed()</tt>?  From what I can tell, the connection still
+showed up in the session list, meaning <tt>getManagedSessions()</tt> was still tracking
+it, which would make sense with the "someone else is holding a reference" idea. Sessions
+appear to only be removed by <tt>IoServiceListenerSupport.fireSessionDestroyed()</tt>
+which further supports the idea.Is there another way you would propose fixing this? 
+
+
+New Comment: 
+What I mean is that the <tt>removeSessions()</tt> function role is just to close opened
+sessions scheduled for closing. When you actually want to close a session, you push the
+session to this least, whatever its status is (OPENING, OPENED or CLOSING). This is not
+the place where we actually close the sessions, except when they are oepned. It means that
+if the session is in CLOSING state, then it was already closed somewhere else.I'm
+currently looking where this close could have happened (and that includes exceptions). 
+
+
+On issue key DIRMINA-1021 the Chain pattern might have been discussed on the following comment: 
+==============================
+Let's see what's happening when a session is closed because of an exception. For instance,
+the <tt>AbstractPollingIoProcessor.writeBuffer()</tt> method call <tt>close()</tt> when an
+exception occurs :<div class="code panel" style="border-style: solid;border-width:
+1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>writeBuffer()</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> <span
+class="code-object">int</span> writeBuffer(S session, WriteRequest req, <span
+class="code-object">boolean</span> hasFragmentation, <span class="code-object">int</span>
+maxLength, <span class="code-object">long</span> currentTime)            <span
+class="code-keyword">throws</span> Exception {        ...        <span
+class="code-keyword">if</span> (buf.hasRemaining()) {            ...            <span
+class="code-keyword">try</span> {                localWrittenBytes = write(session, buf,
+length);            } <span class="code-keyword">catch</span> (IOException ioe) {         
+      <span class="code-comment">// We have had an issue <span
+class="code-keyword">while</span> trying to send data to the</span>                <span
+class="code-comment">// peer : let's close the session.</span>                buf.free(); 
+              session.close(<span class="code-keyword">true</span>);               
+destroy(session);                <span class="code-keyword">return</span> 0;            } 
+  ...</pre></div></div>(let's ignore the <tt>destroy(session)</tt> atm).The
+<tt>session.close( true )</tt> execute this code :<div class="code panel"
+style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style: solid;"><b>close()</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> CloseFuture
+close(<span class="code-object">boolean</span> rightNow) {        <span
+class="code-keyword">if</span> (!isClosing()) {            <span
+class="code-keyword">if</span> (rightNow) {                <span
+class="code-keyword">synchronized</span> (lock) {                    <span
+class="code-keyword">if</span> (isClosing()) {                        <span
+class="code-keyword">return</span> closeFuture;                    }                   
+closing = <span class="code-keyword">true</span>;                }               
+getFilterChain().fireFilterClose();                <span
+class="code-keyword">return</span> closeFuture;            }            <span
+class="code-keyword">return</span> closeOnFlush();        } <span
+class="code-keyword">else</span> {            <span class="code-keyword">return</span>
+closeFuture;        }    }</pre></div></div>The important part is
+<tt>getFilterChain().fireFilterClose()</tt>, which implementation is :<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>fireFilterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">    <span class="code-keyword">public</span> void fireFilterClose() {   
+    callPreviousFilterClose(tail, session);    }</pre></div></div>which calls :<div
+class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>callPreviousFilterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">    <span class="code-keyword">private</span> void
+callPreviousFilterClose(Entry entry, IoSession session) {        <span
+class="code-keyword">try</span> {            IoFilter filter = entry.getFilter();         
+  NextFilter nextFilter = entry.getNextFilter();            filter.filterClose(nextFilter,
+session);        } <span class="code-keyword">catch</span> (Exception e) {           
+fireExceptionCaught(e);        } <span class="code-keyword">catch</span> (Error e) {      
+     fireExceptionCaught(e);            <span class="code-keyword">throw</span> e;       
+}    }</pre></div></div>which in turns call ultimately :<div class="code panel"
+style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>HeadFilter.filterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">        <span class="code-keyword">public</span> void
+filterClose(NextFilter nextFilter, IoSession session) <span
+class="code-keyword">throws</span> Exception {            ((AbstractIoSession)
+session).getProcessor().remove(session);        }</pre></div></div>then  :<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessorremove()</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">public</span> <span
+class="code-keyword">final</span> void remove(S session) {        scheduleRemove(session);
+       startupProcessor();    }    <span class="code-keyword">private</span> void
+scheduleRemove(S session) {        removingSessions.add(session);    }</pre></div></div>At
+this point, closing a session is <b>not</b> enough. Either you wait on the returned
+<tt>CloseFuture</tt> instance, or you actually destroy the session (which is probably what
+is missing in your case). 
+==============================
+
+New Comment: 
+Let's see what's happening when a session is closed because of an exception. For instance,
+the <tt>AbstractPollingIoProcessor.writeBuffer()</tt> method call <tt>close()</tt> when an
+exception occurs :<div class="code panel" style="border-style: solid;border-width:
+1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>writeBuffer()</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> <span
+class="code-object">int</span> writeBuffer(S session, WriteRequest req, <span
+class="code-object">boolean</span> hasFragmentation, <span class="code-object">int</span>
+maxLength, <span class="code-object">long</span> currentTime)            <span
+class="code-keyword">throws</span> Exception {        ...        <span
+class="code-keyword">if</span> (buf.hasRemaining()) {            ...            <span
+class="code-keyword">try</span> {                localWrittenBytes = write(session, buf,
+length);            } <span class="code-keyword">catch</span> (IOException ioe) {         
+      <span class="code-comment">// We have had an issue <span
+class="code-keyword">while</span> trying to send data to the</span>                <span
+class="code-comment">// peer : let's close the session.</span>                buf.free(); 
+              session.close(<span class="code-keyword">true</span>);               
+destroy(session);                <span class="code-keyword">return</span> 0;            } 
+  ...</pre></div></div>(let's ignore the <tt>destroy(session)</tt> atm).The
+<tt>session.close( true )</tt> execute this code :<div class="code panel"
+style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style: solid;"><b>close()</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> CloseFuture
+close(<span class="code-object">boolean</span> rightNow) {        <span
+class="code-keyword">if</span> (!isClosing()) {            <span
+class="code-keyword">if</span> (rightNow) {                <span
+class="code-keyword">synchronized</span> (lock) {                    <span
+class="code-keyword">if</span> (isClosing()) {                        <span
+class="code-keyword">return</span> closeFuture;                    }                   
+closing = <span class="code-keyword">true</span>;                }               
+getFilterChain().fireFilterClose();                <span
+class="code-keyword">return</span> closeFuture;            }            <span
+class="code-keyword">return</span> closeOnFlush();        } <span
+class="code-keyword">else</span> {            <span class="code-keyword">return</span>
+closeFuture;        }    }</pre></div></div>The important part is
+<tt>getFilterChain().fireFilterClose()</tt>, which implementation is :<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>fireFilterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">    <span class="code-keyword">public</span> void fireFilterClose() {   
+    callPreviousFilterClose(tail, session);    }</pre></div></div>which calls :<div
+class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>callPreviousFilterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">    <span class="code-keyword">private</span> void
+callPreviousFilterClose(Entry entry, IoSession session) {        <span
+class="code-keyword">try</span> {            IoFilter filter = entry.getFilter();         
+  NextFilter nextFilter = entry.getNextFilter();            filter.filterClose(nextFilter,
+session);        } <span class="code-keyword">catch</span> (Exception e) {           
+fireExceptionCaught(e);        } <span class="code-keyword">catch</span> (Error e) {      
+     fireExceptionCaught(e);            <span class="code-keyword">throw</span> e;       
+}    }</pre></div></div>which in turns call ultimately :<div class="code panel"
+style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>HeadFilter.filterClose()</b></div><div class="codeContent panelContent"><pre
+class="code-java">        <span class="code-keyword">public</span> void
+filterClose(NextFilter nextFilter, IoSession session) <span
+class="code-keyword">throws</span> Exception {            ((AbstractIoSession)
+session).getProcessor().remove(session);        }</pre></div></div>then  :<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessorremove()</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">public</span> <span
+class="code-keyword">final</span> void remove(S session) {        scheduleRemove(session);
+       startupProcessor();    }    <span class="code-keyword">private</span> void
+scheduleRemove(S session) {        removingSessions.add(session);    }</pre></div></div>At
+this point, closing a session is <b>not</b> enough. Either you wait on the returned
+<tt>CloseFuture</tt> instance, or you actually destroy the session (which is probably what
+is missing in your case). 
+
+
+New Comment: 
+Could it be that the result of the <tt>getState(NioSession session)</tt> method doesn't
+reliably indicate that the session is <tt>OPENED</tt> ?If that is the case, it could be
+the reason why the <tt>removeSessions()</tt> method doesn't do what should be done to
+remove the session 
+
+
+On issue key DIRMINA-1021 the  state  pattern might have been discussed on the following comment: 
+==============================
+The <tt>getState()</tt> method is pretty straightforward : it just check the session
+<tt>SelectionKey</tt>, and return <tt>OPENING</tt> when we have none, <tt>OPENED</tt> when
+it's valid and <tt>CLOSING</tt> when it's not valid. What <b>could</b> happend is that the
+method returns <tt>OPENED</tt> but the session is not anymore in this state when we check
+the status, because something happened in the meantime.That does not matter too much
+because whatever the returned status could be, it's too late in the
+<tt>removeSessions()</tt> to deal with the session removal, escpecially when we have got
+an exception. This is typically a case where we should absolutely clean the session while
+we are processing the exception, because otherwise, nothing will do it... 
+==============================
+
+New Comment: 
+The <tt>getState()</tt> method is pretty straightforward : it just check the session
+<tt>SelectionKey</tt>, and return <tt>OPENING</tt> when we have none, <tt>OPENED</tt> when
+it's valid and <tt>CLOSING</tt> when it's not valid. What <b>could</b> happend is that the
+method returns <tt>OPENED</tt> but the session is not anymore in this state when we check
+the status, because something happened in the meantime.That does not matter too much
+because whatever the returned status could be, it's too late in the
+<tt>removeSessions()</tt> to deal with the session removal, escpecially when we have got
+an exception. This is typically a case where we should absolutely clean the session while
+we are processing the exception, because otherwise, nothing will do it... 
+
+
+New Comment: 
+Actually, when an exception is caught, it's propagated to the <tt>IoHandler</tt>, which
+should be in charge to close the session. I suspect this is not done in SSHD, but I
+haven't yet looked at the code.Beside reading the code, and mentally try to imagine what
+are the possible paths that could cause the problem, I don't have a lot of clue. What
+would be very helpful is a piece of code that demonstrate the issue,, so that I can debug
+it.And, yes, analyzing asynchronous code is <b>really</b> complex, those who pretend that
+async is the way to go are either genious or are totally ignorant of the complexity it
+brings... Most of them enter in the second category, I'm afraid. Keep in mind that MINA
+was created to hide this aspect to most of the user, but sadly, at some point, you might
+get snapped... 
+
+
+New Comment: 
+I wonder if the problem is not in <tt>sshd</tt> code. Typically, when handling an
+exception when teh sessionn is closing, nothing is done in
+<tt>AbstractSession.exceptionCaught</tt>:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>    /**    
+* Handle any exceptions that occured on this session.     * The session will be closed and
+a disconnect packet will be     * sent before if the given exception is an     * {@link
+org.apache.sshd.common.SshException}.     *      * @param t the exception to process    
+*/    public void exceptionCaught(Throwable t) {        // Ignore exceptions that happen
+while closing        synchronized (lock) {            if (isClosing()) {               
+return;            }        }...</pre></div></div> 
+
+
+New Comment: 
+Hi Emmanuel,I've been continuing to look into this (but I've been sidetracked over the
+past week), but I was having issues reproducing and trapping the bug in a debugger again. 
+I was able to pretty simply reproduce the issue with Gerrit (which is far more than a
+simple test application), but if you want help getting that test environment set up so you
+can debug locally, please let me know!I'll try to dedicate some more time to this issue,
+since it is important to me (and I appreciate the time you've given it), so please let me
+know if there's anything I can do. 
+
+
+New Comment: 
+Not my area of expertise, but from what I could see in the code, the reason that nothing
+is done if <em>isClosing</em> is that it means that the session is being closed anyway via
+the code in <em>AbstractCloseable#close</em>. In other words, this is a kind of protection
+against running the <em>close</em> code concurrently. 
+
+
+New Comment: 
+I would also recommended enabling logging of SSHD as there seem to be rather detailed
+messages during the close process 
+
+
+New Comment: 
+I would have suggested the same thing, but you beat me <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+On issue key DIRMINA-1021 the  state  pattern might have been discussed on the following comment: 
+==============================
+yes, but...what happens is that <tt>isClosing</tt> simply means the session is scheduled
+for closing, not actually closed. The rationnal being that some data might be still
+waiting to be sent, and because the server has decided to close the session does not
+necessarily implies those data should be discarded.In this very case, we have got an
+exception, mostly because the client is not there anymore, thus there is no reason to wait
+for the pending data to be kept in memory and for the session to remain in this state
+forever. This is why it's good to close the session immediately when an exception is
+caught. 
+==============================
+
+On issue key DIRMINA-1021 the mediate pattern might have been discussed on the following comment: 
+==============================
+yes, but...what happens is that <tt>isClosing</tt> simply means the session is scheduled
+for closing, not actually closed. The rationnal being that some data might be still
+waiting to be sent, and because the server has decided to close the session does not
+necessarily implies those data should be discarded.In this very case, we have got an
+exception, mostly because the client is not there anymore, thus there is no reason to wait
+for the pending data to be kept in memory and for the session to remain in this state
+forever. This is why it's good to close the session immediately when an exception is
+caught. 
+==============================
+
+New Comment: 
+yes, but...what happens is that <tt>isClosing</tt> simply means the session is scheduled
+for closing, not actually closed. The rationnal being that some data might be still
+waiting to be sent, and because the server has decided to close the session does not
+necessarily implies those data should be discarded.In this very case, we have got an
+exception, mostly because the client is not there anymore, thus there is no reason to wait
+for the pending data to be kept in memory and for the session to remain in this state
+forever. This is why it's good to close the session immediately when an exception is
+caught. 
+
+
+On issue key DIRMINA-1021 the mediate pattern might have been discussed on the following comment: 
+==============================
+I think the only time that a session is scheduled for closing rather than being closed
+immediately is when a graceful close is in progress while an exception is caught. But even
+then, I assume the <em>operationComplete</em> is eventually called, and it will then do an
+immediate close of the MINA <em>IoSession</em>, which then should clean up after itself... 
+==============================
+
+New Comment: 
+I think the only time that a session is scheduled for closing rather than being closed
+immediately is when a graceful close is in progress while an exception is caught. But even
+then, I assume the <em>operationComplete</em> is eventually called, and it will then do an
+immediate close of the MINA <em>IoSession</em>, which then should clean up after itself... 
+
+
+On issue key DIRMINA-1021 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Ah, glad you mentioned that!  Here's what happens in when enabling debug logging in Gerrit
+(working successfully &#8211; as in, this did not trigger the bug):<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,812] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Received SSH_MSG_DISCONNECT (reason=11,
+msg=disconnected by user)[2015-11-19 14:43:22,813] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a closed[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+closed[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319]
+immediately[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319] closed[2015-11-19
+14:43:22,861] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] closed[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed[2015-11-19
+14:43:22,864] ERROR com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk
+account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed</pre></div></div>Here's a case where I successfully reproduced the
+issue:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">[2015-11-19 14:47:20,202] WARN 
+com.google.gerrit.sshd.GerritServerSession : Exception
+caughtjava.nio.channels.CancelledKeyException        at
+sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)        at
+sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)        at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:287)
+       at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:45)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flushNow(AbstractPollingIoProcessor.java:880)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flush(AbstractPollingIoProcessor.java:778)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$700(AbstractPollingIoProcessor.java:67)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1126)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)[2015-11-19 14:47:20,202] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] immediately[2015-11-19 14:47:20,202]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,202] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 immediately[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Send SSH_MSG_CHANNEL_DATA on channel
+0[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.channel.ChannelSession :
+Send SSH_MSG_CHANNEL_DATA on channel 0[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415] closed[2015-11-19
+14:47:20,210] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] closed</pre></div></div>Also, a stack
+trace from when I ended up in exceptionCaught() (i.e. this triggered the bug):<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> [NioProcessor-2] (Suspended
+(breakpoint at line 47 in AbstractSessionIoHandler))       
+SshDaemon$1(AbstractSessionIoHandler).exceptionCaught(IoSession, Throwable) line: 47      
+ MinaAcceptor(MinaService).exceptionCaught(IoSession, Throwable) line: 101       
+DefaultIoFilterChain$TailFilter.exceptionCaught(IoFilter$NextFilter, IoSession, Throwable)
+line: 824        DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry,
+IoSession, Throwable) line: 590       
+DefaultIoFilterChain.access$1100(DefaultIoFilterChain, IoFilterChain$Entry, IoSession,
+Throwable) line: 48        DefaultIoFilterChain$EntryImpl$1.exceptionCaught(IoSession,
+Throwable) line: 933       
+DefaultIoFilterChain$HeadFilter(IoFilterAdapter).exceptionCaught(IoFilter$NextFilter,
+IoSession, Throwable) line: 102       
+DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry, IoSession, Throwable)
+line: 590        DefaultIoFilterChain.fireExceptionCaught(Throwable) line: 580       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).read(S) line: 741       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process(S) line: 668       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process() line: 657       
+AbstractPollingIoProcessor&lt;S&gt;.access$600(AbstractPollingIoProcessor) line: 67       
+AbstractPollingIoProcessor$Processor.run() line: 1121        NamePreservingRunnable.run()
+line: 64        ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1142       
+ThreadPoolExecutor$Worker.run() line: 617        <span
+class="code-object">Thread</span>.run() line: 745</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1021 the mediate pattern might have been discussed on the following comment: 
+==============================
+Ah, glad you mentioned that!  Here's what happens in when enabling debug logging in Gerrit
+(working successfully &#8211; as in, this did not trigger the bug):<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,812] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Received SSH_MSG_DISCONNECT (reason=11,
+msg=disconnected by user)[2015-11-19 14:43:22,813] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a closed[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+closed[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319]
+immediately[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319] closed[2015-11-19
+14:43:22,861] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] closed[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed[2015-11-19
+14:43:22,864] ERROR com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk
+account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed</pre></div></div>Here's a case where I successfully reproduced the
+issue:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">[2015-11-19 14:47:20,202] WARN 
+com.google.gerrit.sshd.GerritServerSession : Exception
+caughtjava.nio.channels.CancelledKeyException        at
+sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)        at
+sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)        at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:287)
+       at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:45)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flushNow(AbstractPollingIoProcessor.java:880)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flush(AbstractPollingIoProcessor.java:778)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$700(AbstractPollingIoProcessor.java:67)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1126)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)[2015-11-19 14:47:20,202] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] immediately[2015-11-19 14:47:20,202]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,202] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 immediately[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Send SSH_MSG_CHANNEL_DATA on channel
+0[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.channel.ChannelSession :
+Send SSH_MSG_CHANNEL_DATA on channel 0[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415] closed[2015-11-19
+14:47:20,210] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] closed</pre></div></div>Also, a stack
+trace from when I ended up in exceptionCaught() (i.e. this triggered the bug):<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> [NioProcessor-2] (Suspended
+(breakpoint at line 47 in AbstractSessionIoHandler))       
+SshDaemon$1(AbstractSessionIoHandler).exceptionCaught(IoSession, Throwable) line: 47      
+ MinaAcceptor(MinaService).exceptionCaught(IoSession, Throwable) line: 101       
+DefaultIoFilterChain$TailFilter.exceptionCaught(IoFilter$NextFilter, IoSession, Throwable)
+line: 824        DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry,
+IoSession, Throwable) line: 590       
+DefaultIoFilterChain.access$1100(DefaultIoFilterChain, IoFilterChain$Entry, IoSession,
+Throwable) line: 48        DefaultIoFilterChain$EntryImpl$1.exceptionCaught(IoSession,
+Throwable) line: 933       
+DefaultIoFilterChain$HeadFilter(IoFilterAdapter).exceptionCaught(IoFilter$NextFilter,
+IoSession, Throwable) line: 102       
+DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry, IoSession, Throwable)
+line: 590        DefaultIoFilterChain.fireExceptionCaught(Throwable) line: 580       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).read(S) line: 741       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process(S) line: 668       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process() line: 657       
+AbstractPollingIoProcessor&lt;S&gt;.access$600(AbstractPollingIoProcessor) line: 67       
+AbstractPollingIoProcessor$Processor.run() line: 1121        NamePreservingRunnable.run()
+line: 64        ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1142       
+ThreadPoolExecutor$Worker.run() line: 617        <span
+class="code-object">Thread</span>.run() line: 745</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1021 the Command pattern might have been discussed on the following comment: 
+==============================
+Ah, glad you mentioned that!  Here's what happens in when enabling debug logging in Gerrit
+(working successfully &#8211; as in, this did not trigger the bug):<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,812] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Received SSH_MSG_DISCONNECT (reason=11,
+msg=disconnected by user)[2015-11-19 14:43:22,813] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a closed[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+closed[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319]
+immediately[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319] closed[2015-11-19
+14:43:22,861] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] closed[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed[2015-11-19
+14:43:22,864] ERROR com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk
+account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed</pre></div></div>Here's a case where I successfully reproduced the
+issue:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">[2015-11-19 14:47:20,202] WARN 
+com.google.gerrit.sshd.GerritServerSession : Exception
+caughtjava.nio.channels.CancelledKeyException        at
+sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)        at
+sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)        at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:287)
+       at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:45)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flushNow(AbstractPollingIoProcessor.java:880)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flush(AbstractPollingIoProcessor.java:778)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$700(AbstractPollingIoProcessor.java:67)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1126)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)[2015-11-19 14:47:20,202] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] immediately[2015-11-19 14:47:20,202]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,202] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 immediately[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Send SSH_MSG_CHANNEL_DATA on channel
+0[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.channel.ChannelSession :
+Send SSH_MSG_CHANNEL_DATA on channel 0[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415] closed[2015-11-19
+14:47:20,210] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] closed</pre></div></div>Also, a stack
+trace from when I ended up in exceptionCaught() (i.e. this triggered the bug):<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> [NioProcessor-2] (Suspended
+(breakpoint at line 47 in AbstractSessionIoHandler))       
+SshDaemon$1(AbstractSessionIoHandler).exceptionCaught(IoSession, Throwable) line: 47      
+ MinaAcceptor(MinaService).exceptionCaught(IoSession, Throwable) line: 101       
+DefaultIoFilterChain$TailFilter.exceptionCaught(IoFilter$NextFilter, IoSession, Throwable)
+line: 824        DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry,
+IoSession, Throwable) line: 590       
+DefaultIoFilterChain.access$1100(DefaultIoFilterChain, IoFilterChain$Entry, IoSession,
+Throwable) line: 48        DefaultIoFilterChain$EntryImpl$1.exceptionCaught(IoSession,
+Throwable) line: 933       
+DefaultIoFilterChain$HeadFilter(IoFilterAdapter).exceptionCaught(IoFilter$NextFilter,
+IoSession, Throwable) line: 102       
+DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry, IoSession, Throwable)
+line: 590        DefaultIoFilterChain.fireExceptionCaught(Throwable) line: 580       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).read(S) line: 741       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process(S) line: 668       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process() line: 657       
+AbstractPollingIoProcessor&lt;S&gt;.access$600(AbstractPollingIoProcessor) line: 67       
+AbstractPollingIoProcessor$Processor.run() line: 1121        NamePreservingRunnable.run()
+line: 64        ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1142       
+ThreadPoolExecutor$Worker.run() line: 617        <span
+class="code-object">Thread</span>.run() line: 745</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1021 the Chain pattern might have been discussed on the following comment: 
+==============================
+Ah, glad you mentioned that!  Here's what happens in when enabling debug logging in Gerrit
+(working successfully &#8211; as in, this did not trigger the bug):<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,812] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Received SSH_MSG_DISCONNECT (reason=11,
+msg=disconnected by user)[2015-11-19 14:43:22,813] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a closed[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+closed[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319]
+immediately[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319] closed[2015-11-19
+14:43:22,861] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] closed[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed[2015-11-19
+14:43:22,864] ERROR com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk
+account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed</pre></div></div>Here's a case where I successfully reproduced the
+issue:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">[2015-11-19 14:47:20,202] WARN 
+com.google.gerrit.sshd.GerritServerSession : Exception
+caughtjava.nio.channels.CancelledKeyException        at
+sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)        at
+sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)        at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:287)
+       at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:45)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flushNow(AbstractPollingIoProcessor.java:880)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flush(AbstractPollingIoProcessor.java:778)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$700(AbstractPollingIoProcessor.java:67)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1126)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)[2015-11-19 14:47:20,202] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] immediately[2015-11-19 14:47:20,202]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,202] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 immediately[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Send SSH_MSG_CHANNEL_DATA on channel
+0[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.channel.ChannelSession :
+Send SSH_MSG_CHANNEL_DATA on channel 0[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415] closed[2015-11-19
+14:47:20,210] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] closed</pre></div></div>Also, a stack
+trace from when I ended up in exceptionCaught() (i.e. this triggered the bug):<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> [NioProcessor-2] (Suspended
+(breakpoint at line 47 in AbstractSessionIoHandler))       
+SshDaemon$1(AbstractSessionIoHandler).exceptionCaught(IoSession, Throwable) line: 47      
+ MinaAcceptor(MinaService).exceptionCaught(IoSession, Throwable) line: 101       
+DefaultIoFilterChain$TailFilter.exceptionCaught(IoFilter$NextFilter, IoSession, Throwable)
+line: 824        DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry,
+IoSession, Throwable) line: 590       
+DefaultIoFilterChain.access$1100(DefaultIoFilterChain, IoFilterChain$Entry, IoSession,
+Throwable) line: 48        DefaultIoFilterChain$EntryImpl$1.exceptionCaught(IoSession,
+Throwable) line: 933       
+DefaultIoFilterChain$HeadFilter(IoFilterAdapter).exceptionCaught(IoFilter$NextFilter,
+IoSession, Throwable) line: 102       
+DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry, IoSession, Throwable)
+line: 590        DefaultIoFilterChain.fireExceptionCaught(Throwable) line: 580       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).read(S) line: 741       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process(S) line: 668       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process() line: 657       
+AbstractPollingIoProcessor&lt;S&gt;.access$600(AbstractPollingIoProcessor) line: 67       
+AbstractPollingIoProcessor$Processor.run() line: 1121        NamePreservingRunnable.run()
+line: 64        ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1142       
+ThreadPoolExecutor$Worker.run() line: 617        <span
+class="code-object">Thread</span>.run() line: 745</pre></div></div> 
+==============================
+
+New Comment: 
+Ah, glad you mentioned that!  Here's what happens in when enabling debug logging in Gerrit
+(working successfully &#8211; as in, this did not trigger the bug):<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,812] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Received SSH_MSG_DISCONNECT (reason=11,
+msg=disconnected by user)[2015-11-19 14:43:22,813] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+immediately[2015-11-19 14:43:22,815] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]] closed[2015-11-19
+14:43:22,815] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a immediately[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@16efad0a closed[2015-11-19 14:43:22,815]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:43:22,860] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319]]
+closed[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319]
+immediately[2015-11-19 14:43:22,860] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=/0:0:0:0:0:0:0:1:29418, remote=/0:0:0:0:0:0:0:1:56319] closed[2015-11-19
+14:43:22,861] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] closed[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed[2015-11-19
+14:43:22,864] ERROR com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk
+account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed</pre></div></div>Here's a case where I successfully reproduced the
+issue:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">[2015-11-19 14:47:20,202] WARN 
+com.google.gerrit.sshd.GerritServerSession : Exception
+caughtjava.nio.channels.CancelledKeyException        at
+sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)        at
+sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)        at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:287)
+       at
+org.apache.mina.transport.socket.nio.NioProcessor.setInterestedInWrite(NioProcessor.java:45)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flushNow(AbstractPollingIoProcessor.java:880)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.flush(AbstractPollingIoProcessor.java:778)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$700(AbstractPollingIoProcessor.java:67)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1126)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)[2015-11-19 14:47:20,202] DEBUG
+com.google.gerrit.sshd.GerritServerSession : Closing
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] immediately[2015-11-19 14:47:20,202]
+DEBUG org.apache.sshd.server.session.ServerConnectionService : Closing
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,202] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder : Closing
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.common.forward.DefaultTcpipForwarder :
+DefaultTcpipForwarder[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.agent.common.AgentForwardSupport : Closing
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+immediately[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.agent.common.AgentForwardSupport :
+AgentForwardSupport[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]] closed[2015-11-19
+14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport : Closing
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 immediately[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Send SSH_MSG_CHANNEL_DATA on channel
+0[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,203] DEBUG org.apache.sshd.server.channel.ChannelSession :
+Send SSH_MSG_CHANNEL_DATA on channel 0[2015-11-19 14:47:20,203] DEBUG
+org.apache.sshd.server.x11.X11ForwardSupport :
+org.apache.sshd.server.x11.X11ForwardSupport@5774e544 closed[2015-11-19 14:47:20,203]
+DEBUG org.apache.sshd.server.channel.ChannelSession : Closing ChannelSession[id=0,
+recipient=0] immediately[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.channel.ChannelSession : ChannelSession[id=0, recipient=0]
+closed[2015-11-19 14:47:20,209] DEBUG
+org.apache.sshd.server.session.ServerConnectionService :
+ServerConnectionService[GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415]]
+closed[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession : Closing
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415]
+immediately[2015-11-19 14:47:20,210] DEBUG org.apache.sshd.common.io.mina.MinaSession :
+MinaSession[local=0.0.0.0/0.0.0.0:29418, remote=/0:0:0:0:0:0:0:1:56415] closed[2015-11-19
+14:47:20,210] DEBUG com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56415] closed</pre></div></div>Also, a stack
+trace from when I ended up in exceptionCaught() (i.e. this triggered the bug):<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> [NioProcessor-2] (Suspended
+(breakpoint at line 47 in AbstractSessionIoHandler))       
+SshDaemon$1(AbstractSessionIoHandler).exceptionCaught(IoSession, Throwable) line: 47      
+ MinaAcceptor(MinaService).exceptionCaught(IoSession, Throwable) line: 101       
+DefaultIoFilterChain$TailFilter.exceptionCaught(IoFilter$NextFilter, IoSession, Throwable)
+line: 824        DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry,
+IoSession, Throwable) line: 590       
+DefaultIoFilterChain.access$1100(DefaultIoFilterChain, IoFilterChain$Entry, IoSession,
+Throwable) line: 48        DefaultIoFilterChain$EntryImpl$1.exceptionCaught(IoSession,
+Throwable) line: 933       
+DefaultIoFilterChain$HeadFilter(IoFilterAdapter).exceptionCaught(IoFilter$NextFilter,
+IoSession, Throwable) line: 102       
+DefaultIoFilterChain.callNextExceptionCaught(IoFilterChain$Entry, IoSession, Throwable)
+line: 590        DefaultIoFilterChain.fireExceptionCaught(Throwable) line: 580       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).read(S) line: 741       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process(S) line: 668       
+NioProcessor(AbstractPollingIoProcessor&lt;S&gt;).process() line: 657       
+AbstractPollingIoProcessor&lt;S&gt;.access$600(AbstractPollingIoProcessor) line: 67       
+AbstractPollingIoProcessor$Processor.run() line: 1121        NamePreservingRunnable.run()
+line: 64        ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1142       
+ThreadPoolExecutor$Worker.run() line: 617        <span
+class="code-object">Thread</span>.run() line: 745</pre></div></div> 
+
+
+New Comment: 
+I just noticed that you are using SSHD 0.14.0 which uses mina-core 2.0.8 - have you tried
+this with SSHD 1.0 (which uses mina-core 2.0.9). There were quite a few changes from SSHD
+0.14 to 1.0 which may have fixed this issue. 
+
+
+New Comment: 
+I thought I might have tried that already, but I'll be happy to give it another try and
+let you know how it goes! 
+
+
+New Comment: 
+The only reason I ask is that you said <blockquote>it looks like the code path is
+unchanged in mina-sshd 1.0.0 / mina-core 2.0.9</blockquote> so it is not clear whether you
+have actually tried it or just looked at the code. 
+
+
+New Comment: 
+I added some more code that takes care of caught exception in case of graceful session
+closing, as well as more detailed log messages. It may be worth trying to reproduce the
+problem with version 1.1 (SNAPSHOT...) 
+
+
+New Comment: 
+The stack trace is pretty much saying that the session can't be read, because it has been
+closed by the remote peer. In this case the <tt>CancelledKeyException</tt> results in a
+<tt>ExceptionCaught</tt> event being sent, and the session must deal with that (ie,it
+should 'commit suicide' <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+On issue key DIRMINA-1021 the Chain pattern might have been discussed on the following comment: 
+==============================
+As far as I can tell it does just that - it closes itself and (eventually) calls
+<em>IoSession#close</em> which (after quite a few more calls) eventually calls
+<em>getFilterChain().fireFilterClose()</em> 
+==============================
+
+New Comment: 
+As far as I can tell it does just that - it closes itself and (eventually) calls
+<em>IoSession#close</em> which (after quite a few more calls) eventually calls
+<em>getFilterChain().fireFilterClose()</em> 
+
+
+On issue key DIRMINA-1021 the  state  pattern might have been discussed on the following comment: 
+==============================
+Yeah, that's kinda what I gathered... I think the problem was, when the ExceptionCaught
+handlers fire, the close never actually happens: we get into the state where the
+connection is CLOSING, thus not removed from the session list (as returned by
+getManagedSessions).  But, whether that's a symptom or a cause is not something I'd know. 
+The interesting thing is in the debug logs, when things are working, the one main
+difference I've noticed is we actually try to close the session twice:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed</pre></div></div>We
+have a patch to try reproducing the issue with SSHD 1.0.0, and if that doesn't help, I'll
+give the 1.1 SNAPSHOT a try. 
+==============================
+
+New Comment: 
+Yeah, that's kinda what I gathered... I think the problem was, when the ExceptionCaught
+handlers fire, the close never actually happens: we get into the state where the
+connection is CLOSING, thus not removed from the session list (as returned by
+getManagedSessions).  But, whether that's a symptom or a cause is not something I'd know. 
+The interesting thing is in the debug logs, when things are working, the one main
+difference I've noticed is we actually try to close the session twice:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2015-11-19 14:43:22,862] DEBUG
+com.google.gerrit.sshd.GerritServerSession :
+GerritServerSession[dougk@/0:0:0:0:0:0:0:1:56319] is already closed</pre></div></div>We
+have a patch to try reproducing the issue with SSHD 1.0.0, and if that doesn't help, I'll
+give the 1.1 SNAPSHOT a try. 
+
+
+New Comment: 
+FTR, we are working on this issue on MINA side. It's related to <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1006" title="mina2.0.9 NioProcessor
+thread make cpu 100%" class="issue-link"
+data-issue-key="DIRMINA-1006"><del>DIRMINA-1006</del></a> 
+
+
+New Comment: 
+Thanks for your help!  I should also add that Gerrit has recently updated to <a
+href="https://issues.apache.org/jira/browse/SSHD-1" title="Upgrade to Mina 2.0.0-m4"
+class="issue-link" data-issue-key="SSHD-1"><del>SSHD-1</del></a>.0.0 and MINA-2.10 (some
+other very dedicated developers took care of resolving all the API changes).  That said,
+if the fix is easily backported to older SSHD versions, it probably wouldn't hurt, since
+Gerrit won't have this on any of the current stable branches (and it would be a pretty
+major change to backport the SSHD upgrade to the older branches). 
+
+
+New Comment: 
+I think this should be fixed with MINA 2.0.12. Can you give it a try ? 
+
+
+New Comment: 
+I built a new version of Gerrit using MINA 2.0.13, however because of the issues that
+currently exist in SSHD (and are fixed by <a
+href="https://issues.apache.org/jira/browse/SSHD-639" title="Review code and reduce buffer
+re-use" class="issue-link" data-issue-key="SSHD-639"><del>SSHD-639</del></a>), I can't
+really test that this resolves the issue.  Hopefully, the backport of the fix will be
+available on the 1.1.x branch soon, which would allow me to determine if this fix actually
+helps.Thanks for your assistance! 
+
+
+New Comment: 
+Can you try building and testing a version with the latest checked-in SSHD snapshot code
+(which includes the fix to <a href="https://issues.apache.org/jira/browse/SSHD-639"
+title="Review code and reduce buffer re-use" class="issue-link"
+data-issue-key="SSHD-639"><del>SSHD-639</del></a>) just so we know that it works ? 
+
+
+New Comment: 
+I'd be glad to try; hopefully there's not a large number of API differences that may make
+this difficult. 
+
+
+On issue key DIRMINA-1021 the Factory pattern might have been discussed on the following comment: 
+==============================
+So far, it's appearing to work okay.  I've not established the conditions where
+connections are leaked yet.  However, I am noticing an increased amount of logging, with
+this message repeated dozens of times per connection:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 08:51:18,399] [NioProcessor-2] WARN 
+org.apache.mina.core.service.IoProcessor : Create a <span class="code-keyword">new</span>
+selector. Selected is 0, delta = 0</pre></div></div>Additionally, after a while, I'm
+unable to connect to the server, and I see this exception in the logs:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 08:53:27,245] [NioSocketAcceptor-1] WARN 
+org.apache.mina.util.DefaultExceptionMonitor : Unexpected
+exception.java.lang.IllegalThreadStateException        at java.lang.<span
+class="code-object">ThreadGroup</span>.addUnstarted(<span
+class="code-object">ThreadGroup</span>.java:867)        at java.lang.<span
+class="code-object">Thread</span>.init(<span class="code-object">Thread</span>.java:402)  
+     at java.lang.<span class="code-object">Thread</span>.init(<span
+class="code-object">Thread</span>.java:349)        at java.lang.<span
+class="code-object">Thread</span>.&lt;init&gt;(<span
+class="code-object">Thread</span>.java:675)        at
+org.apache.sshd.common.util.threads.ThreadUtils$SshdThreadFactory.newThread(ThreadUtils.java:177)
+       at
+java.util.concurrent.ThreadPoolExecutor$Worker.&lt;init&gt;(ThreadPoolExecutor.java:612)  
+     at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:925)    
+   at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1368)       
+at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.startupProcessor(AbstractPollingIoProcessor.java:441)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.add(AbstractPollingIoProcessor.java:370)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.add(AbstractPollingIoProcessor.java:68)
+       at
+org.apache.mina.core.service.SimpleIoProcessorPool.add(SimpleIoProcessorPool.java:261)    
+   at
+org.apache.mina.core.service.SimpleIoProcessorPool.add(SimpleIoProcessorPool.java:80)     
+  at
+org.apache.mina.core.polling.AbstractPollingIoAcceptor$Acceptor.processHandles(AbstractPollingIoAcceptor.java:552)
+       at
+org.apache.mina.core.polling.AbstractPollingIoAcceptor$Acceptor.run(AbstractPollingIoAcceptor.java:483)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>This seems to happen if I let
+the server sit idle for several minutes.  If I continuously connect, everything seems to
+continue to work fine.  I've reproduced this with mina-core 2.0.13 and 2.0.12, as well as
+2.0.10, which was in use with sshd-1.0.0, but had the problem I described earlier.I can
+try running some more tests (the most effective test seemed to be using iptables to drop
+packets instead of trying to break the client connection at a specific point) and let you
+know how it goes... 
+==============================
+
+New Comment: 
+So far, it's appearing to work okay.  I've not established the conditions where
+connections are leaked yet.  However, I am noticing an increased amount of logging, with
+this message repeated dozens of times per connection:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 08:51:18,399] [NioProcessor-2] WARN 
+org.apache.mina.core.service.IoProcessor : Create a <span class="code-keyword">new</span>
+selector. Selected is 0, delta = 0</pre></div></div>Additionally, after a while, I'm
+unable to connect to the server, and I see this exception in the logs:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 08:53:27,245] [NioSocketAcceptor-1] WARN 
+org.apache.mina.util.DefaultExceptionMonitor : Unexpected
+exception.java.lang.IllegalThreadStateException        at java.lang.<span
+class="code-object">ThreadGroup</span>.addUnstarted(<span
+class="code-object">ThreadGroup</span>.java:867)        at java.lang.<span
+class="code-object">Thread</span>.init(<span class="code-object">Thread</span>.java:402)  
+     at java.lang.<span class="code-object">Thread</span>.init(<span
+class="code-object">Thread</span>.java:349)        at java.lang.<span
+class="code-object">Thread</span>.&lt;init&gt;(<span
+class="code-object">Thread</span>.java:675)        at
+org.apache.sshd.common.util.threads.ThreadUtils$SshdThreadFactory.newThread(ThreadUtils.java:177)
+       at
+java.util.concurrent.ThreadPoolExecutor$Worker.&lt;init&gt;(ThreadPoolExecutor.java:612)  
+     at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:925)    
+   at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1368)       
+at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.startupProcessor(AbstractPollingIoProcessor.java:441)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.add(AbstractPollingIoProcessor.java:370)
+       at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.add(AbstractPollingIoProcessor.java:68)
+       at
+org.apache.mina.core.service.SimpleIoProcessorPool.add(SimpleIoProcessorPool.java:261)    
+   at
+org.apache.mina.core.service.SimpleIoProcessorPool.add(SimpleIoProcessorPool.java:80)     
+  at
+org.apache.mina.core.polling.AbstractPollingIoAcceptor$Acceptor.processHandles(AbstractPollingIoAcceptor.java:552)
+       at
+org.apache.mina.core.polling.AbstractPollingIoAcceptor$Acceptor.run(AbstractPollingIoAcceptor.java:483)
+       at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64) 
+      at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  
+     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)   
+    at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>This seems to happen if I let
+the server sit idle for several minutes.  If I continuously connect, everything seems to
+continue to work fine.  I've reproduced this with mina-core 2.0.13 and 2.0.12, as well as
+2.0.10, which was in use with sshd-1.0.0, but had the problem I described earlier.I can
+try running some more tests (the most effective test seemed to be using iptables to drop
+packets instead of trying to break the client connection at a specific point) and let you
+know how it goes... 
+
+
+New Comment: 
+This may have something to do with <a
+href="https://issues.apache.org/jira/browse/SSHD-646" title="ThreadGroup created in
+ThreadUtils is not destroyed and causes memory leak" class="issue-link"
+data-issue-key="SSHD-646"><del>SSHD-646</del></a> - I have reverted it (for now) - please
+get the latest version and try again - see if this <em>IllegalThreadStateException</em>
+problem still occurs 
+
+
+On issue key DIRMINA-1021 the Adapter pattern might have been discussed on the following comment: 
+==============================
+I've built the latest version of mina-sshd against mina-core 2.0.13, and I have managed to
+reproduce this issue at least once:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">$ ssh localhost -p 29418 gerrit
+show-connectionsSession     Start     Idle   User            Remote
+Host--------------------------------------------------------------b6219fea 11:08:25
+00:00:09   dougk           ?f6d95718 11:08:34 00:00:00   dougk           localhost--SSHD
+Backend: mina</pre></div></div>The "?" is indicative of a session that's been closed, has
+no more remote host information, but hasn't been removed from the session list.In addition
+to seeing "already closed" exceptions in my log:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 11:08:31,221] [SSH git-upload-pack <span
+class="code-quote">'/gerrit'</span> (dougk)] ERROR com.google.gerrit.sshd.BaseCommand :
+Internal server error (user dougk account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed: Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@/127.0.0.1:49347])        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:311)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>I also had one instance of a
+"timeout exceeded" error:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">[2016-02-18 11:09:55,729] [SSH
+git-upload-pack <span class="code-quote">'/gerrit'</span> (dougk)] ERROR
+com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk account 1000000)
+during git-upload-pack <span
+class="code-quote">'/gerrit'</span>java.net.SocketTimeoutException:
+waitForCondition(Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@<span class="code-keyword">null</span>])) timeout
+exceeded: 30000        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:314)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>The hostname ("dougk@null")
+looks oddly suspicious there...But, the revert you made seems to have at least fixed the
+IllegalThreadStateException. 
+==============================
+
+On issue key DIRMINA-1021 the Command pattern might have been discussed on the following comment: 
+==============================
+I've built the latest version of mina-sshd against mina-core 2.0.13, and I have managed to
+reproduce this issue at least once:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">$ ssh localhost -p 29418 gerrit
+show-connectionsSession     Start     Idle   User            Remote
+Host--------------------------------------------------------------b6219fea 11:08:25
+00:00:09   dougk           ?f6d95718 11:08:34 00:00:00   dougk           localhost--SSHD
+Backend: mina</pre></div></div>The "?" is indicative of a session that's been closed, has
+no more remote host information, but hasn't been removed from the session list.In addition
+to seeing "already closed" exceptions in my log:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 11:08:31,221] [SSH git-upload-pack <span
+class="code-quote">'/gerrit'</span> (dougk)] ERROR com.google.gerrit.sshd.BaseCommand :
+Internal server error (user dougk account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed: Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@/127.0.0.1:49347])        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:311)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>I also had one instance of a
+"timeout exceeded" error:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">[2016-02-18 11:09:55,729] [SSH
+git-upload-pack <span class="code-quote">'/gerrit'</span> (dougk)] ERROR
+com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk account 1000000)
+during git-upload-pack <span
+class="code-quote">'/gerrit'</span>java.net.SocketTimeoutException:
+waitForCondition(Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@<span class="code-keyword">null</span>])) timeout
+exceeded: 30000        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:314)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>The hostname ("dougk@null")
+looks oddly suspicious there...But, the revert you made seems to have at least fixed the
+IllegalThreadStateException. 
+==============================
+
+On issue key DIRMINA-1021 the command pattern might have been discussed on the following comment: 
+==============================
+I've built the latest version of mina-sshd against mina-core 2.0.13, and I have managed to
+reproduce this issue at least once:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">$ ssh localhost -p 29418 gerrit
+show-connectionsSession     Start     Idle   User            Remote
+Host--------------------------------------------------------------b6219fea 11:08:25
+00:00:09   dougk           ?f6d95718 11:08:34 00:00:00   dougk           localhost--SSHD
+Backend: mina</pre></div></div>The "?" is indicative of a session that's been closed, has
+no more remote host information, but hasn't been removed from the session list.In addition
+to seeing "already closed" exceptions in my log:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 11:08:31,221] [SSH git-upload-pack <span
+class="code-quote">'/gerrit'</span> (dougk)] ERROR com.google.gerrit.sshd.BaseCommand :
+Internal server error (user dougk account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed: Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@/127.0.0.1:49347])        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:311)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>I also had one instance of a
+"timeout exceeded" error:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">[2016-02-18 11:09:55,729] [SSH
+git-upload-pack <span class="code-quote">'/gerrit'</span> (dougk)] ERROR
+com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk account 1000000)
+during git-upload-pack <span
+class="code-quote">'/gerrit'</span>java.net.SocketTimeoutException:
+waitForCondition(Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@<span class="code-keyword">null</span>])) timeout
+exceeded: 30000        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:314)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>The hostname ("dougk@null")
+looks oddly suspicious there...But, the revert you made seems to have at least fixed the
+IllegalThreadStateException. 
+==============================
+
+New Comment: 
+I've built the latest version of mina-sshd against mina-core 2.0.13, and I have managed to
+reproduce this issue at least once:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">$ ssh localhost -p 29418 gerrit
+show-connectionsSession     Start     Idle   User            Remote
+Host--------------------------------------------------------------b6219fea 11:08:25
+00:00:09   dougk           ?f6d95718 11:08:34 00:00:00   dougk           localhost--SSHD
+Backend: mina</pre></div></div>The "?" is indicative of a session that's been closed, has
+no more remote host information, but hasn't been removed from the session list.In addition
+to seeing "already closed" exceptions in my log:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[2016-02-18 11:08:31,221] [SSH git-upload-pack <span
+class="code-quote">'/gerrit'</span> (dougk)] ERROR com.google.gerrit.sshd.BaseCommand :
+Internal server error (user dougk account 1000000) during git-upload-pack <span
+class="code-quote">'/gerrit'</span>org.apache.sshd.common.channel.WindowClosedException:
+Already closed: Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@/127.0.0.1:49347])        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:311)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>I also had one instance of a
+"timeout exceeded" error:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">[2016-02-18 11:09:55,729] [SSH
+git-upload-pack <span class="code-quote">'/gerrit'</span> (dougk)] ERROR
+com.google.gerrit.sshd.BaseCommand : Internal server error (user dougk account 1000000)
+during git-upload-pack <span
+class="code-quote">'/gerrit'</span>java.net.SocketTimeoutException:
+waitForCondition(Window[server/remote](ChannelSession[id=0,
+recipient=0]-GerritServerSession[dougk@<span class="code-keyword">null</span>])) timeout
+exceeded: 30000        at
+org.apache.sshd.common.channel.Window.waitForCondition(Window.java:314)        at
+org.apache.sshd.common.channel.Window.waitForSpace(Window.java:264)        at
+org.apache.sshd.common.channel.ChannelOutputStream.flush(ChannelOutputStream.java:165)    
+   at
+org.apache.sshd.common.channel.ChannelOutputStream.write(ChannelOutputStream.java:119)    
+   at
+org.eclipse.jgit.transport.SideBandOutputStream.writeBuffer(SideBandOutputStream.java:171)
+       at
+org.eclipse.jgit.transport.SideBandOutputStream.write(SideBandOutputStream.java:151)      
+ at
+org.eclipse.jgit.internal.storage.pack.PackOutputStream.write(PackOutputStream.java:126)  
+     at
+org.eclipse.jgit.internal.storage.file.ByteArrayWindow.write(ByteArrayWindow.java:89)     
+  at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:248)   
+    at org.eclipse.jgit.internal.storage.file.PackFile.copyPackAsIs(PackFile.java:355)    
+   at
+org.eclipse.jgit.internal.storage.file.LocalCachedPack.copyAsIs(LocalCachedPack.java:85)  
+     at
+org.eclipse.jgit.internal.storage.file.WindowCursor.copyPackAsIs(WindowCursor.java:236)   
+    at org.eclipse.jgit.internal.storage.pack.PackWriter.writePack(PackWriter.java:1010)  
+     at org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1538)        at
+org.eclipse.jgit.transport.UploadPack.sendPack(UploadPack.java:1391)        at
+org.eclipse.jgit.transport.UploadPack.service(UploadPack.java:772)        at
+org.eclipse.jgit.transport.UploadPack.upload(UploadPack.java:666)        at
+com.google.gerrit.sshd.commands.Upload.runImpl(Upload.java:85)        at
+com.google.gerrit.sshd.AbstractGitCommand.service(AbstractGitCommand.java:101)        at
+com.google.gerrit.sshd.AbstractGitCommand.access$000(AbstractGitCommand.java:32)        at
+com.google.gerrit.sshd.AbstractGitCommand$1.run(AbstractGitCommand.java:70)        at
+com.google.gerrit.sshd.BaseCommand$TaskThunk.run(BaseCommand.java:437)        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:266)        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+       at com.google.gerrit.server.git.WorkQueue$Task.run(WorkQueue.java:377)        at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)        at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745)</pre></div></div>The hostname ("dougk@null")
+looks oddly suspicious there...But, the revert you made seems to have at least fixed the
+IllegalThreadStateException. 
+
+
+New Comment: 
+The <em>null</em> is indeed suspicios - however, it seems to be a MINA issue - if you look
+at <em>AbstractSession#toString()</em> you will see that the string that follows the '@'
+is the <em>IoSession#getRemoteAddress()</em> value - which in this case seems to have been
+null-ified. 
+
+
+New Comment: 
+I see that the code is using a <em>GerritServerSession</em> instead of the default
+<em>ServerSessionImpl</em> - can you send me the link to the code for it so I can look at
+it and see if there are any suspicious things ? 
+
+
+New Comment: 
+Ah yes, you're absolutely right.  Sorry I missed your message today.  Anyway, the code
+(updated to the latest snapshot of mina-sshd's master) is at <a
+href="https://gerrit-review.googlesource.com/75030" class="external-link"
+rel="nofollow">https://gerrit-review.googlesource.com/75030</a>.  You should be able to
+clone the unmodified source with just <tt>git clone <a
+href="https://gerrit.googlesource.com/gerrit" class="external-link"
+rel="nofollow">https://gerrit.googlesource.com/gerrit</a></tt>, or browse it online at the
+link.  A direct link to the GerritServerSession is <a
+href="https://gerrit.googlesource.com/gerrit/+/eb4657bc2bdb44f1b1f395d6cb5af1909348a497/gerrit-sshd/src/main/java/com/google/gerrit/sshd/GerritServerSession.java"
+class="external-link" rel="nofollow">here</a>. 
+
+
+New Comment: 
+Thanks for the information - it has inspired <a
+href="https://issues.apache.org/jira/browse/SSHD-652" title="Allow pre-registering
+CloseFuture listeners without having to call &quot;close&quot; method" class="issue-link"
+data-issue-key="SSHD-652"><del>SSHD-652</del></a> (which I will commmit shortly) - so you
+won't have to use your own <em>GerritServerSession</em> (or others) just for registering
+the listener for the <em>CloseFuture</em> 
+
+
+New Comment: 
+No, thank you for the continued help!I'll also point out that we made use of the
+FileKeyPairProvider, and when it went away in 1.0.0, we just ported it over directly,
+here: <a href="https://gerrit-review.googlesource.com/73033" class="external-link"
+rel="nofollow">https://gerrit-review.googlesource.com/73033</a> <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Actually, the class you mention did not really go away - it was slightly modified and
+moved to <em>SecurityUtils#createFileKeyPairProvider()</em>. The method returns an
+<em>AbstractFileKeyPairProvider</em> with a <em>setFiles(Collection&lt;Path&gt;)</em>
+method. The behavior is exactly the same as <em>FileKeyPairProvider</em> - you still have
+to check though that <em>SecurityUtils#isBouncyCastleRegistered()</em> before using it. 
+
+
+New Comment: 
+I wondered about that.  Seemed awfully strange for it to disappear; I'll probably switch
+us over to using that, then! Thanks for the tip! 
+
+
+New Comment: 
+In general I try not to make useful things disappear - I may move them (I try to keep such
+movements to a minimum after 1.0, but from time to time it happens). Therefore, if
+anything seems to "disappear" I recommend posting a question on the
+<em>dev@mina.apache.org</em> mailing list before porting or re-implementing it. Also, as a
+rule of thumb I would recommend trying to compile <em>Gerrit</em> from time to time with
+the latest version from <em>Github</em>. This would help detect such "disappearances"
+earlier and/or expose bugs / missing features / etc... 
+
+
+On issue key DIRMINA-1021 the  state  pattern might have been discussed on the following comment: 
+==============================
+In case it helps we see similar behavior in our application. Our IoHandler may not always
+see a sessionClosed (using Mina 2.0.0.13).My analysis suggests that the destroy(session)
+here ....<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.writeBuffer()</b></div><div class="codeContent
+panelContent"><pre class="code-java">           <span class="code-keyword">try</span> {   
+            localWrittenBytes = write(session, buf, length);            } <span
+class="code-keyword">catch</span> (IOException ioe) {                <span
+class="code-comment">// We have had an issue <span class="code-keyword">while</span>
+trying to send data to the</span>                <span class="code-comment">// peer :
+let's close the session.</span>                buf.free();               
+session.close(<span class="code-keyword">true</span>);                destroy(session); 
+<span class="code-comment">// HERE</span>                <span
+class="code-keyword">return</span> 0;            }</pre></div></div>... means that by the
+time the scheduled remove actually occurs, the session state is CLOSING (because the
+destroy(session) invalidates the selection key).Most often, we see a "Connection Reset By
+Peer" during the read that occurs before the write, and can deal with it in our exception
+handler. We'll sometimes see an inputClosed() (TCP half-close) - but neither closeNow() or
+closeOnFlush() will trigger a sessionClosed in the event that the write (which happens
+after the read) catches an exception (see also <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1025" title="A call to
+session.closed(true) may still flush messages." class="issue-link"
+data-issue-key="DIRMINA-1025"><del>DIRMINA-1025</del></a>, where the write may occur after
+a read that triggers an inputClosed()) - but, again, we have a chance here to handle it in
+our IoHandler.But when an exception is first caught during the writeBuffer() call, we get
+no sessionClosed(), the closeFuture will never complete, and any pending writeFutures are
+left out in the cold too. 
+==============================
+
+New Comment: 
+In case it helps we see similar behavior in our application. Our IoHandler may not always
+see a sessionClosed (using Mina 2.0.0.13).My analysis suggests that the destroy(session)
+here ....<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.writeBuffer()</b></div><div class="codeContent
+panelContent"><pre class="code-java">           <span class="code-keyword">try</span> {   
+            localWrittenBytes = write(session, buf, length);            } <span
+class="code-keyword">catch</span> (IOException ioe) {                <span
+class="code-comment">// We have had an issue <span class="code-keyword">while</span>
+trying to send data to the</span>                <span class="code-comment">// peer :
+let's close the session.</span>                buf.free();               
+session.close(<span class="code-keyword">true</span>);                destroy(session); 
+<span class="code-comment">// HERE</span>                <span
+class="code-keyword">return</span> 0;            }</pre></div></div>... means that by the
+time the scheduled remove actually occurs, the session state is CLOSING (because the
+destroy(session) invalidates the selection key).Most often, we see a "Connection Reset By
+Peer" during the read that occurs before the write, and can deal with it in our exception
+handler. We'll sometimes see an inputClosed() (TCP half-close) - but neither closeNow() or
+closeOnFlush() will trigger a sessionClosed in the event that the write (which happens
+after the read) catches an exception (see also <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1025" title="A call to
+session.closed(true) may still flush messages." class="issue-link"
+data-issue-key="DIRMINA-1025"><del>DIRMINA-1025</del></a>, where the write may occur after
+a read that triggers an inputClosed()) - but, again, we have a chance here to handle it in
+our IoHandler.But when an exception is first caught during the writeBuffer() call, we get
+no sessionClosed(), the closeFuture will never complete, and any pending writeFutures are
+left out in the cold too. 
+
+
+New Comment: 
+Thanks a bunch for the very clear description !The thing is that you may initiate a
+session close when at the same time the remote peer does also close the session. The
+exception you get will not terminate the future, and that is a problem. Now, you can
+probably handle the session cleanup in the exceptionCaught() method in the IoHandler. Have
+you checked that ? 
+
+
+New Comment: 
+I don't see a code path that gets that IoException (e.g. "Broken Pipe" caught in the
+writeBuffer() method) to our IoHandler. Can you point me in the right direction ? 
+
+
+New Comment: 
+If you get an <tt>IOException</tt> in the <tt>writeBuffer</tt> method, it will return 0.
+The <tt>AbstractPollingIoProcessor.flushNow()</tt> method will then set the selectorKey to
+be interested in Write and return. I wonder if the <tt>setInterestedInWrite()</tt> method
+might not throw an exception if the selectionKey has been cancelled in the mean time... 
+
+
+New Comment: 
+Thanks, I see what you mean, but no exception is thrown. As I see it, the destroy(session)
+cancelled the key before writeBuffer returned 0, so this ...<div class="code panel"
+style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>NioProcessor.setInterestedInWrite()</b></div><div class="codeContent
+panelContent"><pre class="code-java">           SelectionKey key =
+session.getSelectionKey();        <span class="code-keyword">if</span> ((key == <span
+class="code-keyword">null</span>) || !key.isValid()) {            <span
+class="code-keyword">return</span>;        }</pre></div></div>... throws no exception.
+AFACIT, our IoHandler is not notified at all, but I'll do some more digging later today. 
+
+
+New Comment: 
+From the code, either you get an <tt>IOException</tt> when trying to write the buffer,
+this exception will be caught, and processed so that the session will be closed and
+destroyed. In this case, you should get a <tt>sessionClosed</tt> event propagated to the
+<tt>IoHandler</tt>.If this is not what you get, then either :<ul>	<li>the buffer is
+correctly written. Not the scenario you are interested in</li>	<li>you've got another
+exception than <tt>IOException</tt> (ie <tt>NonWritableChannelException</tt>, all the
+other are extending <tt>IOException</tt>)</li></ul>This is an unchecked exception. The
+best would be to add some log for this specific case, to see if you enter into this use
+case. 
+
+
+On issue key DIRMINA-1021 the  state  pattern might have been discussed on the following comment: 
+==============================
+Thanks Emmanuel.I wasn't clear when I said "no exception is thrown". I meant that only in
+the context of what happens in setInterestedInWrite().In terms of the writeBuffer() call,
+an exception certainly is caught ....<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.writeBuffer()</b></div><div
+class="codeContent panelContent"><pre class="code-java">           <span
+class="code-keyword">try</span> {                localWrittenBytes = write(session, buf,
+length);            } <span class="code-keyword">catch</span> (IOException ioe) {         
+      <span class="code-comment">// IOException(<span class="code-quote">"Broken
+Pipe"</span>) is caught ...</span>                buf.free();               
+session.close(<span class="code-keyword">true</span>);                destroy(session);   
+             <span class="code-keyword">return</span> 0;            }</pre></div></div>The
+session.close(true) passes up the filter chain (as you showed in an earlier post), and the
+session gets scheduled for removal ...<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.remove()</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> void remove(S
+session) {        scheduleRemove(session);        startupProcessor();    }    <span
+class="code-keyword">private</span> void scheduleRemove(S session) {       
+removingSessions.add(session);    }</pre></div></div>The destroy(session) called from
+writeBuffer() then cancels the selection key for this session (session state is now
+CLOSING).<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>NioProcessor</b></div><div class="codeContent panelContent"><pre
+class="code-java">    @Override    <span class="code-keyword">protected</span> void
+destroy(NioSession session) <span class="code-keyword">throws</span> Exception {       
+ByteChannel ch = session.getChannel();        SelectionKey key =
+session.getSelectionKey();        <span class="code-keyword">if</span> (key != <span
+class="code-keyword">null</span>) {            key.cancel();        }        ch.close();  
+ }</pre></div></div>The writeBuffer() returns 0, the flushNow returns false from here
+...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span class="code-keyword">if</span>
+(localWrittenBytes == 0) {                    setInterestedInWrite(session, <span
+class="code-keyword">true</span>);                    <span
+class="code-keyword">return</span> <span class="code-keyword">false</span>;               
+}</pre></div></div>Which pops us back into the processor run loop ...<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.Processor.run()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                   <span class="code-comment">//
+Write the pending requests</span>                    <span class="code-object">long</span>
+currentTime = <span class="code-object">System</span>.currentTimeMillis();                
+   flush(currentTime);                    <span class="code-comment">// And manage removed
+sessions</span>                    nSessions -= removeSessions();</pre></div></div>...
+ready to remove the sessions. Our session is CLOSING now, though, so the removal is not
+propagated ...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span
+class="code-keyword">case</span> CLOSING:                    <span class="code-comment">//
+Skip <span class="code-keyword">if</span> channel is already closed</span>                
+   <span class="code-comment">// In any <span class="code-keyword">case</span>, remove the
+session from the queue</span>                    removedSessions++;                   
+<span class="code-keyword">break</span>;</pre></div></div>... and that means the
+CloseFuture never completes, nor does the WriteFuture for the write that threw the
+exception, and no exception has been propogated to the IoHandler.Am still reviewing the
+rest (there's a lot to go through !), but I think this may be a path thru the code where
+the IoHandler doesn't get told about the exception. 
+==============================
+
+On issue key DIRMINA-1021 the chain pattern might have been discussed on the following comment: 
+==============================
+Thanks Emmanuel.I wasn't clear when I said "no exception is thrown". I meant that only in
+the context of what happens in setInterestedInWrite().In terms of the writeBuffer() call,
+an exception certainly is caught ....<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.writeBuffer()</b></div><div
+class="codeContent panelContent"><pre class="code-java">           <span
+class="code-keyword">try</span> {                localWrittenBytes = write(session, buf,
+length);            } <span class="code-keyword">catch</span> (IOException ioe) {         
+      <span class="code-comment">// IOException(<span class="code-quote">"Broken
+Pipe"</span>) is caught ...</span>                buf.free();               
+session.close(<span class="code-keyword">true</span>);                destroy(session);   
+             <span class="code-keyword">return</span> 0;            }</pre></div></div>The
+session.close(true) passes up the filter chain (as you showed in an earlier post), and the
+session gets scheduled for removal ...<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.remove()</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> void remove(S
+session) {        scheduleRemove(session);        startupProcessor();    }    <span
+class="code-keyword">private</span> void scheduleRemove(S session) {       
+removingSessions.add(session);    }</pre></div></div>The destroy(session) called from
+writeBuffer() then cancels the selection key for this session (session state is now
+CLOSING).<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>NioProcessor</b></div><div class="codeContent panelContent"><pre
+class="code-java">    @Override    <span class="code-keyword">protected</span> void
+destroy(NioSession session) <span class="code-keyword">throws</span> Exception {       
+ByteChannel ch = session.getChannel();        SelectionKey key =
+session.getSelectionKey();        <span class="code-keyword">if</span> (key != <span
+class="code-keyword">null</span>) {            key.cancel();        }        ch.close();  
+ }</pre></div></div>The writeBuffer() returns 0, the flushNow returns false from here
+...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span class="code-keyword">if</span>
+(localWrittenBytes == 0) {                    setInterestedInWrite(session, <span
+class="code-keyword">true</span>);                    <span
+class="code-keyword">return</span> <span class="code-keyword">false</span>;               
+}</pre></div></div>Which pops us back into the processor run loop ...<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.Processor.run()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                   <span class="code-comment">//
+Write the pending requests</span>                    <span class="code-object">long</span>
+currentTime = <span class="code-object">System</span>.currentTimeMillis();                
+   flush(currentTime);                    <span class="code-comment">// And manage removed
+sessions</span>                    nSessions -= removeSessions();</pre></div></div>...
+ready to remove the sessions. Our session is CLOSING now, though, so the removal is not
+propagated ...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span
+class="code-keyword">case</span> CLOSING:                    <span class="code-comment">//
+Skip <span class="code-keyword">if</span> channel is already closed</span>                
+   <span class="code-comment">// In any <span class="code-keyword">case</span>, remove the
+session from the queue</span>                    removedSessions++;                   
+<span class="code-keyword">break</span>;</pre></div></div>... and that means the
+CloseFuture never completes, nor does the WriteFuture for the write that threw the
+exception, and no exception has been propogated to the IoHandler.Am still reviewing the
+rest (there's a lot to go through !), but I think this may be a path thru the code where
+the IoHandler doesn't get told about the exception. 
+==============================
+
+New Comment: 
+Thanks Emmanuel.I wasn't clear when I said "no exception is thrown". I meant that only in
+the context of what happens in setInterestedInWrite().In terms of the writeBuffer() call,
+an exception certainly is caught ....<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.writeBuffer()</b></div><div
+class="codeContent panelContent"><pre class="code-java">           <span
+class="code-keyword">try</span> {                localWrittenBytes = write(session, buf,
+length);            } <span class="code-keyword">catch</span> (IOException ioe) {         
+      <span class="code-comment">// IOException(<span class="code-quote">"Broken
+Pipe"</span>) is caught ...</span>                buf.free();               
+session.close(<span class="code-keyword">true</span>);                destroy(session);   
+             <span class="code-keyword">return</span> 0;            }</pre></div></div>The
+session.close(true) passes up the filter chain (as you showed in an earlier post), and the
+session gets scheduled for removal ...<div class="code panel" style="border-style:
+solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;border-bottom-style: solid;"><b>AbstractPollingIoProcessor.remove()</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> void remove(S
+session) {        scheduleRemove(session);        startupProcessor();    }    <span
+class="code-keyword">private</span> void scheduleRemove(S session) {       
+removingSessions.add(session);    }</pre></div></div>The destroy(session) called from
+writeBuffer() then cancels the selection key for this session (session state is now
+CLOSING).<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>NioProcessor</b></div><div class="codeContent panelContent"><pre
+class="code-java">    @Override    <span class="code-keyword">protected</span> void
+destroy(NioSession session) <span class="code-keyword">throws</span> Exception {       
+ByteChannel ch = session.getChannel();        SelectionKey key =
+session.getSelectionKey();        <span class="code-keyword">if</span> (key != <span
+class="code-keyword">null</span>) {            key.cancel();        }        ch.close();  
+ }</pre></div></div>The writeBuffer() returns 0, the flushNow returns false from here
+...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span class="code-keyword">if</span>
+(localWrittenBytes == 0) {                    setInterestedInWrite(session, <span
+class="code-keyword">true</span>);                    <span
+class="code-keyword">return</span> <span class="code-keyword">false</span>;               
+}</pre></div></div>Which pops us back into the processor run loop ...<div class="code
+panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.Processor.run()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                   <span class="code-comment">//
+Write the pending requests</span>                    <span class="code-object">long</span>
+currentTime = <span class="code-object">System</span>.currentTimeMillis();                
+   flush(currentTime);                    <span class="code-comment">// And manage removed
+sessions</span>                    nSessions -= removeSessions();</pre></div></div>...
+ready to remove the sessions. Our session is CLOSING now, though, so the removal is not
+propagated ...<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractPollingIoProcessor.flushNow()</b></div><div class="codeContent
+panelContent"><pre class="code-java">                <span
+class="code-keyword">case</span> CLOSING:                    <span class="code-comment">//
+Skip <span class="code-keyword">if</span> channel is already closed</span>                
+   <span class="code-comment">// In any <span class="code-keyword">case</span>, remove the
+session from the queue</span>                    removedSessions++;                   
+<span class="code-keyword">break</span>;</pre></div></div>... and that means the
+CloseFuture never completes, nor does the WriteFuture for the write that threw the
+exception, and no exc

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 805db5f3926a9e51d8b9b8539186029e70e7eae9
+
+From: Mediator-67
+To:   Mediator-68
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-236.txt 
+
+commit 805db5f3926a9e51d8b9b8539186029e70e7eae9
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-243 (mark() and autoexpand)
+    * Made sure mark is preserved after expansion
+    * Refactored ByteBuffer implementation
+      * Most base implementation has been extracted into BaseByteBuffer to remove code duplication
+    * Added ByteBuffer.capacity()

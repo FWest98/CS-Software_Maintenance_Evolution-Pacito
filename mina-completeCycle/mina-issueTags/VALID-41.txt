@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 23b613b68a74d2418e693c757c2b961d88d73674
+
+From: Bridge-8
+To:   Bridge-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-41.txt 
+
+commit 23b613b68a74d2418e693c757c2b961d88d73674
+Author: Trustin Lee <trustin@apache.org>
+
+    Renamed IoSessionManager to IoService, which is shorter.

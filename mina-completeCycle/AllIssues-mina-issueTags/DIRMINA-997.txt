@@ -1,0 +1,130 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Seems like there is a huge limitation in Android logger... : 12-02 19:55:40.156:
+W/org.apache.mina.util.DefaultExceptionMonitor(16032): Caused by:
+java.lang.IllegalArgumentException: Log tag "org.apache.mina.filter.ssl.SslHandler"
+exceeds limit of 23 characters<br/>12-02 19:55:40.156:
+W/org.apache.mina.util.DefaultExceptionMonitor(16032): at
+android.util.Log.isLoggable(Native Method)What about adding Log4j in you android
+application ? 
+
+
+New Comment: 
+log4j is not main .    Even without the problem. Still can't use 
+
+
+New Comment: 
+Give slf4j for Android a try : <a href="http://www.slf4j.org/android/"
+class="external-link" rel="nofollow">http://www.slf4j.org/android/</a>You'll need to
+checkout MINA code, and replace SLF4j with the android lib.If it works better, we can
+probably package an android specific version of MINA.Please let us know. Thanks. 
+
+
+New Comment: 
+          i use SLF4J Android。         android log <ul>	<li>@throws
+IllegalArgumentException is thrown if the tag.length() &gt; 23.<br/>     */<br/>    public
+static native boolean isLoggable(String tag, int level);</li></ul>and mina SslHandler     
+  if (LOGGER.isDebugEnabled()) {<br/>            LOGGER.debug("{} SSL Handler
+Initialization done.", sslFilter.getSessionInfo(session));<br/>        }so   throws
+IllegalArgumentException is thrown if the tag.length() &gt; 23. 
+
+
+New Comment: 
+I don't think you do. SLF4j-android does truncate the tag name under the hood, so that it
+remains below 23 chars. Were you using SLF4j-android, you woudl not get such an
+exception.What have you changed in the pom.xml ? 
+
+
+New Comment: 
+ok i use  slf4j-android-1.5.8.jar  。and i now use slf4j-android-1.6.1-RC1.jar the problem 
+about “ the tag.length() &gt; 23.” is   done。but it still not working。I don't know what
+reason。 it not exception。   android client log  12-03 19:53:36.870:
+I/TCKeepAliveClientIOHandler(26295): Session opened<br/>12-03 19:53:36.870:
+I/TCKeepAliveClientIOHandler(26295): Session Connectedserver logDEBUG 2014-12-03
+19:47:29,870 <span class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=78 cap=2048: 16 03 01 00 49 01 00 00 45 03 01
+70 70 70 70 36...&#93;</span><br/>DEBUG 2014-12-03 19:47:29,870 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/>DEBUG
+2014-12-03 19:47:29,871 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:29,872 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK state<br/>DEBUG
+2014-12-03 19:47:29,874 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP state<br/>DEBUG
+2014-12-03 19:47:29,875 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=796 cap=1057: 16 03 01 03 17 02 00 00 46 03 01 54 7E F8 51
+54...&#93;</span><br/>DEBUG 2014-12-03 19:47:29,875 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:29,875 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data <br/>DEBUG 2014-12-03
+19:47:29,926 <span class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=267 cap=2048: 16 03 01 01 06 10 00 01 02 01
+00 19 7C 7A BF 1A...&#93;</span><br/>DEBUG 2014-12-03 19:47:29,926 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/>DEBUG
+2014-12-03 19:47:29,926 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:29,926 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK state<br/>DEBUG
+2014-12-03 19:47:29,969 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:29,969 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data <br/>DEBUG 2014-12-03
+19:47:30,131 <span class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=6 cap=1024: 14 03 01 00 01
+01&#93;</span><br/>DEBUG 2014-12-03 19:47:30,131 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/>DEBUG
+2014-12-03 19:47:30,131 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:30,132 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data <br/>DEBUG 2014-12-03
+19:47:30,331 <span class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=37 cap=1024: 16 03 01 00 20 BF 6D 51 04 52 A6
+FF 45 E2 06 12...&#93;</span><br/>DEBUG 2014-12-03 19:47:30,331 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) Processing the received message<br/>DEBUG
+2014-12-03 19:47:30,331 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>DEBUG
+2014-12-03 19:47:30,334 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP state<br/>DEBUG
+2014-12-03 19:47:30,335 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=6 cap=8: 14 03 01 00 01 01&#93;</span><br/>DEBUG 2014-12-03
+19:47:30,335 <span class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> -
+Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>DEBUG 2014-12-03 19:47:30,335 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslFilter&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=37 cap=66: 16 03 01 00 20 CE 08 26 62 67 FB 63 E6 10 A8
+A1...&#93;</span><br/>DEBUG 2014-12-03 19:47:30,335 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the FINISHED state<br/>DEBUG
+2014-12-03 19:47:30,335 <span
+class="error">&#91;org.apache.mina.filter.ssl.SslHandler&#93;</span> - Sessi

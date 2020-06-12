@@ -1,0 +1,74 @@
+Pattern changes caused by commit: f1cf9724a9b2aca59a301c28eac721af07d3425c
+
+From: Flyweight-20
+To:   Flyweight-19
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-238.txt 
+
+commit f1cf9724a9b2aca59a301c28eac721af07d3425c
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-240 (VmPipeConnectors hands out non-unique AnonymousSocketAddresses)
+
+
+
+==================================
+ Issue DIRMINA-240 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-240] VmPipeConnectors hands out non-unique AnonymousSocketAddresses
+-----------------
+
+-----------------
+Summary: VmPipeConnectors hands out non-unique AnonymousSocketAddresses
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 7 Aug 2006 09:19:36 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 22 Aug 2006 03:40:20 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+I've been using the VmPipeConnector for "unit" testing and have come up against a
+problem. The the AnonymousSocketAddresses that are handed out are all the very same
+instance. Our code relies on each client-side socket being unique and providing a unique
+name via toString(). For an InetSocketAddress, the toString() returns ip-address/host and
+port. A patch is attached.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Checked in the fix.  Please try the latest version from trunk, and close this issue. 
+Thank you for the patch! 
+
+

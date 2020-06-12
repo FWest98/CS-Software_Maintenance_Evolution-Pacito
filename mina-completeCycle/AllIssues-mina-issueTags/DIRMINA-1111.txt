@@ -1,0 +1,624 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hmmm, I don't think so. There is not so many differences between 2.0 and 2.1 branches, and
+we haven't touched this part. There must be something else.We have a mechanism in both
+version to catch such an issue, which drops the selector, recreates one, and re-register
+all the channels. It's suppose to do the trick. Now, there is a know JDK issue that has
+never been fixed (see <a href="https://github.com/netty/netty/issues/327"
+class="external-link" rel="nofollow">https://github.com/netty/netty/issues/327</a>).What
+is the JVM in use ? 
+
+
+New Comment: 
+Also we would need the complete stack trace.  The part that is shown might be a
+red-herring: just because a thread is marked RUNNABLE does not mean it's actually doing
+something. When the call is to a native method, the JVM can't know if the method is doing
+something, so by default tag it as RUNNABLE. 
+
+
+New Comment: 
+Running <tt>top -H -p &lt;jvm pid&gt;</tt> and <tt>jstack &lt;jvm pid&gt;</tt> could help
+finding which thread is consuming CPU. 
+
+
+New Comment: 
+AFAIK The JDK dead selector bug was fixed many years ago. I have systems which have no
+detection of dead selectors running 24x7 never running into this issue. 
+
+
+New Comment: 
+What we need is someone to profile the application using VisualVM so we know what methods
+are being executed to account for the CPU usage.   If you can’t do that then generate a
+flame graph. 
+
+
+New Comment: 
+<a href="http://www.brendangregg.com/flamegraphs.html" class="external-link"
+rel="nofollow">http://www.brendangregg.com/flamegraphs.html</a> 
+
+
+New Comment: 
+Found the JDK Bug <a href="https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6403933"
+class="external-link"
+rel="nofollow">https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6403933</a>  This was
+fixed a long time ago. 
+
+
+New Comment: 
+For what it's worth, I've received another report (unrelated to the first one) that
+appears to be related to this issue. This new environment recently upgraded to MINA 2.1.2
+too. I'm working on obtaining the profiling information. 
+
+
+On issue key DIRMINA-1111 the chain pattern might have been discussed on the following comment: 
+==============================
+The report claims that the CPU increase is combined with InvalidMarkException instances
+being thrown by MINA 2.1.2's implementation of
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</tt>Specifically
+the <tt>InvalidMarkException</tt> is thrown when <tt>reset</tt> is called in this
+snippet:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-comment">// The first unwritten
+empty buffer must be</span><span class="code-comment">// forwarded to the filter
+chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    buf.reset();  
+ failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1111 the Chain pattern might have been discussed on the following comment: 
+==============================
+The report claims that the CPU increase is combined with InvalidMarkException instances
+being thrown by MINA 2.1.2's implementation of
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</tt>Specifically
+the <tt>InvalidMarkException</tt> is thrown when <tt>reset</tt> is called in this
+snippet:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-comment">// The first unwritten
+empty buffer must be</span><span class="code-comment">// forwarded to the filter
+chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    buf.reset();  
+ failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+==============================
+
+New Comment: 
+The report claims that the CPU increase is combined with InvalidMarkException instances
+being thrown by MINA 2.1.2's implementation of
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</tt>Specifically
+the <tt>InvalidMarkException</tt> is thrown when <tt>reset</tt> is called in this
+snippet:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-comment">// The first unwritten
+empty buffer must be</span><span class="code-comment">// forwarded to the filter
+chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    buf.reset();  
+ failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+
+
+New Comment: 
+Do you have a link to the OpenFire issue ? 
+
+
+On issue key DIRMINA-1111 the mediate pattern might have been discussed on the following comment: 
+==============================
+The CPU cycles that get burned are reported to be "system", not "user" cycles.We've
+obtained a Call Tree graph from JProfiler, from which I included a screenshot (the entire
+thing is 18MB). Just under the section from which I created this screenshot, there's
+another 10.2% native CPU usage for <tt>java.lang.System.currentTimeMillis</tt> that's
+called from within 
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process</tt>From
+what I can deduce, this looks like it iterates over this snippet from a lot. We don't see
+<tt>"Broken connection"</tt> or <tt>"Create a new selector. Selected is 0, delta ="</tt>
+being logged, which suggests that the workaround for the EPOLL / spinning selector bug is
+not even being considered.<div class="code panel" style="border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width:
+1px;"><b>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#run</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-comment">/*(...snip..)*/</span><span class="code-comment">// This select has a
+timeout so that we can manage</span><span class="code-comment">// idle session when we get
+out of the select every</span><span class="code-comment">// second. (note : <span
+class="code-keyword">this</span> is a hack to avoid creating</span><span
+class="code-comment">// a dedicated thread).</span><span class="code-object">long</span>
+t0 = <span class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">int</span> selected = select(SELECT_TIMEOUT);<span
+class="code-object">long</span> t1 = <span
+class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">long</span> delta = t1 - t0;<span class="code-keyword">if</span>
+(!wakeupCalled.getAndSet(<span class="code-keyword">false</span>) &amp;&amp; (selected ==
+0) &amp;&amp; (delta &lt; 100)) {    <span class="code-comment">// Last chance : the
+select() may have been</span>    <span class="code-comment">// interrupted because we have
+had an closed channel.</span>    <span class="code-keyword">if</span>
+(isBrokenConnection()) {        LOG.warn(<span class="code-quote">"Broken
+connection"</span>);    } <span class="code-keyword">else</span> {        <span
+class="code-comment">// Ok, we are hit by the nasty epoll</span>        <span
+class="code-comment">// spinning.</span>        <span class="code-comment">// Basically,
+there is a race condition</span>        <span class="code-comment">// which causes a
+closing file descriptor not to be</span>        <span class="code-comment">// considered
+as available as a selected channel,</span>        <span class="code-comment">// but</span>
+       <span class="code-comment">// it stopped the select. The next time we will</span>  
+     <span class="code-comment">// call select(), it will exit immediately <span
+class="code-keyword">for</span> the</span>        <span class="code-comment">//
+same</span>        <span class="code-comment">// reason, and <span
+class="code-keyword">do</span> so forever, consuming 100%</span>        <span
+class="code-comment">// CPU.</span>        <span class="code-comment">// We have to
+destroy the selector, and</span>        <span class="code-comment">// register all the
+socket on a <span class="code-keyword">new</span> one.</span>        <span
+class="code-keyword">if</span> (nbTries == 0) {            LOG.warn(<span
+class="code-quote">"Create a <span class="code-keyword">new</span> selector. Selected is
+0, delta = "</span> + delta);            registerNewSelector();            nbTries = 10;  
+     } <span class="code-keyword">else</span> {            nbTries--;        }    }} <span
+class="code-keyword">else</span> {    nbTries = 10;}<span
+class="code-comment">/*(...snip..)*/</span></pre></div></div><span class="image-wrap"
+style=""><img
+src="https://issues.apache.org/jira/secure/attachment/12969252/12969252_image-2019-05-21-11-37-41-931.png"
+style="border: 0px solid black" /></span> 
+==============================
+
+On issue key DIRMINA-1111 the iterate pattern might have been discussed on the following comment: 
+==============================
+The CPU cycles that get burned are reported to be "system", not "user" cycles.We've
+obtained a Call Tree graph from JProfiler, from which I included a screenshot (the entire
+thing is 18MB). Just under the section from which I created this screenshot, there's
+another 10.2% native CPU usage for <tt>java.lang.System.currentTimeMillis</tt> that's
+called from within 
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process</tt>From
+what I can deduce, this looks like it iterates over this snippet from a lot. We don't see
+<tt>"Broken connection"</tt> or <tt>"Create a new selector. Selected is 0, delta ="</tt>
+being logged, which suggests that the workaround for the EPOLL / spinning selector bug is
+not even being considered.<div class="code panel" style="border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width:
+1px;"><b>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#run</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-comment">/*(...snip..)*/</span><span class="code-comment">// This select has a
+timeout so that we can manage</span><span class="code-comment">// idle session when we get
+out of the select every</span><span class="code-comment">// second. (note : <span
+class="code-keyword">this</span> is a hack to avoid creating</span><span
+class="code-comment">// a dedicated thread).</span><span class="code-object">long</span>
+t0 = <span class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">int</span> selected = select(SELECT_TIMEOUT);<span
+class="code-object">long</span> t1 = <span
+class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">long</span> delta = t1 - t0;<span class="code-keyword">if</span>
+(!wakeupCalled.getAndSet(<span class="code-keyword">false</span>) &amp;&amp; (selected ==
+0) &amp;&amp; (delta &lt; 100)) {    <span class="code-comment">// Last chance : the
+select() may have been</span>    <span class="code-comment">// interrupted because we have
+had an closed channel.</span>    <span class="code-keyword">if</span>
+(isBrokenConnection()) {        LOG.warn(<span class="code-quote">"Broken
+connection"</span>);    } <span class="code-keyword">else</span> {        <span
+class="code-comment">// Ok, we are hit by the nasty epoll</span>        <span
+class="code-comment">// spinning.</span>        <span class="code-comment">// Basically,
+there is a race condition</span>        <span class="code-comment">// which causes a
+closing file descriptor not to be</span>        <span class="code-comment">// considered
+as available as a selected channel,</span>        <span class="code-comment">// but</span>
+       <span class="code-comment">// it stopped the select. The next time we will</span>  
+     <span class="code-comment">// call select(), it will exit immediately <span
+class="code-keyword">for</span> the</span>        <span class="code-comment">//
+same</span>        <span class="code-comment">// reason, and <span
+class="code-keyword">do</span> so forever, consuming 100%</span>        <span
+class="code-comment">// CPU.</span>        <span class="code-comment">// We have to
+destroy the selector, and</span>        <span class="code-comment">// register all the
+socket on a <span class="code-keyword">new</span> one.</span>        <span
+class="code-keyword">if</span> (nbTries == 0) {            LOG.warn(<span
+class="code-quote">"Create a <span class="code-keyword">new</span> selector. Selected is
+0, delta = "</span> + delta);            registerNewSelector();            nbTries = 10;  
+     } <span class="code-keyword">else</span> {            nbTries--;        }    }} <span
+class="code-keyword">else</span> {    nbTries = 10;}<span
+class="code-comment">/*(...snip..)*/</span></pre></div></div><span class="image-wrap"
+style=""><img
+src="https://issues.apache.org/jira/secure/attachment/12969252/12969252_image-2019-05-21-11-37-41-931.png"
+style="border: 0px solid black" /></span> 
+==============================
+
+New Comment: 
+The CPU cycles that get burned are reported to be "system", not "user" cycles.We've
+obtained a Call Tree graph from JProfiler, from which I included a screenshot (the entire
+thing is 18MB). Just under the section from which I created this screenshot, there's
+another 10.2% native CPU usage for <tt>java.lang.System.currentTimeMillis</tt> that's
+called from within 
+<tt>org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process</tt>From
+what I can deduce, this looks like it iterates over this snippet from a lot. We don't see
+<tt>"Broken connection"</tt> or <tt>"Create a new selector. Selected is 0, delta ="</tt>
+being logged, which suggests that the workaround for the EPOLL / spinning selector bug is
+not even being considered.<div class="code panel" style="border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width:
+1px;"><b>org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#run</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-comment">/*(...snip..)*/</span><span class="code-comment">// This select has a
+timeout so that we can manage</span><span class="code-comment">// idle session when we get
+out of the select every</span><span class="code-comment">// second. (note : <span
+class="code-keyword">this</span> is a hack to avoid creating</span><span
+class="code-comment">// a dedicated thread).</span><span class="code-object">long</span>
+t0 = <span class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">int</span> selected = select(SELECT_TIMEOUT);<span
+class="code-object">long</span> t1 = <span
+class="code-object">System</span>.currentTimeMillis();<span
+class="code-object">long</span> delta = t1 - t0;<span class="code-keyword">if</span>
+(!wakeupCalled.getAndSet(<span class="code-keyword">false</span>) &amp;&amp; (selected ==
+0) &amp;&amp; (delta &lt; 100)) {    <span class="code-comment">// Last chance : the
+select() may have been</span>    <span class="code-comment">// interrupted because we have
+had an closed channel.</span>    <span class="code-keyword">if</span>
+(isBrokenConnection()) {        LOG.warn(<span class="code-quote">"Broken
+connection"</span>);    } <span class="code-keyword">else</span> {        <span
+class="code-comment">// Ok, we are hit by the nasty epoll</span>        <span
+class="code-comment">// spinning.</span>        <span class="code-comment">// Basically,
+there is a race condition</span>        <span class="code-comment">// which causes a
+closing file descriptor not to be</span>        <span class="code-comment">// considered
+as available as a selected channel,</span>        <span class="code-comment">// but</span>
+       <span class="code-comment">// it stopped the select. The next time we will</span>  
+     <span class="code-comment">// call select(), it will exit immediately <span
+class="code-keyword">for</span> the</span>        <span class="code-comment">//
+same</span>        <span class="code-comment">// reason, and <span
+class="code-keyword">do</span> so forever, consuming 100%</span>        <span
+class="code-comment">// CPU.</span>        <span class="code-comment">// We have to
+destroy the selector, and</span>        <span class="code-comment">// register all the
+socket on a <span class="code-keyword">new</span> one.</span>        <span
+class="code-keyword">if</span> (nbTries == 0) {            LOG.warn(<span
+class="code-quote">"Create a <span class="code-keyword">new</span> selector. Selected is
+0, delta = "</span> + delta);            registerNewSelector();            nbTries = 10;  
+     } <span class="code-keyword">else</span> {            nbTries--;        }    }} <span
+class="code-keyword">else</span> {    nbTries = 10;}<span
+class="code-comment">/*(...snip..)*/</span></pre></div></div><span class="image-wrap"
+style=""><img
+src="https://issues.apache.org/jira/secure/attachment/12969252/12969252_image-2019-05-21-11-37-41-931.png"
+style="border: 0px solid black" /></span> 
+
+
+New Comment: 
+<blockquote>Do you have a link to the OpenFire issue ?</blockquote>No, this is being
+reported in a non-public project that uses Openfire. 
+
+
+On issue key DIRMINA-1111 the  state  pattern might have been discussed on the following comment: 
+==============================
+Although we're not exactly sure how, we've "resolved" the issue by modifying the snippet
+below:<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Original code for
+org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {   
+buf.reset();    failedRequests.add(req);} <span class="code-keyword">else</span> {   
+IoFilterChain filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div>As said, this triggered
+<tt>InvalidMarkExceptions</tt>. After we added a simple <tt>try/catch</tt> around the
+reset, the CPU spikes go away. We have not investigated why this resolves the CPU spikes,
+but we assume that the thrown exception prevents keys from being consumed.We're still
+suffering from a different issue (all clients unexpectedly reconnect periodically), but
+we're now working on the assumption that the CPU spike is a result, not the cause, of
+this.Looking further into the <tt>clearWriteRequestQueue</tt> snippet, we noticed that
+this is often called from exception handlers. With that, the state of the buffer that it's
+operating on, is likely unpredictable. The call to <tt>reset()</tt> assumes that a mark is
+set, but there are various scenario's where this is untrue:<ul>	<li>the buffer could have
+been completely unused (a buffer fresh from the constructor will cause
+<tt>InvalidMarkException</tt> here</li>	<li>the buffer might have been flipped, but not
+yet read.</li></ul>We're uncertain if the reset is needed, but if it is, we suggest to
+explicitly check if the mark has been set. If not, then we don't believe a reset is
+needed.<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Proposed fix for
+org.apache.mina.core.polling.abstractpollingioprocessor.processor#clearwriterequestqueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    <span
+class="code-keyword">if</span> (buf.markValue() &gt; -1) {        buf.reset();    }   
+failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1111 the chain pattern might have been discussed on the following comment: 
+==============================
+Although we're not exactly sure how, we've "resolved" the issue by modifying the snippet
+below:<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Original code for
+org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {   
+buf.reset();    failedRequests.add(req);} <span class="code-keyword">else</span> {   
+IoFilterChain filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div>As said, this triggered
+<tt>InvalidMarkExceptions</tt>. After we added a simple <tt>try/catch</tt> around the
+reset, the CPU spikes go away. We have not investigated why this resolves the CPU spikes,
+but we assume that the thrown exception prevents keys from being consumed.We're still
+suffering from a different issue (all clients unexpectedly reconnect periodically), but
+we're now working on the assumption that the CPU spike is a result, not the cause, of
+this.Looking further into the <tt>clearWriteRequestQueue</tt> snippet, we noticed that
+this is often called from exception handlers. With that, the state of the buffer that it's
+operating on, is likely unpredictable. The call to <tt>reset()</tt> assumes that a mark is
+set, but there are various scenario's where this is untrue:<ul>	<li>the buffer could have
+been completely unused (a buffer fresh from the constructor will cause
+<tt>InvalidMarkException</tt> here</li>	<li>the buffer might have been flipped, but not
+yet read.</li></ul>We're uncertain if the reset is needed, but if it is, we suggest to
+explicitly check if the mark has been set. If not, then we don't believe a reset is
+needed.<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Proposed fix for
+org.apache.mina.core.polling.abstractpollingioprocessor.processor#clearwriterequestqueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    <span
+class="code-keyword">if</span> (buf.markValue() &gt; -1) {        buf.reset();    }   
+failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1111 the Chain pattern might have been discussed on the following comment: 
+==============================
+Although we're not exactly sure how, we've "resolved" the issue by modifying the snippet
+below:<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Original code for
+org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {   
+buf.reset();    failedRequests.add(req);} <span class="code-keyword">else</span> {   
+IoFilterChain filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div>As said, this triggered
+<tt>InvalidMarkExceptions</tt>. After we added a simple <tt>try/catch</tt> around the
+reset, the CPU spikes go away. We have not investigated why this resolves the CPU spikes,
+but we assume that the thrown exception prevents keys from being consumed.We're still
+suffering from a different issue (all clients unexpectedly reconnect periodically), but
+we're now working on the assumption that the CPU spike is a result, not the cause, of
+this.Looking further into the <tt>clearWriteRequestQueue</tt> snippet, we noticed that
+this is often called from exception handlers. With that, the state of the buffer that it's
+operating on, is likely unpredictable. The call to <tt>reset()</tt> assumes that a mark is
+set, but there are various scenario's where this is untrue:<ul>	<li>the buffer could have
+been completely unused (a buffer fresh from the constructor will cause
+<tt>InvalidMarkException</tt> here</li>	<li>the buffer might have been flipped, but not
+yet read.</li></ul>We're uncertain if the reset is needed, but if it is, we suggest to
+explicitly check if the mark has been set. If not, then we don't believe a reset is
+needed.<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Proposed fix for
+org.apache.mina.core.polling.abstractpollingioprocessor.processor#clearwriterequestqueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    <span
+class="code-keyword">if</span> (buf.markValue() &gt; -1) {        buf.reset();    }   
+failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+==============================
+
+New Comment: 
+Although we're not exactly sure how, we've "resolved" the issue by modifying the snippet
+below:<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Original code for
+org.apache.mina.core.polling.AbstractPollingIoProcessor.Processor#clearWriteRequestQueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {   
+buf.reset();    failedRequests.add(req);} <span class="code-keyword">else</span> {   
+IoFilterChain filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div>As said, this triggered
+<tt>InvalidMarkExceptions</tt>. After we added a simple <tt>try/catch</tt> around the
+reset, the CPU spikes go away. We have not investigated why this resolves the CPU spikes,
+but we assume that the thrown exception prevents keys from being consumed.We're still
+suffering from a different issue (all clients unexpectedly reconnect periodically), but
+we're now working on the assumption that the CPU spike is a result, not the cause, of
+this.Looking further into the <tt>clearWriteRequestQueue</tt> snippet, we noticed that
+this is often called from exception handlers. With that, the state of the buffer that it's
+operating on, is likely unpredictable. The call to <tt>reset()</tt> assumes that a mark is
+set, but there are various scenario's where this is untrue:<ul>	<li>the buffer could have
+been completely unused (a buffer fresh from the constructor will cause
+<tt>InvalidMarkException</tt> here</li>	<li>the buffer might have been flipped, but not
+yet read.</li></ul>We're uncertain if the reset is needed, but if it is, we suggest to
+explicitly check if the mark has been set. If not, then we don't believe a reset is
+needed.<div class="code panel" style="border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;"><b>Proposed fix for
+org.apache.mina.core.polling.abstractpollingioprocessor.processor#clearwriterequestqueue</b></div><div
+class="codeContent panelContent"><pre class="code-java"><span class="code-comment">// The
+first unwritten empty buffer must be</span><span class="code-comment">// forwarded to the
+filter chain.</span><span class="code-keyword">if</span> (buf.hasRemaining()) {    <span
+class="code-keyword">if</span> (buf.markValue() &gt; -1) {        buf.reset();    }   
+failedRequests.add(req);} <span class="code-keyword">else</span> {    IoFilterChain
+filterChain = session.getFilterChain();   
+filterChain.fireMessageSent(req);}</pre></div></div> 
+
+
+New Comment: 
+Replace <tt>buf.reset()</tt> with <tt>buf.clear()</tt>. 
+
+
+New Comment: 
+That would change the behavior - instead of rewinding the buffer to be re-read, it would
+effectively discard information.I'm not sure why we're resetting in the first place here,
+but I'm guessing it serves a purpose (to later process the remainder of the buffer?) With
+a reset, the data will likely be lost (although it's not effectively wiped from the
+buffer, recovering it would be harder). 
+
+
+New Comment: 
+Sorry, <tt>buf.rewind()</tt>  Honestly, it's not necessary at all because the duplicated
+buffer is the one being modified.  The original one is left intact.  I'm not sure why
+<tt>failedRequests</tt> is a thing because any failed writes should mark the
+<tt>IoSession</tt> as invalid and close everything. 
+
+
+New Comment: 
+<tt>rewind()</tt> looks like a simpler solution than resetting-if-marked, but there's a
+small difference in that the position would always revert to 0, instead of the last marked
+position. I'm not sure if that makes any difference to code that depends on this.In any
+case, preventing the <tt>InvalidMarkException</tt> would be achieved by both, and that is
+what seems to prevent the CPU-churning. I'd be happy with either solution. 
+
+
+New Comment: 
+Okay, I checked it. <tt>DefaultWriteRequest</tt> should use <tt>slice()</tt> to duplicate
+the buffer.  That ensures that index 0 is the current position of the input buffer.  That
+way, we can call <tt>clear()</tt> and fully reset the message to the correct start and end
+offsets. 
+
+
+New Comment: 
+I don't quite understand your suggestion. Could you illustrate it with a code snippet
+please? 
+
+
+On issue key DIRMINA-1111 the chain pattern might have been discussed on the following comment: 
+==============================
+Emmanuel is trying to figure out why <tt>reset()</tt> was in there at all.  Might end up
+just removing that call.  For the time being, this fixes the problem.<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">diff --git
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.javaindex
+1553a99..9501074 100644---
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java+++
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java@@
+-1170,7 +1170,7 @@                     <span class="code-comment">// The first unwritten
+empty buffer must be</span>                     <span class="code-comment">// forwarded to
+the filter chain.</span>                     <span class="code-keyword">if</span>
+(buf.hasRemaining()) {-                        buf.reset();+                       
+buf.clear();                         failedRequests.add(req);                     } <span
+class="code-keyword">else</span> {                         IoFilterChain filterChain =
+session.getFilterChain();diff --git
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.javaindex
+8324c6a..23604fa 100644---
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java+++
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java@@ -226,7
++226,7 @@         <span class="code-keyword">if</span> (message <span
+class="code-keyword">instanceof</span> IoBuffer) {             <span
+class="code-comment">// duplicate it, so that any modification made on it</span>          
+  <span class="code-comment">// won't change the original message</span>-            <span
+class="code-keyword">this</span>.message = ((IoBuffer)message).duplicate();+           
+<span class="code-keyword">this</span>.message = ((IoBuffer)message).slice();         }   
+      </pre></div></div> 
+==============================
+
+On issue key DIRMINA-1111 the Chain pattern might have been discussed on the following comment: 
+==============================
+Emmanuel is trying to figure out why <tt>reset()</tt> was in there at all.  Might end up
+just removing that call.  For the time being, this fixes the problem.<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">diff --git
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.javaindex
+1553a99..9501074 100644---
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java+++
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java@@
+-1170,7 +1170,7 @@                     <span class="code-comment">// The first unwritten
+empty buffer must be</span>                     <span class="code-comment">// forwarded to
+the filter chain.</span>                     <span class="code-keyword">if</span>
+(buf.hasRemaining()) {-                        buf.reset();+                       
+buf.clear();                         failedRequests.add(req);                     } <span
+class="code-keyword">else</span> {                         IoFilterChain filterChain =
+session.getFilterChain();diff --git
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.javaindex
+8324c6a..23604fa 100644---
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java+++
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java@@ -226,7
++226,7 @@         <span class="code-keyword">if</span> (message <span
+class="code-keyword">instanceof</span> IoBuffer) {             <span
+class="code-comment">// duplicate it, so that any modification made on it</span>          
+  <span class="code-comment">// won't change the original message</span>-            <span
+class="code-keyword">this</span>.message = ((IoBuffer)message).duplicate();+           
+<span class="code-keyword">this</span>.message = ((IoBuffer)message).slice();         }   
+      </pre></div></div> 
+==============================
+
+New Comment: 
+Emmanuel is trying to figure out why <tt>reset()</tt> was in there at all.  Might end up
+just removing that call.  For the time being, this fixes the problem.<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">diff --git
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.javaindex
+1553a99..9501074 100644---
+a/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java+++
+b/mina-core/src/main/java/org/apache/mina/core/polling/AbstractPollingIoProcessor.java@@
+-1170,7 +1170,7 @@                     <span class="code-comment">// The first unwritten
+empty buffer must be</span>                     <span class="code-comment">// forwarded to
+the filter chain.</span>                     <span class="code-keyword">if</span>
+(buf.hasRemaining()) {-                        buf.reset();+                       
+buf.clear();                         failedRequests.add(req);                     } <span
+class="code-keyword">else</span> {                         IoFilterChain filterChain =
+session.getFilterChain();diff --git
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.javaindex
+8324c6a..23604fa 100644---
+a/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java+++
+b/mina-core/src/main/java/org/apache/mina/core/write/DefaultWriteRequest.java@@ -226,7
++226,7 @@         <span class="code-keyword">if</span> (message <span
+class="code-keyword">instanceof</span> IoBuffer) {             <span
+class="code-comment">// duplicate it, so that any modification made on it</span>          
+  <span class="code-comment">// won't change the original message</span>-            <span
+class="code-keyword">this</span>.message = ((IoBuffer)message).duplicate();+           
+<span class="code-keyword">this</span>.message = ((IoBuffer)message).slice();         }   
+      </pre></div></div> 
+
+
+On issue key DIRMINA-1111 the  state  pattern might have been discussed on the following comment: 
+==============================
+Thanks for both your efforts on this!I still don't quite understand the fix, but am happy
+to accept it. <tt>Clear</tt>, unlike <tt>reset</tt> will prevent the
+<tt>InvalidMarkException</tt>.I'm not confident that using <tt>slice</tt> instead if
+<tt>duplicate</tt> sufficiently prevents the buffer from being in an unpredictable state
+in <tt>clearWriteRequestQueue</tt>. Isn't it possible that after construction (slicing) of
+the WriteRequest and during the processing of that instance an exception occurs that
+causes it to be handled by <tt>clearWriteRequestQueue</tt>? We'd still be in potential
+trouble there. 
+==============================
+
+New Comment: 
+Thanks for both your efforts on this!I still don't quite understand the fix, but am happy
+to accept it. <tt>Clear</tt>, unlike <tt>reset</tt> will prevent the
+<tt>InvalidMarkException</tt>.I'm not confident that using <tt>slice</tt> instead if
+<tt>duplicate</tt> sufficiently prevents the buffer from being in an unpredictable state
+in <tt>clearWriteRequestQueue</tt>. Isn't it possible that after construction (slicing) of
+the WriteRequest and during the processing of that instance an exception occurs that
+causes it to be handled by <tt>clearWriteRequestQueue</tt>? We'd still be in potential
+trouble there. 
+
+
+New Comment: 
+Slice ensures that the bounds of the ByteBuffer View are correct.  The
+<tt>scheduledWriteBytes</tt> counter is incremented and decremented atomically based on
+<tt>remaining()</tt>.  The only purpose of <tt>clear()</tt> is to reset the position so
+when the <tt>scheduledWriteBytes</tt> is decremented as the <tt>IoSession</tt> closes that
+the counter correctly goes to zero.  It should not adversely affect any functionality. 
+
+
+New Comment: 
+Ok, after some history digging, I find out why <tt>buff.reset()</tt> was called. This is a
+11 years old addition : <a
+href="http://svn.apache.org/viewvc?view=revision&amp;revision=592218"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?view=revision&amp;revision=592218</a>.The
+rational, AFAICT, was to be sure the stats about the number of written bytes is correct.
+We should not count the non-written bytes still present in a buffer when the session is
+disposed.Calling <tt>clear()</tt> instead of <tt>ereset()</tt> - which only work when a
+<tt>mark()</tt> has been set - seems the right thing to do. Note that with <tt>2.0.X</tt>
+we don't have this issue because we call <tt>mark</tt>, something we don't do anymore with
+<tt>2.1.X</tt>. 
+
+
+New Comment: 
+Maybe bike-shedding, but wouldn't <tt>clear</tt> potentially cause some bytes to be
+'uncounted', even if they were processed? Even if you're not using <tt>mark</tt> now, at
+some point in the future, that might be introduced again. Checking for a mark,
+and repositioning to the mark if present, otherwise to 0, seems like a desirable defensive
+construct.  
+
+
+New Comment: 
+Did some more checking, the scheduledWriteBytes is always going to get messed up because
+it is being decrement as bytes are written.  My vote is to just remove
+<tt>buf.reset()</tt> line entirely. 
+
+
+New Comment: 
+We might updated the written bytes counter directly in the
+<tt>clearWriteRequestQueue()</tt> method, assuming we know how many bytes have already
+been  written.In any case, if the stats are wrong but the code works (ie does not eat
+100%CPU), I guess it's acceptable for a moment, until we come to a rational view on how to
+correct the stats. 
+
+
+New Comment: 
+<tt>increaseWrittenBytes</tt> automatically decrements <tt>scheduledWriteBytes</tt> 

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 5351ccfb462570c6cc9d9ab50ae7fab40369fcbf
+
+From: Facade-22
+To:   Facade-23
+
+From: Flyweight-14
+To:   Flyweight-15
+
+From: Mediator-52
+To:   Mediator-53
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-14.txt 
+
+commit 5351ccfb462570c6cc9d9ab50ae7fab40369fcbf
+Author: Niklas Therning <niklas@apache.org>
+
+    Added StreamWriteFilter

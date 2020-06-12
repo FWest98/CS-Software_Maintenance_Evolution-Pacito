@@ -1,0 +1,278 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-119 the prototype pattern might have been discussed on the following comment: 
+==============================
+Very hacky prototype. Will refactor / improve following comments.<br/>The one contentious
+issue is probably that I dont bother closing down "idle" worker threads once they've been
+opened - but that was just for the prototype really. I'll add support that back following
+initial feedback when I do the refactoring. 
+==============================
+
+New Comment: 
+Very hacky prototype. Will refactor / improve following comments.<br/>The one contentious
+issue is probably that I dont bother closing down "idle" worker threads once they've been
+opened - but that was just for the prototype really. I'll add support that back following
+initial feedback when I do the refactoring. 
+
+
+New Comment: 
+I would really love to be able to specify a different SocketIOProcessor thread per 
+Connector or ProtocolAcceptor. the common thread between all my processosr create a lot of
+deadlock when a connector event try to wait a reply on a different connector, blocking the
+whole socket processing. 
+
+
+On issue key DIRMINA-119 the Factory pattern might have been discussed on the following comment: 
+==============================
+My proposed change wouldn't solve your particular problem.<br/>Although it raises a
+further question: Maybe the best level of abstraction for the threading model is at the
+SocketIoProcessor level (I.e, a SocketIoProcessor has a selector and a selector loop), but
+we can potentially have multiple processors.The reason I didn't do it this way in my
+prototype is that I wanted to keep refactoring to a minimum just to see if there was any
+support for the idea (and the easiest way was to bodge it in to SocketIoProcessor).If we
+do the thread modelling at the SocketIoProcessor level, you could then have a
+ProcessorFactory or whatever.<br/>This would enable any-old custom logic to map processors
+to SocketSessions.Hmmmm - getting more complex though, and a wider ranging change
+:o)Trustin? 
+==============================
+
+On issue key DIRMINA-119 the prototype pattern might have been discussed on the following comment: 
+==============================
+My proposed change wouldn't solve your particular problem.<br/>Although it raises a
+further question: Maybe the best level of abstraction for the threading model is at the
+SocketIoProcessor level (I.e, a SocketIoProcessor has a selector and a selector loop), but
+we can potentially have multiple processors.The reason I didn't do it this way in my
+prototype is that I wanted to keep refactoring to a minimum just to see if there was any
+support for the idea (and the easiest way was to bodge it in to SocketIoProcessor).If we
+do the thread modelling at the SocketIoProcessor level, you could then have a
+ProcessorFactory or whatever.<br/>This would enable any-old custom logic to map processors
+to SocketSessions.Hmmmm - getting more complex though, and a wider ranging change
+:o)Trustin? 
+==============================
+
+New Comment: 
+My proposed change wouldn't solve your particular problem.<br/>Although it raises a
+further question: Maybe the best level of abstraction for the threading model is at the
+SocketIoProcessor level (I.e, a SocketIoProcessor has a selector and a selector loop), but
+we can potentially have multiple processors.The reason I didn't do it this way in my
+prototype is that I wanted to keep refactoring to a minimum just to see if there was any
+support for the idea (and the easiest way was to bodge it in to SocketIoProcessor).If we
+do the thread modelling at the SocketIoProcessor level, you could then have a
+ProcessorFactory or whatever.<br/>This would enable any-old custom logic to map processors
+to SocketSessions.Hmmmm - getting more complex though, and a wider ranging change
+:o)Trustin? 
+
+
+New Comment: 
+What about providing some static methods for SocketIoProcessor and DatagramConnector such
+as...:<ul>	<li>getSelectorThreads()</li>	<li>setSelectorThreads(int nThreads)</li></ul>So
+user can control the number of selector loops?And we could assign one SocketIoProcessor
+per SocketAcceptor (or SocketConnector) and make the methods above non-static.  (Actually
+this gives a user more flexibility)WDYT? 
+
+
+New Comment: 
+Hi,I've been out of the office for a couple of days, and have a few meetings this
+afternoon.<br/>However, I'll try and take a look over the weekend, or maybe early next
+week - and I'll post a patch to this issue as soon as I can.Thanks,Dave 
+
+
+On issue key DIRMINA-119 the strategy pattern might have been discussed on the following comment: 
+==============================
+Hi Dave,Great,  actually I closed <a
+href="https://issues.apache.org/jira/browse/DIRMINA-113" title="SocketIoProcessor should
+use ExceptionMonitor to log exceptions." class="issue-link"
+data-issue-key="DIRMINA-113"><del>DIRMINA-113</del></a> today and added a new interface
+'SocketSessionManager' that SocketAcceptor and SocketConnector implement.  You'll have to
+implement the two methods in SocketSessionManager (SocketAcceptorDelegate and
+SocketConnectorDelegate, strictly speaking).Please let me know if you have any problem
+with this.  For now, I think we can use round-robin strategy.  But it would be also great
+if we can make it so effective.Thanks,<br/>Trustin 
+==============================
+
+New Comment: 
+Hi Dave,Great,  actually I closed <a
+href="https://issues.apache.org/jira/browse/DIRMINA-113" title="SocketIoProcessor should
+use ExceptionMonitor to log exceptions." class="issue-link"
+data-issue-key="DIRMINA-113"><del>DIRMINA-113</del></a> today and added a new interface
+'SocketSessionManager' that SocketAcceptor and SocketConnector implement.  You'll have to
+implement the two methods in SocketSessionManager (SocketAcceptorDelegate and
+SocketConnectorDelegate, strictly speaking).Please let me know if you have any problem
+with this.  For now, I think we can use round-robin strategy.  But it would be also great
+if we can make it so effective.Thanks,<br/>Trustin 
+
+
+New Comment: 
+Sounds good!<br/>I'll try to spend some time looking at this over the weekend.Thanks,Dave 
+
+
+New Comment: 
+I think we can make it included in 0.9.0 
+
+
+New Comment: 
+Users might not need to adjust the number of SocketIoProcessor in runtime.  Letting user
+specify an appropriate number they like with the constructor will be fine for now.  It
+would be great if there is any optimal number of processors for the number of CPUs.  Any
+idea? 
+
+
+On issue key DIRMINA-119 the prototype pattern might have been discussed on the following comment: 
+==============================
+Hi Trustin,Yes, I think this is fine. There is no real reason I can think of why you'd
+want to change the number of processors at runtime. The most effective number is likely to
+be bound in to the number of available CPUs. <br/>Certainly an easy way to configure this
+currently - as you say - would be to pass the number of worker threads to be employed at
+construction time of the SocketIoProcessor.I've got some free time today, so I'll try and
+tidy up the prototype and submit a patch 
+==============================
+
+New Comment: 
+Hi Trustin,Yes, I think this is fine. There is no real reason I can think of why you'd
+want to change the number of processors at runtime. The most effective number is likely to
+be bound in to the number of available CPUs. <br/>Certainly an easy way to configure this
+currently - as you say - would be to pass the number of worker threads to be employed at
+construction time of the SocketIoProcessor.I've got some free time today, so I'll try and
+tidy up the prototype and submit a patch 
+
+
+New Comment: 
+How about creating more than one SocketIoProcessor instead of maintaining a number of
+worker threads? This would simplify things a lot I think.
+SocketAcceptorDelegate/SocketConnectorDelegate would have a list of SocketIoProcessors
+each. The number of SocketIoProcessors is configured using setProcessors() on the
+SocketSessionManager. When a new SocketSession is created the next (round-robin)
+SocketIoProcessor in the acceptor/connector's list of processors is passed in in the
+SocketSession constructor. Seems like an extremelly simple solution to me but there might
+be drawbacks? 
+
+
+On issue key DIRMINA-119 the singleton pattern might have been discussed on the following comment: 
+==============================
+Yes, that is a good and logical solution. I did think a while back that keeping the
+threading at the io processor level might be a good way to go (see 4th post above). And
+infact, the refactoring which has been done for 0.9 such that SocketIoProcessor isn't a
+singleton anymore makes it much easier.Drawbacks.....The only drawback I can see is that
+in many systems it is most efficient to have a single pool of selector loops driving the
+whole IO system (as the number of threads is tied to the number of CPUs). Going this route
+would mean we'd have a bunch of threads for connectors and a bunch of threads for
+acceptors. Its not a huge problem though - just means we get slightly more context
+switching than we really need.The other way round would be to change SocketSessionManager
+to just have a setter for a ProcessorFactory or something (as in 4th post above). That way
+we can use the same pool across the whole of mina (acceptors and connectors) - and we dont
+get any code duplication as the factory does the round-robining instead of the acceptor /
+connector delegates. 
+==============================
+
+On issue key DIRMINA-119 the factory pattern might have been discussed on the following comment: 
+==============================
+Yes, that is a good and logical solution. I did think a while back that keeping the
+threading at the io processor level might be a good way to go (see 4th post above). And
+infact, the refactoring which has been done for 0.9 such that SocketIoProcessor isn't a
+singleton anymore makes it much easier.Drawbacks.....The only drawback I can see is that
+in many systems it is most efficient to have a single pool of selector loops driving the
+whole IO system (as the number of threads is tied to the number of CPUs). Going this route
+would mean we'd have a bunch of threads for connectors and a bunch of threads for
+acceptors. Its not a huge problem though - just means we get slightly more context
+switching than we really need.The other way round would be to change SocketSessionManager
+to just have a setter for a ProcessorFactory or something (as in 4th post above). That way
+we can use the same pool across the whole of mina (acceptors and connectors) - and we dont
+get any code duplication as the factory does the round-robining instead of the acceptor /
+connector delegates. 
+==============================
+
+On issue key DIRMINA-119 the Factory pattern might have been discussed on the following comment: 
+==============================
+Yes, that is a good and logical solution. I did think a while back that keeping the
+threading at the io processor level might be a good way to go (see 4th post above). And
+infact, the refactoring which has been done for 0.9 such that SocketIoProcessor isn't a
+singleton anymore makes it much easier.Drawbacks.....The only drawback I can see is that
+in many systems it is most efficient to have a single pool of selector loops driving the
+whole IO system (as the number of threads is tied to the number of CPUs). Going this route
+would mean we'd have a bunch of threads for connectors and a bunch of threads for
+acceptors. Its not a huge problem though - just means we get slightly more context
+switching than we really need.The other way round would be to change SocketSessionManager
+to just have a setter for a ProcessorFactory or something (as in 4th post above). That way
+we can use the same pool across the whole of mina (acceptors and connectors) - and we dont
+get any code duplication as the factory does the round-robining instead of the acceptor /
+connector delegates. 
+==============================
+
+New Comment: 
+Yes, that is a good and logical solution. I did think a while back that keeping the
+threading at the io processor level might be a good way to go (see 4th post above). And
+infact, the refactoring which has been done for 0.9 such that SocketIoProcessor isn't a
+singleton anymore makes it much easier.Drawbacks.....The only drawback I can see is that
+in many systems it is most efficient to have a single pool of selector loops driving the
+whole IO system (as the number of threads is tied to the number of CPUs). Going this route
+would mean we'd have a bunch of threads for connectors and a bunch of threads for
+acceptors. Its not a huge problem though - just means we get slightly more context
+switching than we really need.The other way round would be to change SocketSessionManager
+to just have a setter for a ProcessorFactory or something (as in 4th post above). That way
+we can use the same pool across the whole of mina (acceptors and connectors) - and we dont
+get any code duplication as the factory does the round-robining instead of the acceptor /
+connector delegates. 
+
+
+New Comment: 
+I like the idea with a SocketIoProcessorPool. Then the scheduling would be up to the pool.
+And you could change the pool implementation using setProcessorPool on a
+SocketSessionManager, right? 
+
+
+New Comment: 
+Yes... the interface of SocketSessionManager would change from get / set processors to
+setSocketIoProcessorPool.The only problem I can see with is that SocketIoProcessor needs a
+link back to its parent IoSessionManager so that it can notify it of (non session related)
+exceptions.However, we could easily solve this by having the pool keep track of a list of
+exception monitors to notify when an exception occurs (i.e, the list of SSMs) 
+
+
+New Comment: 
+Sounds good. The SocketIoProcessor constructor takes an exception monitor as an argument
+instead of the parent IoSessionManager. Then the SocketIoProcessorPool could be configured
+with an exception monitor. Would it really be necessary to maintain a list of exception
+monitors? Then you would still have to make sure that an exception is passed to the
+correct exception monitor associated with the SessionManager the session was originally
+created by? Or am I missing something here? 
+
+
+New Comment: 
+&gt; The SocketIoProcessor constructor takes an exception monitor as an argument instead
+of the parent IoSessionManagerYes&gt; Then the SocketIoProcessorPool could be configured
+with an exception monitor. Possibily, but I think that is maybe forcing knowledge of too
+many implementation details to the user.<br/>Today, you just configure an ExceptionMonitor
+on an IoSessionManager (connectors / acceptors).<br/>So non-session related exceptions are
+provided to this monitor.<br/>I dont think pooling changes that. Sure, we now have
+multiple processors, but they are all working on behalf of all SessionManagers which are
+using them. As such, if an exception occurs in a pooled IoProcessor, I think we should
+notify the exception monitors of all session managers which are using the pool. 
+
+
+On issue key DIRMINA-119 the proxy pattern might have been discussed on the following comment: 
+==============================
+I see and agree. We could use a proxy ExceptionManager which broadcasts exceptions to a
+set of exception managers then. No need for the SocketIoProcessor to know there are more
+than one ExceptionMonitor. It's important that it is a set though (and not a list)
+otherwise the same exception monitor could be notified multiple times about the same
+exception. 
+==============================
+
+New Comment: 
+I see and agree. We could use a proxy ExceptionManager which broadcasts exceptions to a
+set of exception managers then. No need for the SocketIoProcessor to know there are more
+than one ExceptionMonitor. It's important that it is a set though (and not a list)
+otherwise the same exception monitor could be notified multiple times about the same
+exception. 
+
+
+On issue key DIRMINA-119 the proxy pattern might have been discussed on the following comment: 
+==============================
+Yes - that sounds excellent. <br/>So, we have:interface SocketIoProcessorPool {  public
+void associateProcessor(IoSession s);}interface SocketSessionManager {  public void
+setSocketIoProcessorPool(SocketIoProcessorPool pool);}SimpleServiceRegistry (and spring
+integration?) then sets a proxy Exception mo

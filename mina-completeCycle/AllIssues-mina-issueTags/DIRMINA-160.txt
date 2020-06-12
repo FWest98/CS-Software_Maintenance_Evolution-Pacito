@@ -1,0 +1,337 @@
+On issue key DIRMINA-160 the  state  pattern might have been discussed, namely here: 
+==============================
+Add support for defining higher level state machines on top of MINA 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<a href="http://blissed.codehaus.org/" class="external-link"
+rel="nofollow">http://blissed.codehaus.org/</a> is an open-source FSM framework you could
+pull ideas/inspirations from. 
+
+
+On issue key DIRMINA-160 the  state  pattern might have been discussed on the following comment: 
+==============================
+We can really use this in the ASN1 codecs.  I think Alan started using the state pattern
+with one of his branches. 
+==============================
+
+On issue key DIRMINA-160 the pattern pattern might have been discussed on the following comment: 
+==============================
+We can really use this in the ASN1 codecs.  I think Alan started using the state pattern
+with one of his branches. 
+==============================
+
+New Comment: 
+We can really use this in the ASN1 codecs.  I think Alan started using the state pattern
+with one of his branches. 
+
+
+On issue key DIRMINA-160 the  State  pattern might have been discussed on the following comment: 
+==============================
+This is a message from J-F.  I put this here to track this issue more easily:--------Hi
+Niklas,I suggested this some time ago. As Mina is asynchronous, this leads indeed
+to<br/>state-based protocol handler.It would be a great idea to develop code that could be
+reused.The State pattern can help:<br/><a
+href="http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html"
+class="external-link"
+rel="nofollow">http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html</a>.Unfortunately,
+I don't know any open-source implementation of it.Cheers,J-F 
+==============================
+
+On issue key DIRMINA-160 the pattern pattern might have been discussed on the following comment: 
+==============================
+This is a message from J-F.  I put this here to track this issue more easily:--------Hi
+Niklas,I suggested this some time ago. As Mina is asynchronous, this leads indeed
+to<br/>state-based protocol handler.It would be a great idea to develop code that could be
+reused.The State pattern can help:<br/><a
+href="http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html"
+class="external-link"
+rel="nofollow">http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html</a>.Unfortunately,
+I don't know any open-source implementation of it.Cheers,J-F 
+==============================
+
+New Comment: 
+This is a message from J-F.  I put this here to track this issue more easily:--------Hi
+Niklas,I suggested this some time ago. As Mina is asynchronous, this leads indeed
+to<br/>state-based protocol handler.It would be a great idea to develop code that could be
+reused.The State pattern can help:<br/><a
+href="http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html"
+class="external-link"
+rel="nofollow">http://www.javaworld.com/javaworld/jw-08-1997/jw-08-stated_p.html</a>.Unfortunately,
+I don't know any open-source implementation of it.Cheers,J-F 
+
+
+On issue key DIRMINA-160 the Proxy pattern might have been discussed on the following comment: 
+==============================
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.One problem with MethodTransition is that it relies heavily on reflection which can
+be slow. However, I think the method matching stuff can be cached and the reflective
+method invocations could be replaced with runtime generated byte code if necessary.There
+are probably a bunch of other problems with this approach that I haven't thought of myself
+so please have a look and let me know what you think. Is this something you would like to
+see in MINA? 
+==============================
+
+On issue key DIRMINA-160 the proxy pattern might have been discussed on the following comment: 
+==============================
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.One problem with MethodTransition is that it relies heavily on reflection which can
+be slow. However, I think the method matching stuff can be cached and the reflective
+method invocations could be replaced with runtime generated byte code if necessary.There
+are probably a bunch of other problems with this approach that I haven't thought of myself
+so please have a look and let me know what you think. Is this something you would like to
+see in MINA? 
+==============================
+
+On issue key DIRMINA-160 the  State  pattern might have been discussed on the following comment: 
+==============================
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.One problem with MethodTransition is that it relies heavily on reflection which can
+be slow. However, I think the method matching stuff can be cached and the reflective
+method invocations could be replaced with runtime generated byte code if necessary.There
+are probably a bunch of other problems with this approach that I haven't thought of myself
+so please have a look and let me know what you think. Is this something you would like to
+see in MINA? 
+==============================
+
+On issue key DIRMINA-160 the  state  pattern might have been discussed on the following comment: 
+==============================
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.One problem with MethodTransition is that it relies heavily on reflection which can
+be slow. However, I think the method matching stuff can be cached and the reflective
+method invocations could be replaced with runtime generated byte code if necessary.There
+are probably a bunch of other problems with this approach that I haven't thought of myself
+so please have a look and let me know what you think. Is this something you would like to
+see in MINA? 
+==============================
+
+On issue key DIRMINA-160 the Factory pattern might have been discussed on the following comment: 
+==============================
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.One problem with MethodTransition is that it relies heavily on reflection which can
+be slow. However, I think the method matching stuff can be cached and the reflective
+method invocations could be replaced with runtime generated byte code if necessary.There
+are probably a bunch of other problems with this approach that I haven't thought of myself
+so please have a look and let me know what you think. Is this something you would like to
+see in MINA? 
+==============================
+
+New Comment: 
+I've checked in some code into my sandbox area which is a simple proposal for how this
+could be done. Here's the Subversion URL:<a
+href="https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/directory/sandbox/niklas/mina-sm/</a>I
+haven't had the time yet to write a good example. I guess StateMachineProxyFactoryTest
+could be a good starting point. Just let me know if you have any questions. Now I'll try
+to explain briefly how it works:Basically, it let's you define a Finite State Machine
+(FSM) and hide that behind a dynamic proxy which implements the interface(s) the outside
+world (the client) calls. In the MINA case this interface is most likely to be IoHandler
+but it might as well be IoFilter or any other interface. All method calls on the proxy
+object will be translated into Event objects which are fed to the FSM. The method name
+becomes the id of the event and the method arguments become the event arguments. So, if
+handler is a proxy which implements IoHandler the call handler.messageReceived(session,
+message) will become the event Event("messageReceived", {session, message}).The FSM is a
+directed graph where each node is a State object and the edges are Transition objects.
+States can have entry and exit Actions attached to them which get executed when entering
+or leaving the state. Transitions also have code attached to them which gets executed when
+the transition occurs. Furthermore, a State can have a parent which makes it possible to
+inherit transitions from other states.When a new event occurs the current state will be
+fetched from the MINA session (it is stored as an attribute). The state will cycle through
+it's transitions in the order they were added and see whether any of the transitions can
+handle the event. If none of them can the state will delegate to its parent state if there
+is one.The Transition interface has a single execute() method returning a boolean which
+tells the state whether the transition occured or not. The code so far includes one
+Transition implementation, MethodTransition, which let's you point to a method on an
+object which you want to be executed when the transition occurs. Note that it can be any
+method on any object, you don't have to implement a certain interface. Futhermore,
+MethodTransition will make sure the method signature of the method you point to matches a
+subset of the arguments of the event. It will also make sure the arguments passed in the
+Event object are compatible with the signature of the method. E.g. if you have the method
+parseError(IoSession session, ParseException pe) and you specifiy that it should be called
+on exceptionCaught events it will only be called if the exception is an instance of
+ParseException. If the method greetingReceived(IoSession session, POP3Greeting greeting)
+is to be called for messageReceived events if will only be called if the message is an
+instance of POP3Greeting. I think this is quite nice since it will eliminate a lot of type
+casts.On

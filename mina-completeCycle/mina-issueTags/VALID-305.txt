@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 3c64924759f09cd40448a1a45964699cd0b93d7b
+
+From: Strategy-42
+To:   Strategy-43
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-305.txt 
+
+commit 3c64924759f09cd40448a1a45964699cd0b93d7b
+Author: Trustin Lee <trustin@apache.org>
+
+    Changed IoSessionOutputStream to wait for the WriteFuture only when a user calls flush().

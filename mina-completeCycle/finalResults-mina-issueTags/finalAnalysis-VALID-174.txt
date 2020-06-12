@@ -1,0 +1,181 @@
+Pattern changes caused by commit: b8acf1011ddecf64a72cb37e7338ac56c1577ead
+
+From: Singleton-2
+To:   Singleton-1
+
+From: Decorator-3
+To:   Decorator-4
+
+From: Flyweight-20
+To:   Flyweight-19
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-174.txt 
+
+commit b8acf1011ddecf64a72cb37e7338ac56c1577ead
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-185 - Reference-counting based init/destroy of IoFilters has been moved into a wrapper class that can be used when users desire that behavior. By default, MINA will not init/destroy IoFilter instances.
+
+
+
+==================================
+ Issue DIRMINA-185 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-185] Refactor IoFilter life cycle management
+-----------------
+
+-----------------
+Summary: Refactor IoFilter life cycle management
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 5 Mar 2006 19:02:26 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 29 Apr 2006 23:45:40 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+I thought it would be good to have this discussion in JIRA. Please add your thoughs to
+this issue. Below I'll try to give a background to the problem.
+
+Recently, a discussion on
+IoFilter life cycle management has been going on on the MINA mailing list. Questions have
+been raised whether MINA should provide life cycle management (LCM) for all filters (the
+current situation), if it should be optional (either on by default or off by default) or
+if it shouldn't be supported at all.
+
+In version 0.9.2 of MINA IoFilter has six LCM
+methods:
+
+init, onPreAdd, onPostAdd, onPreRemove, onPostRemove and destroy
+
+The LCM is
+handled by AbstractIoFilterChain and the singleton IoFilterLifeCycleManager.
+IoFilterLifeCycleManager uses reference counting to determine whether init/destroy should
+be called when a filter is added to/removed from a filter chain. 
+
+In MINA 0.8 filter
+chains were typically shared among sessions. This meant that init/destroy would only be
+called once (or at least very few times) in the lifetime of an application. However, in
+MINA 0.9 filter chains are always per session which means that in some circumstances
+init/destroy will be called very frequently.
+
+The discussion on LCM forked from the
+discussion on <a href="https://issues.apache.org/jira/browse/DIRMINA-169" title="Deadlock
+in ThreadPoolFilter" class="issue-link"
+data-issue-key="DIRMINA-169"><del>DIRMINA-169</del></a>. The LCM described above causes a
+deadlock in the current implementation of ThreadPoolFilter.
+
+How do you think MINA should
+handle LCM?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I would like to see the IoFilterLCM go away.IoFilter's that want the current behavior can
+implement ref'counting themselves (via a decorator or abstract superclass). 
+
+
+New Comment: 
+I agree with Peter.  So, here's my idea:<ul>	<li>Remove IoFilter.init() and
+IoFilter.destroy();</li>	<li>Create a new utility decorator class. say,
+'IoFilterWithLifeCycle' (Please suggest better names), which</li>	<li>provides a protected
+void init() and destroy().</li>	<li>implements other lifecycle methods in IoFilter so it
+calls init() and destroy() properly.</li></ul>WDYT? 
+
+
+New Comment: 
+This issue relates to <a href="https://issues.apache.org/jira/browse/DIRMINA-169"
+title="Deadlock in ThreadPoolFilter" class="issue-link"
+data-issue-key="DIRMINA-169"><del>DIRMINA-169</del></a> very closely. If we remove
+IoFilter.init() and destroy(), then how can users wrap ThreadPoolFilter with
+IoFilterWithLifeCycle class?  We cannot if we don't have any standardized names.  We need
+to add another interface which provides standard method names so users can wrap
+ThreadPoolFilter and IoFilterWithLifeCycle call ThreadPoolFilter.init() and destroy()
+appropriately.  For example:interface LifeCycleSupport {  // or we could extend
+IoFilter<br/>    void start() throws Exception;<br/>    void stop() throws
+Exception;<br/>}public class ThreadPoolFilter implements IoFilter, LifeCycleSupport
+{...}public class IoFilterWithLifeCycle {<br/>    public void start()<br/>    {<br/>      
+ ...<br/>        if( wrappedFilter instanceof LifeCycleSupport ) {           
+wrappedFilter.start();        }        ...<br/>    }<br/>} 
+
+
+New Comment: 
+ya, we should have a standard interface for things-with-lifecycle.How about:interface
+Startable {<br/>    void start() throws Exception;<br/>    void stop() throws
+Exception;<br/>}.. then it can also be re-used on other components that have a LC as well. 
+
+
+New Comment: 
+Will we have another type like an IoFilter, which has a life cycle?  I'm not sure about
+this, so introducing too generic interface might not be a good move.  Any prospection? 
+
+
+New Comment: 
+Okay, would like to get some movement on this again.. How about:init and destroy become
+start and stop (and remain on IoFilter interface)IoFilterLCM goes away. Filters that want
+to start and stop whenever their reference count goes to 0 can use a wrapping filter that
+adds that behavior (MINA will provide), calling IoFilter.start/stop.I think that
+encompasses what has been said in the comments.. 
+
+
+New Comment: 
+I just committed a patch that removes the LCM, and adds a wrapper class that contains the
+reference counting behavior. 
+
+
+New Comment: 
+LCM has been refactored. 
+
+
+New Comment: 
+Peter's change looks great.  Niklas, could you close this issue after your review? 
+
+
+New Comment: 
+The changes look great! Nice work Pete! One tiny little thing, shouldn't the wrapper be
+moved out from the support package? My impression has been that the support packages
+shouldn't be used by users, only internally by MINA. Right now the support packages aren't
+included in the generated Javadoc so most users won't even know about this class. Am I
+right? 
+
+
+New Comment: 
+yep my intention behind 'support' package is to indicate users that those classes are for
+internal use only. It would be nice if we can put it in common package? 
+
+
+New Comment: 
+I've moved it up into common. I'll close this issue now. 
+
+

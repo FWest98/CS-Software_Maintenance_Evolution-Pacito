@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 671d240d27f7cfe3b3d7fc78a4d7f89ce857c375
+
+From: Abstract Factory-4
+To:   Abstract Factory-5
+
+From: Factory Method-6
+To:   Factory Method-7
+
+From: Mediator-68
+To:   Mediator-69
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-105.txt 
+
+commit 671d240d27f7cfe3b3d7fc78a4d7f89ce857c375
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-176 (ByteBuffer pool manager which prevents endlessly increasing pool size.)
+    * Separated buffer pool from ByteBuffer to PooledByteBufferAllocator
+    * Added a new interface, ByteBufferAllocator
+    * Added SimpleByteBufferAllocator

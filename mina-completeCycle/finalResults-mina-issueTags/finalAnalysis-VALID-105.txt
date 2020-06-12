@@ -1,0 +1,190 @@
+Pattern changes caused by commit: 671d240d27f7cfe3b3d7fc78a4d7f89ce857c375
+
+From: Abstract Factory-4
+To:   Abstract Factory-5
+
+From: Factory Method-6
+To:   Factory Method-7
+
+From: Mediator-68
+To:   Mediator-69
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-105.txt 
+
+commit 671d240d27f7cfe3b3d7fc78a4d7f89ce857c375
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-176 (ByteBuffer pool manager which prevents endlessly increasing pool size.)
+    * Separated buffer pool from ByteBuffer to PooledByteBufferAllocator
+    * Added a new interface, ByteBufferAllocator
+    * Added SimpleByteBufferAllocator
+
+
+
+==================================
+ Issue DIRMINA-176 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-176] ByteBuffer pool manager which prevents endlessly increasing pool size.
+-----------------
+
+-----------------
+Summary: ByteBuffer pool manager which prevents endlessly increasing pool size.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 22 Feb 2006 23:21:03 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 11 Mar 2006 16:56:29 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The current implementation of ByteBuffer pool is designed to increase its size for ever;
+it doesn't decrease at all.  This is often a cause of OutOfMemoryError and unexpedly huge
+heap size.  There's one viable solution for this issue:
+<ul>	<li>Remove the buffers which
+have been unused for a long time from the pool.</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Would it also be possible to say "only pool X bytes worth of buffers" ? .. might be room
+for multiple strategies depending on the workload that's being incurred 
+
+
+New Comment: 
+I'd like time out for ByteBuffers too, it is all we need.To implement application
+specified strategies of pooling there will be the JMX support <a
+href="https://issues.apache.org/jira/browse/DIRMINA-29" title="JMX integration"
+class="issue-link" data-issue-key="DIRMINA-29"><del>DIRMINA-29</del></a>.<br/>With the JMX
+we could monitor and manage the pool state for user-defined strategies. 
+
+
+New Comment: 
+Let's assume that we decided to limit the maximum size of the pool to 128 MB.  What should
+we do once user allocates 128MB buffer and release it to the pool?  What should happen to
+all other smaller buffers?  This is what makes the limitation based by size difficult to
+implement.  Any ideas? 
+
+
+New Comment: 
+I'd say the 128MB buffer isn't cached.If trying to keep a pool of a fixed memory size,
+requests to cache buffers that were a large portion of the pool size, or greater, would be
+ignored. 
+
+
+New Comment: 
+Retaining smaller buffers can also cause a problem depending on an application's memory
+usage characterstics.  What about providing both strategy at the same time? 
+
+
+New Comment: 
+Yes, but, by the pool point of view, what is regarded as a smaller buffer and a bigger
+buffer? Supposing to have an application that uses 30 byte buffers and occasionally some
+2kb buffers (this is the case of one of the ones I'm working on now), the pool would have
+serious problems to understand which ones are "smaller" and "bigger", since all of them
+are of the smallest or biggest size available.In this case not to cache smallest and
+biggest buffer is a problem, and to limit the maximum size would certainly not be an
+improvement.But many low-level byte protocols use short fixed lenght packets for "command"
+messages and use long variable lenght packets for "transport" messages, so my case is a
+common case.I think what you're suggesting is very good for protocols which use many
+different-sized buffers, and should therefore be implemented, but we should also let users
+chose whether to use it or not.In the overload control, we should also think about
+interrupting  the work when the memory limit of the pool is exceeded, in order to permit
+the application to flush and release the buffers that haven't been written yet. 
+
+
+New Comment: 
+Indeed... In fact, in one of my applications I have a similar pooling issue (non Mina) -
+where many buffers are small, and ocassionally there are much larger buffers required. It
+is desireable to pool both types.What I do is partition the pool in to ranges.This works
+for me, as I always know in advance what size "range" im likely to be in for a given read
+or write.<br/>I suppose for Mina you could maybe supply a "hint" when aquiring a buffer
+for write.<br/>And for reads, I suppose its possible to find out from the NIO API how much
+data is likely to be read in the current read?Just thinking out loud really.... 
+
+
+New Comment: 
+I like the idea of partitioning the pool. Each range could have it's own pooling
+characteristics i. e. longer eviction time for smaller buffers while larger buffers are
+released sooner. I've worked with the Commons-Pool-Package of Jakarta and found the
+GenericObjectPool and its configuration quite intuitive to use. Maybe some inspiration can
+be borrowed from there <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><a
+href="http://jakarta.apache.org/commons/pool/apidocs/org/apache/commons/pool/impl/GenericObjectPool.html"
+class="external-link"
+rel="nofollow">http://jakarta.apache.org/commons/pool/apidocs/org/apache/commons/pool/impl/GenericObjectPool.html</a> 
+
+
+New Comment: 
+This jakarta api seems to be the right solution, we can do a GenericObjectPool for each
+buffer size, at the same way we mantain multiple stacks now.<br/>This api provides the
+timeout we thought, it provides also the method that block if the objects are not
+available (in case we are over the maximum size of the pool, and we cannot allocate other
+buffers).<br/>We have to define better some things, but it looks great to me.One thing is
+the following: in this jakarta pool the new objects are provided by a factory that
+allocate all the objects equals. So for each partition we will be obliged to allocate only
+one kind of buffer, the higher size buffer of the partition, right? I'm not so good with
+english, so I hope I have well explained my doubt. 
+
+
+New Comment: 
+Another problem I see that objects borrowed from a pool must be returned to the same pool.
+But ByteBuffers can grow dynamically so that later they must be returned to another pool
+which contains the larger buffers. That would violate the API contract of
+borrowObject-returnObject. 
+
+
+New Comment: 
+this is not a problem because the pooled buffers are java.nio.ByteBuffers, and they are
+fixed lenght long.<br/>The expand() method of mina ByteBuffer simply copy all the data
+into another bigger buffer. 
+
+
+New Comment: 
+Please take a look at this change:<a
+href="http://svn.apache.org/viewcvs?rev=385023&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs?rev=385023&amp;view=rev</a>I created a new
+interface ByteBufferAllocator.  (Please let me know if you have a better name <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/>  Now you can implement your
+own buffer allocator so you can change the behavior of the allocator without any limit.Any
+comments are welcome.  If there's no objection, I'll mark this issue as resolved after
+adding expiration scheme to PooledBufferAllocator. 
+
+
+New Comment: 
+I like it, it is flexibile, and we don't lose anithing of the good behaviour of actual
+ByteBuffer.When timeout for pooled objects in PooledBufferAllocator is ready it will be
+perfect to me. 
+
+

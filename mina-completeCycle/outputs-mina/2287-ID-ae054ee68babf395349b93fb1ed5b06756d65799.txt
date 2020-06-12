@@ -1,0 +1,68 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Strategy Pattern.
+DefaultWriteRequest is the Context class.
+IoFuture is the Strategy interface.
+Concrete Strategy classes:  AbstractIoFuture DefaultWriteFuture
+Delegation through future of type IoFuture
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/session/DefaultWriteRequest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/api/IoFuture-refactored.java
+
+Strategy Pattern.
+EventRunner is the Context class.
+Event is the Strategy interface.
+Concrete Strategy classes:  SentEvent ReceiveEvent OpenEvent IdleEvent CloseEvent
+Delegation through event of type Event
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/service/executor/UnorderHandlerExecutor-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/service/executor/Event-refactored.java
+
+Flyweight Pattern.
+LineDelimiter is a flyweight factory.
+AUTO is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/codec/src/main/java/org/apache/mina/codec/textline/LineDelimiter-refactored.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   1
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    2
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 52
+Number of files processed: 257
+Size of DelegationTable: 86
+Size of concrete class nodes: 24
+Size of undirected invocation edges: 5
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/1
+nFlyweightGoFVersion = 0

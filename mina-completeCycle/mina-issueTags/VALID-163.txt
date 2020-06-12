@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 520ebc495d1410069fa7b36966a335cff204efdd
+
+From: Mediator-73
+To:   Mediator-75
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-163.txt 
+
+commit 520ebc495d1410069fa7b36966a335cff204efdd
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-200 (IBM iSeries throws unexpected SocketException)
+    * Socket/DatagramSessionConfigImpl now pre-calculates default values and availability of socket options

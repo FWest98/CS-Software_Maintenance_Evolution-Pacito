@@ -1,0 +1,28 @@
+Pattern changes caused by commit: b4f6595f2352fa4763007beb26b9205838355e44
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Facade-25
+To:   Facade-26
+
+From: Flyweight-18
+To:   Flyweight-19
+
+From: Mediator-70
+To:   Mediator-71
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-128.txt 
+
+commit b4f6595f2352fa4763007beb26b9205838355e44
+Author: Trustin Lee <trustin@apache.org>
+
+    * Resolved issue: DIRMINA-190 (ThreadModel interface which encapsulates ThreadPoolFilter composition.)
+    ** Added ThreadModel
+    ** Added PooledThreadModel
+    ** Adjusted default maximum pool size to 16

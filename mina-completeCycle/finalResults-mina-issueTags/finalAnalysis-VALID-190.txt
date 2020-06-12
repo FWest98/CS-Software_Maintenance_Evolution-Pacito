@@ -1,0 +1,76 @@
+Pattern changes caused by commit: 2dd14695b969df61d2e68bd3451f7365c7fc191f
+
+From: Facade-26
+To:   Facade-25
+
+From: Mediator-79
+To:   Mediator-78
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-190.txt 
+
+commit 2dd14695b969df61d2e68bd3451f7365c7fc191f
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-214 (The InputStream that StreamIoHandler provides is closed too early.)
+    * StreamIoHandler doesn't close Input/OutputStream.  A user has to close them explicitly.
+    * Optimized memory usage of IoSessionOutputStream
+
+
+
+==================================
+ Issue DIRMINA-214 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-214] The InputStream that StreamIoHandler provides is closed too early.
+-----------------
+
+-----------------
+Summary: The InputStream that StreamIoHandler provides is closed too early.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 15 May 2006 10:21:02 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 15 May 2006 10:22:11 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Zohar Amir wrote:
+
+While trying to demonstrate the issue I found that the exception
+<em>is</em> thrown, but sometimes sessionClosed is invoked before the new thread gets a
+chance to read the available data from the stream. I followed the example of the
+httpserver that is provided with MINA, only there is no handling of client socket closure
+there. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

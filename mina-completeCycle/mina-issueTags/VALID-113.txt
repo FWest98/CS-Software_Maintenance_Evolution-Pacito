@@ -1,0 +1,25 @@
+Pattern changes caused by commit: b6a4ebf0451647ef394ebe5cfb8e99786886b5f5
+
+From: Adapter-20
+To:   Adapter-22
+
+From: Flyweight-17
+To:   Flyweight-18
+
+From: Mediator-69
+To:   Mediator-70
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-113.txt 
+
+commit b6a4ebf0451647ef394ebe5cfb8e99786886b5f5
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-179 (Stream compression support)
+    * Applied Vinod's patch
+    ** Removed algorithm parameter because ZLib is the only algorithm for now.  We'll have to provide an interface such as CompressionAlgorithm and let user provide it as a parameter.
+    * systemPath in pom.xml doesn't work well with the bundled Eclipse plugin; upgraded to 2.1

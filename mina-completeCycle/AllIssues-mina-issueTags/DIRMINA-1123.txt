@@ -1,0 +1,123 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The socket buffers don’t do anything with listening TCP sockets nor do<br/>accepted
+sockets automatically inherit any settings therefore it isn’t<br/>necessary. 
+
+
+New Comment: 
+First org.apache.mina.transport.socket.apr.AprSocketAcceptor#open does set the receive
+buffer, but NIO acceptor does not. Not sure if this was intentional.I hope we are talking
+about the same thing and my understanding of TCP window scaling is good enough. Please,
+correct me if I'm wrong.As far as I understand receive buffer size has the same importance
+for both client and server socket. When receive buffer size is not set before connecting
+to the endpoint, the operating system will use default maximum window scaling value during
+TCP handhake - for example for Windows this is 8 (multiply by 256). This means that this
+TCP window size which is part of TCP header could never be increased beyond 256 * 64kb =
+16MB.I tested this on Windows with packet capture and I could confirm that if receive
+buffer size is not set on the socket before initial connection this value can never be
+higher than the one established during handshake.It might also be desirable to use smaller
+window size value than default max 16MB.I also found this <a
+href="https://issues.apache.org/jira/browse/DIRMINA-561"
+title="Socket.setReceiveBufferSize() called after bind preventing correct TCP receive
+window scaling" class="issue-link" data-issue-key="DIRMINA-561"><del>DIRMINA-561</del></a>
+which claims to set receive buffer size before calling bind on the server socket, but this
+is not the case for NIO socket acceptor. 
+
+
+New Comment: 
+AprSocketAcceptor#open and NioSocketAcceptor#open configure the server socket.  The server
+socket can have the receive and send buffers configured but they do absolutely nothing
+because no data is ever send on them.  Only client sockets can use those buffer
+configurations.  Its possible APR wants those options configured on the server socket so
+it can automatically pass them to any accepted client sockets but other transports do not
+do this.  Its also possible that the APR code setting the buffers is wholly
+unnecessary.You are confusing the difference between the server-socket (which only job is
+to listen for incoming requests to establish connections) and a server-side socket which
+was created by the server-socket when a remote device established a connection.In
+NioSocketAcceptor the SessionConfig is inherited by the NioSocketSession at
+config.setAll(service.getSessionConfig()); line 61. 
+
+
+New Comment: 
+I am resolving this issue, if you have any further questions or evidence we can reopen it
+at that time. 
+
+
+On issue key DIRMINA-1123 the mediate pattern might have been discussed on the following comment: 
+==============================
+Wow this was fast <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>.Let's skip the theory and go straight to
+practice. I created a simple NioAcceptor / NioConnector application and created a TCP
+dumps. The buffers are set immediately after object creation e.g.NioSocketAcceptor
+acceptor = new NioSocketAcceptor();<br/>
+acceptor.getSessionConfig().setReceiveBufferSize(65535 * 2);NioSocketConnector connector =
+new NioSocketConnector();<br/> connector.getSessionConfig().setReceiveBufferSize(65535 *
+3); <b>Case 1</b><ul class="alternate" type="square">	<li>no connector receive buffer
+set</li>	<li>no acceptor receive buffer set</li></ul>Connector SYN packet looks correct WS
+= 256 (Windows default, max 16MB)<br/> Acceptor SYN/ACK packet looks correct d WS = 256
+(Windows default, max 16MB)This is correct behaviour.<b>Case 2 (unmodified mina code
+base)</b><ul class="alternate" type="square">	<li>nio connector receive buffer
+192kb</li>	<li>nio acceptor receive buffer 128kb</li></ul>Connector SYN packet looks
+correct WS = 4 (max window size can be increasted up to 256kb)<br/> Acceptor SYN/ACK
+packet looks wrong WS = 256 (windows default, max 16MB)This is wrong. Server advertises
+bad WS.<b>Case 3</b>Added a small code change in as proof of
+conceptorg.apache.mina.transport.socket.nio.NioSocketAcceptor#openif (sessionConfig
+instanceof SocketSessionConfig) {<br/> SocketSessionConfig socketSessionConfig =
+(SocketSessionConfig) sessionConfig;<br/> if (socketSessionConfig.getReceiveBufferSize()
+&gt; 65535){ socket.setReceiveBufferSize(socketSessionConfig.getReceiveBufferSize());
+}}Connector, receive buffer = 192kb<br/> Acceptor, receive buffer = 128kbConnector SYN
+packet looks correct WS = 4 (max window size can be increased up to 256kb)<br/> Acceptor
+SYN/ACK packet looks correct WS = 2 (max window size can be increased up to 128kb)Acceptor
+window scale now looks correct.I will look into the code because this setting does not
+seem to be populated as stated in your comment. TCP dumps attached. 
+==============================
+
+New Comment: 
+Wow this was fast <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>.Let's skip the theory and go straight to
+practice. I created a simple NioAcceptor / NioConnector application and created a TCP
+dumps. The buffers are set immediately after object creation e.g.NioSocketAcceptor
+acceptor = new NioSocketAcceptor();<br/>
+acceptor.getSessionConfig().setReceiveBufferSize(65535 * 2);NioSocketConnector connector =
+new NioSocketConnector();<br/> connector.getSessionConfig().setReceiveBufferSize(65535 *
+3); <b>Case 1</b><ul class="alternate" type="square">	<li>no connector receive buffer
+set</li>	<li>no acceptor receive buffer set</li></ul>Connector SYN packet looks correct WS
+= 256 (Windows default, max 16MB)<br/> Acceptor SYN/ACK packet looks correct d WS = 256
+(Windows default, max 16MB)This is correct behaviour.<b>Case 2 (unmodified mina code
+base)</b><ul class="alternate" type="square">	<li>nio connector receive buffer
+192kb</li>	<li>nio acceptor receive buffer 128kb</li></ul>Connector SYN packet looks
+correct WS = 4 (max window size can be increasted up to 256kb)<br/> Acceptor SYN/ACK
+packet looks wrong WS = 256 (windows default, max 16MB)This is wrong. Server advertises
+bad WS.<b>Case 3</b>Added a small code change in as proof of
+conceptorg.apache.mina.transport.socket.nio.NioSocketAcceptor#openif (sessionConfig
+instanceof SocketSessionConfig) {<br/> SocketSessionConfig socketSessionConfig =
+(SocketSessionConfig) sessionConfig;<br/> if (socketSessionConfig.getReceiveBufferSize()
+&gt; 65535){ socket.setReceiveBufferSize(socketSessionConfig.getReceiveBufferSize());
+}}Connector, receive buffer = 192kb<br/> Acceptor, receive buffer = 128kbConnector SYN
+packet looks correct WS = 4 (max window size can be increased up to 256kb)<br/> Acceptor
+SYN/ACK packet looks correct WS = 2 (max window size can be increased up to 128kb)Acceptor
+window scale now looks correct.I will look into the code because this setting does not
+seem to be populated as stated in your comment. TCP dumps attached. 
+
+
+New Comment: 
+<cite>In NioSocketAcceptor the SessionConfig is inherited by the NioSocketSession at
+config.setAll(service.getSessionConfig()); line 61.</cite>Looked more at the code and this
+is exactly the problem. When you get to this point the the connection with the client has
+been already established and window scale was advertised by both parties. Even though the
+server socket is not used for the communication as you mentioned in the previous comment,
+the receive buffer must be set so when client attempts to connect and server socket
+creates new client socket it needs to know this size.This is definitely a bug. Similar
+thing with simple server socket. You need to tell the server socket what WS to
+advertise.<tt>ServerSocket serverSocket = new ServerSocket();</tt><br/> <tt>// this needs
+to go here no matter what</tt><br/> <tt>serverSocket.setReceiveBufferSize(65535 *
+10);</tt><br/> <tt>serverSocket.bind(new
+InetSocketAddress(InetAddress.getByName("localhost"), 12345));</tt><tt>Socket clientSocket
+= serverSocket.accept();</tt><br/> <tt>// TCP handshake already done here, sett

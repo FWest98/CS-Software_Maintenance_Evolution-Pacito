@@ -1,0 +1,16 @@
+Pattern changes caused by commit: bbf35215b7f665ce51af25c4f2ba80454732707d
+
+From: Mediator-66
+To:   Mediator-65
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-301.txt 
+
+commit bbf35215b7f665ce51af25c4f2ba80454732707d
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed the workaround for AbstractTrafficControlTest

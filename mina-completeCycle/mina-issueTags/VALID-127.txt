@@ -1,0 +1,16 @@
+Pattern changes caused by commit: aa6d105181457d1db7aca739c29d2e93e2d2d1cb
+
+From: Observer-2
+To:   Observer-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-127.txt 
+
+commit aa6d105181457d1db7aca739c29d2e93e2d2d1cb
+Author: Trustin Lee <trustin@apache.org>
+
+    * Made ThreadPoolFilter.threadNamePrefix changable in runtime.

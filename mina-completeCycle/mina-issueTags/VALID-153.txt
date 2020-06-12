@@ -1,0 +1,34 @@
+Pattern changes caused by commit: b55236b8df1a6e86f8d9e1da0f80c3894740701a
+
+From: Abstract Factory-6
+To:   Abstract Factory-7
+
+From: Adapter-22
+To:   Adapter-13
+
+From: Bridge-14
+To:   Bridge-9
+
+From: Facade-26
+To:   Facade-23
+
+From: Mediator-71
+To:   Mediator-60
+
+From: Observer-3
+To:   Observer-1
+
+From: Strategy-35
+To:   Strategy-34
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-153.txt 
+
+commit b55236b8df1a6e86f8d9e1da0f80c3894740701a
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    bumping version of master pom used by projects

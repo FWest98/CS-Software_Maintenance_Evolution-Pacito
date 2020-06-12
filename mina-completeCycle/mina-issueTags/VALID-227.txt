@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b7280d51151ea735019edf0f9686bff661656020
+
+From: Facade-23
+To:   Facade-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-227.txt 
+
+commit b7280d51151ea735019edf0f9686bff661656020
+Author: Niklas Therning <niklas@apache.org>
+
+    Resolved DIRMINA-229 as suggested by Oleg Kalnichevski. The IoSessionOutputStream.write() methods will now block until the bytes have been written. If the write fails or the session has been closed an IOException will be thrown. The close() method will also block now.

@@ -1,0 +1,13 @@
+Pattern changes caused by commit: b09c88d5a17be149093e8c4760e45ccd5695df87
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-234.txt 
+
+commit b09c88d5a17be149093e8c4760e45ccd5695df87
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a deadlock caused by ReferenceCountingIoFilter in PooledThreadModel

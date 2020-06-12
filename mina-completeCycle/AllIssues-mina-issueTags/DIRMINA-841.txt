@@ -1,0 +1,680 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Reported in the wrong JIRA project, moved to VYSPER project 
+
+
+New Comment: 
+Can confirm this problem, we should fix it. 
+
+
+New Comment: 
+how can we fix it in VYSPER? isn't this a problem with SSH handling in MINA? 
+
+
+New Comment: 
+Yes, you're probably right. I'll move it back. 
+
+
+New Comment: 
+Same behavior on 2.2 device and 3.0 emulator 
+
+
+On issue key DIRMINA-842 the  state  pattern might have been discussed on the following comment: 
+==============================
+Alright, I've analysed this on Android 3.0. With a patch to Vysper to enable BKS keystores
+(or any other type. Will commit to Vysper) I get the same behavior. It seems like the SSL
+implementation in Android will end up in the state NOT_HANDSHAKING rather than FINISHED
+when done. The following patch to MINA will fix things:Index:
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java<br/>===================================================================<br/>&#8212;
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java	(revision 1142628)<br/>+++
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java	(working copy)<br/>@@ -509,6
++510,7 @@<br/>         for (;<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> {<br/>             switch
+(handshakeStatus) {<br/>                 case FINISHED:<br/>+                case
+NOT_HANDSHAKING:<br/>                     if ( LOGGER.isDebugEnabled()) {<br/>            
+            LOGGER.debug("{} processing the FINISHED state",
+sslFilter.getSessionInfo(session));<br/>                     }With this patch in place, I
+can connect to Vysper running on the Android emulator. Pretty cool actually <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/>Now, do we want this patch in
+MINA? I'm not familiar enough with this particular code to understand the dangers. 
+==============================
+
+New Comment: 
+Alright, I've analysed this on Android 3.0. With a patch to Vysper to enable BKS keystores
+(or any other type. Will commit to Vysper) I get the same behavior. It seems like the SSL
+implementation in Android will end up in the state NOT_HANDSHAKING rather than FINISHED
+when done. The following patch to MINA will fix things:Index:
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java<br/>===================================================================<br/>&#8212;
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java	(revision 1142628)<br/>+++
+src/main/java/org/apache/mina/filter/ssl/SslHandler.java	(working copy)<br/>@@ -509,6
++510,7 @@<br/>         for (;<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> {<br/>             switch
+(handshakeStatus) {<br/>                 case FINISHED:<br/>+                case
+NOT_HANDSHAKING:<br/>                     if ( LOGGER.isDebugEnabled()) {<br/>            
+            LOGGER.debug("{} processing the FINISHED state",
+sslFilter.getSessionInfo(session));<br/>                     }With this patch in place, I
+can connect to Vysper running on the Android emulator. Pretty cool actually <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/>Now, do we want this patch in
+MINA? I'm not familiar enough with this particular code to understand the dangers. 
+
+
+New Comment: 
+My project for running Vysper on Android is now up on Github: <a
+href="https://github.com/protocol7/vysper-on-android" class="external-link"
+rel="nofollow">https://github.com/protocol7/vysper-on-android</a> 
+
+
+New Comment: 
+Thanks for your help,<br/>with this fix, I am able to finish ssl (client-psi asks me to
+trust certificate), but it still doesn't come to end, I even tried to follow your
+instructions step by step on github with same result.Any ideas why? 
+
+
+New Comment: 
+Could you provide the output of logcat? 
+
+
+On issue key DIRMINA-842 the Adapter pattern might have been discussed on the following comment: 
+==============================
+07-07 09:03:17.988: DEBUG/L4J(363): 9622 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+INITIATED<br/>07-07 09:03:18.008: INFO/L4J(363): 9639 <span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.vysper.mina.XmppIoHandlerAdapter  - new session from localhost/127.0.0.1:36058
+has been opened<br/>07-07 09:03:18.018: DEBUG/L4J(363): 9645 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.128: DEBUG/L4J(363): 9764 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:18.128:
+DEBUG/L4J(363): 9767 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:18.178:
+DEBUG/L4J(363): 9813 <span class="error">&#91;pool-3-thread-1&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+STARTED<br/>07-07 09:03:18.238: DEBUG/L4J(363): 9871 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.259: DEBUG/L4J(363): 9896 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.268:
+DEBUG/L4J(363): 9900 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.298:
+DEBUG/L4J(363): 9928 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;stream:stream xmlns="jabber:client"
+xmlns:stream="http://etherx.jabber.org/streams" from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;required&gt;&lt;/required&gt;&lt;/starttls&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:18.298: DEBUG/L4J(363): 9931 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTION_STARTED<br/>07-07 09:03:18.328: DEBUG/L4J(363): 9958 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Adding the SSL Filter sslFilter to the chain<br/>07-07 09:03:18.337: DEBUG/L4J(363):
+9972 <span class="error">&#91;pool-3-thread-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10021 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler Initialization done.<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10024 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/>07-07
+09:03:18.397: DEBUG/L4J(363): 10029 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>07-07
+09:03:18.448: DEBUG/L4J(363): 10085 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=59 cap=128: 3C 70 72 6F 63 65 65 64 20 78 6D 6C 6E 73 3D
+22...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10132 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=124 cap=1024: 80 7A 01 03 01 00 51 00 00 00
+20 00 00 39 00 00...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10135 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:18.517: DEBUG/L4J(363): 10153 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:18.538: DEBUG/L4J(363): 10175 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=false, open=true,
+close=true, content=true, stanza=<span class="error">&#91;proceed&#93;</span><br/>07-07
+09:03:19.188: DEBUG/L4J(363): 10819 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK state<br/>07-07
+09:03:19.288: DEBUG/L4J(363): 10921 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP state<br/>07-07
+09:03:19.308: DEBUG/L4J(363): 10938 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=758 cap=1152: 16 03 01 02 F1 02 00 00 46 03 01 4E 15 76 57
+B5...&#93;</span><br/>07-07 09:03:19.308: DEBUG/L4J(363): 10941 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.328: DEBUG/L4J(363): 10959 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data
+<br/>07-07 09:03:19.428: DEBUG/L4J(363): 11063 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=126 cap=1024: 16 03 01 00 46 10 00 00 42 00
+40 36 CE CA 07 F6...&#93;</span><br/>07-07 09:03:19.428: DEBUG/L4J(363): 11067 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:19.448: DEBUG/L4J(363): 11074 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.638: DEBUG/L4J(363): 11274 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.668: DEBUG/L4J(363): 11305 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=6 cap=9: 14 03 01 00 01
+01&#93;</span><br/>07-07 09:03:19.678: DEBUG/L4J(363): 11308 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.688: DEBUG/L4J(363): 11324 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=45 cap=72: 16 03 01 00 28 5A 40
+52 41 F6 D2 BF B5 82 24 01...&#93;</span><br/>07-07 09:03:19.688: DEBUG/L4J(363): 11326
+<span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the FINISHED state<br/>07-07
+09:03:19.700: DEBUG/L4J(363): 11332 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.700:
+DEBUG/L4J(363): 11335 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) processing the FINISHED state<br/>07-07
+09:03:19.708: DEBUG/L4J(363): 11338 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.708:
+DEBUG/L4J(363): 11342 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data <br/>07-07 09:03:19.718:
+DEBUG/L4J(363): 11351 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.718: DEBUG/L4J(363): 11354 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTED<br/>07-07 09:03:19.858: DEBUG/L4J(363): 11492 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=266 cap=512: 17 03 01 00 18 58 65 14 F5 51 86
+B3 91 CD 4D C2...&#93;</span><br/>07-07 09:03:19.878: DEBUG/L4J(363): 11514 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11544 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11546 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.967: DEBUG/L4J(363): 11601 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:19.967:
+DEBUG/L4J(363): 11605 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:20.008:
+DEBUG/L4J(363): 11646 <span class="error">&#91;pool-3-thread-3&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=374 cap=512: 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22
+31...&#93;</span><br/>07-07 09:03:20.068: DEBUG/L4J(363): 11707 <span
+class="error">&#91;pool-3-thread-3&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=true, open=true,
+close=false, content=true, stanza=[stream.features.mechanisms<span
+class="error">&#91;PLAIN&#93;</span>]<br/>07-07 09:03:20.088: DEBUG/L4J(363): 11726 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG stanza.server  - &gt;
+&lt;stream:stream xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams"
+from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;mechanisms
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"&gt;&lt;mechanism&gt;PLAIN&lt;/mechanism&gt;&lt;/mechanisms&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:20.207: DEBUG/L4J(363): 11841 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Message received : HeapBuffer<span
+class="error">&#91;pos=0 lim=154 cap=512: 17 03 01 00 18 DC FC 3B 15 7C 4D 8E 23 F8 DE
+75...&#93;</span><br/>07-07 09:03:20.228: DEBUG/L4J(363): 11861 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11892 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11894 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:20.298: DEBUG/L4J(363): 11931 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;auth
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:20.298:
+DEBUG/L4J(363): 11934 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:21.458:
+DEBUG/L4J(363): 13093 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;proceed
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/proceed&gt; 
+==============================
+
+On issue key DIRMINA-842 the  state  pattern might have been discussed on the following comment: 
+==============================
+07-07 09:03:17.988: DEBUG/L4J(363): 9622 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+INITIATED<br/>07-07 09:03:18.008: INFO/L4J(363): 9639 <span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.vysper.mina.XmppIoHandlerAdapter  - new session from localhost/127.0.0.1:36058
+has been opened<br/>07-07 09:03:18.018: DEBUG/L4J(363): 9645 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.128: DEBUG/L4J(363): 9764 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:18.128:
+DEBUG/L4J(363): 9767 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:18.178:
+DEBUG/L4J(363): 9813 <span class="error">&#91;pool-3-thread-1&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+STARTED<br/>07-07 09:03:18.238: DEBUG/L4J(363): 9871 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.259: DEBUG/L4J(363): 9896 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.268:
+DEBUG/L4J(363): 9900 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.298:
+DEBUG/L4J(363): 9928 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;stream:stream xmlns="jabber:client"
+xmlns:stream="http://etherx.jabber.org/streams" from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;required&gt;&lt;/required&gt;&lt;/starttls&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:18.298: DEBUG/L4J(363): 9931 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTION_STARTED<br/>07-07 09:03:18.328: DEBUG/L4J(363): 9958 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Adding the SSL Filter sslFilter to the chain<br/>07-07 09:03:18.337: DEBUG/L4J(363):
+9972 <span class="error">&#91;pool-3-thread-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10021 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler Initialization done.<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10024 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/>07-07
+09:03:18.397: DEBUG/L4J(363): 10029 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>07-07
+09:03:18.448: DEBUG/L4J(363): 10085 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=59 cap=128: 3C 70 72 6F 63 65 65 64 20 78 6D 6C 6E 73 3D
+22...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10132 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=124 cap=1024: 80 7A 01 03 01 00 51 00 00 00
+20 00 00 39 00 00...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10135 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:18.517: DEBUG/L4J(363): 10153 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:18.538: DEBUG/L4J(363): 10175 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=false, open=true,
+close=true, content=true, stanza=<span class="error">&#91;proceed&#93;</span><br/>07-07
+09:03:19.188: DEBUG/L4J(363): 10819 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK state<br/>07-07
+09:03:19.288: DEBUG/L4J(363): 10921 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP state<br/>07-07
+09:03:19.308: DEBUG/L4J(363): 10938 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=758 cap=1152: 16 03 01 02 F1 02 00 00 46 03 01 4E 15 76 57
+B5...&#93;</span><br/>07-07 09:03:19.308: DEBUG/L4J(363): 10941 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.328: DEBUG/L4J(363): 10959 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data
+<br/>07-07 09:03:19.428: DEBUG/L4J(363): 11063 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=126 cap=1024: 16 03 01 00 46 10 00 00 42 00
+40 36 CE CA 07 F6...&#93;</span><br/>07-07 09:03:19.428: DEBUG/L4J(363): 11067 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:19.448: DEBUG/L4J(363): 11074 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.638: DEBUG/L4J(363): 11274 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.668: DEBUG/L4J(363): 11305 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=6 cap=9: 14 03 01 00 01
+01&#93;</span><br/>07-07 09:03:19.678: DEBUG/L4J(363): 11308 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.688: DEBUG/L4J(363): 11324 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=45 cap=72: 16 03 01 00 28 5A 40
+52 41 F6 D2 BF B5 82 24 01...&#93;</span><br/>07-07 09:03:19.688: DEBUG/L4J(363): 11326
+<span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the FINISHED state<br/>07-07
+09:03:19.700: DEBUG/L4J(363): 11332 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.700:
+DEBUG/L4J(363): 11335 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) processing the FINISHED state<br/>07-07
+09:03:19.708: DEBUG/L4J(363): 11338 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.708:
+DEBUG/L4J(363): 11342 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data <br/>07-07 09:03:19.718:
+DEBUG/L4J(363): 11351 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.718: DEBUG/L4J(363): 11354 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTED<br/>07-07 09:03:19.858: DEBUG/L4J(363): 11492 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=266 cap=512: 17 03 01 00 18 58 65 14 F5 51 86
+B3 91 CD 4D C2...&#93;</span><br/>07-07 09:03:19.878: DEBUG/L4J(363): 11514 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11544 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11546 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.967: DEBUG/L4J(363): 11601 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:19.967:
+DEBUG/L4J(363): 11605 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:20.008:
+DEBUG/L4J(363): 11646 <span class="error">&#91;pool-3-thread-3&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=374 cap=512: 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22
+31...&#93;</span><br/>07-07 09:03:20.068: DEBUG/L4J(363): 11707 <span
+class="error">&#91;pool-3-thread-3&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=true, open=true,
+close=false, content=true, stanza=[stream.features.mechanisms<span
+class="error">&#91;PLAIN&#93;</span>]<br/>07-07 09:03:20.088: DEBUG/L4J(363): 11726 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG stanza.server  - &gt;
+&lt;stream:stream xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams"
+from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;mechanisms
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"&gt;&lt;mechanism&gt;PLAIN&lt;/mechanism&gt;&lt;/mechanisms&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:20.207: DEBUG/L4J(363): 11841 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Message received : HeapBuffer<span
+class="error">&#91;pos=0 lim=154 cap=512: 17 03 01 00 18 DC FC 3B 15 7C 4D 8E 23 F8 DE
+75...&#93;</span><br/>07-07 09:03:20.228: DEBUG/L4J(363): 11861 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11892 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11894 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:20.298: DEBUG/L4J(363): 11931 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;auth
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:20.298:
+DEBUG/L4J(363): 11934 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:21.458:
+DEBUG/L4J(363): 13093 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;proceed
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/proceed&gt; 
+==============================
+
+On issue key DIRMINA-842 the chain pattern might have been discussed on the following comment: 
+==============================
+07-07 09:03:17.988: DEBUG/L4J(363): 9622 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+INITIATED<br/>07-07 09:03:18.008: INFO/L4J(363): 9639 <span
+class="error">&#91;NioProcessor-2&#93;</span> INFO
+org.apache.vysper.mina.XmppIoHandlerAdapter  - new session from localhost/127.0.0.1:36058
+has been opened<br/>07-07 09:03:18.018: DEBUG/L4J(363): 9645 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.128: DEBUG/L4J(363): 9764 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:18.128:
+DEBUG/L4J(363): 9767 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:18.178:
+DEBUG/L4J(363): 9813 <span class="error">&#91;pool-3-thread-1&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+STARTED<br/>07-07 09:03:18.238: DEBUG/L4J(363): 9871 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:18.259: DEBUG/L4J(363): 9896 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.268:
+DEBUG/L4J(363): 9900 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/starttls&gt;<br/>07-07 09:03:18.298:
+DEBUG/L4J(363): 9928 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;stream:stream xmlns="jabber:client"
+xmlns:stream="http://etherx.jabber.org/streams" from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;starttls
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;required&gt;&lt;/required&gt;&lt;/starttls&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:18.298: DEBUG/L4J(363): 9931 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTION_STARTED<br/>07-07 09:03:18.328: DEBUG/L4J(363): 9958 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Adding the SSL Filter sslFilter to the chain<br/>07-07 09:03:18.337: DEBUG/L4J(363):
+9972 <span class="error">&#91;pool-3-thread-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) Initializing the SSL Handler<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10021 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(no sslEngine) SSL Handler Initialization done.<br/>07-07
+09:03:18.388: DEBUG/L4J(363): 10024 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) : Starting the first handshake<br/>07-07
+09:03:18.397: DEBUG/L4J(363): 10029 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP state<br/>07-07
+09:03:18.448: DEBUG/L4J(363): 10085 <span class="error">&#91;pool-3-thread-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=59 cap=128: 3C 70 72 6F 63 65 65 64 20 78 6D 6C 6E 73 3D
+22...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10132 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=124 cap=1024: 80 7A 01 03 01 00 51 00 00 00
+20 00 00 39 00 00...&#93;</span><br/>07-07 09:03:18.498: DEBUG/L4J(363): 10135 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:18.517: DEBUG/L4J(363): 10153 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:18.538: DEBUG/L4J(363): 10175 <span
+class="error">&#91;pool-3-thread-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=false, open=true,
+close=true, content=true, stanza=<span class="error">&#91;proceed&#93;</span><br/>07-07
+09:03:19.188: DEBUG/L4J(363): 10819 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_TASK state<br/>07-07
+09:03:19.288: DEBUG/L4J(363): 10921 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP state<br/>07-07
+09:03:19.308: DEBUG/L4J(363): 10938 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=758 cap=1152: 16 03 01 02 F1 02 00 00 46 03 01 4E 15 76 57
+B5...&#93;</span><br/>07-07 09:03:19.308: DEBUG/L4J(363): 10941 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.328: DEBUG/L4J(363): 10959 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Processing the SSL Data
+<br/>07-07 09:03:19.428: DEBUG/L4J(363): 11063 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=126 cap=1024: 16 03 01 00 46 10 00 00 42 00
+40 36 CE CA 07 F6...&#93;</span><br/>07-07 09:03:19.428: DEBUG/L4J(363): 11067 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) Processing the received
+message<br/>07-07 09:03:19.448: DEBUG/L4J(363): 11074 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_UNWRAP
+state<br/>07-07 09:03:19.638: DEBUG/L4J(363): 11274 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.668: DEBUG/L4J(363): 11305 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=6 cap=9: 14 03 01 00 01
+01&#93;</span><br/>07-07 09:03:19.678: DEBUG/L4J(363): 11308 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...) processing the NEED_WRAP
+state<br/>07-07 09:03:19.688: DEBUG/L4J(363): 11324 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(ssl...): Writing Message :
+WriteRequest: HeapBuffer<span class="error">&#91;pos=0 lim=45 cap=72: 16 03 01 00 28 5A 40
+52 41 F6 D2 BF B5 82 24 01...&#93;</span><br/>07-07 09:03:19.688: DEBUG/L4J(363): 11326
+<span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(ssl...) processing the FINISHED state<br/>07-07
+09:03:19.700: DEBUG/L4J(363): 11332 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.700:
+DEBUG/L4J(363): 11335 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) processing the FINISHED state<br/>07-07
+09:03:19.708: DEBUG/L4J(363): 11338 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslHandler  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL) is now secured<br/>07-07 09:03:19.708:
+DEBUG/L4J(363): 11342 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data <br/>07-07 09:03:19.718:
+DEBUG/L4J(363): 11351 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.718: DEBUG/L4J(363): 11354 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHolder  - session state changed to =
+ENCRYPTED<br/>07-07 09:03:19.858: DEBUG/L4J(363): 11492 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Message received :
+HeapBuffer<span class="error">&#91;pos=0 lim=266 cap=512: 17 03 01 00 18 58 65 14 F5 51 86
+B3 91 CD 4D C2...&#93;</span><br/>07-07 09:03:19.878: DEBUG/L4J(363): 11514 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11544 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:19.908: DEBUG/L4J(363): 11546 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:19.967: DEBUG/L4J(363): 11601 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza:
+&lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="hovi.mk.zcu.cz"
+xml:lang="en" version="1.0"&gt;&lt;/stream:stream&gt;<br/>07-07 09:03:19.967:
+DEBUG/L4J(363): 11605 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;stream:stream xmlns:stream="http://etherx.jabber.org/streams"
+to="hovi.mk.zcu.cz" xml:lang="en" version="1.0"&gt;<br/>07-07 09:03:20.008:
+DEBUG/L4J(363): 11646 <span class="error">&#91;pool-3-thread-3&#93;</span> DEBUG
+org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Writing Message : WriteRequest: HeapBuffer<span
+class="error">&#91;pos=0 lim=374 cap=512: 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22
+31...&#93;</span><br/>07-07 09:03:20.068: DEBUG/L4J(363): 11707 <span
+class="error">&#91;pool-3-thread-3&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: [ prolog=true, open=true,
+close=false, content=true, stanza=[stream.features.mechanisms<span
+class="error">&#91;PLAIN&#93;</span>]<br/>07-07 09:03:20.088: DEBUG/L4J(363): 11726 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG stanza.server  - &gt;
+&lt;stream:stream xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams"
+from="hovi.mk.zcu.cz" version="1.0"
+id="e5a7b21bfa76489da1cdaea46d9ba96e"&gt;&lt;stream:features
+xmlns:stream="http://etherx.jabber.org/streams"&gt;&lt;mechanisms
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"&gt;&lt;mechanism&gt;PLAIN&lt;/mechanism&gt;&lt;/mechanisms&gt;&lt;/stream:features&gt;<br/>07-07
+09:03:20.207: DEBUG/L4J(363): 11841 <span class="error">&#91;NioProcessor-2&#93;</span>
+DEBUG org.apache.mina.filter.ssl.SslFilter  - Session Server<span
+class="error">&#91;1&#93;</span>(SSL): Message received : HeapBuffer<span
+class="error">&#91;pos=0 lim=154 cap=512: 17 03 01 00 18 DC FC 3B 15 7C 4D 8E 23 F8 DE
+75...&#93;</span><br/>07-07 09:03:20.228: DEBUG/L4J(363): 11861 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslHandler 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL) Processing the received
+message<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11892 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG org.apache.mina.filter.ssl.SslFilter 
+- Session Server<span class="error">&#91;1&#93;</span>(SSL): Processing the SSL Data
+<br/>07-07 09:03:20.258: DEBUG/L4J(363): 11894 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.mina.filter.codec.ProtocolCodecFilter  - Processing a MESSAGE_RECEIVED for
+session 1<br/>07-07 09:03:20.298: DEBUG/L4J(363): 11931 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xml.decoder.XMPPContentHandler  - Decoder writing stanza: &lt;auth
+xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:20.298:
+DEBUG/L4J(363): 11934 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.client  - &lt; &lt;auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl"
+mechanism="PLAIN"&gt;AGhvdmkAcGFzc3dvcmQx&lt;/auth&gt;<br/>07-07 09:03:21.458:
+DEBUG/L4J(363): 13093 <span class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+stanza.server  - &gt; &lt;proceed
+xmlns="urn:ietf:params:xml:ns:xmpp-tls"&gt;&lt;/proceed&gt; 
+==============================
+
+New Comment: 
+07-07 09:03:17.988: DEBUG/L4J(363): 9622 <span
+class="error">&#91;NioProcessor-2&#93;</span> DEBUG
+org.apache.vysper.xmpp.protocol.SessionStateHo

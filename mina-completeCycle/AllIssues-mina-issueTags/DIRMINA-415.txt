@@ -1,0 +1,150 @@
+On issue key DIRMINA-415 the Proxy pattern might have been discussed, namely here: 
+==============================
+Proxy support 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-415 the Proxy pattern might have been discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the proxy pattern might have been discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+On issue key DIRMINA-415 the factory pattern might have been discussed on the following comment: 
+==============================
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+==============================
+
+New Comment: 
+Niklas wrote:Now, one thing we should consider is whether we want to
+support<br/>specifying proxyHost, proxyPort via system properties, just like
+Socket<br/>does. In that case I don't think it will be as simple as wrapping
+like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
+which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
+proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
+MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
+the change,<br/>and don't expect changes in the configuration of the system.I think all of
+these systems will then create something like<br/>LegacyProxyConnector inherited from
+ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
+of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
+
+
+New Comment: 
+Related mailing list thread: <a href="http://tinyurl.com/2lu7z3" class="external-link"
+rel="nofollow">http://tinyurl.com/2lu7z3</a> 
+
+
+New Comment: 
+From the recent discussion, we concluded we don't need any core API modification. 
+Therefore, we can implement this feature later, but at least before 2.0.0-RC1. 
+
+
+On issue key DIRMINA-415 the proxy pattern might have been discussed on the following comment: 
+==============================
+First cut of proxy connector. Supports unauthenticated proxies and proxies with Basic
+authentication.Still quite messy - needs some refactoring to work with IoC containers
+properly.Tested with MINA 1.1. 
+==============================
+
+New Comment: 
+First cut of proxy connector. Supports unauthenticated proxies and proxies with Basic
+authentication.Still quite messy - needs some refactoring to work with IoC containers
+properly.Tested with MINA 1.1. 
+
+
+New Comment: 
+This is a great news, James.  Please let us keep updated with your contribution. 
+
+
+New Comment: 
+Updated to better support IoC containers. Fixed some issues with the Basic auth.Now just
+need to look at NTLM/Digest auth and possibly SOCKS. Also port to MINA 2.0... 
+
+
+New Comment: 
+I'm currently working on the NTLM auth as it can be usefull for me to use on other
+protocols.<br/>I'll mail you James for some questions and maybe api improvements. 
+
+
+New Comment: 
+Ported to MINA 2.0 - tested with MINA 2.0.0 M1NTLM/Digest/Socks still unimplemented, may
+not have time to do this for a while 
+
+
+On issue key DIRMINA-415 the proxy pattern might have been discussed on the following comment: 
+==============================
+Based on James work i hacked around and achieved working NTLM &amp; socks 4 &amp; 4a proxy
+support<br/>But it still needs a lot of work : code cleaning, API reworking, socks 5 &amp;
+digest support<br/>i'll keep sending infos on  progress made 
+==============================
+
+New Comment: 
+Based on James work i hacked around and achieved working NTLM &amp; socks 4 &amp; 4a proxy
+support<br/>But it still needs a lot of work : code cleaning, API reworking, socks 5 &amp;
+digest support<br/>i'll keep sending infos on  progress made 
+
+
+New Comment: 
+Wow, that's a great news!  Please let us get updated! 
+
+
+On issue key DIRMINA-415 the proxy pattern might have been discussed on the following comment: 
+==============================
+Due to personal events i've made less progress than expected.<br/>But Socks5 support is
+now added and digest auth is currently in progress.<br/>Code still needs lot of workThe
+problem is that it is hard to test the code as i have no dedicated network to test it. For
+example, i've been unable to find a free proxy supporting Socks5 with GSSAPI
+auth.<br/>Generally speaking i've been forced to use many different proxies because each
+of them has a unique combination of auth methods.<br/>So i may need help on this, if some
+of you could test the proxy program within their network it would help debbuging.Regarding
+a previous comment on IOC containers, i've no idea on how to make code IoC friendly : i'll
+accept any clue on this ;pAnother important point is that the code contains some basic
+objects (HttpHeader, HttpResponse etc...) that i think should be refactored to use
+AsyncWeb (not sure this is the official MINA http project ?) code<br/>WDYT ?That's all for
+the moment<br/>Any comments or help is appreciated. 
+==============================
+
+New Comment: 
+Due to personal events i've made less progress than expected.<br/>But Socks5 support is
+now added and digest auth is currently in progress.<br/>Code still needs lot of workThe
+problem is that it is hard to test the code as i have no dedicated network to test it. For
+example, i've been una

@@ -1,0 +1,258 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+here is the screenshot 
+
+
+New Comment: 
+Unlikely. We detect such a loop, and kill the selector when it happens.Can you attach a
+profiler to the running java process, to see what it's doing ? 
+
+
+New Comment: 
+threadDump log, same issue with "NioProcessor-939 ,nid=0xf1b" 
+
+
+New Comment: 
+thanks for response.<br/>normally NioProcessor thread exit after Exception, but sometimes
+it wouldn't.<br/>i will try install Jprofiler on the server. 
+
+
+New Comment: 
+AFAICT, you have 25 threads reading on a socket. The thread dump does not show a lot
+beside that. 
+
+
+New Comment: 
+The session was break at 14:30 PM after exception, the thread dump at 15:17 PM.<br/>I am
+confused why "NioProcessor-931" keep read the broken socket. 
+
+
+New Comment: 
+If the disconnection has been brutal, there is no way for the server to know that the
+socket has been closed.You must handle idle session in some way to determinate if a socket
+is dead. 
+
+
+New Comment: 
+I have more data on this. The thread is spinning in
+AbstractPollingIoProcessor$Processor.run() loop. It seems to hit the "nasty epoll
+spinning" as described in the source code comment, but the wakeupCalled is set to true.
+Therefore the outer condition (line 1050) is false and therefore the selector is not
+re-registerd and therefore the loop spins forever.What exactly is the reason for
+!wakeupCalled.get() in the branch condition? The subsequent code obviously sets
+wakeupCalled to false, so it obviously expects it to be true. But that contradicts the
+!wakeupCalled.get(), isn't it? 
+
+
+New Comment: 
+The flag is set to true in NioProcessor :<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>   
+@Override    protected void wakeup() {        wakeupCalled.getAndSet(true);       
+selector.wakeup();    }</pre></div></div>Basically, everytime a call to the
+<tt>wakeup</tt> method is done, like in the <tt>flush()</tt> method.Why do we check the
+flag in the processor loop ? Because we want to be sure that the <tt>select()</tt> calls
+haven't been explicitly interrupted by MINA itself (ie, by a call to <tt>wakeup()</tt>).So
+if the <tt>select()</tt> is interrupted, and the <tt>wakeupCalled</tt> is true, it's
+expected. The question is rather : what is calling <tt>wakeUp</tt> over and over ? 
+
+
+On issue key DIRMINA-1006 the command pattern might have been discussed on the following comment: 
+==============================
+That's simple. Nothing. Nothing is calling wakeUp() more than once. If I understrand the
+code correctly then once the wakeupCalled is set to true it is never reset to false. Both
+reset commands are behind !wakeupCalled.get() condition. So it spins forever. ... or ...
+did I get something wrong? 
+==============================
+
+New Comment: 
+That's simple. Nothing. Nothing is calling wakeUp() more than once. If I understrand the
+code correctly then once the wakeupCalled is set to true it is never reset to false. Both
+reset commands are behind !wakeupCalled.get() condition. So it spins forever. ... or ...
+did I get something wrong? 
+
+
+On issue key DIRMINA-1006 the mediate pattern might have been discussed on the following comment: 
+==============================
+Dang...The <tt>wakeupCalled</tt> should be reset to <tt>false</tt> when it was the reason
+the <tt>select()</tt> was interrupted...And in this case, if we are hit by the nasty
+spinning bug, then we don't take the chance to create a new selector because the flag is
+not false :/The code should probably be :<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>            
+       if (wakeupCalled.get()) {                        wakeupCalled.getAndSet(false);    
+                   // We have been waked up, the processing will continue                 
+  } else if ((selected == 0) &amp;&amp; (delta &lt; 100)) {                        // Last
+chance : the select() may have been                        // interrupted because we have
+had an closed channel.                        if (isBrokenConnection()) {                 
+          LOG.warn("Broken connection");                        } else {                  
+         LOG.warn("Create a new selector. Selected is 0, delta = " + (t1 - t0));          
+                 // Ok, we are hit by the nasty epoll                            //
+spinning.                            // Basically, there is a race condition              
+             // which causes a closing file descriptor not to be                          
+ // considered as available as a selected channel,                            // but      
+                     // it stopped the select. The next time we will                      
+     // call select(), it will exit immediately for the                            // same
+                           // reason, and do so forever, consuming 100%                   
+        // CPU.                            // We have to destroy the selector, and        
+                   // register all the socket on a new one.                           
+registerNewSelector();                        }                        // and continue the
+loop                        continue;                    }</pre></div></div> 
+==============================
+
+New Comment: 
+Dang...The <tt>wakeupCalled</tt> should be reset to <tt>false</tt> when it was the reason
+the <tt>select()</tt> was interrupted...And in this case, if we are hit by the nasty
+spinning bug, then we don't take the chance to create a new selector because the flag is
+not false :/The code should probably be :<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>            
+       if (wakeupCalled.get()) {                        wakeupCalled.getAndSet(false);    
+                   // We have been waked up, the processing will continue                 
+  } else if ((selected == 0) &amp;&amp; (delta &lt; 100)) {                        // Last
+chance : the select() may have been                        // interrupted because we have
+had an closed channel.                        if (isBrokenConnection()) {                 
+          LOG.warn("Broken connection");                        } else {                  
+         LOG.warn("Create a new selector. Selected is 0, delta = " + (t1 - t0));          
+                 // Ok, we are hit by the nasty epoll                            //
+spinning.                            // Basically, there is a race condition              
+             // which causes a closing file descriptor not to be                          
+ // considered as available as a selected channel,                            // but      
+                     // it stopped the select. The next time we will                      
+     // call select(), it will exit immediately for the                            // same
+                           // reason, and do so forever, consuming 100%                   
+        // CPU.                            // We have to destroy the selector, and        
+                   // register all the socket on a new one.                           
+registerNewSelector();                        }                        // and continue the
+loop                        continue;                    }</pre></div></div> 
+
+
+New Comment: 
+Hmmm ... nah. Does not work.It is a bit more complicated. And I was wrong. There is
+actually wakeup() invocation further down (line 1133 of the modified source code). This
+gets invoked after wakeupCalled.getAndSet(false) and that sets it again to true for the
+next iteration. So it spins again. 
+
+
+On issue key DIRMINA-1006 the mediate pattern might have been discussed on the following comment: 
+==============================
+Yeah, I realized after dinner that it was more complex that that. Here is another proposal
+:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>                    if ((selected == 0)
+&amp;&amp; !wakeupCalled.getAndSet(false) &amp;&amp; (delta &lt; 100)) {                  
+     // Last chance : the select() may have been                        // interrupted
+because we have had an closed channel.                        if (isBrokenConnection()) { 
+                          LOG.warn("Broken connection");                        } else {  
+                         LOG.warn("Create a new selector. Selected is 0, delta = " + (t1 -
+t0));                            // Ok, we are hit by the nasty epoll                     
+      // spinning.                            // Basically, there is a race condition     
+                      // which causes a closing file descriptor not to be                 
+          // considered as available as a selected channel,                            //
+but                            // it stopped the select. The next time we will            
+               // call select(), it will exit immediately for the                         
+  // same                            // reason, and do so forever, consuming 100%         
+                  // CPU.                            // We have to destroy the selector,
+and                            // register all the socket on a new one.                   
+        registerNewSelector();                        }                        // and
+continue the loop                        continue;                   
+}</pre></div></div>In this case, if the flag was false, ie if we weren't woke up, and if
+we were hit by the spin bug, we will try again. Otherwise, if the flag was true, we have
+set it back to false immediately, and we can go on with the processing of some flushes,
+etc.Can you give it a try ? 
+==============================
+
+New Comment: 
+Yeah, I realized after dinner that it was more complex that that. Here is another proposal
+:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>                    if ((selected == 0)
+&amp;&amp; !wakeupCalled.getAndSet(false) &amp;&amp; (delta &lt; 100)) {                  
+     // Last chance : the select() may have been                        // interrupted
+because we have had an closed channel.                        if (isBrokenConnection()) { 
+                          LOG.warn("Broken connection");                        } else {  
+                         LOG.warn("Create a new selector. Selected is 0, delta = " + (t1 -
+t0));                            // Ok, we are hit by the nasty epoll                     
+      // spinning.                            // Basically, there is a race condition     
+                      // which causes a closing file descriptor not to be                 
+          // considered as available as a selected channel,                            //
+but                            // it stopped the select. The next time we will            
+               // call select(), it will exit immediately for the                         
+  // same                            // reason, and do so forever, consuming 100%         
+                  // CPU.                            // We have to destroy the selector,
+and                            // register all the socket on a new one.                   
+        registerNewSelector();                        }                        // and
+continue the loop                        continue;                   
+}</pre></div></div>In this case, if the flag was false, ie if we weren't woke up, and if
+we were hit by the spin bug, we will try again. Otherwise, if the flag was true, we have
+set it back to false immediately, and we can go on with the processing of some flushes,
+etc.Can you give it a try ? 
+
+
+On issue key DIRMINA-1006 the mediate pattern might have been discussed on the following comment: 
+==============================
+The scenario where you have a 100% CPU is :<ul class="alternate"
+type="square">	<li><tt>select()</tt> must return 0 (quite rare)</li>	<li>the
+<tt>wakeupCalled</tt> must been 'true', ie the <tt>select()</tt> was waken up by an
+explicit call to the <tt>wakeup()</tt> method</li></ul>As we don't reset the flag in this
+case, we loop.There is another bug : In the original code, we don't reset the flag
+immediately, so it's possible that we enter into the <tt>if</tt> with a value of
+<tt>false</tt> for the flag which get flip to <tt>true</tt> by a call to <tt>wakeup()</tt>
+just before we recreate a new selector. In this case, we will not process the remaining
+elements, and it's bad.Bottom line, when we check the <tt>wakeupCalled</tt>, we also have
+to reset it in the same atomic operation. 
+==============================
+
+New Comment: 
+The scenario where you have a 100% CPU is :<ul class="alternate"
+type="square">	<li><tt>select()</tt> must return 0 (quite rare)</li>	<li>the
+<tt>wakeupCalled</tt> must been 'true', ie the <tt>select()</tt> was waken up by an
+explicit call to the <tt>wakeup()</tt> method</li></ul>As we don't reset the flag in this
+case, we loop.There is another bug : In the original code, we don't reset the flag
+immediately, so it's possible that we enter into the <tt>if</tt> with a value of
+<tt>false</tt> for the flag which get flip to <tt>true</tt> by a call to <tt>wakeup()</tt>
+just before we recreate a new selector. In this case, we will not process the remaining
+elements, and it's bad.Bottom line, when we check the <tt>wakeupCalled</tt>, we also have
+to reset it in the same atomic operation. 
+
+
+New Comment: 
+I can try it, but I'm quite sure that it won't work. The problem is the wakeup() call down
+there. That is another cause for the spin. 
+
+
+New Comment: 
+Is the wakeup() after if (isDisposing()) really necessary?How many threads can work on the
+selector? If it is just one thread, then we do not need a wakeup there, do we? We know
+that no select is currently waiting because we are running in the very same thread. 
+
+
+On issue key DIRMINA-1006 the mediate pattern might have been discussed on the following comment: 
+==============================
+I changed the order in the test, so that the flag is flip to <tt>false</tt> no matter
+what, and I removed the <tt>continue</tt>. The reason is that we <b>need</b> this flag to
+be flip to <tt>false</tt> if it was <tt>true</tt>, regardless of the potential spin bug.
+Hes, the call to <tt>wakepup()</tt> when we are disposing the selector is mandatory,
+because we need to process the sessions that have been put into the
+<tt>removingSessions</tt> queue, something that is done by a call to the
+<tt>removeSessions()</tt> method higher (line 1094).This piece of code is convoluted, and
+needs some love. Here is the latest version :<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>           
+for (;;) {                try {                    // This select has a timeout so that we
+can manage                    // idle session when we get out of the select every         
+          // second. (note : this is a hack to avoid creating                    // a
+dedicated thread).                    long t0 = System.currentTimeMillis();               
+    int selected = select(SELECT_TIMEOUT);                    long t1 =
+System.currentTimeMillis();                    long delta = (t1 - t0);                   
+if (!wakeupCalled.getAndSet(false) &amp;&amp; (selected == 0) &amp;&amp; (delta &lt; 100))
+{                        // Last chance : the select() may have been                      
+ // interrupted because we have had an closed channel.                        if
+(isBrokenConnection()) {                            LOG.warn("Broken connection");        
+               } else {                            LOG.warn("Create a new selector.
+Selected is 0, delta = " + (t1 - t0));                            // Ok, we are hit by the
+nasty epoll                            // spinning.                            //
+Basically, there is a race condition                            // which causes a closing
+file descriptor not to be                            // considered as available as a
+selected channel,                            // but                            // it
+stopped the select. The next time we will                            // call select(), it
+will exit immediately for the   

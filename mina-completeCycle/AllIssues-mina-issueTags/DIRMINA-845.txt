@@ -1,0 +1,139 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-845 the chain pattern might have been discussed on the following comment: 
+==============================
+Are you using an executor in your chain ? 
+==============================
+
+New Comment: 
+Are you using an executor in your chain ? 
+
+
+On issue key DIRMINA-845 the chain pattern might have been discussed on the following comment: 
+==============================
+Actually, it isn't my chain. I've found this problem when trying to optimize red5
+media-server. <br/>AFAIU, in red5 "serial" chain is used, i.e. all filters are called in
+writer thread (there is no other executors). 
+==============================
+
+New Comment: 
+Actually, it isn't my chain. I've found this problem when trying to optimize red5
+media-server. <br/>AFAIU, in red5 "serial" chain is used, i.e. all filters are called in
+writer thread (there is no other executors). 
+
+
+On issue key DIRMINA-845 the chain pattern might have been discussed on the following comment: 
+==============================
+Ok,when you send a message, you do it using the thread that was used to process the
+incoming request. This thread has been selected when the session n which this message has
+arrived was activated. If you haven't changed anything (like, adding an executor in the
+chain), then an incoming message for a specific session will <b>always</b> use the same
+thread, so there is no reason a message B can be written before message A, as the thread
+isn't available before message A is injected into the queue.That's the theory, and trust
+me, it works. Now, if I don't have the code you are playing with, I won't be able to
+explain why you see some concurrent issues. 
+==============================
+
+New Comment: 
+Ok,when you send a message, you do it using the thread that was used to process the
+incoming request. This thread has been selected when the session n which this message has
+arrived was activated. If you haven't changed anything (like, adding an executor in the
+chain), then an incoming message for a specific session will <b>always</b> use the same
+thread, so there is no reason a message B can be written before message A, as the thread
+isn't available before message A is injected into the queue.That's the theory, and trust
+me, it works. Now, if I don't have the code you are playing with, I won't be able to
+explain why you see some concurrent issues. 
+
+
+On issue key DIRMINA-845 the chain pattern might have been discussed on the following comment: 
+==============================
+Let suppose we have 3 session (3 rtmp connections) 1, 2 and 3. Session 1 receives video
+frame and re-sends it to session 3, session 2 receives another video frame and re-send it
+to session 3 too. All sessions have different io-processor threads.Note video frame
+represented as sequence of several messages in MINA terms (chunks). Frame is sent further
+when it received completely. When sending it is splitted on chunks again.So, two incoming
+frames processed by different threads will concurrently pass through session 3 filter
+chain chunk by chunk. Exactly chunking leads to issue above. Flushing may break chunks
+order.Let frame F1 chunked as F1A, F1B and F2 as F2A, F2B. They might be written to
+ProtocolEncoderOutput in such order F1A, F2A, F2B, F1B for example. It's ok that chunks of
+different frames are mixed, but important that B chunk follows after A for each frame.
+When flush runs concurrently the above sequence might be written to next filter as  F1A,
+F2B, F2A, F1B - wrong: F2B precedes  F2A!I'm not sure this is right using of MINA or not
+but such implementation I saw in red5...<a
+href="http://code.google.com/p/red5/source/browse/java/server/trunk/src/org/red5/server/net/rtmp/codec/RTMPMinaProtocolEncoder.java"
+class="external-link"
+rel="nofollow">http://code.google.com/p/red5/source/browse/java/server/trunk/src/org/red5/server/net/rtmp/codec/RTMPMinaProtocolEncoder.java</a>
+ lines 50 and 70I tried to eliminate entire connection lock and replace it on per-channel
+lock (RTMP itself allows this). Also I add chunking which didn't present in original code. 
+==============================
+
+New Comment: 
+Let suppose we have 3 session (3 rtmp connections) 1, 2 and 3. Session 1 receives video
+frame and re-sends it to session 3, session 2 receives another video frame and re-send it
+to session 3 too. All sessions have different io-processor threads.Note video frame
+represented as sequence of several messages in MINA terms (chunks). Frame is sent further
+when it received completely. When sending it is splitted on chunks again.So, two incoming
+frames processed by different threads will concurrently pass through session 3 filter
+chain chunk by chunk. Exactly chunking leads to issue above. Flushing may break chunks
+order.Let frame F1 chunked as F1A, F1B and F2 as F2A, F2B. They might be written to
+ProtocolEncoderOutput in such order F1A, F2A, F2B, F1B for example. It's ok that chunks of
+different frames are mixed, but important that B chunk follows after A for each frame.
+When flush runs concurrently the above sequence might be written to next filter as  F1A,
+F2B, F2A, F1B - wrong: F2B precedes  F2A!I'm not sure this is right using of MINA or not
+but such implementation I saw in red5...<a
+href="http://code.google.com/p/red5/source/browse/java/server/trunk/src/org/red5/server/net/rtmp/codec/RTMPMinaProtocolEncoder.java"
+class="external-link"
+rel="nofollow">http://code.google.com/p/red5/source/browse/java/server/trunk/src/org/red5/server/net/rtmp/codec/RTMPMinaProtocolEncoder.java</a>
+ lines 50 and 70I tried to eliminate entire connection lock and replace it on per-channel
+lock (RTMP itself allows this). Also I add chunking which didn't present in original code. 
+
+
+New Comment: 
+In your use case, you are assuming that frames coming from session 1 <b>and</b> from
+session 2 are in sync (ie the order they arrive must be respected).This is not a MINA
+issue, it's up to your handler to deal with such a scenario. You have to order the frames
+before writing them to session 3. Ie, you should wait for frame 2A when receiving frame 2B
+before you can send 2B. 
+
+
+New Comment: 
+In general, it isn't so important what exactly causes concurrent run of flush method, I
+just don't understand why ConcurrentLinkedQueue is used in ProtocolEncoderOutputImpl if it
+isn't made this class thread-safe?! One more example, concurrent run of write and mergeAll
+may lead to BufferOverflowException. 
+
+
+New Comment: 
+"In your use case, you are assuming that frames coming from session 1 <b>and</b> from
+session 2 are in sync"No, frames come async. Order of frames itself doesn't matter but
+order of chunks of one frame do matter.<br/>And I've ordered chunks when writing to
+ProtocolEncoderOutput, in bufferQueue chunks placed in right order but when flushing order
+is distorted. 
+
+
+On issue key DIRMINA-845 the chain pattern might have been discussed on the following comment: 
+==============================
+We use a CLQ because you <b>may</b> have many messages written for i-one single session by
+many threads, if you add an executor in the chain. This queue is a guaranty that we don't
+lose messages.Making this class thread safe would create a bottleneck which will be
+killing any heavily loaded server, when most of the time you don't have an executor. It's
+enough to make sure that each message has to be processed by the same session all the
+time. Or you can also use the OrderedThreadPoolExecutor which guarantees that message are
+processed in the right order when you add an executor. 
+==============================
+
+New Comment: 
+We use a CLQ because you <b>may</b> have many messages written for i-one single session by
+many threads, if you add an executor in the chain. This queue is a guaranty that we don't
+lose messages.Making this class thread safe would create a bottleneck which will be
+killing any heavily loaded server, when most of the time you don't have an executor. It's
+enough to make sure that each message has to be processed by the same session all the
+time. Or you can also use the OrderedThreadPoolExecutor which guarantees that message are
+processed in the right order when you add an executor. 
+
+
+N

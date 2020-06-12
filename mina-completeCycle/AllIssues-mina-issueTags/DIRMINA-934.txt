@@ -1,0 +1,238 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Git diff against 2.0 repo 
+
+
+New Comment: 
+Sounds good to me.I will apply the patch next week. Thanks ! 
+
+
+On issue key DIRMINA-934 the chain pattern might have been discussed on the following comment: 
+==============================
+There is still one thing that needs to be reviewed : the lock is acquired before the
+decoding is done, and released after the message has been processed. This is not the case
+in the existing code, where we just protect the decoderOut instance while decoding, which
+means some other thread might perfectly clear the queue qhile the current thread is
+expecting something to be present.I think there is a major flaw in the way we process the
+decoding, but we are most certainly protected by the fact that we don't often use an
+executor in the chain, and especially an unordered thread executor.The proposed fix not
+only save some CPU by removing the synchronized section, but also protect the code from
+more severe race conditions.Btw, I think that we can get rid of the ConcurrentLinkedQueue
+in the AbstractProtocolDecoderOutput if we use this fix. I'll do that and run the test.I
+would really appreciate that someone else review the patch and the consequences.Many
+thanks ! 
+==============================
+
+New Comment: 
+There is still one thing that needs to be reviewed : the lock is acquired before the
+decoding is done, and released after the message has been processed. This is not the case
+in the existing code, where we just protect the decoderOut instance while decoding, which
+means some other thread might perfectly clear the queue qhile the current thread is
+expecting something to be present.I think there is a major flaw in the way we process the
+decoding, but we are most certainly protected by the fact that we don't often use an
+executor in the chain, and especially an unordered thread executor.The proposed fix not
+only save some CPU by removing the synchronized section, but also protect the code from
+more severe race conditions.Btw, I think that we can get rid of the ConcurrentLinkedQueue
+in the AbstractProtocolDecoderOutput if we use this fix. I'll do that and run the test.I
+would really appreciate that someone else review the patch and the consequences.Many
+thanks ! 
+
+
+New Comment: 
+I'm all for improving Mina where I can; glad to help. 
+
+
+New Comment: 
+Added change to AbstractProtocolDecoderOutput queue. 
+
+
+New Comment: 
+For what its worth, I been testing with Red5 and having these patches applied seems to
+work quite well. 
+
+
+New Comment: 
+As an aside, how do I build the 2.x version using the git repo? The build instructions on
+the site are for the old svn repository. 
+
+
+New Comment: 
+Still have to apply the changes... lack of time on my side !Building is simple. First,
+clone the repo :git clone <a href="http://git-wip-us.apache.org/repos/asf/mina.git"
+class="external-link" rel="nofollow">http://git-wip-us.apache.org/repos/asf/mina.git</a>
+mina<br/>and<br/>git checkout 2.0FYI I just updated the web site (it will take a couple of
+hours for the mirrors to be updated) 
+
+
+New Comment: 
+FTR, I have locally applied the patch, and tests are passing. I'll try to commit it asap. 
+
+
+New Comment: 
+Patch applied back in march 2014 
+
+
+New Comment: 
+This is definitely an important change that should be described in the release note. If we
+put ProtocolCodecFilter after ExcutorServiceFliter, the ProtocolCodecFilter will block the
+concurrent execution of the worker threads due to the semaphore lock. There is no such
+problem in 2.0.7. We met this issue in our production and it cost us a lot of time to find
+out the root cause. It's too bad. 
+
+
+On issue key DIRMINA-934 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Thanks <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=quhw"
+class="user-hover" rel="quhw">Huanwen Qu</a>!With MINA 2.0.7, we used to create the
+acceptor with 20 NIO processors and it worked pretty well:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">acceptor = <span class="code-keyword">new</span>
+NioSocketAcceptor(NIO_ACCEPTOR_THREADS);acceptor.getFilterChain().addLast(<span
+class="code-quote">"codec"</span>, <span class="code-keyword">new</span>
+ProtocolCodecFilter(<span class="code-keyword">new</span>
+OurProtocolCodecFactory()));</pre></div></div>However with MINA 2.0.8/2.0.9, the
+performance degraded considerably, where all 20 of our MINA threads were in a waiting
+state:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>"NioProcessor-5" - Thread t@1091  
+java.lang.Thread.State: WAITING	at sun.misc.Unsafe.park(Native Method)	- parking to wait
+for &lt;1562a344&gt; (a java.util.concurrent.Semaphore$FairSync)	at
+java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:834)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:994)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1303)	at
+java.util.concurrent.Semaphore.acquire(Semaphore.java:317)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.messageReceived(ProtocolCodecFilter.java:231)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)	at
+java.lang.Thread.run(Thread.java:724)   Locked ownable synchronizers:	- locked
+&lt;72562fdf&gt; (a java.util.concurrent.ThreadPoolExecutor$Worker)</pre></div></div>Now
+I've changed our code to add the threadpool to the filter chain to get the performance
+like we had with MINA 2.0.7:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">minaWorkers = <span
+class="code-keyword">new</span> OrderedThreadPoolExecutor(1, 20, 60L,
+TimeUnit.SECONDS,	<span class="code-keyword">new</span>
+OurLablingDefaultThreadFactory(<span class="code-quote">"minaWorker"</span>), <span
+class="code-keyword">null</span>);acceptor = <span class="code-keyword">new</span>
+NioSocketAcceptor(2);acceptor.getFilterChain().addLast(<span
+class="code-quote">"codec"</span>, <span class="code-keyword">new</span>
+ProtocolCodecFilter(<span class="code-keyword">new</span>
+OurProtocolCodecFactory()));acceptor.getFilterChain().addLast(<span
+class="code-quote">"minaWorkers"</span>, <span class="code-keyword">new</span>
+ExecutorFilter(minaWorkers));</pre></div></div>Alsod take note that if you don't specify
+the processorCount argument for the NioSocketAcceptor and you have more than 1 CPU
+core/thread (like if you have a Quad Core Xeon CPU with hyperthreading enabled), you may
+also run into this semaphore lock issue under high network loads! We haven't experimented
+yet with other values for the processorCount to see where the threshold/optimum
+performance is.I hope this helps other people struggling with the same issue. 
+==============================
+
+On issue key DIRMINA-934 the Factory pattern might have been discussed on the following comment: 
+==============================
+Thanks <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=quhw"
+class="user-hover" rel="quhw">Huanwen Qu</a>!With MINA 2.0.7, we used to create the
+acceptor with 20 NIO processors and it worked pretty well:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">acceptor = <span class="code-keyword">new</span>
+NioSocketAcceptor(NIO_ACCEPTOR_THREADS);acceptor.getFilterChain().addLast(<span
+class="code-quote">"codec"</span>, <span class="code-keyword">new</span>
+ProtocolCodecFilter(<span class="code-keyword">new</span>
+OurProtocolCodecFactory()));</pre></div></div>However with MINA 2.0.8/2.0.9, the
+performance degraded considerably, where all 20 of our MINA threads were in a waiting
+state:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>"NioProcessor-5" - Thread t@1091  
+java.lang.Thread.State: WAITING	at sun.misc.Unsafe.park(Native Method)	- parking to wait
+for &lt;1562a344&gt; (a java.util.concurrent.Semaphore$FairSync)	at
+java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:834)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:994)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1303)	at
+java.util.concurrent.Semaphore.acquire(Semaphore.java:317)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.messageReceived(ProtocolCodecFilter.java:231)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)	at
+java.lang.Thread.run(Thread.java:724)   Locked ownable synchronizers:	- locked
+&lt;72562fdf&gt; (a java.util.concurrent.ThreadPoolExecutor$Worker)</pre></div></div>Now
+I've changed our code to add the threadpool to the filter chain to get the performance
+like we had with MINA 2.0.7:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">minaWorkers = <span
+class="code-keyword">new</span> OrderedThreadPoolExecutor(1, 20, 60L,
+TimeUnit.SECONDS,	<span class="code-keyword">new</span>
+OurLablingDefaultThreadFactory(<span class="code-quote">"minaWorker"</span>), <span
+class="code-keyword">null</span>);acceptor = <span class="code-keyword">new</span>
+NioSocketAcceptor(2);acceptor.getFilterChain().addLast(<span
+class="code-quote">"codec"</span>, <span class="code-keyword">new</span>
+ProtocolCodecFilter(<span class="code-keyword">new</span>
+OurProtocolCodecFactory()));acceptor.getFilterChain().addLast(<span
+class="code-quote">"minaWorkers"</span>, <span class="code-keyword">new</span>
+ExecutorFilter(minaWorkers));</pre></div></div>Alsod take note that if you don't specify
+the processorCount argument for the NioSocketAcceptor and you have more than 1 CPU
+core/thread (like if you have a Quad Core Xeon CPU with hyperthreading enabled), you may
+also run into this semaphore lock issue under high network loads! We haven't experimented
+yet with other values for the processorCount to see where the threshold/optimum
+performance is.I hope this helps other people struggling with the same issue. 
+==============================
+
+On issue key DIRMINA-934 the chain pattern might have been discussed on the following comment: 
+==============================
+Thanks <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=quhw"
+class="user-hover" rel="quhw">Huanwen Qu</a>!With MINA 2.0.7, we used to create the
+acceptor with 20 NIO processors and it worked pretty well:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">acceptor = <span class="code-keyword">new</span>
+NioSocketAcceptor(NIO_ACCEPTOR_THREADS);acceptor.getFilterChain().addLast(<span
+class="code-quote">"codec"</span>, <span class="code-keyword">new</span>
+ProtocolCodecFilter(<span class="code-keyword">new</span>
+OurProtocolCodecFactory()));</pre></div></div>However with MINA 2.0.8/2.0.9, the
+performance degraded considerably, where all 20 of our MINA threads were in a waiting
+state:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>"NioProcessor-5" - Thread t@1091  
+java.lang.Thread.State: WAITING	at sun.misc.Unsafe.park(Native Method)	- parking to wait
+for &lt;1562a344&gt; (a java.util.concurrent.Semaphore$FairSync)	at
+java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:834)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:994)	at
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1303)	at
+java.util.concurrent.Semaphore.acquire(Semaphore.java:317)	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.messageReceived(ProtocolCodecFilter.java:231)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:714)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:668)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:657)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:67)	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1121)	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)

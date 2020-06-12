@@ -1,0 +1,488 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key SSHD-854 the Chain pattern might have been discussed on the following comment: 
+==============================
+<tt>NioSocketSession</tt> are retained as long as the client doesn't disconnect. This data
+structure holds a lot of references to other data structures, plus a lot of internal data
+associated with the session :<ins>References</ins>
+:<ul>	<li>TransportMetadata</li>	<li>IoProcessor</li>	<li>Channel</li>	<li>SelectionKey</li>	<li>IoFilterChain</li>	<li>IoHandler</li>	<li>IoSessionConfig</li>	<li>IoService</li></ul><ins>Internal
+data :</ins><ul>	<li>attributes : IoSessionAttributeMap</li>	<li>closeFuture :
+CloseFuture</li>	<li>closing : boolean</li>	<li>creationTime :
+long</li>	<li>currentWriteRequest : WriteRequest</li>	<li>deferDecreaseReadBuffer :
+boolean</li>	<li>idleCountForBoth : AtomicInteger</li>	<li>idleCountForRead :
+AtomicInteger</li>	<li>idleCountForWrite : AtomicInteger</li>	<li>lastIdleTimeForBoth :
+long</li>	<li>lastIdleTimeForRead : long</li>	<li>lastIdleTimeForWrite :
+long</li>	<li>lastReadBytes : long</li>	<li>lastReadMessages : long</li>	<li>lastReadTime
+: long</li>	<li>lastThroughputCalculationTime : long</li>	<li>lastWriteTime :
+long</li>	<li>lastWrittenBytes : long</li>	<li>lastWrittenMessages : long</li>	<li>lock :
+Object</li>	<li>readBytes : long</li>	<li>readBytesThroughput :
+double</li>	<li>readMessages : long</li>	<li>readMessagesThroughput :
+double</li>	<li>readSuspended : boolean</li>	<li>scheduledForFlush :
+AtomicBoolean</li>	<li>scheduledWriteBytes : AtomicInteger</li>	<li>scheduledWriteMessages
+: AtomicInteger</li>	<li>sessionId : long</li>	<li>writeRequestQueue :
+WriteRequestQueue</li>	<li>writeSuspended : boolean</li>	<li>writtenBytes :
+long</li>	<li>writtenBytesThroughput : double</li>	<li>writtenMessages :
+long</li>	<li>writtenMessagesThroughput : double</li></ul> If a lot of messages are
+waiting to be flushed, the <tt>writeRequestQueue</tt> will itself use a lot of memory.
+This is typically what happens when dealing with a slow client, or with a 'rogue' client
+that disconnects brutally (in this case, the server will never be informed that the client
+has quit).Bottom line, the question is rather : why are there so many sessions pending ?
+If we are talking about hundred of thousands pending sessions, then the server has to deal
+with such a problem. Either by 'fixing' the clients (having them quit properly, or read
+the messages quick enough), or by adding some protection on the server (and it will depend
+on what is the real problem with the clients).So: <ul>	<li>is it a load test ?</li>	<li>if
+so, what is this load test doing precisely ?</li>	<li>otherwise, are the clients
+disconnecting properly ?</li>	<li>are they reading the messages fast enough ?</li></ul> 
+==============================
+
+New Comment: 
+<tt>NioSocketSession</tt> are retained as long as the client doesn't disconnect. This data
+structure holds a lot of references to other data structures, plus a lot of internal data
+associated with the session :<ins>References</ins>
+:<ul>	<li>TransportMetadata</li>	<li>IoProcessor</li>	<li>Channel</li>	<li>SelectionKey</li>	<li>IoFilterChain</li>	<li>IoHandler</li>	<li>IoSessionConfig</li>	<li>IoService</li></ul><ins>Internal
+data :</ins><ul>	<li>attributes : IoSessionAttributeMap</li>	<li>closeFuture :
+CloseFuture</li>	<li>closing : boolean</li>	<li>creationTime :
+long</li>	<li>currentWriteRequest : WriteRequest</li>	<li>deferDecreaseReadBuffer :
+boolean</li>	<li>idleCountForBoth : AtomicInteger</li>	<li>idleCountForRead :
+AtomicInteger</li>	<li>idleCountForWrite : AtomicInteger</li>	<li>lastIdleTimeForBoth :
+long</li>	<li>lastIdleTimeForRead : long</li>	<li>lastIdleTimeForWrite :
+long</li>	<li>lastReadBytes : long</li>	<li>lastReadMessages : long</li>	<li>lastReadTime
+: long</li>	<li>lastThroughputCalculationTime : long</li>	<li>lastWriteTime :
+long</li>	<li>lastWrittenBytes : long</li>	<li>lastWrittenMessages : long</li>	<li>lock :
+Object</li>	<li>readBytes : long</li>	<li>readBytesThroughput :
+double</li>	<li>readMessages : long</li>	<li>readMessagesThroughput :
+double</li>	<li>readSuspended : boolean</li>	<li>scheduledForFlush :
+AtomicBoolean</li>	<li>scheduledWriteBytes : AtomicInteger</li>	<li>scheduledWriteMessages
+: AtomicInteger</li>	<li>sessionId : long</li>	<li>writeRequestQueue :
+WriteRequestQueue</li>	<li>writeSuspended : boolean</li>	<li>writtenBytes :
+long</li>	<li>writtenBytesThroughput : double</li>	<li>writtenMessages :
+long</li>	<li>writtenMessagesThroughput : double</li></ul> If a lot of messages are
+waiting to be flushed, the <tt>writeRequestQueue</tt> will itself use a lot of memory.
+This is typically what happens when dealing with a slow client, or with a 'rogue' client
+that disconnects brutally (in this case, the server will never be informed that the client
+has quit).Bottom line, the question is rather : why are there so many sessions pending ?
+If we are talking about hundred of thousands pending sessions, then the server has to deal
+with such a problem. Either by 'fixing' the clients (having them quit properly, or read
+the messages quick enough), or by adding some protection on the server (and it will depend
+on what is the real problem with the clients).So: <ul>	<li>is it a load test ?</li>	<li>if
+so, what is this load test doing precisely ?</li>	<li>otherwise, are the clients
+disconnecting properly ?</li>	<li>are they reading the messages fast enough ?</li></ul> 
+
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a><br/> Thank you for getting back
+to me.This was not a load test but a live production environment. I am currently working
+on understanding the type of load the system was in when this incident happened. I have my
+suspicion that there was a load spike but I can't say for sure at the moment as I'm still
+collecting data from the environment (I do not have direct access to it so it's taking a
+bit of time).I don't believe there were any pending writes. The <tt>writeRequestQueue</tt>
+is not where the memory is being retained.What I'm seeing though is that there are roughly
+94K instances of <tt>NioSocketSession</tt>. Looking at their referenced
+<tt>SocketChannelImpl</tt> I see that 43 are open and 93983 are closed.As I said before
+(and I may not have been clear, so I apologise) all 94K seem to have been nested
+as explained in the ticket's description. This causes the resulting object graph to have a
+massive retained size, but no individual session has a large shallow size.On looking at
+the graph in JProfiler, it would seem that the GC root is a thread where the stack
+references:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-object">Thread</span> -&gt;
+ServerSessionImpl -&gt; SshServer -&gt; JohnsonAwarePublicKeyAuthenticator -&gt;
+CachingPublicKeyAuthenticator -&gt; ConcurrentHashMap -&gt; ConcurrentHashMap$Node[] -&gt;
+ConcurrentHashMap$Node -&gt; ServerSessionImpl -&gt; MinaSession -&gt; NioSocketSession
+-&gt; ...</pre></div></div>Is it possible that in some circumstances
+<tt>CachingPublicKeyAuthenticator</tt> may not clear its cache correctly and as a result
+closed sessions are left around which start nesting within each other until the heap
+blows?CheersJuan Palacios 
+
+
+New Comment: 
+Ok, thanks for the clarification. At this point, I would suggest we switch the ticket to
+<tt>SSHD</tt>, the <tt>CachingPublicKeyAuthenticator</tt> class belonging to this project,
+not to <tt>MINA</tt> per se. 
+
+
+New Comment: 
+NOTE: I realise this issue may be partly (or completely) originated in SSHD so I've
+created a ticket with them as well: <a
+href="https://issues.apache.org/jira/browse/SSHD-855" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/SSHD-855</a> 
+
+
+New Comment: 
+If this is something specific to MINA, we will definitely fix it.  I think your first step
+is to find a way to reproduce the error.What version of MINA are you using?<br/>What
+version of SSHD are you using? 
+
+
+New Comment: 
+I didn't see your comment <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>, I've closed <a
+href="https://issues.apache.org/jira/browse/SSHD-855" title="CachingPublicKeyAuthenticator
+not clearing up closed sessions" class="issue-link"
+data-issue-key="SSHD-855"><del>SSHD-855</del></a> Thanks for getting back to me so quickly 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>MINA: 2.0.16<br/>SSHD:
+1.7.0Cheers<br/>Juan 
+
+
+New Comment: 
+One of the things I would look for in the heap dump is the Set/Maps belonging to the
+Selector and see how many items are in there.  That will tell us if the SocketChannelImpl
+objects were actually closed because their SelectionKeyImpl objects should no longer be in
+the Set/Maps.When you said that all but a few of the IoSession were closed, how did you
+make that determination? 
+
+
+New Comment: 
+The <tt>CachingPublicKeyAuthenticator</tt> class has been added 4 years ago, see <a
+href="https://issues.apache.org/jira/browse/SSHD-300?page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel&amp;focusedCommentId=13936335#comment-13936335"
+class="external-link" rel="nofollow">SSHD-300</a> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a><blockquote>When you said that all
+but a few of the IoSession were closed, how did you make that
+determination?</blockquote>As I said, when I look at
+<tt>NioSocketSession.channel.open</tt> it's <tt>false</tt>. Plus, in the graph, if I walk
+back there's a <tt>MinaSession</tt> directly referencing the
+<tt>NioSocketSession</tt> and <tt>MinaSession.state == Closed</tt>. That
+<tt>MinaSession</tt> is in turn directly referenced by a <tt>ServerSessionImpl</tt> which
+has a <tt>state == Closed</tt>.<blockquote>One of the things I would look for in the heap
+dump is the Set/Maps belonging to the Selector and see how many items are in there. That
+will tell us if the SocketChannelImpl objects were actually closed because their
+SelectionKeyImpl objects should no longer be in the Set/Maps.</blockquote>Do you mean the
+{{EpollSelectorImpl }}instances? There's 42840 instances. I picked up a few at random and
+I can see a similar state:<ul>	<li><tt>cancelledKeys</tt>:
+empty</li>	<li><tt>fdToKey</tt>: a few <tt>SelectorKeyImpl</tt> objects indexed by an
+<tt>Integer</tt> (55 entries in the selector with the largest retained
+size)</li>	<li><tt>keys</tt>: empty</li>	<li><tt>publicKeys</tt>:
+empty</li>	<li><tt>publicSelectedKeys</tt>: empty</li></ul> 
+
+
+New Comment: 
+Oh wow, there is no legit reason for 42,840 instances of EpollSelectorImpl.  Where are the
+incoming references from? 
+
+
+On issue key SSHD-854 the chain pattern might have been discussed on the following comment: 
+==============================
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Picking one at random it's
+referenced by 11 <tt>SelectorKeyImpl</tt> instances and one <tt>AbstractSelector$1</tt>.
+Then up the chain (which has a massive number of links) those <tt>SelectorKeyImpl</tt>
+instances all go all the way back to the <tt>CachingPublicKeyAuthenticator</tt>.<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> -&gt; ServerSessionImpl -&gt;
+SshServer -&gt; JohnsonAwarePublicKeyAuthenticator -&gt; CachingPublicKeyAuthenticator
+-&gt; ConcurrentHashMap -&gt; ConcurrentHashMap$Node[] -&gt; ConcurrentHashMap$Node -&gt;
+ServerSessionImpl -&gt; MinaSession -&gt; NioSocketSession -&gt; SelectionKeyImpl -&gt;
+EpollSelectorImpl -&gt; HashMap -&gt; SelectionKeyImpl -&gt; NioSocketSession -&gt;
+...</pre></div></div> 
+==============================
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=johnnyv"
+class="user-hover" rel="johnnyv">Jonathan Valliere</a>,Picking one at random it's
+referenced by 11 <tt>SelectorKeyImpl</tt> instances and one <tt>AbstractSelector$1</tt>.
+Then up the chain (which has a massive number of links) those <tt>SelectorKeyImpl</tt>
+instances all go all the way back to the <tt>CachingPublicKeyAuthenticator</tt>.<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-object">Thread</span> -&gt; ServerSessionImpl -&gt;
+SshServer -&gt; JohnsonAwarePublicKeyAuthenticator -&gt; CachingPublicKeyAuthenticator
+-&gt; ConcurrentHashMap -&gt; ConcurrentHashMap$Node[] -&gt; ConcurrentHashMap$Node -&gt;
+ServerSessionImpl -&gt; MinaSession -&gt; NioSocketSession -&gt; SelectionKeyImpl -&gt;
+EpollSelectorImpl -&gt; HashMap -&gt; SelectionKeyImpl -&gt; NioSocketSession -&gt;
+...</pre></div></div> 
+
+
+New Comment: 
+Clearly, the <tt>sessionClosed()</tt> method from the
+<tt>CachingPublicKeyAuthenticator</tt> class is not being called, otherwise the session
+would have been removed from the cache :<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">    @Override    <span
+class="code-keyword">public</span> void sessionClosed(Session session) {       
+Map&lt;PublicKey, <span class="code-object">Boolean</span>&gt; map =
+cache.remove(session);  &lt;----------------------------------Here        <span
+class="code-keyword">if</span> (map == <span class="code-keyword">null</span>) {          
+ <span class="code-keyword">if</span> (log.isDebugEnabled()) {               
+log.debug(<span class="code-quote">"sessionClosed({}) not cached"</span>, session);       
+    }        } <span class="code-keyword">else</span> {            <span
+class="code-keyword">if</span> (log.isDebugEnabled()) {                log.debug(<span
+class="code-quote">"sessionClosed({}) removed from cache"</span>, session);            }  
+     }        session.removeSessionListener(<span class="code-keyword">this</span>);      
+}</pre></div></div>Guillaume, Lyor, a hint ? 
+
+
+New Comment: 
+Will try to look at it when I get the chance. 
+
+
+New Comment: 
+<blockquote>Clearly, the sessionClosed() method from the CachingPublicKeyAuthenticator
+class is not being called,</blockquote>As far as I can tell from looking at the code,
+<tt>sessionClosed</tt> is always called since it is part of the <tt>preClose</tt> sequence
+- which is part of any <tt>Closeable#close</tt>.That being said, I am not able to see the
+benefits of this class - why would we want to cache the authentication result per-session
+? After all, once the session is authenticated, the verifier is not consulted again (for
+the same session). 
+
+
+On issue key SSHD-854 the factory pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jpalacios"
+class="user-hover" rel="jpalacios">jpalacios</a>, after reviewing the issue's comments
+more thoroughly, I observed that the SSHD version in use is quite old (1.7.0). Since then,
+there have been many significant changes (hopefully improvements...) - including to the
+session management cycle. I would like to ask you to try to reproduce the issue with the
+latest released version (2.1.0).Please see also the <a
+href="https://github.com/apache/mina-sshd#selecting-an-ioservicefactoryfactory"
+class="external-link" rel="nofollow">section dealing with IOServiceFactory selection</a>
+and note that by default, we started using the <b>built-in</b> NIO2 factory. If you cannot
+reproduce it with NIO2, see if you can reproduce it with MINA - that may provide us a
+better understanding of where there might be an issue (or not...) 
+==============================
+
+On issue key SSHD-854 the Factory pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jpalacios"
+class="user-hover" rel="jpalacios">jpalacios</a>, after reviewing the issue's comments
+more thoroughly, I observed that the SSHD version in use is quite old (1.7.0). Since then,
+there have been many significant changes (hopefully improvements...) - including to the
+session management cycle. I would like to ask you to try to reproduce the issue with the
+latest released version (2.1.0).Please see also the <a
+href="https://github.com/apache/mina-sshd#selecting-an-ioservicefactoryfactory"
+class="external-link" rel="nofollow">section dealing with IOServiceFactory selection</a>
+and note that by default, we started using the <b>built-in</b> NIO2 factory. If you cannot
+reproduce it with NIO2, see if you can reproduce it with MINA - that may provide us a
+better understanding of where there might be an issue (or not...) 
+==============================
+
+On issue key SSHD-854 the observe pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jpalacios"
+class="user-hover" rel="jpalacios">jpalacios</a>, after reviewing the issue's comments
+more thoroughly, I observed that the SSHD version in use is quite old (1.7.0). Since then,
+there have been many significant changes (hopefully improvements...) - including to the
+session management cycle. I would like to ask you to try to reproduce the issue with the
+latest released version (2.1.0).Please see also the <a
+href="https://github.com/apache/mina-sshd#selecting-an-ioservicefactoryfactory"
+class="external-link" rel="nofollow">section dealing with IOServiceFactory selection</a>
+and note that by default, we started using the <b>built-in</b> NIO2 factory. If you cannot
+reproduce it with NIO2, see if you can reproduce it with MINA - that may provide us a
+better understanding of where there might be an issue (or not...) 
+==============================
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jpalacios"
+class="user-hover" rel="jpalacios">jpalacios</a>, after reviewing the issue's comments
+more thoroughly, I observed that the SSHD version in use is quite old (1.7.0). Since then,
+there have been many significant changes (hopefully improvements...) - including to the
+session management cycle. I would like to ask you to try to reproduce the issue with the
+latest released version (2.1.0).Please see also the <a
+href="https://github.com/apache/mina-sshd#selecting-an-ioservicefactoryfactory"
+class="external-link" rel="nofollow">section dealing with IOServiceFactory selection</a>
+and note that by default, we started using the <b>built-in</b> NIO2 factory. If you cannot
+reproduce it with NIO2, see if you can reproduce it with MINA - that may provide us a
+better understanding of where there might be an issue (or not...) 
+
+
+New Comment: 
+In this context, I re-wrote <tt>CachingPublicKeyAuthenticator</tt> to  <a
+href="https://github.com/apache/mina-sshd/commit/5c7cc71377ef8d720683957548e8f0c66756d5c2"
+class="external-link" rel="nofollow">use a session attribute</a> instead of a
+listener-updated map. This will make sure that when the session is GC'ed, the attributes
+will be cleaned-up regardless of whether <tt>sessionClosed</tt> was called or not (due to
+some bug/issue). 
+
+
+On issue key SSHD-854 the  state  pattern might have been discussed on the following comment: 
+==============================
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=lgoldstein"
+class="user-hover" rel="lgoldstein">Lyor Goldstein</a>,<br/>Thanks for the suggestion.
+However this heap dump came from an incident one of our customers experienced in their
+production instance so we need to be careful with what we test. Asking them to invest time
+in upgrading the system is certainly an option but we'd like to be able to explain why we
+believe the root cause would be removed. Upgrading in a test environment is unlikely to
+reproduce the issue since it won't see the same kind of sustained load. Do you have a
+theory as to how the system could've gotten into this state using SSHD <tt>1.7.0</tt>?
+What change specifically in the 2.x releases would resolve it?Cheers<br/>Juan Palacios 
+==============================
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=lgoldstein"
+class="user-hover" rel="lgoldstein">Lyor Goldstein</a>,<br/>Thanks for the suggestion.
+However this heap dump came from an incident one of our customers experienced in their
+production instance so we need to be careful with what we test. Asking them to invest time
+in upgrading the system is certainly an option but we'd like to be able to explain why we
+believe the root cause would be removed. Upgrading in a test environment is unlikely to
+reproduce the issue since it won't see the same kind of sustained load. Do you have a
+theory as to how the system could've gotten into this state using SSHD <tt>1.7.0</tt>?
+What change specifically in the 2.x releases would resolve it?Cheers<br/>Juan Palacios 
+
+
+New Comment: 
+Hi Juan,<br/>I don't really have a theory as to how this can happen in version 1.7.0.
+Perhaps there is some code flow that causes one (or more) of the session listener methods
+not to be called, thus causing the huge buildup. As far as 2.x changes that specifically
+resolve it, again, I apologize but I cannot recall anything specific to this issue
+off-hand. I do know there have been several changes in the way we handle connection
+closing - the code plugged some "gaps" that were found. These gaps were not directly
+related to the issue at hand, but they may have indirectly also solved this issue. In any
+case, even if you don't want or cannot upgrade to 2.x (and there are no guarantees that it
+would fix this issue), the fix I introduced in the ongoing code as a result for this issue
+can easily be duplicated and used in 1.7.0 (though we cannot release such a patch, it
+should be relatively easy to introduce it as a local workaround by you). 
+
+
+On issue key SSHD-854 the mediate pattern might have been discussed on the following comment: 
+==============================
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=lgoldstein"
+class="user-hover" rel="lgoldstein">Lyor Goldstein</a>,<br/>Thanks for getting back to
+me.<blockquote>In any case, even if you don't want or cannot upgrade to 2.x (and there are
+no guarantees that it would fix this issue), the fix I introduced in the ongoing code as a
+result for this issue can easily be duplicated and used in 1.7.0 (though we cannot release
+such a patch, it should be relatively easy to introduce it as a local workaround by
+you).</blockquote>Upgrading my local environment is not really an issue. Upgrading our
+customer's environment is a different story.I think I managed to partially reproduce this
+issue by inserting a breakpoint in <tt>CachingPublicKeyAuthenticator</tt>.Steps to
+reproduce:<ul>	<li>Insert a breakpoint in <a
+href="https://github.com/apache/mina-sshd/blob/sshd-1.7.0/sshd-core/src/main/java/org/apache/sshd/server/auth/pubkey/CachingPublicKeyAuthenticator.java#L53"
+class="external-link" rel="nofollow">line 53</a> of
+<tt>CachingPublicKeyAuthenticator</tt></li>	<li>Start a session and let the thread stop at
+the break point</li>	<li>Start a second session, and let it run through to normal
+completion (without ever letting the first thread move). It may also be necessary to let
+the first thread sit for about 30 to 60 seconds.</li>	<li>Go back to the initial thread
+and step into the <tt>#addSessionListener</tt>. The sessions <tt>state</tt> is now
+<tt>Immediate</tt> (not sure what changed it though) so *<b>the listener is not
+registered</b>* and thus the cleanup logic in the <tt>CachingPublicKeyAuthenticator</tt>
+will never be called</li>	<li>Let the thread complete it's processing</li>	<li>Start a
+third session and let it stop at the break point. Observe the first session is still in
+the cache even though it's closed. It's been leaked.</li></ul>I say I only
+<em>partially</em> reproduced it because I'm not seeing the nested graph, only the leak in
+the <tt>CachingPublicKeyAuthenticator</tt>. However on my local environment a different
+implementation of <tt>Selector</tt> is being used. I need to do a similar test on a Linux
+environment to see if the nesting happens when using <tt>EPollSelectorImpl</tt>.It's worth
+noting that the changes you've made to use session attributes instead of a map to
+store/retrieve the cached value, would solve the problem I'm describing. When do you think
+we can expect those changes to be released?Cheers<br/>Juan Palacios 
+==============================
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=lgoldstein"
+class="user-hover" rel="lgoldstein">Lyor Goldstein</a>,<br/>Thanks for getting back to
+me.<blockquote>In any case, even if you don't want or cannot upgrade to 2.x (and there are
+no guarantees that it would fix this issue), the fix I introduced in the ongoing code as a
+result for this issue can easily be duplicated and used in 1.7.0 (though we cannot release
+such a patch, it should be relatively easy to introduce it as a local workaround by
+you).</blockquote>Upgrading my local environment is not really an issue. Upgrading our
+customer's environment is a different story.I think I managed to partially reproduce this
+issue by inserting a breakpoint in <tt>CachingPublicKeyAuthenticator</tt>.Steps to
+reproduce:<ul>	<li>Insert a breakpoint in <a
+href="https://github.com/apache/mina-sshd/blob/sshd-1.7.0/sshd-core/src/main/java/org/apache/sshd/server/auth/pubkey/CachingPublicKeyAuthenticator.java#L53"
+class="external-link" rel="nofollow">line 53</a> of
+<tt>CachingPublicKeyAuthenticator</tt></li>	<li>Start a session and let the thread stop at
+the break point</li>	<li>Start a second session, and let it run through to normal
+completion (without ever letting the first thread move). It may also be necessary to let
+the first thread sit for about 30 to 60 seconds.</li>	<li>Go back to the initial thread
+and step into the <tt>#addSessionListener</tt>. The sessions <tt>state</tt> is now
+<tt>Immediate</tt> (not sure what changed it though) so *<b>the listener is not
+registered</b>* and thus the cleanup logic in the <tt>CachingPublicKeyAuthenticator</tt>
+will never be called</li>	<li>Let the thread complete it's processing</li>	<li>Start a
+third session and let it stop at the break point. Observe the first session is still in
+the cache even though it's closed. It's been leaked.</li></ul>I say I only
+<em>partially</em> reproduced it because I'm not seeing the nested graph, only the leak in
+the <tt>CachingPublicKeyAuthenticator</tt>. However on my local environment a different
+implementation of <tt>Selector</tt> is being used. I need to do a similar test on a Linux
+environment to see if the nesting happens when using <tt>EPollSelectorImpl</tt>.It's worth
+noting that the changes you've made to use session attributes instead of a map to
+store/retrieve the cached value, would solve the problem I'm describing. When do you think
+we can expect those changes to be released?Cheers<br/>Juan Palacios 
+
+
+New Comment: 
+<blockquote>It's worth noting that the changes you've made to use session attributes
+instead of a map to store/retrieve the cached value, would solve the problem I'm
+describing. When do you think we can expect those changes to be released?</blockquote>I
+believe when we release 2.2 - some time in Q1 2019 (unless there is an urgent need to
+release before that) 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>,Do you think it's possible that
+the other half of the issue I'm seeing is a more severe case of <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1042" class="external-link"
+rel="nofollow">DIRMINA-1042</a>? The symptoms certainly seem to match perfectly. I am also
+seeing the leak happening through <tt>EPollSelectorImpl.fdToKey</tt> which doesn't get
+cleaned up when closing the selector.Looks like the fix was to add a retry logic so that
+the selector won't be replaced so frequently. However that should still allow for the
+issue to affect a system in a more extreme scenario, is that correct?I'm not sure though
+that, as suggested in the ticket, closing the key will help either as something would need
+to call `select` to eventually trigger the `processDeregisterQueue` logic that will deal
+with the `cancelledKeys`.I'd appreciate your thoughts.Regards<br/>Juan Palacios 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>,In the heap dump I'm seeing
+382976 <tt>SelectionKeyImpl</tt> instances referencing <tt>NioSocketSession</tt>
+instances. This seems to indicate that a lot of selectors are being replaced. 
+
+
+New Comment: 
+I don't think so. First, check the logs you should see messages like ' Create a new
+selector. Selected is 0, delta = XXX'.Otherwise, the new selector will just use the
+registered <tt>SelectionKey</tt> from the old selector, which get closed afterward. Once
+the old selector is closed, it does not retain references to selection keys. 
+
+
+New Comment: 
+Hi <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a>,Thank you for getting back to
+me.<blockquote>First, check the logs you should see messages like ' Create a new selector.
+Selected is 0, delta = XXX'.</blockquote>Unfortunately this is not possible. Bitbucket
+Server sets logging of <tt>org.apache.mina.core.service.IoProcessor</tt> to <tt>ERROR</tt>
+so the messages will not be present. However in the heap dump I can see multiple
+<tt>SelectionKeyImpl</tt> instances referencing the same <tt>NioSocketSession</tt>
+instance. As I said, there are <tt>382976</tt> instances of <tt>SelectionKeyImpl</tt> and
+only 94026 <tt>NioSocketSession</tt> instances. Wouldn't you say that indicates that the
+selector is being replaced and new keys are being generated?<blockquote>The new selector
+will just use the registered <tt>SelectionKey</tt> from the old selector</blockquote>Are
+you sure this is correct? AFAICT it isn't. <tt>NioProcessor</tt> will register the new
+instance of the selector with the channel and it will get a new key:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">SelectionKey newKey = ch.register(newSelector, key.interestOps(),
+session);</pre></div></div>This is the implementation of
+<tt>AbstractSelectableChannel.register</tt>:<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">final</span> SelectionKey
+register(Selector sel, <span class="code-object">int</span> ops,                          
+            <span class="code-object">Object</span> att)        <span
+class="code-keyword">throws</span> ClosedChannelException    {        <span
+class="code-keyword">synchronized</span> (regLock) {            <span
+class="code-keyword">if</span> (!isOpen())                <span
+class="code-keyword">throw</span> <span class="code-keyword">new</span>
+ClosedChannelException();            <span class="code-keyword">if</span> ((ops &amp;
+~validOps()) != 0)                <span class="code-keyword">throw</span> <span
+class="code-keyword">new</span> IllegalArgumentException();            <span
+class="code-keyword">if</span> (blocking)                <span
+class="code-keyword">throw</span> <span class="code-keyword">new</span>
+IllegalBlockingModeException();            SelectionKey k = findKey(sel);            <span
+class="code-keyword">if</span> (k != <span class="code-keyword">null</span>) {            
+   k.interestOps(ops);                k.attach(att);            }            <span
+class="code-keyword">if</span> (k == <span class="code-keyword">null</span>) {            
+   <span class="code-comment">// New registration</span>                <span
+class="code-keyword">synchronized</span> (keyLock) {                    <span
+class="code-keyword">if</span> (!isOpen())                        <span
+class="code-keyword">throw</span> <span class="code-keyword">new</span>
+ClosedChannelException();                    k = ((AbstractSelector)sel).register(<span
+class="code-keyword">this</span>, ops

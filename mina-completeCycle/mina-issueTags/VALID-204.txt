@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 0c72761b4d158b3447989e29b2eaa5bd9502151e
+
+From: Flyweight-20
+To:   Flyweight-19
+
+From: Mediator-68
+To:   Mediator-65
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-36
+To:   Strategy-34
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-204.txt 
+
+commit 0c72761b4d158b3447989e29b2eaa5bd9502151e
+Author: Trustin Lee <trustin@apache.org>
+
+    * Moved all thread pool classes to org.apache.mina.filter.thread
+    * Replaced the old ThreadPoolFilter with the new one
+    * Added default properties to ThreadPool
+    * Synchronized mismatches in behavior between the old version and the new version

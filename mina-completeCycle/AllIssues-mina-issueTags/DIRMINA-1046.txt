@@ -1,0 +1,590 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is more likely either a LDAP API or an ApacheDS error, than a MINA error.Can you
+start your application with <tt>-Djavax.net.debug=all</tt> to check what's wrong at the
+SSL level ? It's likely that one protocol in used is not accepted. 
+
+
+On issue key DIRMINA-1046 the Adapter pattern might have been discussed on the following comment: 
+==============================
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> I enabled SSL debugging and
+compared between a successful &amp; a failed run and the only difference I found in the
+SSL debug output was the below stuff<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">Node 1 stdout:
+NioProcessor-1, fatal error: 80: problem unwrapping net recordNode 1 stdout:
+javax.net.ssl.SSLProtocolException: Input SSL/TLS record too big: max = 33305 len =
+50586Node 1 stdout: %% Invalidated:  [Session-1,
+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout: NioProcessor-1, SEND TLSv1.2 ALERT: 
+fatal, description = internal_errorNode 1 stdout: NioProcessor-1, WRITE: TLSv1.2 Alert,
+length = 80Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()Node 1 stdout: NioProcessor-1, called
+closeInbound()Node 1 stdout: NioProcessor-1, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible
+truncation attack?Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()[Raw read]: length = 50000: 15 03 03 00 50         
+                           ....P[Raw read]: length = 800000: B8 08 BB DE 88 16 7C FC   E5
+92 95 EB 1F BB B3 19  ................0010: E5 41 C8 4D DD 73 5D 80   DA B5 3D 19 C8 8A 1D
+ED  .A.M.s]...=.....0020: 17 4F E8 ED 44 E0 22 6B   BC 6F 36 DF 9F 6E 79 05 
+.O..D."k.o6..ny.0030: 19 51 0A 60 5C 8D 9A 89   9B 76 1C 4E 0B 3B B0 53 
+.Q.`\....v.N.;.S0040: 96 EA E7 BC 70 07 D7 E0   5F AA 12 2E 00 57 85 0A 
+....p..._....W..NioProcessor-6, READ: TLSv1.2 Alert, length = 80Padded plaintext after
+DECRYPTION:  len = 800000: 9E 53 24 92 22 EE 90 95   E9 E6 F7 9D 9A F9 3B 60 
+.S$.".........;`0010: 02 50 FA A8 B0 08 7F A3   3C 90 80 1F AE BD 31 DE 
+.P......&lt;.....1.0020: 6F DA 8F 87 4A 5E 7E 34   70 4D 6C 77 74 1B B1 56 
+o...J^.4pMlwt..V0030: 2E C2 EE 6C D5 D0 53 7E   74 EE CA 40 82 06 22 E6 
+...l..S.t..@..".0040: 6F 78 0D 0D 0D 0D 0D 0D   0D 0D 0D 0D 0D 0D 0D 0D 
+ox..............NioProcessor-6, RECV TLSv1.2 ALERT:  fatal, internal_errorNioProcessor-6,
+fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal
+alert: internal_errorNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: internal_error</pre></div></div>This is
+very interesting: <tt>Input SSL/TLS record too big: max = 33305 len = 50586</tt> The stack
+trace in the log just shows<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">1  WARN [NioProcessor-1]
+2016-10-27 08:39:45,676 LdapNetworkConnection.java (line 1898) Invalid TLS padding
+datajavax.net.ssl.SSLException: Invalid TLS padding data	at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764) ~[na:1.7.0_80]	at
+javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:753)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:368)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:697)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:651)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:640)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1097)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.13.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data	at
+sun.security.ssl.CipherBox.removePadding(CipherBox.java:738) ~[na:1.7.0_80]	at
+sun.security.ssl.CipherBox.decrypt(CipherBox.java:494) ~[na:1.7.0_80]	at
+sun.security.ssl.EngineInputRecord.decrypt(EngineInputRecord.java:210) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:959) ~[na:1.7.0_80]	... 21
+common frames omitted</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1046 the chain pattern might have been discussed on the following comment: 
+==============================
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> I enabled SSL debugging and
+compared between a successful &amp; a failed run and the only difference I found in the
+SSL debug output was the below stuff<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">Node 1 stdout:
+NioProcessor-1, fatal error: 80: problem unwrapping net recordNode 1 stdout:
+javax.net.ssl.SSLProtocolException: Input SSL/TLS record too big: max = 33305 len =
+50586Node 1 stdout: %% Invalidated:  [Session-1,
+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout: NioProcessor-1, SEND TLSv1.2 ALERT: 
+fatal, description = internal_errorNode 1 stdout: NioProcessor-1, WRITE: TLSv1.2 Alert,
+length = 80Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()Node 1 stdout: NioProcessor-1, called
+closeInbound()Node 1 stdout: NioProcessor-1, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible
+truncation attack?Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()[Raw read]: length = 50000: 15 03 03 00 50         
+                           ....P[Raw read]: length = 800000: B8 08 BB DE 88 16 7C FC   E5
+92 95 EB 1F BB B3 19  ................0010: E5 41 C8 4D DD 73 5D 80   DA B5 3D 19 C8 8A 1D
+ED  .A.M.s]...=.....0020: 17 4F E8 ED 44 E0 22 6B   BC 6F 36 DF 9F 6E 79 05 
+.O..D."k.o6..ny.0030: 19 51 0A 60 5C 8D 9A 89   9B 76 1C 4E 0B 3B B0 53 
+.Q.`\....v.N.;.S0040: 96 EA E7 BC 70 07 D7 E0   5F AA 12 2E 00 57 85 0A 
+....p..._....W..NioProcessor-6, READ: TLSv1.2 Alert, length = 80Padded plaintext after
+DECRYPTION:  len = 800000: 9E 53 24 92 22 EE 90 95   E9 E6 F7 9D 9A F9 3B 60 
+.S$.".........;`0010: 02 50 FA A8 B0 08 7F A3   3C 90 80 1F AE BD 31 DE 
+.P......&lt;.....1.0020: 6F DA 8F 87 4A 5E 7E 34   70 4D 6C 77 74 1B B1 56 
+o...J^.4pMlwt..V0030: 2E C2 EE 6C D5 D0 53 7E   74 EE CA 40 82 06 22 E6 
+...l..S.t..@..".0040: 6F 78 0D 0D 0D 0D 0D 0D   0D 0D 0D 0D 0D 0D 0D 0D 
+ox..............NioProcessor-6, RECV TLSv1.2 ALERT:  fatal, internal_errorNioProcessor-6,
+fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal
+alert: internal_errorNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: internal_error</pre></div></div>This is
+very interesting: <tt>Input SSL/TLS record too big: max = 33305 len = 50586</tt> The stack
+trace in the log just shows<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">1  WARN [NioProcessor-1]
+2016-10-27 08:39:45,676 LdapNetworkConnection.java (line 1898) Invalid TLS padding
+datajavax.net.ssl.SSLException: Invalid TLS padding data	at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764) ~[na:1.7.0_80]	at
+javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:753)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:368)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:697)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:651)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:640)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1097)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.13.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data	at
+sun.security.ssl.CipherBox.removePadding(CipherBox.java:738) ~[na:1.7.0_80]	at
+sun.security.ssl.CipherBox.decrypt(CipherBox.java:494) ~[na:1.7.0_80]	at
+sun.security.ssl.EngineInputRecord.decrypt(EngineInputRecord.java:210) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:959) ~[na:1.7.0_80]	... 21
+common frames omitted</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1046 the Chain pattern might have been discussed on the following comment: 
+==============================
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> I enabled SSL debugging and
+compared between a successful &amp; a failed run and the only difference I found in the
+SSL debug output was the below stuff<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">Node 1 stdout:
+NioProcessor-1, fatal error: 80: problem unwrapping net recordNode 1 stdout:
+javax.net.ssl.SSLProtocolException: Input SSL/TLS record too big: max = 33305 len =
+50586Node 1 stdout: %% Invalidated:  [Session-1,
+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout: NioProcessor-1, SEND TLSv1.2 ALERT: 
+fatal, description = internal_errorNode 1 stdout: NioProcessor-1, WRITE: TLSv1.2 Alert,
+length = 80Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()Node 1 stdout: NioProcessor-1, called
+closeInbound()Node 1 stdout: NioProcessor-1, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible
+truncation attack?Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()[Raw read]: length = 50000: 15 03 03 00 50         
+                           ....P[Raw read]: length = 800000: B8 08 BB DE 88 16 7C FC   E5
+92 95 EB 1F BB B3 19  ................0010: E5 41 C8 4D DD 73 5D 80   DA B5 3D 19 C8 8A 1D
+ED  .A.M.s]...=.....0020: 17 4F E8 ED 44 E0 22 6B   BC 6F 36 DF 9F 6E 79 05 
+.O..D."k.o6..ny.0030: 19 51 0A 60 5C 8D 9A 89   9B 76 1C 4E 0B 3B B0 53 
+.Q.`\....v.N.;.S0040: 96 EA E7 BC 70 07 D7 E0   5F AA 12 2E 00 57 85 0A 
+....p..._....W..NioProcessor-6, READ: TLSv1.2 Alert, length = 80Padded plaintext after
+DECRYPTION:  len = 800000: 9E 53 24 92 22 EE 90 95   E9 E6 F7 9D 9A F9 3B 60 
+.S$.".........;`0010: 02 50 FA A8 B0 08 7F A3   3C 90 80 1F AE BD 31 DE 
+.P......&lt;.....1.0020: 6F DA 8F 87 4A 5E 7E 34   70 4D 6C 77 74 1B B1 56 
+o...J^.4pMlwt..V0030: 2E C2 EE 6C D5 D0 53 7E   74 EE CA 40 82 06 22 E6 
+...l..S.t..@..".0040: 6F 78 0D 0D 0D 0D 0D 0D   0D 0D 0D 0D 0D 0D 0D 0D 
+ox..............NioProcessor-6, RECV TLSv1.2 ALERT:  fatal, internal_errorNioProcessor-6,
+fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal
+alert: internal_errorNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: internal_error</pre></div></div>This is
+very interesting: <tt>Input SSL/TLS record too big: max = 33305 len = 50586</tt> The stack
+trace in the log just shows<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">1  WARN [NioProcessor-1]
+2016-10-27 08:39:45,676 LdapNetworkConnection.java (line 1898) Invalid TLS padding
+datajavax.net.ssl.SSLException: Invalid TLS padding data	at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764) ~[na:1.7.0_80]	at
+javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:753)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:368)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:697)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:651)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:640)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1097)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.13.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data	at
+sun.security.ssl.CipherBox.removePadding(CipherBox.java:738) ~[na:1.7.0_80]	at
+sun.security.ssl.CipherBox.decrypt(CipherBox.java:494) ~[na:1.7.0_80]	at
+sun.security.ssl.EngineInputRecord.decrypt(EngineInputRecord.java:210) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:959) ~[na:1.7.0_80]	... 21
+common frames omitted</pre></div></div> 
+==============================
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> I enabled SSL debugging and
+compared between a successful &amp; a failed run and the only difference I found in the
+SSL debug output was the below stuff<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">Node 1 stdout:
+NioProcessor-1, fatal error: 80: problem unwrapping net recordNode 1 stdout:
+javax.net.ssl.SSLProtocolException: Input SSL/TLS record too big: max = 33305 len =
+50586Node 1 stdout: %% Invalidated:  [Session-1,
+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout: NioProcessor-1, SEND TLSv1.2 ALERT: 
+fatal, description = internal_errorNode 1 stdout: NioProcessor-1, WRITE: TLSv1.2 Alert,
+length = 80Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()Node 1 stdout: NioProcessor-1, called
+closeInbound()Node 1 stdout: NioProcessor-1, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible
+truncation attack?Node 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout:
+NioProcessor-1, closeOutboundInternal()[Raw read]: length = 50000: 15 03 03 00 50         
+                           ....P[Raw read]: length = 800000: B8 08 BB DE 88 16 7C FC   E5
+92 95 EB 1F BB B3 19  ................0010: E5 41 C8 4D DD 73 5D 80   DA B5 3D 19 C8 8A 1D
+ED  .A.M.s]...=.....0020: 17 4F E8 ED 44 E0 22 6B   BC 6F 36 DF 9F 6E 79 05 
+.O..D."k.o6..ny.0030: 19 51 0A 60 5C 8D 9A 89   9B 76 1C 4E 0B 3B B0 53 
+.Q.`\....v.N.;.S0040: 96 EA E7 BC 70 07 D7 E0   5F AA 12 2E 00 57 85 0A 
+....p..._....W..NioProcessor-6, READ: TLSv1.2 Alert, length = 80Padded plaintext after
+DECRYPTION:  len = 800000: 9E 53 24 92 22 EE 90 95   E9 E6 F7 9D 9A F9 3B 60 
+.S$.".........;`0010: 02 50 FA A8 B0 08 7F A3   3C 90 80 1F AE BD 31 DE 
+.P......&lt;.....1.0020: 6F DA 8F 87 4A 5E 7E 34   70 4D 6C 77 74 1B B1 56 
+o...J^.4pMlwt..V0030: 2E C2 EE 6C D5 D0 53 7E   74 EE CA 40 82 06 22 E6 
+...l..S.t..@..".0040: 6F 78 0D 0D 0D 0D 0D 0D   0D 0D 0D 0D 0D 0D 0D 0D 
+ox..............NioProcessor-6, RECV TLSv1.2 ALERT:  fatal, internal_errorNioProcessor-6,
+fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal
+alert: internal_errorNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: internal_error</pre></div></div>This is
+very interesting: <tt>Input SSL/TLS record too big: max = 33305 len = 50586</tt> The stack
+trace in the log just shows<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">1  WARN [NioProcessor-1]
+2016-10-27 08:39:45,676 LdapNetworkConnection.java (line 1898) Invalid TLS padding
+datajavax.net.ssl.SSLException: Invalid TLS padding data	at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764) ~[na:1.7.0_80]	at
+javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:753)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:368)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:943)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:697)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:651)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:640)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1097)
+[mina-core-2.0.13.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.13.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data	at
+sun.security.ssl.CipherBox.removePadding(CipherBox.java:738) ~[na:1.7.0_80]	at
+sun.security.ssl.CipherBox.decrypt(CipherBox.java:494) ~[na:1.7.0_80]	at
+sun.security.ssl.EngineInputRecord.decrypt(EngineInputRecord.java:210) ~[na:1.7.0_80]	at
+sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:959) ~[na:1.7.0_80]	... 21
+common frames omitted</pre></div></div> 
+
+
+New Comment: 
+Have you tried with 2.0.15 ? From the top of my head, it sees we have fixed some issue
+related to the SSL buffer size  (<a
+href="https://issues.apache.org/jira/browse/DIRMINA-1029" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-1029</a>) 
+
+
+On issue key DIRMINA-1046 the Adapter pattern might have been discussed on the following comment: 
+==============================
+Just tried with <b>2.0.15</b> and it's failing with<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">NioProcessor-6, RECV TLSv1.2 ALERT:  fatal,
+bad_record_macNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: bad_record_macNioProcessor-6, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal alert:
+bad_record_macNode 1 stdout: NioProcessor-1, fatal error: 20: Invalid TLS padding dataNode
+1 stdout: javax.crypto.BadPaddingException: Invalid TLS padding dataNode 1 stdout: %%
+Invalidated:  [Session-1, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout:
+NioProcessor-1, SEND TLSv1.2 ALERT:  fatal, description = bad_record_macNode 1 stdout:
+NioProcessor-1, WRITE: TLSv1.2 Alert, length = 80Node 1 stdout: NioProcessor-1, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Invalid TLS padding
+dataNode 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()Node 1 stdout: NioProcessor-1, called closeInbound()Node 1 stdout:
+NioProcessor-1, fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException:
+Inbound closed before receiving peer's close_notify: possible truncation attack?Node 1
+stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()</pre></div></div>Here you can see that <b>2.0.15</b> really was
+used:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">1  WARN [NioProcessor-1] 2016-10-27 16:08:40,212
+LdapNetworkConnection.java (line 1898) Invalid TLS padding datajavax.net.ssl.SSLException:
+Invalid TLS padding data	at sun.security.ssl.Alerts.getSSLException(Alerts.java:208)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764)
+~[na:1.7.0_80]	at javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:754)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:369)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:947)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:703)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:659)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:648)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1120)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.15.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1046 the chain pattern might have been discussed on the following comment: 
+==============================
+Just tried with <b>2.0.15</b> and it's failing with<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">NioProcessor-6, RECV TLSv1.2 ALERT:  fatal,
+bad_record_macNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: bad_record_macNioProcessor-6, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal alert:
+bad_record_macNode 1 stdout: NioProcessor-1, fatal error: 20: Invalid TLS padding dataNode
+1 stdout: javax.crypto.BadPaddingException: Invalid TLS padding dataNode 1 stdout: %%
+Invalidated:  [Session-1, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout:
+NioProcessor-1, SEND TLSv1.2 ALERT:  fatal, description = bad_record_macNode 1 stdout:
+NioProcessor-1, WRITE: TLSv1.2 Alert, length = 80Node 1 stdout: NioProcessor-1, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Invalid TLS padding
+dataNode 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()Node 1 stdout: NioProcessor-1, called closeInbound()Node 1 stdout:
+NioProcessor-1, fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException:
+Inbound closed before receiving peer's close_notify: possible truncation attack?Node 1
+stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()</pre></div></div>Here you can see that <b>2.0.15</b> really was
+used:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">1  WARN [NioProcessor-1] 2016-10-27 16:08:40,212
+LdapNetworkConnection.java (line 1898) Invalid TLS padding datajavax.net.ssl.SSLException:
+Invalid TLS padding data	at sun.security.ssl.Alerts.getSSLException(Alerts.java:208)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764)
+~[na:1.7.0_80]	at javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:754)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:369)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:947)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:703)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:659)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:648)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1120)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.15.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data</pre></div></div> 
+==============================
+
+On issue key DIRMINA-1046 the Chain pattern might have been discussed on the following comment: 
+==============================
+Just tried with <b>2.0.15</b> and it's failing with<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">NioProcessor-6, RECV TLSv1.2 ALERT:  fatal,
+bad_record_macNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: bad_record_macNioProcessor-6, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal alert:
+bad_record_macNode 1 stdout: NioProcessor-1, fatal error: 20: Invalid TLS padding dataNode
+1 stdout: javax.crypto.BadPaddingException: Invalid TLS padding dataNode 1 stdout: %%
+Invalidated:  [Session-1, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout:
+NioProcessor-1, SEND TLSv1.2 ALERT:  fatal, description = bad_record_macNode 1 stdout:
+NioProcessor-1, WRITE: TLSv1.2 Alert, length = 80Node 1 stdout: NioProcessor-1, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Invalid TLS padding
+dataNode 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()Node 1 stdout: NioProcessor-1, called closeInbound()Node 1 stdout:
+NioProcessor-1, fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException:
+Inbound closed before receiving peer's close_notify: possible truncation attack?Node 1
+stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()</pre></div></div>Here you can see that <b>2.0.15</b> really was
+used:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">1  WARN [NioProcessor-1] 2016-10-27 16:08:40,212
+LdapNetworkConnection.java (line 1898) Invalid TLS padding datajavax.net.ssl.SSLException:
+Invalid TLS padding data	at sun.security.ssl.Alerts.getSSLException(Alerts.java:208)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1703)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readRecord(SSLEngineImpl.java:965)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.readNetRecord(SSLEngineImpl.java:890)
+~[na:1.7.0_80]	at sun.security.ssl.SSLEngineImpl.unwrap(SSLEngineImpl.java:764)
+~[na:1.7.0_80]	at javax.net.ssl.SSLEngine.unwrap(SSLEngine.java:624) ~[na:1.7.0_80]	at
+org.apache.mina.filter.ssl.SslHandler.unwrap(SslHandler.java:754)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslHandler.messageReceived(SslHandler.java:369)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:500)
+~[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1300(DefaultIoFilterChain.java:48)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:947)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:109)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:542)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:535)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:703)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:659)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:648)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$600(AbstractPollingIoProcessor.java:68)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:1120)
+[mina-core-2.0.15.jar:na]	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+[mina-core-2.0.15.jar:na]	at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+[na:1.7.0_80]	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+[na:1.7.0_80]	at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:745) [na:1.7.0_80]Caused by:
+javax.crypto.BadPaddingException: Invalid TLS padding data</pre></div></div> 
+==============================
+
+New Comment: 
+Just tried with <b>2.0.15</b> and it's failing with<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">NioProcessor-6, RECV TLSv1.2 ALERT:  fatal,
+bad_record_macNioProcessor-6, fatal: engine already closed.  Rethrowing
+javax.net.ssl.SSLException: Received fatal alert: bad_record_macNioProcessor-6, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Received fatal alert:
+bad_record_macNode 1 stdout: NioProcessor-1, fatal error: 20: Invalid TLS padding dataNode
+1 stdout: javax.crypto.BadPaddingException: Invalid TLS padding dataNode 1 stdout: %%
+Invalidated:  [Session-1, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]Node 1 stdout:
+NioProcessor-1, SEND TLSv1.2 ALERT:  fatal, description = bad_record_macNode 1 stdout:
+NioProcessor-1, WRITE: TLSv1.2 Alert, length = 80Node 1 stdout: NioProcessor-1, fatal:
+engine already closed.  Rethrowing javax.net.ssl.SSLException: Invalid TLS padding
+dataNode 1 stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()Node 1 stdout: NioProcessor-1, called closeInbound()Node 1 stdout:
+NioProcessor-1, fatal: engine already closed.  Rethrowing javax.net.ssl.SSLException:
+Inbound closed before receiving peer's close_notify: possible truncation attack?Node 1
+stdout: NioProcessor-1, called closeOutbound()Node 1 stdout: NioProcessor-1,
+closeOutboundInternal()</pre></div></div>Here you can see that <b>2.0.15</b> really was
+used:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">1  WARN [NioProcessor-1] 2016-10-27 16:08:40,212
+LdapNetworkConnection.java (line 1898) Invalid TLS padding datajavax.net.ssl.SSLException:
+Invalid TLS padding data	at sun.security.ssl.Ale

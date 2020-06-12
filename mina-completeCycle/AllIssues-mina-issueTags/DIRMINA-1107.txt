@@ -1,0 +1,539 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+What version does this apply to? 
+
+
+New Comment: 
+Seems like we should include the counter into the locked part. Actually, I don't
+understand why it's not in this section...  Something like :<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">void flushScheduledEvents() {    <span class="code-keyword">if</span>
+(sslLock.tryLock()) {                    scheduledEvents.incrementAndGet();        <span
+class="code-keyword">try</span> {            <span class="code-keyword">do</span> {       
+        <span class="code-keyword">while</span> ((event = filterWriteEventQueue.poll()) !=
+<span class="code-keyword">null</span>) {                    <span class="code-comment">//
+...</span>                }                            <span
+class="code-keyword">while</span> ((event = messageReceivedEventQueue.poll()) != <span
+class="code-keyword">null</span>){                    <span class="code-comment">//
+...</span>                }            } <span class="code-keyword">while</span>
+(scheduledEvents.decrementAndGet() &gt; 0);        } <span
+class="code-keyword">finally</span> {            sslLock.unlock();        }   
+}}</pre></div></div>At this point, we don't even have to use an <tt>AtomicInteger</tt> for
+the <tt>scheduledEvents</tt> value. 
+
+
+New Comment: 
+I'm not exactly sure the real purpose of that counter other than to create a concurrency
+problem.  Aren't the EventQueues concurrent?  I'm not the domain owner for the SSL
+implementation so I'd have to look at it next weekend when I have time.  We keep saying
+that SSL needs to be completely redesigned, might be time to look at what we have and make
+recommendations. 
+
+
+New Comment: 
+We've found the issue in version 2.1.2, but didn't attempt to test against other
+versions.Placing the counter inside the protected code block would open the possibility
+for an invocation of <tt>flushScheduledEvents</tt> that does nothing (fails to acquire the
+lock), while there <em>are</em> events in the queue. This would occur if the first thread
+just exited the outer 'do/while' loop, but before it released the lock in the 'finally'
+block, when the second thread tries to acquire the lock. 
+
+
+New Comment: 
+The pb is that we have 2 queues, and we have to check both of them at the same time. In
+any case, I also need to review this part of the code.AFAICT, the idea is to be sure we
+have pushed all the messages, in the proper order (we can't afford 2 threads to poll the
+queues and flush the messages at the same time).The thing is that I wonder why we need a
+counter at all.And BTW disregard the note on the counter that needs to be included in the
+lock section: this is nonsense. 
+
+
+New Comment: 
+The counter doesn't make any sense since each queue flushes until empty and why would you
+increment the counter before flushing?  Not much of this makes sense.  Like I said, can't
+look at this until the weekend. 
+
+
+New Comment: 
+I updated the AFFECTS / FIX VERSION, once fixed we'll have to create another issue to
+back-port this fix to 2.0.X 
+
+
+New Comment: 
+I'd rather have this issue cover both versions.i'll have a look at this code tonite, but
+it's a quite convoluted piece of code, so I may wait for Jonathan to be able to review it
+too so that we find a proper fix once and for all.Thanks for the report, Guus ! 
+
+
+New Comment: 
+If the same fix can be applied to both branches then we can update this ticket to include
+both.  At this point in time we don't know that yet.  I suggest focusing on fixing as-is
+then figure out what is an appropriate action for back porting after. 
+
+
+New Comment: 
+Thanks for all the feedback!For what it's worth: we're currently experimenting with a code
+change that intends to:<ul>	<li>Ensure that queues are emptied at least as often as
+<tt>flushScheduledEvents</tt> is invoked (which should prevent that events remain in the
+queue indefinitely after the flush has been requested - we can't be sure that another
+flush is requested in a timely manner).</li>	<li>Not block any threads while one thread is
+operating on the filters (in other words: continue to allow for the 'tryLock' if
+statement, to prevent worker threads from being blocked).</li></ul>We are attempting to do
+this by introducing a lock that is released, atomically, only after it has been "used" as
+often as the lock has attempted to be acquired.Our work-in-progress code:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">private</span> <span
+class="code-keyword">class </span>CountReentrantLock {    <span
+class="code-keyword">private</span> <span class="code-object">int</span> i = 0;    <span
+class="code-keyword">private</span> <span class="code-keyword">final</span> ReentrantLock
+lock = <span class="code-keyword">new</span> ReentrantLock();    <span
+class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span
+class="code-object">boolean</span> tryAcquireLock() {        i++;        <span
+class="code-keyword">return</span> lock.tryLock();    }    <span
+class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span
+class="code-object">boolean</span> tryUnlock() {        i--;        <span
+class="code-keyword">if</span>(i&lt;=0) {            i=0;            lock.unlock();       
+    <span class="code-keyword">return</span> <span class="code-keyword">true</span>;      
+ }        <span class="code-keyword">return</span> <span
+class="code-keyword">false</span>;    }    <span class="code-keyword">public</span> <span
+class="code-keyword">synchronized</span> void forceUnlock() {        i = 0;       
+lock.unlock();    }}</pre></div></div>This then could be used like this:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">void flushScheduledEvents() {    <span class="code-keyword">if</span>
+(sslLock.tryAcquireLock()) {        <span class="code-keyword">try</span> {           
+<span class="code-keyword">do</span> {                <span
+class="code-keyword">while</span> ((event = filterWriteEventQueue.poll()) != <span
+class="code-keyword">null</span>) {                    <span class="code-comment">//
+...</span>                }                <span class="code-keyword">while</span> ((event
+= messageReceivedEventQueue.poll()) != <span class="code-keyword">null</span>){           
+        <span class="code-comment">// ...</span>                }            } <span
+class="code-keyword">while</span> (!filterWriteEventQueue.isEmpty() ||
+!messageReceivedEventQueue.isEmpty() || !sslLock.tryUnlock());        } <span
+class="code-keyword">catch</span>( Throwable t) {            sslLock.forceUnlock();       
+}    }}</pre></div></div>We've not tested this code yet. A concern that we haven't thought
+through yet is re-entry of a thread that already owns the lock. 
+
+
+New Comment: 
+There are a few bad things done. In the <tt>SslFilter.messageReceived()</tt> method, we
+push any incoming message if the <tt>Ssl</tt> layer has not yet been installed fully :<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">        <span class="code-keyword">synchronized</span> (sslHandler) {   
+        <span class="code-keyword">if</span> (!isSslStarted(session) &amp;&amp;
+sslHandler.isInboundDone()) {                <span class="code-comment">// The SSL session
+must be established first before we</span>                <span class="code-comment">//
+can push data to the application. Store the incoming</span>                <span
+class="code-comment">// data into a queue <span class="code-keyword">for</span> a later
+processing</span>                sslHandler.scheduleMessageReceived(nextFilter, message); 
+          } <span class="code-keyword">else</span> {</pre></div></div>It does not make a
+lot of sense. There is absolutely no way the <tt>SslFilter</tt> <tt>messageReceived</tt>
+method could be called if the filter has not been set fully. The check done is for the
+case where the <tt>SSL</tt> layer has been closed, but in this very case, what's the point
+in passing the received message to the <tt>IoHandler</tt> ?Otherwise, incoming messages
+are processed in the <tt>SslHandler.messageReceived</tt> method, and the message will be
+uncrypted, then pushed into the queue. The bizarre thing is that we do write encrypted
+data during this call :<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">private</span> void handleSslData(NextFilter nextFilter, SslHandler
+sslHandler) <span class="code-keyword">throws</span> SSLException {        ...       
+<span class="code-comment">// Write encrypted data to be written (<span
+class="code-keyword">if</span> any)</span>        sslHandler.writeNetBuffer(nextFilter);  
+     <span class="code-comment">// handle app. data read (<span
+class="code-keyword">if</span> any)</span>        handleAppDataRead(nextFilter,
+sslHandler);    }</pre></div></div>I don't see any reason to do so at this point. Why
+should we write <b>anything</b> back to the remote peer when we are processing an incoming
+message ?This part of the code needs a serious review, IMHO. 
+
+
+New Comment: 
+Every time you receive a message you have to check to see if SSL needs to write a reply. 
+
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+Regarding the multi-threading aspect:<ul>	<li>Incoming messages are handled by one single
+thread. A session is always associated with this thread when created, so we are always
+safe.</li>	<li>outgoing messages are a bit different, because we may have an executor in
+the chain. In this case, a session might call a write in many different threads, and that
+must be handled properly. In any case, once the data have been encrypted, and pushed into
+the <tt>IoProcessor</tt> queue (always the same), then it will be written by a single
+thread, the <tt>IoProcessor</tt> thread.</li></ul>So we have to consider protecting the
+<tt>SSL</tt> filter against code that has an executor. The <tt>flushScheduleEvents()</tt>
+method, which is called by the <tt>startTls</tt>, stopTls}}, <tt>messageReceived</tt>,
+<tt>filterWrite</tt>, <tt>filterClose</tt> and <tt>initiateHandshake</tt> methods, should
+first propagate the received messages - because it's synchronous - and then process all
+the messages to be written, in a protected section. Anyway, it's late, I need to rest and
+review the code again tomorrow or later on, to see if I'm right <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+New Comment: 
+Regarding the multi-threading aspect:<ul>	<li>Incoming messages are handled by one single
+thread. A session is always associated with this thread when created, so we are always
+safe.</li>	<li>outgoing messages are a bit different, because we may have an executor in
+the chain. In this case, a session might call a write in many different threads, and that
+must be handled properly. In any case, once the data have been encrypted, and pushed into
+the <tt>IoProcessor</tt> queue (always the same), then it will be written by a single
+thread, the <tt>IoProcessor</tt> thread.</li></ul>So we have to consider protecting the
+<tt>SSL</tt> filter against code that has an executor. The <tt>flushScheduleEvents()</tt>
+method, which is called by the <tt>startTls</tt>, stopTls}}, <tt>messageReceived</tt>,
+<tt>filterWrite</tt>, <tt>filterClose</tt> and <tt>initiateHandshake</tt> methods, should
+first propagate the received messages - because it's synchronous - and then process all
+the messages to be written, in a protected section. Anyway, it's late, I need to rest and
+review the code again tomorrow or later on, to see if I'm right <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+@Jonathan what for ? Once the HS is completed, if you receive something from a remote
+peer, you won't have to write anything back. The only exception is for the Handshake
+protocol. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> TLS key renegotiation and other
+control functions. 
+
+
+New Comment: 
+Key renegotiation (which has been removed in 1.3) starts like a handshake, with a
+<tt>ClientHello</tt> message, over the encrypted layer. This is a very specific use case,
+and should be handled as is. ATM, we don't have implemented it in MINA, AFAICT.What are
+the control functions you are mentioning ? 
+
+
+On issue key DIRMINA-1107 the command pattern might have been discussed on the following comment: 
+==============================
+I thought there were other commands in TLS that control the encryption layer.  Oh well,
+they removed Key Reneg in TLS 1.3? 
+==============================
+
+New Comment: 
+I thought there were other commands in TLS that control the encryption layer.  Oh well,
+they removed Key Reneg in TLS 1.3? 
+
+
+New Comment: 
+<a href="https://tools.ietf.org/html/rfcThe" class="external-link"
+rel="nofollow">https://tools.ietf.org/html/rfcThe</a> big problem with 8446, 4.1.2,
+"Because TLS 1.3 forbids renegotiation, if a server has negotiated TLS 1.3 and receives a
+ClientHello at any other time, it MUST terminate the connection with an
+"unexpected_message" alert."The big issue with renegotiation is that you can DOS a server
+with it quite easily. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> wrote<blockquote> The
+flushScheduleEvents() method, which is called by the startTls, stopTls}}, messageReceived,
+filterWrite, filterClose and initiateHandshake methods, should first propagate the
+received messages - because it's synchronous - and then process all the messages to be
+written, in a protected section.</blockquote>I do not understand what you're trying to
+say. I don't think we can predict if the thread calling <tt>flushScheduledEvents</tt> is
+the single thread that processes incoming messages, or if it's a thread (potentially from
+a thread pool associated to an Executor) that is processing outgoing messages. Even if the
+outgoing messages would be guaranteed to be processed by a single thread, we'd still have
+to guard against the inbound and outbound thread calling <tt>flushScheduledEvents</tt> at
+the same time, right? 
+
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+What I mean is that the <tt>messageReceivedEventQueue</tt> is only fed by the thread that
+read data from the channel (ie the <tt>IoProcessor</tt> thread). There is no other thread
+that interact with it, and there is no reason to postpone the propagation of the message
+to the chain. In other words, there is no reason to process those messages in the
+<tt>flushScheduledEvents</tt> method.The tricky part is to handle properly the handshake
+messages which should <b>not</b> be propagated to the chain.Anyway, that leave the other
+queue alone, and we can now safely process it in the <tt>flushScheduledEvents</tt> method
+without any interaction with the read messages.I have to do some experiment around this
+idea. 
+==============================
+
+New Comment: 
+What I mean is that the <tt>messageReceivedEventQueue</tt> is only fed by the thread that
+read data from the channel (ie the <tt>IoProcessor</tt> thread). There is no other thread
+that interact with it, and there is no reason to postpone the propagation of the message
+to the chain. In other words, there is no reason to process those messages in the
+<tt>flushScheduledEvents</tt> method.The tricky part is to handle properly the handshake
+messages which should <b>not</b> be propagated to the chain.Anyway, that leave the other
+queue alone, and we can now safely process it in the <tt>flushScheduledEvents</tt> method
+without any interaction with the read messages.I have to do some experiment around this
+idea. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=elecharny"
+class="user-hover" rel="elecharny">Emmanuel Lécharny</a> Why is there a
+<tt>messageReceivedEventQueue</tt> anyway?  Shouldn't those messages go directly into the
+SSL Engine without delay? 
+
+
+On issue key DIRMINA-1107 the mediate pattern might have been discussed on the following comment: 
+==============================
+My point, exactly. We should have the <tt>SSLEngine</tt> process incoming messages
+immediately, and once decrypted, if they are application messages, being pushed into the
+filter chain immediately too (the special case is for handshake messages, because we don't
+push them anywhere, they are consumed by the SslHandler).At this point, we are doing
+archeocodology <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+My point, exactly. We should have the <tt>SSLEngine</tt> process incoming messages
+immediately, and once decrypted, if they are application messages, being pushed into the
+filter chain immediately too (the special case is for handshake messages, because we don't
+push them anywhere, they are consumed by the SslHandler).At this point, we are doing
+archeocodology <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+New Comment: 
+My point, exactly. We should have the <tt>SSLEngine</tt> process incoming messages
+immediately, and once decrypted, if they are application messages, being pushed into the
+filter chain immediately too (the special case is for handshake messages, because we don't
+push them anywhere, they are consumed by the SslHandler).At this point, we are doing
+archeocodology <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+Ok, after having analysed the <tt>filterWrite</tt> code a bit more, I don't see any reason
+to differ the writing of messages either. Actually, we should never use a queue to stack
+messages.All of this madness comes from a 'fix' applied 12 years ago (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-241" class="external-link"
+rel="nofollow">DIRMINA-241</a>).So, yes, we may have multiple writes done on a session by
+different threads when using an executor in the chain, but that should be handled properly
+with the <tt>synchronized(sslHandler</tt>} in the <tt>SslFilter</tt>. 
+==============================
+
+New Comment: 
+Ok, after having analysed the <tt>filterWrite</tt> code a bit more, I don't see any reason
+to differ the writing of messages either. Actually, we should never use a queue to stack
+messages.All of this madness comes from a 'fix' applied 12 years ago (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-241" class="external-link"
+rel="nofollow">DIRMINA-241</a>).So, yes, we may have multiple writes done on a session by
+different threads when using an executor in the chain, but that should be handled properly
+with the <tt>synchronized(sslHandler</tt>} in the <tt>SslFilter</tt>. 
+
+
+New Comment: 
+IMHO only the write mutex is needed to guarantee that writes are enqueued on the IoSession
+in the correct order. 
+
+
+New Comment: 
+Side note: The way encrypted messages are handled is a bit mad. Consider a BIG message
+(say, 1Mb). SSL does not allow messages bigger than roughly 16kb (2^14 minus header, MAC
+and padding. Except for M$, of course, which allows up to 32kb messages...). In any case,
+we will start with a 16Kb buffer, call encrypt again and again until the full source has
+been read and encrypted, increasing the buffer as needed. This buffer will contain
+<b>many</b> TLS <tt>APPLICATION_DATA</tt> records (starting with <tt>0x17</tt>). We could
+perfectly chose to always use a fixed size buffer, and once full, send it to the remote
+peer, avoiding the allocation of a crazy big buffer which will be discarded when done. The
+only problem is that we would need to remember when we have fully written the source,
+inorder to properly send the <tt>messageSent</tt> event. 
+
+
+New Comment: 
+The only other option than large buffers would be to encrypt at socket write time which
+would require a lot of other changes and make filters before SSL impossible. 
+
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+We could actually write the fixed size buffer into the <tt>IoProcessor</tt> queue, and
+wait for the <tt>messageSent</tt> event in the <tt>SslFilter</tt> to write the next
+buffer. that would work, but not when having an executor in the chain (except if we
+enqueue the messages to be encrypted in a <tt>SslFilter</tt> queue.For a 3.0 version, this
+is clearly an option. 
+==============================
+
+New Comment: 
+We could actually write the fixed size buffer into the <tt>IoProcessor</tt> queue, and
+wait for the <tt>messageSent</tt> event in the <tt>SslFilter</tt> to write the next
+buffer. that would work, but not when having an executor in the chain (except if we
+enqueue the messages to be encrypted in a <tt>SslFilter</tt> queue.For a 3.0 version, this
+is clearly an option. 
+
+
+New Comment: 
+Pretty sure 3.0 design was to integrate SSL into the IoSession directly.  This is the way
+that Netty does it. 
+
+
+New Comment: 
+It should never be a filter, that's for sure. Rather than integrating it in the session, I
+would put it in the IoProcessor, as close as possible to the channel.Why would you suggest
+to add this in the session ? (just curious) 
+
+
+New Comment: 
+Honestly it doesn't really matter, would have to be invoked by the IoProcessor anyway. 
+
+
+New Comment: 
+Agreed. In any case, that would be quite a disruptive change, and can't be injected in 2.0
+or 2.1. 
+
+
+New Comment: 
+I'd love to see a solution for the 2.1 branch, even if that's a patch of the existing,
+sub-par, implementation. We're currently suffering from issues (which prompted me to
+create this issue), which we'd like to fix before/without upgrading to a new major release
+of MINA. 
+
+
+New Comment: 
+Don't worry, we hijacked the thread devising about some future changes. The fix will be
+applied in the existing branches, without breaking the APIs. 
+
+
+New Comment: 
+\o/For what it's worth: since I wrote that comment, we have successfully applied the
+solution that I've outlined in <a
+href="https://issues.apache.org/jira/browse/DIRMINA-1107?focusedCommentId=16838709&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-16838709"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-1107?focusedCommentId=16838709&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-16838709</a> 
+
+
+New Comment: 
+FTR, I just deleted a comment and an attached file, as I realized 5 mins after having
+pushed them I was wrong.The <b>only</b> reason we have a write queue is for when we have
+messages to be written while the handshake is not completed: we need to wait and keep
+those messages. My deleted comment was that we can bypass the
+<tt>SslHandler.scheduleFilterWrite()</tt> and push the writes to the next filter. That
+works, assuming no messages are written while the handshake is being processed (this is
+possibly what could happen when using <tt>startTLS</tt>).We can leverage the newly added
+<tt>event</tt> in <tt>2.1</tt> to start flushing those pending messages when the session
+has been secured, but in <tt>2.0</tt> it's going a bit more complex. 
+
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+Forget about leveraging the <tt>event</tt> method: as it is initiated in the
+<tt>SslFilter</tt>, it won't be available in this very filter...The big issue I have atm
+is how to ensure that the messages we have enqueued will be flushed when and only when the
+handshake have been completed, and how to guarantee that no new message is going to be
+enqueued while we are flushing them. This can typically happen when we start flushing the
+existing pending messages, while some thread is writing a new message: we must wait until
+all the existing messages in the queue have been written. Also we don't want to keep this
+queue forever: once the handshake has been completed, and the queue flushed, it is not
+useful anymore.Actually, we need two barriers:<ul>	<li>one for messages that are produced
+<b>before</b> the handshake has started but <b>after</b> the <tt>SslFilter</tt> has been
+added into the chain (this is only something to deal with when we inject the filter into
+an active session - like when using startTLS -)</li>	<li>one for messages that are
+produced during the handshake</li></ul>Between those two barriers, all messages are
+enqueued, after those two barriers, no message is enqueued. And the tricky part: while the
+queue is flushed, no message should be added into the queue, but we must not be flushed
+either (to guarantee the messages' order):<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>--------[entry barrier]-------------------[exit
+barrier]------------------[queue flushed]------------        |&lt;----       messages are
+enqueued        ----&gt;|&lt;---- messages are waiting ----&gt;|</pre></div></div>Now to
+find a way to code that... 
+==============================
+
+New Comment: 
+Forget about leveraging the <tt>event</tt> method: as it is initiated in the
+<tt>SslFilter</tt>, it won't be available in this very filter...The big issue I have atm
+is how to ensure that the messages we have enqueued will be flushed when and only when the
+handshake have been completed, and how to guarantee that no new message is going to be
+enqueued while we are flushing them. This can typically happen when we start flushing the
+existing pending messages, while some thread is writing a new message: we must wait until
+all the existing messages in the queue have been written. Also we don't want to keep this
+queue forever: once the handshake has been completed, and the queue flushed, it is not
+useful anymore.Actually, we need two barriers:<ul>	<li>one for messages that are produced
+<b>before</b> the handshake has started but <b>after</b> the <tt>SslFilter</tt> has been
+added into the chain (this is only something to deal with when we inject the filter into
+an active session - like when using startTLS -)</li>	<li>one for messages that are
+produced during the handshake</li></ul>Between those two barriers, all messages are
+enqueued, after those two barriers, no message is enqueued. And the tricky part: while the
+queue is flushed, no message should be added into the queue, but we must not be flushed
+either (to guarantee the messages' order):<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>--------[entry barrier]-------------------[exit
+barrier]------------------[queue flushed]------------        |&lt;----       messages are
+enqueued        ----&gt;|&lt;---- messages are waiting ----&gt;|</pre></div></div>Now to
+find a way to code that... 
+
+
+On issue key DIRMINA-1107 the mediate pattern might have been discussed on the following comment: 
+==============================
+Continuing my archeocodology, here are the situations where it's possible to write a
+message in the IoHandler while the handshake has not been completed :<br/>o for a server:
+just when the session is created, and if the <tt>SSLFilter</tt> is added to the session's
+chain, and if the handshake is started immediately, then the server will expect the next
+received message to be a <tt>CLIENT_HELLO</tt>. However, after having injected the filter
+in the chain, and created the <tt>SslHandler</tt> instance, and having started the
+handshake in server mode, then a <tt>sessionCreated</tt> followed by a
+<tt>sessionOpened</tt> events are called, which potentially gives the application to call
+a <tt>session.write(message)</tt>. Obviously, this message should <b>not</b> go through
+the <tt>SSLFilter</tt> before the handshake has been completed, it must be enqueued,
+waiting for the handshake to complete (or fail).<br/>o If the handshake takes a while, and
+if the session idling detection is activated (every second), the it's possible that the
+<tt>IoHandler</tt> gets called through the <tt>sessionIdling</tt> event, giving the
+opportunity for the application to write a message (ok, that is a remote possibility)Just
+writing that down for the sake of documentation... 
+==============================
+
+On issue key DIRMINA-1107 the chain pattern might have been discussed on the following comment: 
+==============================
+Continuing my archeocodology, here are the situations where it's possible to write a
+message in the IoHandler while the handshake has not been completed :<br/>o for a server:
+just when the session is created, and if the <tt>SSLFilter</tt> is added to the session's
+chain, and if the handshake is started immediately, then the server will expect the next
+received message to be a <tt>CLIENT_HELLO</tt>. However, after having injected the filter
+in the chain, and created the <tt>SslHandler</tt> instance, and having started the
+handshake in server mode, then a <tt>sessionCreated</tt> followed by a
+<tt>sessionOpened</tt> events are called, which potentially gives the application to call
+a <tt>session.write(message)</tt>. Obviously, this message should <b>not</b> go through
+the <tt>SSLFilter</tt> before the handshake has been completed, it must be enqueued,
+waiting for the handshake to complete (or fail).<br/>o If the handshake takes a while, and
+if the session idling detection is activated (every second), the it's possible that the
+<tt>IoHandler</tt> gets called through the <tt>sessionIdling</tt> event, giving the
+opportunity for the application to write a message (ok, that is a remote possibility)Just
+writing that down for the sake of documentation... 
+==============================
+
+New Comment: 
+Continuing my archeocodology, here are the situations where it's possible to write a
+message in the IoHandler while the handshake has not been completed :<br/>o for a server:
+just when the session is created, and if the <tt>SSLFilter</tt> is added to the session's
+chain, and if the handshake is started immediately, then the server will expect the next
+received message to be a <tt>CLIENT_HELLO</tt>. However, after having injected the filter
+in the chain, and created the <tt>SslHandler</tt> instance, and having started the
+handshake in server mode, then a <tt>sessionCreated</tt> followed by a
+<tt>sessionOpened</tt> events are called, which potentially gives the application to call
+a <tt>session.write(message)</tt>. Obviously, this message should <b>not</b> go through
+the <tt>SSLFilter</tt> before the handshake has been completed, it must be enqueued,
+waiting for the handshake to complete (or fail).<br/>o If the handshake takes a while, and
+if the session idling detection is activated (every second), the it's possible that the
+<tt>IoHandler</tt> gets called through the <tt>sessionIdling</tt> event, giving the
+opportunity for the application to write a message (ok, that is a remote possibility)Just
+writing that down for the sake of documentation... 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/DIRMINA-1107" title="SslHandler
+flushScheduledEvents race condition, redux" class="issue-link"
+data-issue-key="DIRMINA-1107"><del>DIRMINA-1107</del></a> is caused from a memory
+inconsistency in how CAS operations<br/>are checked from within the
+SslHandler#flushScheduledEvents.  This CAS<br/>operation can be updated to correctly check
+for X &gt; 0 but still leaves<br/>situations where the CAS was incremented between the CAS
+loop exits and<br/>the SslHandler#sslLock lock is released resulting in a false
+tryLock()<br/>== false causing one or more message to be queued but never
+flushed<br/>until anoth

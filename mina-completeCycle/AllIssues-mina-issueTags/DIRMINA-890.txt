@@ -1,0 +1,120 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Contrived project.  The MultiLineDecoderState was a simplified attempt to reproduce. 
+
+
+New Comment: 
+Patch for ProtocolCodecFilter including test. 
+
+
+New Comment: 
+I don't know how you get the project building, unless you are running maven with a
+specific config into an IDE.I had to add :      &lt;plugin&gt;<br/>       
+&lt;groupId&gt;org.apache.felix&lt;/groupId&gt;<br/>       
+&lt;artifactId&gt;maven-bundle-plugin&lt;/artifactId&gt;<br/>       
+&lt;inherited&gt;true&lt;/inherited&gt;<br/>       
+&lt;extensions&gt;true&lt;/extensions&gt;<br/>      &lt;/plugin&gt;in order to be able to
+run mvn clean install.../me investigating your code. 
+
+
+On issue key DIRMINA-890 the factory pattern might have been discussed on the following comment: 
+==============================
+To be clear : the ProtocolCodecFilter does <b>not</b> create a new decoder each time a
+MessageReceived event is generated for a given session : it asks the Factory to returns a
+decoder. Now, if the Factory creates a new one for every single message, then obviously,
+you are in trouble.Let's assume you are trying to read data from a buffer expecting to
+receive lines of text, with a new line as a message separator : you may want to use the
+TextLineCodecFactory for that. Now, looking at the ProtocolCodecFilter class :    public
+void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws
+Exception {<br/>        ...<br/>        IoBuffer in = (IoBuffer) message;<br/>       
+ProtocolDecoder decoder = factory.getDecoder(session);and in TextLineCodecFactory :   
+public ProtocolDecoder getDecoder(IoSession session) {        return decoder;    }   
+public TextLineCodecFactory(Charset charset) {        encoder = new
+TextLineEncoder(charset, LineDelimiter.UNIX);        decoder = new
+TextLineDecoder(charset, LineDelimiter.AUTO);    }It's pretty clear that the decoder has
+been instanciated once the session has been created.This is what you do in your code
+:<br/>        acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter(new
+ProtocolCodecFactory()<br/>        {            @Override<br/>            public
+ProtocolEncoder getEncoder(final IoSession session) throws Exception            {         
+      return new TextLineEncoder();            }            @Override<br/>           
+public ProtocolDecoder getDecoder(final IoSession session) throws Exception            {  
+             return new DecodingStateProtocolDecoder(new MultiLineDecoderState());        
+   }        }));which obviously will create a new decoder each time a MessageReceived will
+be processed. You should find another way to do that. 
+==============================
+
+On issue key DIRMINA-890 the Factory pattern might have been discussed on the following comment: 
+==============================
+To be clear : the ProtocolCodecFilter does <b>not</b> create a new decoder each time a
+MessageReceived event is generated for a given session : it asks the Factory to returns a
+decoder. Now, if the Factory creates a new one for every single message, then obviously,
+you are in trouble.Let's assume you are trying to read data from a buffer expecting to
+receive lines of text, with a new line as a message separator : you may want to use the
+TextLineCodecFactory for that. Now, looking at the ProtocolCodecFilter class :    public
+void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws
+Exception {<br/>        ...<br/>        IoBuffer in = (IoBuffer) message;<br/>       
+ProtocolDecoder decoder = factory.getDecoder(session);and in TextLineCodecFactory :   
+public ProtocolDecoder getDecoder(IoSession session) {        return decoder;    }   
+public TextLineCodecFactory(Charset charset) {        encoder = new
+TextLineEncoder(charset, LineDelimiter.UNIX);        decoder = new
+TextLineDecoder(charset, LineDelimiter.AUTO);    }It's pretty clear that the decoder has
+been instanciated once the session has been created.This is what you do in your code
+:<br/>        acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter(new
+ProtocolCodecFactory()<br/>        {            @Override<br/>            public
+ProtocolEncoder getEncoder(final IoSession session) throws Exception            {         
+      return new TextLineEncoder();            }            @Override<br/>           
+public ProtocolDecoder getDecoder(final IoSession session) throws Exception            {  
+             return new DecodingStateProtocolDecoder(new MultiLineDecoderState());        
+   }        }));which obviously will create a new decoder each time a MessageReceived will
+be processed. You should find another way to do that. 
+==============================
+
+On issue key DIRMINA-890 the Chain pattern might have been discussed on the following comment: 
+==============================
+To be clear : the ProtocolCodecFilter does <b>not</b> create a new decoder each time a
+MessageReceived event is generated for a given session : it asks the Factory to returns a
+decoder. Now, if the Factory creates a new one for every single message, then obviously,
+you are in trouble.Let's assume you are trying to read data from a buffer expecting to
+receive lines of text, with a new line as a message separator : you may want to use the
+TextLineCodecFactory for that. Now, looking at the ProtocolCodecFilter class :    public
+void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws
+Exception {<br/>        ...<br/>        IoBuffer in = (IoBuffer) message;<br/>       
+ProtocolDecoder decoder = factory.getDecoder(session);and in TextLineCodecFactory :   
+public ProtocolDecoder getDecoder(IoSession session) {        return decoder;    }   
+public TextLineCodecFactory(Charset charset) {        encoder = new
+TextLineEncoder(charset, LineDelimiter.UNIX);        decoder = new
+TextLineDecoder(charset, LineDelimiter.AUTO);    }It's pretty clear that the decoder has
+been instanciated once the session has been created.This is what you do in your code
+:<br/>        acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter(new
+ProtocolCodecFactory()<br/>        {            @Override<br/>            public
+ProtocolEncoder getEncoder(final IoSession session) throws Exception            {         
+      return new TextLineEncoder();            }            @Override<br/>           
+public ProtocolDecoder getDecoder(final IoSession session) throws Exception            {  
+             return new DecodingStateProtocolDecoder(new MultiLineDecoderState());        
+   }        }));which obviously will create a new decoder each time a MessageReceived will
+be processed. You should find another way to do that. 
+==============================
+
+New Comment: 
+To be clear : the ProtocolCodecFilter does <b>not</b> create a new decoder each time a
+MessageReceived event is generated for a given session : it asks the Factory to returns a
+decoder. Now, if the Factory creates a new one for every single message, then obviously,
+you are in trouble.Let's assume you are trying to read data from a buffer expecting to
+receive lines of text, with a new line as a message separator : you may want to use the
+TextLineCodecFactory for that. Now, looking at the ProtocolCodecFilter class :    public
+void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws
+Exception {<br/>        ...<br/>        IoBuffer in = (IoBuffer) message;<br/>       
+ProtocolDecoder decoder = factory.getDecoder(session);and in TextLineCodecFactory :   
+public ProtocolDecoder getDecoder(IoSession session) {        return decoder;    }   
+public TextLineCodecFactory(Charset charset) {        encoder = new
+TextLineEncoder(charset, LineDelimiter.UNIX);        decoder = new
+TextLineDecoder(charset, LineDelimiter.AUTO);    }It's pretty clear that the decoder has
+been instanciated once the session has been created.This is what you do in your code
+:<br/>        acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter(new
+ProtocolCodecFactory()<br/>        {            @Override<br/>            public
+ProtocolEncoder getEncoder(final IoSession session) throws Excep

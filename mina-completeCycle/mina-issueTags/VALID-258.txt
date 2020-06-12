@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 5fa24c79c50ad95ff88047821e2cd9427a72bd63
+
+From: Mediator-68
+To:   Mediator-69
+
+From: Observer-1
+To:   Observer-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-258.txt 
+
+commit 5fa24c79c50ad95ff88047821e2cd9427a72bd63
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-239 (Allow multiple Callbacks per IoFuture)
+    * Replaced IoFuture.Callback with IoFutureListener
+    * Replaced IoFuture.get/setCallback() with add/removeListener()
+    * Fixed all compilation errors caused by the changes above

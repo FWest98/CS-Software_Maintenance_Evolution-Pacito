@@ -1,0 +1,76 @@
+Pattern changes caused by commit: 144d8fea7c22b40b7f47593575e398c1542a8f9a
+
+From: Mediator-75
+To:   Mediator-76
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-175.txt 
+
+commit 144d8fea7c22b40b7f47593575e398c1542a8f9a
+Author: Peter A Royal Jr <proyal@apache.org>
+
+    DIRMINA-209 - The number of processors for socket connectors and acceptors can be specified via a cxtor parameter. By default, connectors and acceptors each use their own processor.
+    Additionally, the delegates have been removed helping to simplify the code.
+
+
+
+==================================
+ Issue DIRMINA-209 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-209] SocketIoProcessor singleton causes performance wall under load
+-----------------
+
+-----------------
+Summary: SocketIoProcessor singleton causes performance wall under load
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 29 Apr 2006 06:32:20 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 29 Apr 2006 23:46:35 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The changes to have SocketIoProcessor have a fixed number of instances that are shared
+between connectors and acceptors results in a default performance degradation for
+applications that used both. 
+
+This will be fixed by having socket acceptor and connectors
+each use their own processor. Additionally, the number of processors for each will be
+configurable independently.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Done. 
+
+

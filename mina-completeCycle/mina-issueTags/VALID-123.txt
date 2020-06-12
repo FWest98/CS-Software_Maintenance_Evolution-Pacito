@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 0e21f861281fc45eee12128c29be118b3b3a80fa
+
+From: Facade-27
+To:   Facade-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-123.txt 
+
+commit 0e21f861281fc45eee12128c29be118b3b3a80fa
+Author: Trustin Lee <trustin@apache.org>
+
+    * AbstractIoFilterChain.messageSent() calls WriteFuture.setWritten(true) to remove code duplication.
+    * AbstractIoFilterChain.messageNotSent() calls WriteFuture.setWritten(false) to remove code duplication.
+    * The ByteBuffer passed via messageSent now has a correct position.

@@ -1,0 +1,215 @@
+On issue key DIRMINA-844 the Proxy pattern might have been discussed, namely here: 
+==============================
+Http Proxy Authentication failed to complete (see description for exact point of failure) 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-844 the Proxy pattern might have been discussed on the following comment: 
+==============================
+I had got the same issue. The problem is an error design into the handshake process with
+an http authentication required proxy. When we try to connect to the proxy for the first
+time, we don't send any authentication header, so we receive a 407 code response, and from
+the "Proxy-Authenticate" header we get the required authentication method and set the
+corresponding AuthHandler class.The first error is in class
+"org.apache.mina.proxy.handlers.http.AbstractHttpLogicHandler", method "", line 377:<div
+class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractHttpLogicHandler.java</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">protected</span>
+HttpProxyResponse decodeResponse(<span class="code-keyword">final</span> <span
+class="code-object">String</span> response) <span class="code-keyword">throws</span>
+Exception {        LOGGER.debug(<span class="code-quote">"  parseResponse()"</span>);     
+  <span class="code-comment">// Break response into lines</span>        <span
+class="code-object">String</span>[] responseLines =
+response.split(HttpProxyConstants.CRLF);        <span class="code-comment">// Status-Line
+= HTTP-Version SP Status-Code SP Reason-Phrase CRLF</span>        <span
+class="code-comment">// BUG FIX : Trimed to prevent failures with some proxies that add
+</span>        <span class="code-comment">// extra space chars like <span
+class="code-quote">"Microsoft-IIS/5.0"</span> ...</span>        <span
+class="code-object">String</span>[] statusLine = responseLines[0].trim().split(<span
+class="code-quote">" "</span>, 2);        <span class="code-keyword">if</span>
+(statusLine.length &lt; 2) {            <span class="code-keyword">throw</span> <span
+class="code-keyword">new</span> Exception(<span class="code-quote">"Invalid response
+status line ("</span> + statusLine + <span class="code-quote">"). Response: "</span> +
+response);        }        <span class="code-comment">// Status code is 3 digits</span>   
+    <span class="code-keyword">if</span> (!statusLine[1].matches(<span
+class="code-quote">"^\\d\\d\\d"</span>)) {            <span
+class="code-keyword">throw</span> <span class="code-keyword">new</span> Exception(<span
+class="code-quote">"Invalid response code ("</span> + statusLine[1] + <span
+class="code-quote">"). Response: "</span> + response);        }        Map&lt;<span
+class="code-object">String</span>, List&lt;<span class="code-object">String</span>&gt;&gt;
+headers = <span class="code-keyword">new</span> HashMap&lt;<span
+class="code-object">String</span>, List&lt;<span
+class="code-object">String</span>&gt;&gt;();        <span class="code-keyword">for</span>
+(<span class="code-object">int</span> i = 1; i &lt; responseLines.length; i++) {          
+ <span class="code-object">String</span>[] args = responseLines[i].split(<span
+class="code-quote">":\\s?"</span>, 2);           
+StringUtilities.addValueToHeader(headers, args[0], args[1], <span
+class="code-keyword">false</span>);        }        <span
+class="code-keyword">return</span> <span class="code-keyword">new</span>
+HttpProxyResponse(statusLine[0], statusLine[1], headers);    }</pre></div></div>The value
+"statusLine<span class="error">&#91;1&#93;</span>" is expected to be a string starting
+with the http returned code (in this case 407) followed by a space and the corresponding
+message added by the server (as we're splitting the full status line into only 2 strings).
+Here you are an example taken from my company proxy:<tt>407 Proxy Authentication
+Required</tt>the regular expression to match <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>"^\\d\\d\\d"</pre></div></div> is expecting only the ciphers, not the
+text, so I've changed this regular expression to add any followed text: <div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>"^\\d\\d\\d.*".</pre></div></div> The HttpProxyResponse constructor
+gets the substring from the first 3 chars and parses it to the integer return code, so the
+remaining text doesn't affect. Depending of how do you handle this exception, you may not
+see the error trace.After correcting this error, instead of throwing the exception the
+code goes on and it tries to reconnect to the proxy, creating a new session and rebuilding
+the http request to add the corresponding authentication headers to it, but here there's
+another problem... The process never launch the second http request, as the
+"operationComplete" callback defined into the "reconnect" method, line 342 is never
+called:<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractHttpLogicHandler.java</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+reconnect(<span class="code-keyword">final</span> NextFilter nextFilter, <span
+class="code-keyword">final</span> HttpProxyRequest request) {        LOGGER.debug(<span
+class="code-quote">"Reconnecting to proxy ..."</span>);        <span
+class="code-keyword">final</span> ProxyIoSession proxyIoSession = getProxyIoSession();    
+   <span class="code-comment">// Fires reconnection</span>       
+proxyIoSession.getConnector().connect(<span class="code-keyword">new</span>
+IoSessionInitializer&lt;ConnectFuture&gt;() {            <span
+class="code-keyword">public</span> void initializeSession(<span
+class="code-keyword">final</span> IoSession session, ConnectFuture <span
+class="code-keyword">future</span>) {                LOGGER.debug(<span
+class="code-quote">"Initializing <span class="code-keyword">new</span> session:
+{}"</span>, session);                session.setAttribute(ProxyIoSession.PROXY_SESSION,
+proxyIoSession);                proxyIoSession.setSession(session);               
+LOGGER.debug(<span class="code-quote">"  setting up proxyIoSession: {}"</span>,
+proxyIoSession);                <span class="code-keyword">future</span>.addListener(<span
+class="code-keyword">new</span> IoFutureListener&lt;ConnectFuture&gt;() {                 
+  <span class="code-keyword">public</span> void operationComplete(ConnectFuture <span
+class="code-keyword">future</span>) {                        <span class="code-comment">//
+Reconnection is done so we send the</span>                        <span
+class="code-comment">// request to the proxy</span>                       
+proxyIoSession.setReconnectionNeeded(<span class="code-keyword">false</span>);            
+           writeRequest0(nextFilter, request);                    }                });    
+       }        });    }</pre></div></div>The operation is considered "completed" when the
+handshake phase is completed, but we're into this phase now, and we need to execute the
+request to complete it, so here we have a deadlock. As we haven't completed the handshake
+phase, we never call the "operationComplete" method and of course we never do the second
+http request with the right headers. To solve this problem we need to remove the custom
+IoFutureListener and put the inner code into the "initializeSession" callback directly.I'm
+going to make a pull request with this changes. They have been tested and they're working. 
+==============================
+
+On issue key DIRMINA-844 the proxy pattern might have been discussed on the following comment: 
+==============================
+I had got the same issue. The problem is an error design into the handshake process with
+an http authentication required proxy. When we try to connect to the proxy for the first
+time, we don't send any authentication header, so we receive a 407 code response, and from
+the "Proxy-Authenticate" header we get the required authentication method and set the
+corresponding AuthHandler class.The first error is in class
+"org.apache.mina.proxy.handlers.http.AbstractHttpLogicHandler", method "", line 377:<div
+class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractHttpLogicHandler.java</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">protected</span>
+HttpProxyResponse decodeResponse(<span class="code-keyword">final</span> <span
+class="code-object">String</span> response) <span class="code-keyword">throws</span>
+Exception {        LOGGER.debug(<span class="code-quote">"  parseResponse()"</span>);     
+  <span class="code-comment">// Break response into lines</span>        <span
+class="code-object">String</span>[] responseLines =
+response.split(HttpProxyConstants.CRLF);        <span class="code-comment">// Status-Line
+= HTTP-Version SP Status-Code SP Reason-Phrase CRLF</span>        <span
+class="code-comment">// BUG FIX : Trimed to prevent failures with some proxies that add
+</span>        <span class="code-comment">// extra space chars like <span
+class="code-quote">"Microsoft-IIS/5.0"</span> ...</span>        <span
+class="code-object">String</span>[] statusLine = responseLines[0].trim().split(<span
+class="code-quote">" "</span>, 2);        <span class="code-keyword">if</span>
+(statusLine.length &lt; 2) {            <span class="code-keyword">throw</span> <span
+class="code-keyword">new</span> Exception(<span class="code-quote">"Invalid response
+status line ("</span> + statusLine + <span class="code-quote">"). Response: "</span> +
+response);        }        <span class="code-comment">// Status code is 3 digits</span>   
+    <span class="code-keyword">if</span> (!statusLine[1].matches(<span
+class="code-quote">"^\\d\\d\\d"</span>)) {            <span
+class="code-keyword">throw</span> <span class="code-keyword">new</span> Exception(<span
+class="code-quote">"Invalid response code ("</span> + statusLine[1] + <span
+class="code-quote">"). Response: "</span> + response);        }        Map&lt;<span
+class="code-object">String</span>, List&lt;<span class="code-object">String</span>&gt;&gt;
+headers = <span class="code-keyword">new</span> HashMap&lt;<span
+class="code-object">String</span>, List&lt;<span
+class="code-object">String</span>&gt;&gt;();        <span class="code-keyword">for</span>
+(<span class="code-object">int</span> i = 1; i &lt; responseLines.length; i++) {          
+ <span class="code-object">String</span>[] args = responseLines[i].split(<span
+class="code-quote">":\\s?"</span>, 2);           
+StringUtilities.addValueToHeader(headers, args[0], args[1], <span
+class="code-keyword">false</span>);        }        <span
+class="code-keyword">return</span> <span class="code-keyword">new</span>
+HttpProxyResponse(statusLine[0], statusLine[1], headers);    }</pre></div></div>The value
+"statusLine<span class="error">&#91;1&#93;</span>" is expected to be a string starting
+with the http returned code (in this case 407) followed by a space and the corresponding
+message added by the server (as we're splitting the full status line into only 2 strings).
+Here you are an example taken from my company proxy:<tt>407 Proxy Authentication
+Required</tt>the regular expression to match <div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>"^\\d\\d\\d"</pre></div></div> is expecting only the ciphers, not the
+text, so I've changed this regular expression to add any followed text: <div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>"^\\d\\d\\d.*".</pre></div></div> The HttpProxyResponse constructor
+gets the substring from the first 3 chars and parses it to the integer return code, so the
+remaining text doesn't affect. Depending of how do you handle this exception, you may not
+see the error trace.After correcting this error, instead of throwing the exception the
+code goes on and it tries to reconnect to the proxy, creating a new session and rebuilding
+the http request to add the corresponding authentication headers to it, but here there's
+another problem... The process never launch the second http request, as the
+"operationComplete" callback defined into the "reconnect" method, line 342 is never
+called:<div class="code panel" style="border-style: solid;border-width: 1px;"><div
+class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractHttpLogicHandler.java</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">private</span> void
+reconnect(<span class="code-keyword">final</span> NextFilter nextFilter, <span
+class="code-keyword">final</span> HttpProxyRequest request) {        LOGGER.debug(<span
+class="code-quote">"Reconnecting to proxy ..."</span>);        <span
+class="code-keyword">final</span> ProxyIoSession proxyIoSession = getProxyIoSession();    
+   <span class="code-comment">// Fires reconnection</span>       
+proxyIoSession.getConnector().connect(<span class="code-keyword">new</span>
+IoSessionInitializer&lt;ConnectFuture&gt;() {            <span
+class="code-keyword">public</span> void initializeSession(<span
+class="code-keyword">final</span> IoSession session, ConnectFuture <span
+class="code-keyword">future</span>) {                LOGGER.debug(<span
+class="code-quote">"Initializing <span class="code-keyword">new</span> session:
+{}"</span>, session);                session.setAttribute(ProxyIoSession.PROXY_SESSION,
+proxyIoSession);                proxyIoSession.setSession(session);               
+LOGGER.debug(<span class="code-quote">"  setting up proxyIoSession: {}"</span>,
+proxyIoSession);                <span class="code-keyword">future</span>.addListener(<span
+class="code-keyword">new</span> IoFutureListener&lt;ConnectFuture&gt;() {                 
+  <span class="code-keyword">public</span> void operationComplete(ConnectFuture <span
+class="code-keyword">future</span>) {                        <span class="code-comment">//
+Reconnection is done so we send the</span>                        <span
+class="code-comment">// request to the proxy</span>                       
+proxyIoSession.setReconnectionNeeded(<span class="code-keyword">false</span>);            
+           writeRequest0(nextFilter, request);                    }                });    
+       }        });    }</pre></div></div>The operation is considered "completed" when the
+handshake phase is completed, but we're into this phase now, and we need to execute the
+request to complete it, so here we have a deadlock. As we haven't completed the handshake
+phase, we never call the "operationComplete" method and of course we never do the second
+http request with the right headers. To solve this problem we need to remove the custom
+IoFutureListener and put the inner code into the "initializeSession" callback directly.I'm
+going to make a pull request with this changes. They have been tested and they're working. 
+==============================
+
+New Comment: 
+I had got the same issue. The problem is an error design into the handshake process with
+an http authentication required proxy. When we try to connect to the proxy for the first
+time, we don't send any authentication header, so we receive a 407 code response, and from
+the "Proxy-Authenticate" header we get the required authentication method and set the
+corresponding AuthHandler class.The first error is in class
+"org.apache.mina.proxy.handlers.http.AbstractHttpLogicHandler", method "", line 377:<div
+class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader
+panelHeader" style="border-bottom-width: 1px;border-bottom-style:
+solid;"><b>AbstractHttpLogicHandler.java</b></div><div class="codeContent
+panelContent"><pre class="code-java">    <span class="code-keyword">protected</span>
+HttpProxyResponse decodeResponse(<span class="code-keyword">final<

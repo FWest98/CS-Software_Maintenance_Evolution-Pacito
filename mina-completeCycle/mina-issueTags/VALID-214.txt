@@ -1,0 +1,18 @@
+Pattern changes caused by commit: d66a732a16f85f9a22fe6a0bea631e1ca4423cfb
+
+From: Strategy-34
+To:   Strategy-36
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-214.txt 
+
+commit d66a732a16f85f9a22fe6a0bea631e1ca4423cfb
+Author: Niklas Therning <niklas@apache.org>
+
+    Added the flush() method to ProtocolDecoderOutput.
+    Changed ProtocolCodecFilter to call flush() on the ProtocolDecoderOutput after decoding messages.
+    Added the flush() method to SimpleProtocolDecoderOutput.

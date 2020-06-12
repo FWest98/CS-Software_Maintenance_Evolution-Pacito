@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 2dd14695b969df61d2e68bd3451f7365c7fc191f
+
+From: Facade-26
+To:   Facade-25
+
+From: Mediator-79
+To:   Mediator-78
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-190.txt 
+
+commit 2dd14695b969df61d2e68bd3451f7365c7fc191f
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-214 (The InputStream that StreamIoHandler provides is closed too early.)
+    * StreamIoHandler doesn't close Input/OutputStream.  A user has to close them explicitly.
+    * Optimized memory usage of IoSessionOutputStream

@@ -1,0 +1,126 @@
+On issue key DIRMINA-385 the chain pattern might have been discussed, namely here: 
+==============================
+SSLFilter starts writing to session before filter chain is complete 
+==============================
+
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-385 the chain pattern might have been discussed on the following comment: 
+==============================
+This is a patch against the 1.1.0 release.  I'm currently using this in my code and it
+works fine in the case where the SSLFilter is added to the chain before the session is
+connected. 
+==============================
+
+New Comment: 
+This is a patch against the 1.1.0 release.  I'm currently using this in my code and it
+works fine in the case where the SSLFilter is added to the chain before the session is
+connected. 
+
+
+New Comment: 
+This is similar to my patch for 1.1.0 but it is against HEAD.  This patch compiles but I
+have no 2.0.0 compatible code to test it with. 
+
+
+New Comment: 
+It seems like the root cause of the problem is that you are adding filters in a mixed
+order.  Is it correct?  Is there any reason in that you do so?  You could simply add
+filters using only addLast. 
+
+
+On issue key DIRMINA-385 the proxy pattern might have been discussed on the following comment: 
+==============================
+Only using addLast() to add filters to a Mina session will not prevent the problem.  It
+merely masks the problem in the most common use cases. Here are some reasons <b>NOT</b> to
+just leave SSLFilter as is and just add filters to the end of the chain.1) This lack of
+robustness isn't documented, so affected users are going to have to figure it out for
+themselves.  Why should you have to anticipate that SSLFilter is only going to work
+correctly if added first.2) You don't always have control over how the filters are added. 
+Say your using another library built on top of MINA, such as QuickFIX/J, that gives you a
+limited ability to add additional filters under the hosting library's control.  Third
+party libraries should have to compensate for SSLFilters limitations, and users of those
+libraries should be excluded from taking advantage of Mina's advanced features3) Even
+adding filters in order can't get around all of the SSLFilters bad behavior.  The filter
+I've written needs to communicate with a proxy server to establish the connection before
+any other traffic goes through.  The SSLFilter's practice of queuing up messages before
+the connection opens prevents those filters from doing their job, no matter what order you
+place them on the chain.  For some proxies, I need to read a greeting banner before I can
+formulate a correct first message, by then SSLFilter has already jammed its handshake into
+the queue.Why try to excuse bad implementation when it can be fixed? 
+==============================
+
+On issue key DIRMINA-385 the chain pattern might have been discussed on the following comment: 
+==============================
+Only using addLast() to add filters to a Mina session will not prevent the problem.  It
+merely masks the problem in the most common use cases. Here are some reasons <b>NOT</b> to
+just leave SSLFilter as is and just add filters to the end of the chain.1) This lack of
+robustness isn't documented, so affected users are going to have to figure it out for
+themselves.  Why should you have to anticipate that SSLFilter is only going to work
+correctly if added first.2) You don't always have control over how the filters are added. 
+Say your using another library built on top of MINA, such as QuickFIX/J, that gives you a
+limited ability to add additional filters under the hosting library's control.  Third
+party libraries should have to compensate for SSLFilters limitations, and users of those
+libraries should be excluded from taking advantage of Mina's advanced features3) Even
+adding filters in order can't get around all of the SSLFilters bad behavior.  The filter
+I've written needs to communicate with a proxy server to establish the connection before
+any other traffic goes through.  The SSLFilter's practice of queuing up messages before
+the connection opens prevents those filters from doing their job, no matter what order you
+place them on the chain.  For some proxies, I need to read a greeting banner before I can
+formulate a correct first message, by then SSLFilter has already jammed its handshake into
+the queue.Why try to excuse bad implementation when it can be fixed? 
+==============================
+
+New Comment: 
+Only using addLast() to add filters to a Mina session will not prevent the problem.  It
+merely masks the problem in the most common use cases. Here are some reasons <b>NOT</b> to
+just leave SSLFilter as is and just add filters to the end of the chain.1) This lack of
+robustness isn't documented, so affected users are going to have to figure it out for
+themselves.  Why should you have to anticipate that SSLFilter is only going to work
+correctly if added first.2) You don't always have control over how the filters are added. 
+Say your using another library built on top of MINA, such as QuickFIX/J, that gives you a
+limited ability to add additional filters under the hosting library's control.  Third
+party libraries should have to compensate for SSLFilters limitations, and users of those
+libraries should be excluded from taking advantage of Mina's advanced features3) Even
+adding filters in order can't get around all of the SSLFilters bad behavior.  The filter
+I've written needs to communicate with a proxy server to establish the connection before
+any other traffic goes through.  The SSLFilter's practice of queuing up messages before
+the connection opens prevents those filters from doing their job, no matter what order you
+place them on the chain.  For some proxies, I need to read a greeting banner before I can
+formulate a correct first message, by then SSLFilter has already jammed its handshake into
+the queue.Why try to excuse bad implementation when it can be fixed? 
+
+
+On issue key DIRMINA-385 the proxy pattern might have been discussed on the following comment: 
+==============================
+I suggested a work around.  I would have marked this issue as 'won't fix' or 'invalid' if
+I am trying to excuse something.  It is still open and I didn't apply your patch just
+because it breaks backward compatibility.  Changing IoSession.isConnected() to return
+false doesn't make sense because it's connected at that moment.  I am also not sure if
+this is a problem and SSLFilter is bad yet because initiation of handshake when SSLFilter
+is added is an expected behavior.Moreover, your patch fixes the problem <b>only</b> when
+all filters are added in sessionCreated().  It doesn't fix the problem you described when
+the filters are added in sessionOpened() or messageReceived() handler methods in a mixed
+order.  It merely masks the problem in the most common use cases. No? <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/>We could introduce
+transactional filter chain manipulation so the filter chain calls onPostAdd after all
+filters are added, but it's overengineering IMO.Let me suggest you another work around
+until a clear solution for this issue is found; please do not add an SSLFilter until the
+handshake ends.  Your proxy filter can add SSLFilter to the chain it belongs to when it
+needs to be added. 
+==============================
+
+On issue key DIRMINA-385 the chain pattern might have been discussed on the following comment: 
+==============================
+I suggested a work around.  I would have marked this issue as 'won't fix' or 'invalid' if
+I am trying to excuse something.  It is still open and I didn't apply your patch just
+because it breaks backward compatibility.  Changing IoSession.isConnected() to return
+false doesn't make sense because it's connected at that moment.  I am also not sure if
+this is a problem and SSLFilter is bad yet because initiation of handshake when SSLFilter
+is added is an expected behavior.Moreover, your patch fixes the problem <b>only</b> when
+all filters are added in sessionCreated().  It doesn't fix the problem you describe

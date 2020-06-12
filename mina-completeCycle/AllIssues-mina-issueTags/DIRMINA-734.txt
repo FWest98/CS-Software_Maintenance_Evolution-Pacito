@@ -1,0 +1,225 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+On issue key DIRMINA-734 the Proxy pattern might have been discussed on the following comment: 
+==============================
+Assuming your system works like that :Client &lt;===&gt; Proxy &lt;===&gt; Applicationdo
+you close the session when the Application has sent its last message, or are you expecting
+some more message to be received ? In other words, do you close here :Client ---&gt; proxy
+---&gt; Application --+<br/>Client &lt;--- proxy &lt;<del>*</del> Application&lt;--+(when
+the message is received from the application, '*' being the message)or here :<br/>Client
+--<del>&gt; proxy -*</del>&gt; Application --+<br/>Client &lt;--- proxy &lt;---
+Application&lt;--+(just after having transmitted the message to the application)Otherwise,
+the session code hasn't been changed in this area since last release. 
+==============================
+
+On issue key DIRMINA-734 the proxy pattern might have been discussed on the following comment: 
+==============================
+Assuming your system works like that :Client &lt;===&gt; Proxy &lt;===&gt; Applicationdo
+you close the session when the Application has sent its last message, or are you expecting
+some more message to be received ? In other words, do you close here :Client ---&gt; proxy
+---&gt; Application --+<br/>Client &lt;--- proxy &lt;<del>*</del> Application&lt;--+(when
+the message is received from the application, '*' being the message)or here :<br/>Client
+--<del>&gt; proxy -*</del>&gt; Application --+<br/>Client &lt;--- proxy &lt;---
+Application&lt;--+(just after having transmitted the message to the application)Otherwise,
+the session code hasn't been changed in this area since last release. 
+==============================
+
+New Comment: 
+Assuming your system works like that :Client &lt;===&gt; Proxy &lt;===&gt; Applicationdo
+you close the session when the Application has sent its last message, or are you expecting
+some more message to be received ? In other words, do you close here :Client ---&gt; proxy
+---&gt; Application --+<br/>Client &lt;--- proxy &lt;<del>*</del> Application&lt;--+(when
+the message is received from the application, '*' being the message)or here :<br/>Client
+--<del>&gt; proxy -*</del>&gt; Application --+<br/>Client &lt;--- proxy &lt;---
+Application&lt;--+(just after having transmitted the message to the application)Otherwise,
+the session code hasn't been changed in this area since last release. 
+
+
+On issue key DIRMINA-734 the Proxy pattern might have been discussed on the following comment: 
+==============================
+The application based on MINA is a proxy by itself, so it would be:client &lt;====&gt; our
+application based on mina &lt;====&gt; some serverWhen the server closes connection,
+application closes connection with the client using session.close(false), same as in the
+example provided with
+MINA:<br/>mina\example\src\main\java\org\apache\mina\example\proxy\AbstractProxyIoHandler.java:
+   public void sessionClosed(IoSession session) throws Exception {<br/>        if
+(session.getAttribute( OTHER_IO_SESSION ) != null) {            IoSession sess =
+(IoSession) session.getAttribute(OTHER_IO_SESSION);           
+sess.setAttribute(OTHER_IO_SESSION, null);            sess.close(false);           
+session.setAttribute(OTHER_IO_SESSION, null);        }    } 
+==============================
+
+On issue key DIRMINA-734 the proxy pattern might have been discussed on the following comment: 
+==============================
+The application based on MINA is a proxy by itself, so it would be:client &lt;====&gt; our
+application based on mina &lt;====&gt; some serverWhen the server closes connection,
+application closes connection with the client using session.close(false), same as in the
+example provided with
+MINA:<br/>mina\example\src\main\java\org\apache\mina\example\proxy\AbstractProxyIoHandler.java:
+   public void sessionClosed(IoSession session) throws Exception {<br/>        if
+(session.getAttribute( OTHER_IO_SESSION ) != null) {            IoSession sess =
+(IoSession) session.getAttribute(OTHER_IO_SESSION);           
+sess.setAttribute(OTHER_IO_SESSION, null);            sess.close(false);           
+session.setAttribute(OTHER_IO_SESSION, null);        }    } 
+==============================
+
+New Comment: 
+The application based on MINA is a proxy by itself, so it would be:client &lt;====&gt; our
+application based on mina &lt;====&gt; some serverWhen the server closes connection,
+application closes connection with the client using session.close(false), same as in the
+example provided with
+MINA:<br/>mina\example\src\main\java\org\apache\mina\example\proxy\AbstractProxyIoHandler.java:
+   public void sessionClosed(IoSession session) throws Exception {<br/>        if
+(session.getAttribute( OTHER_IO_SESSION ) != null) {            IoSession sess =
+(IoSession) session.getAttribute(OTHER_IO_SESSION);           
+sess.setAttribute(OTHER_IO_SESSION, null);            sess.close(false);           
+session.setAttribute(OTHER_IO_SESSION, null);        }    } 
+
+
+New Comment: 
+It's difficult to know what is happening here, without a sample demonstrating the problem.
+There have been some fixes in the ExecutorFilter since last release, but they were quite
+necessary. I'm trying to list all the important changes since M6. 
+
+
+On issue key DIRMINA-734 the proxy pattern might have been discussed on the following comment: 
+==============================
+I've prepared and attached a test for this issue. It's based on the MINA proxy
+example.<br/>Please see the instructions inside README.txt.This scenario requires an
+Apache server to reproduce, however you can use some large html page instead hosted on any
+public server, just change the options used for running the proxy and the client. 
+==============================
+
+New Comment: 
+I've prepared and attached a test for this issue. It's based on the MINA proxy
+example.<br/>Please see the instructions inside README.txt.This scenario requires an
+Apache server to reproduce, however you can use some large html page instead hosted on any
+public server, just change the options used for running the proxy and the client. 
+
+
+On issue key DIRMINA-734 the Adapter pattern might have been discussed on the following comment: 
+==============================
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to the fact that the OTHER_IO_SESSION
+attribute is not stored into the session... Can you check on your side ? 
+==============================
+
+On issue key DIRMINA-734 the Proxy pattern might have been discussed on the following comment: 
+==============================
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to the fact that the OTHER_IO_SESSION
+attribute is not stored into the session... Can you check on your side ? 
+==============================
+
+On issue key DIRMINA-734 the proxy pattern might have been discussed on the following comment: 
+==============================
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to the fact that the OTHER_IO_SESSION
+attribute is not stored into the session... Can you check on your side ? 
+==============================
+
+On issue key DIRMINA-734 the chain pattern might have been discussed on the following comment: 
+==============================
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to the fact that the OTHER_IO_SESSION
+attribute is not stored into the session... Can you check on your side ? 
+==============================
+
+On issue key DIRMINA-734 the Chain pattern might have been discussed on the following comment: 
+==============================
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to the fact that the OTHER_IO_SESSION
+attribute is not stored into the session... Can you check on your side ? 
+==============================
+
+New Comment: 
+When I run the sample, I get a NPE :<span class="error">&#91;12:06:39&#93;</span>
+MinaProxyThread WARN  [] [] <span
+class="error">&#91;org.apache.mina.core.service.IoHandlerAdapter&#93;</span> - EXCEPTION,
+please implement org.apache.mina.example.proxy.ServerToProxyIoHandler.exceptionCaught()
+for proper handling:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.example.proxy.AbstractProxyIoHandler.messageReceived(AbstractProxyIoHandler.java:73)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:713)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:434)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$5(DefaultIoFilterChain.java:429)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:793)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:71)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:780)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:772)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:714)<br/>	at
+java.lang.Thread.run(Thread.java:619)This is due to th

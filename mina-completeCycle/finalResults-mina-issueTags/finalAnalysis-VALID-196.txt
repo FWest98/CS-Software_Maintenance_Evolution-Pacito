@@ -1,0 +1,125 @@
+Pattern changes caused by commit: e2f3e703c93d3a38ea84793880a51b25f15ada96
+
+From: Factory Method-8
+To:   Factory Method-9
+
+From: Adapter-22
+To:   Adapter-21
+
+From: Bridge-15
+To:   Bridge-19
+
+From: Facade-25
+To:   Facade-24
+
+From: Mediator-78
+To:   Mediator-76
+
+From: Strategy-36
+To:   Strategy-37
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-196.txt 
+
+commit e2f3e703c93d3a38ea84793880a51b25f15ada96
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-217 (Make IoFuture and its subclasses interfaces)
+    * Changed IoFuture and its subclasses into interfaces
+    * Extracted their implementations to common.support.DefaultXxxFuture
+    * IoFilter.WriteRequest.UNUSED_FUTURE directly implements WriteFuture now.
+      * This change broke StreamWriterFilterTest. I fixed it, too.
+
+
+
+==================================
+ Issue DIRMINA-217 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-217] Make IoFuture and its subclasses interfaces
+-----------------
+
+-----------------
+Summary: Make IoFuture and its subclasses interfaces
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 17 May 2006 10:03:57 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 17 May 2006 10:40:46 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Would it be nice if we have IoFuture.getSession()?  IoFuture.Callback doesn't have any
+mean to get the session associated with the future.  For example, in <a
+href="https://issues.apache.org/jira/browse/DIRMINA-210" title="Investigate removal of
+static methods in ByteBuffer" class="issue-link"
+data-issue-key="DIRMINA-210"><del>DIRMINA-210</del></a>, we have to create a new intanceof
+ClosingCallback every time we set the callback.  If we can get the associated session by
+calling IoFuture.getSession(), then it will look like this:
+
+public interface Callback
+{<br/>    static Callback CLOSE = new Callback() {<br/>        public void
+operationComplete(IoFuture future) 
+{            future.getSession().close();        }
+   
+}<br/>    ...<br/>}
+
+session.write(...).setCallback(ioFuture.Callback.CLOSE);
+
+The only
+issue with this change is that the throws clause of ConnectFuture.getSession() should be
+removed and it should throw RuntimeIOException instead of IOException.  This will cause
+compilation errors in legacy code, for the use of connectors.
+
+The second design issue
+with IoFuture is about making it interface.  For now, they are concrete classes which
+expose internal methods that change their state.  I'd like to change them look like
+this:
+<ul>	<li>IoFuture</li>	<li>WriteFuture (extends
+IoFuture)</li>	<li>DefaultWriteFuture (implements WriteFuture, internal use
+only)</li>	<li>ConnectFuture (extends IoFuture)</li>	<li>DefaultConnectFuture (implements
+ConnectFuture, internal use only)</li>	<li>CloseFuture (extends
+IoFuture)</li>	<li>DefaultCloseFuture (implements CloseFuture, internal use
+only)</li></ul>
+Making them interfaces has an advantage in that we can create more complex
+futures such as CompositeWriteFuture or dummy futures which never impacts performance due
+to synchronized block.
+
+Detailed conversation:
+
+<a
+href="http://thread.gmane.org/gmane.comp.apache.directory.mina.devel/106/focus=106"
+class="external-link"
+rel="nofollow">http://thread.gmane.org/gmane.comp.apache.directory.mina.devel/106/focus=106</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

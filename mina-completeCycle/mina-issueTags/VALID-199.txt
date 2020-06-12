@@ -1,0 +1,36 @@
+Pattern changes caused by commit: 7d2076819b0746f27a1ed11d02fb6f93ce81fd9f
+
+From: Abstract Factory-6
+To:   Abstract Factory-7
+
+From: Adapter-21
+To:   Adapter-13
+
+From: Bridge-19
+To:   Bridge-13
+
+From: Facade-24
+To:   Facade-22
+
+From: Mediator-76
+To:   Mediator-67
+
+From: Observer-4
+To:   Observer-2
+
+From: Strategy-37
+To:   Strategy-36
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-199.txt 
+
+commit 7d2076819b0746f27a1ed11d02fb6f93ce81fd9f
+Author: Trustin Lee <trustin@apache.org>
+
+    * Made all sub-poms to depend on the latest version of root build pom.
+    * Changed cvs.apache.org to minotaur.apache.org
+    * Checking in changes in mina which had to be checked in before

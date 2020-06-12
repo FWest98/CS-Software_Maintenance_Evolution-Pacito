@@ -1,0 +1,1939 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Do you have any idea what is causing this because this just looks to me like the client
+disconnected while MINA was writing. Broken pipe is a normal every day non-error error. 
+
+
+New Comment: 
+I'm investigating atm. What I can say for sure is that I don't see this issue when using
+MINA 2.0.16. 
+
+
+On issue key DIRMINA-1083 the Adapter pattern might have been discussed on the following comment: 
+==============================
+It's a bit tricky, but as the failure is (almost) always reproductible, I can already tell
+that the problem is when the client (<tt>LDAP API</tt>) is initiating the <tt>SSL</tt>
+handshake.Technically speaking, the test starts a <tt>LDAP</tt> server (ApacheDS),
+no <tt>SSL/TLS</tt> is involved at this point, the <tt>LDAPS</tt> port is not enabled. The
+client (<tt>LDAP API</tt>) is now sending a <tt>StartTLS</tt> extended operation (it's
+a <tt>LDAP</tt> request asking the server to establish a secure communication over an
+established <tt>TCP</tt> connection: we don't open a new connection).There is a double
+<tt>SSL</tt> initialization occuring :<ul>	<li>one on the server, as we inject the
+<tt>SSLFilter</tt> in the <tt>MINA</tt> chain,</li>	<li>one on the client, for the exact
+same reason.</li></ul>The failure occurs on the second initialization, here are the
+<tt>MINA</tt> traces : <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:39:08] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:39:09] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:39:09]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Message received : HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29
+01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 01 00 02 01 00][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) Processing the
+received message[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected
+exception from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before
+receiving peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeSessions(AbstractPollingIoProcessor.java:864)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:694)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 54 AD DE...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=78 cap=78: 30 4C 02 01 00 78 47 0A 01 34 04 00 04 28 55
+4E...][10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (UNAVAILABLE)
+unavailable            Matched Dn : 'null'            Diagnostic message : 'UNAVAILABLE:
+The server will disconnect!'[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=81 cap=81:
+30 4F 02 01 00 78 4A 0A 01 02 04 00 04 2B 50 52...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (PROTOCOL_ERROR)
+protocolError            Matched Dn : 'null'            Diagnostic message :
+'PROTOCOL_ERROR: The server will disconnect!'[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 03 00 02 01 00]java.io.IOException:
+Broken pipe[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception
+from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1115)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)    at sun.nio.ch.FileDispatcherImpl.write0(Native
+Method)    at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)    at
+sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)    at
+sun.nio.ch.IOUtil.write(IOUtil.java:65)    at
+sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:384)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:1)    at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1107)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> This <b>might</b> be a timing
+issue, as the test is sometime running green when I'm debugging. Typically, here, what is
+interesting is that the <tt>ExtendedResponse</tt> is sent after the handsake failure,
+leading to an error (and it's expected, the socket has been closed, there is no way the
+server can send something to the client anymore.Now, while debugging, I may get some
+different failure, like this one : <div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:49:58] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:50:01] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:50:01] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:50:01]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:50:10] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 57 42 0E...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29 01 00 01 25 03 03 5A BB 57 42
+0E...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 57 43 CC...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=813 cap=1024: 16 03 03 03 28 02 00 00 4D 03 03 5A BB 57 43
+CC...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=75 cap=132: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB
+5F 31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03 00 01 01][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03
+03 00 60 E1 61 07 0A 9C 58 C8 0E BD 07 72...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=182 cap=16384: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB 5F
+31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03
+00 01 01][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03 03 00 60 99 31 3B FC A6 9D E5 7B 8B
+AB CF...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the FINISHED state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) is now secured[10:50:11]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](SSL): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: StartTlsResponse :        Ldap
+Result            Result code : (SUCCESS) success            Matched Dn :
+'null'            Diagnostic message : 'null'[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=107 cap=1024: 14 03 03 00 01 01 16 03 03 00 60 99 31 3B FC
+A6...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=61 cap=61: 30 3B 02 01 04 63 36 04 13 75 69 64 3D 61 64
+6D...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=133 cap=16384: 17 03 03 00 80 CA 0F 40 89 1A 3E 70
+F6 6D 00 9C...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Writing Message : WriteRequest: HeapBuffer[pos=0 lim=1706 cap=1706: 30 82 06 A6 02 01 04
+64 82 06 9F 04 13 75 69 64...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Message received : HeapBuffer[pos=0 lim=512 cap=512: 17 03 03 06
+F0 19 77 B0 A3 6F 3B B0 14 CC 5E C5...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_ENTRYMessage ID : 4    Search Result EntryEntry    dn[n]:
+uid=admin,ou=system    objectClass: top    objectClass: person    objectClass:
+organizationalPerson    objectClass: inetOrgPerson    objectClass: tlsKeyInfo    uid:
+admin    userPassword: 0x73 0x65 0x63 0x72 0x65 0x74    publicKey: 0x30 0x81 0x9F 0x30
+0x0D 0x06 0x09 0x2A 0x86 0x48 0x86 0xF7 0x0D 0x01 0x01 0x01 ...    publicKeyFormat:
+X.509    userCertificate: 0x30 0x82 0x01 0xF8 0x30 0x82 0x01 0x61 0x02 0x06 0x01 0x62 0x6B
+0xCC 0xAC 0x66 ...    privateKey: 0x30 0x82 0x02 0x76 0x02 0x01 0x00 0x30 0x0D 0x06 0x09
+0x2A 0x86 0x48 0x86 0xF7 ...    keyAlgorithm: RSA    privateKeyFormat: PKCS#8    cn:
+system administrator    sn: administrator    displayName: Directory Superuser[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL) Processing the
+received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](SSL): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=14 cap=14: 30 0C 02
+01 04 65 07 0A 01 00 04 00 04 00][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=1024 cap=1024: BA 78 7C 1E 15 D5 A7 31 2B BA 07 F7 8A A2 CE
+78...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_DONEMessage ID : 4    Search Result Done        Ldap Result           
+Result code : (SUCCESS) success            Matched Dn : 'null'            Diagnostic
+message : 'null'[10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event
+MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=330 cap=2048: 52 10 7C 4A CA 65 9E 03 48 82 D7 9D 01 C9 5A
+97...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_REQUESTMessage ID : 4    SearchRequest        baseDn : 'uid=admin,ou=system'       
+filter : '(objectClass=*)'        scope : base object        typesOnly : false        Size
+Limit : no limit        Time Limit : no limit        Deref Aliases : deref Always       
+attributes :
+'*'org.apache.directory.api.ldap.model.message.SearchRequestImpl@6f1f8e8e[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=7: 30 05 02 01 05 42 00][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType : UNBIND_REQUESTMessage
+ID : 5    UnBind
+Requestorg.apache.directory.api.ldap.model.message.UnbindRequestImpl@b33423f3[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Message received :
+HeapBuffer[pos=0 lim=85 cap=8192: 17 03 03 00 50 BD D4 DD 89 66 CB 19 3C 86 5C
+CA...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2]: Writing Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03
+03 00 50 18 3D 5E 50 F7 D6 DB 74 E6 B1 83...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=85 cap=8192: 15 03 03 00 50 18 3D 5E 50 F7 D6 DB
+74 E6 B1 83...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing
+Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03 03 00 50 05 1C E6 FC 3B 8C
+CD 57 44 77 D8...][10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] -
+Event MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Message received :
+HeapBuffer[pos=0 lim=85 cap=2048: 15 03 03 00 50 05 1C E6 FC 3B 8C CD 57 44 77
+D8...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception from
+SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$6(DefaultIoFilterChain.java:637)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:1114)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:121)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:634)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:539)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$17(AbstractPollingIoProcessor.java:505)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1242)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1231)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:683)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> Here, the handshake was fine on
+both side, then we can see in this trace that the client is sending a
+<tt>SearchRequest</tt> and get the result properly - so far, so good -, the failure
+happens at the very end, when the client has sent an <tt>UnbindRequest</tt>. Now, this is
+a bit weird, because such a request does not expect to receive any response. I would
+assume it's the moment the <tt>SSL</tt> binding is being shut down. I'm still diging...
+What makes things more complex is that I'm using <tt>MINA</tt> at both sides, so the
+problem may be on the client or server side. I may switch to <tt>MINA 2.0.16</tt> on the
+server side and keep <tt>MINA 2.0.17</tt> on the client side, to see if it still fails,
+that would make things easier to debug... 
+==============================
+
+On issue key DIRMINA-1083 the chain pattern might have been discussed on the following comment: 
+==============================
+It's a bit tricky, but as the failure is (almost) always reproductible, I can already tell
+that the problem is when the client (<tt>LDAP API</tt>) is initiating the <tt>SSL</tt>
+handshake.Technically speaking, the test starts a <tt>LDAP</tt> server (ApacheDS),
+no <tt>SSL/TLS</tt> is involved at this point, the <tt>LDAPS</tt> port is not enabled. The
+client (<tt>LDAP API</tt>) is now sending a <tt>StartTLS</tt> extended operation (it's
+a <tt>LDAP</tt> request asking the server to establish a secure communication over an
+established <tt>TCP</tt> connection: we don't open a new connection).There is a double
+<tt>SSL</tt> initialization occuring :<ul>	<li>one on the server, as we inject the
+<tt>SSLFilter</tt> in the <tt>MINA</tt> chain,</li>	<li>one on the client, for the exact
+same reason.</li></ul>The failure occurs on the second initialization, here are the
+<tt>MINA</tt> traces : <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:39:08] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:39:09] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:39:09]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Message received : HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29
+01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 01 00 02 01 00][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) Processing the
+received message[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected
+exception from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before
+receiving peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeSessions(AbstractPollingIoProcessor.java:864)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:694)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 54 AD DE...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=78 cap=78: 30 4C 02 01 00 78 47 0A 01 34 04 00 04 28 55
+4E...][10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (UNAVAILABLE)
+unavailable            Matched Dn : 'null'            Diagnostic message : 'UNAVAILABLE:
+The server will disconnect!'[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=81 cap=81:
+30 4F 02 01 00 78 4A 0A 01 02 04 00 04 2B 50 52...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (PROTOCOL_ERROR)
+protocolError            Matched Dn : 'null'            Diagnostic message :
+'PROTOCOL_ERROR: The server will disconnect!'[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 03 00 02 01 00]java.io.IOException:
+Broken pipe[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception
+from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1115)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)    at sun.nio.ch.FileDispatcherImpl.write0(Native
+Method)    at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)    at
+sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)    at
+sun.nio.ch.IOUtil.write(IOUtil.java:65)    at
+sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:384)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:1)    at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1107)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> This <b>might</b> be a timing
+issue, as the test is sometime running green when I'm debugging. Typically, here, what is
+interesting is that the <tt>ExtendedResponse</tt> is sent after the handsake failure,
+leading to an error (and it's expected, the socket has been closed, there is no way the
+server can send something to the client anymore.Now, while debugging, I may get some
+different failure, like this one : <div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:49:58] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:50:01] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:50:01] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:50:01]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:50:10] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 57 42 0E...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29 01 00 01 25 03 03 5A BB 57 42
+0E...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 57 43 CC...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=813 cap=1024: 16 03 03 03 28 02 00 00 4D 03 03 5A BB 57 43
+CC...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=75 cap=132: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB
+5F 31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03 00 01 01][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03
+03 00 60 E1 61 07 0A 9C 58 C8 0E BD 07 72...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=182 cap=16384: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB 5F
+31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03
+00 01 01][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03 03 00 60 99 31 3B FC A6 9D E5 7B 8B
+AB CF...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the FINISHED state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) is now secured[10:50:11]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](SSL): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: StartTlsResponse :        Ldap
+Result            Result code : (SUCCESS) success            Matched Dn :
+'null'            Diagnostic message : 'null'[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=107 cap=1024: 14 03 03 00 01 01 16 03 03 00 60 99 31 3B FC
+A6...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=61 cap=61: 30 3B 02 01 04 63 36 04 13 75 69 64 3D 61 64
+6D...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=133 cap=16384: 17 03 03 00 80 CA 0F 40 89 1A 3E 70
+F6 6D 00 9C...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Writing Message : WriteRequest: HeapBuffer[pos=0 lim=1706 cap=1706: 30 82 06 A6 02 01 04
+64 82 06 9F 04 13 75 69 64...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Message received : HeapBuffer[pos=0 lim=512 cap=512: 17 03 03 06
+F0 19 77 B0 A3 6F 3B B0 14 CC 5E C5...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_ENTRYMessage ID : 4    Search Result EntryEntry    dn[n]:
+uid=admin,ou=system    objectClass: top    objectClass: person    objectClass:
+organizationalPerson    objectClass: inetOrgPerson    objectClass: tlsKeyInfo    uid:
+admin    userPassword: 0x73 0x65 0x63 0x72 0x65 0x74    publicKey: 0x30 0x81 0x9F 0x30
+0x0D 0x06 0x09 0x2A 0x86 0x48 0x86 0xF7 0x0D 0x01 0x01 0x01 ...    publicKeyFormat:
+X.509    userCertificate: 0x30 0x82 0x01 0xF8 0x30 0x82 0x01 0x61 0x02 0x06 0x01 0x62 0x6B
+0xCC 0xAC 0x66 ...    privateKey: 0x30 0x82 0x02 0x76 0x02 0x01 0x00 0x30 0x0D 0x06 0x09
+0x2A 0x86 0x48 0x86 0xF7 ...    keyAlgorithm: RSA    privateKeyFormat: PKCS#8    cn:
+system administrator    sn: administrator    displayName: Directory Superuser[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL) Processing the
+received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](SSL): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=14 cap=14: 30 0C 02
+01 04 65 07 0A 01 00 04 00 04 00][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=1024 cap=1024: BA 78 7C 1E 15 D5 A7 31 2B BA 07 F7 8A A2 CE
+78...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_DONEMessage ID : 4    Search Result Done        Ldap Result           
+Result code : (SUCCESS) success            Matched Dn : 'null'            Diagnostic
+message : 'null'[10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event
+MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=330 cap=2048: 52 10 7C 4A CA 65 9E 03 48 82 D7 9D 01 C9 5A
+97...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_REQUESTMessage ID : 4    SearchRequest        baseDn : 'uid=admin,ou=system'       
+filter : '(objectClass=*)'        scope : base object        typesOnly : false        Size
+Limit : no limit        Time Limit : no limit        Deref Aliases : deref Always       
+attributes :
+'*'org.apache.directory.api.ldap.model.message.SearchRequestImpl@6f1f8e8e[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=7: 30 05 02 01 05 42 00][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType : UNBIND_REQUESTMessage
+ID : 5    UnBind
+Requestorg.apache.directory.api.ldap.model.message.UnbindRequestImpl@b33423f3[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Message received :
+HeapBuffer[pos=0 lim=85 cap=8192: 17 03 03 00 50 BD D4 DD 89 66 CB 19 3C 86 5C
+CA...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2]: Writing Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03
+03 00 50 18 3D 5E 50 F7 D6 DB 74 E6 B1 83...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=85 cap=8192: 15 03 03 00 50 18 3D 5E 50 F7 D6 DB
+74 E6 B1 83...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing
+Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03 03 00 50 05 1C E6 FC 3B 8C
+CD 57 44 77 D8...][10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] -
+Event MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Message received :
+HeapBuffer[pos=0 lim=85 cap=2048: 15 03 03 00 50 05 1C E6 FC 3B 8C CD 57 44 77
+D8...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception from
+SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$6(DefaultIoFilterChain.java:637)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:1114)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:121)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:634)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:539)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$17(AbstractPollingIoProcessor.java:505)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1242)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1231)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:683)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> Here, the handshake was fine on
+both side, then we can see in this trace that the client is sending a
+<tt>SearchRequest</tt> and get the result properly - so far, so good -, the failure
+happens at the very end, when the client has sent an <tt>UnbindRequest</tt>. Now, this is
+a bit weird, because such a request does not expect to receive any response. I would
+assume it's the moment the <tt>SSL</tt> binding is being shut down. I'm still diging...
+What makes things more complex is that I'm using <tt>MINA</tt> at both sides, so the
+problem may be on the client or server side. I may switch to <tt>MINA 2.0.16</tt> on the
+server side and keep <tt>MINA 2.0.17</tt> on the client side, to see if it still fails,
+that would make things easier to debug... 
+==============================
+
+On issue key DIRMINA-1083 the Chain pattern might have been discussed on the following comment: 
+==============================
+It's a bit tricky, but as the failure is (almost) always reproductible, I can already tell
+that the problem is when the client (<tt>LDAP API</tt>) is initiating the <tt>SSL</tt>
+handshake.Technically speaking, the test starts a <tt>LDAP</tt> server (ApacheDS),
+no <tt>SSL/TLS</tt> is involved at this point, the <tt>LDAPS</tt> port is not enabled. The
+client (<tt>LDAP API</tt>) is now sending a <tt>StartTLS</tt> extended operation (it's
+a <tt>LDAP</tt> request asking the server to establish a secure communication over an
+established <tt>TCP</tt> connection: we don't open a new connection).There is a double
+<tt>SSL</tt> initialization occuring :<ul>	<li>one on the server, as we inject the
+<tt>SSLFilter</tt> in the <tt>MINA</tt> chain,</li>	<li>one on the client, for the exact
+same reason.</li></ul>The failure occurs on the second initialization, here are the
+<tt>MINA</tt> traces : <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:39:08] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:39:09] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:39:09]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Message received : HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29
+01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 01 00 02 01 00][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) Processing the
+received message[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected
+exception from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before
+receiving peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeSessions(AbstractPollingIoProcessor.java:864)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:694)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 54 AD DE...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=78 cap=78: 30 4C 02 01 00 78 47 0A 01 34 04 00 04 28 55
+4E...][10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (UNAVAILABLE)
+unavailable            Matched Dn : 'null'            Diagnostic message : 'UNAVAILABLE:
+The server will disconnect!'[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=81 cap=81:
+30 4F 02 01 00 78 4A 0A 01 02 04 00 04 2B 50 52...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (PROTOCOL_ERROR)
+protocolError            Matched Dn : 'null'            Diagnostic message :
+'PROTOCOL_ERROR: The server will disconnect!'[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 03 00 02 01 00]java.io.IOException:
+Broken pipe[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception
+from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1115)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)    at sun.nio.ch.FileDispatcherImpl.write0(Native
+Method)    at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)    at
+sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)    at
+sun.nio.ch.IOUtil.write(IOUtil.java:65)    at
+sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:384)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:1)    at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1107)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> This <b>might</b> be a timing
+issue, as the test is sometime running green when I'm debugging. Typically, here, what is
+interesting is that the <tt>ExtendedResponse</tt> is sent after the handsake failure,
+leading to an error (and it's expected, the socket has been closed, there is no way the
+server can send something to the client anymore.Now, while debugging, I may get some
+different failure, like this one : <div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:49:58] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:50:01] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:50:01] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:50:01]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:50:10] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 57 42 0E...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29 01 00 01 25 03 03 5A BB 57 42
+0E...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 57 43 CC...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=813 cap=1024: 16 03 03 03 28 02 00 00 4D 03 03 5A BB 57 43
+CC...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=75 cap=132: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB
+5F 31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03 00 01 01][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03
+03 00 60 E1 61 07 0A 9C 58 C8 0E BD 07 72...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=182 cap=16384: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB 5F
+31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03
+00 01 01][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03 03 00 60 99 31 3B FC A6 9D E5 7B 8B
+AB CF...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the FINISHED state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) is now secured[10:50:11]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](SSL): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: StartTlsResponse :        Ldap
+Result            Result code : (SUCCESS) success            Matched Dn :
+'null'            Diagnostic message : 'null'[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=107 cap=1024: 14 03 03 00 01 01 16 03 03 00 60 99 31 3B FC
+A6...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=61 cap=61: 30 3B 02 01 04 63 36 04 13 75 69 64 3D 61 64
+6D...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=133 cap=16384: 17 03 03 00 80 CA 0F 40 89 1A 3E 70
+F6 6D 00 9C...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Writing Message : WriteRequest: HeapBuffer[pos=0 lim=1706 cap=1706: 30 82 06 A6 02 01 04
+64 82 06 9F 04 13 75 69 64...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Message received : HeapBuffer[pos=0 lim=512 cap=512: 17 03 03 06
+F0 19 77 B0 A3 6F 3B B0 14 CC 5E C5...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_ENTRYMessage ID : 4    Search Result EntryEntry    dn[n]:
+uid=admin,ou=system    objectClass: top    objectClass: person    objectClass:
+organizationalPerson    objectClass: inetOrgPerson    objectClass: tlsKeyInfo    uid:
+admin    userPassword: 0x73 0x65 0x63 0x72 0x65 0x74    publicKey: 0x30 0x81 0x9F 0x30
+0x0D 0x06 0x09 0x2A 0x86 0x48 0x86 0xF7 0x0D 0x01 0x01 0x01 ...    publicKeyFormat:
+X.509    userCertificate: 0x30 0x82 0x01 0xF8 0x30 0x82 0x01 0x61 0x02 0x06 0x01 0x62 0x6B
+0xCC 0xAC 0x66 ...    privateKey: 0x30 0x82 0x02 0x76 0x02 0x01 0x00 0x30 0x0D 0x06 0x09
+0x2A 0x86 0x48 0x86 0xF7 ...    keyAlgorithm: RSA    privateKeyFormat: PKCS#8    cn:
+system administrator    sn: administrator    displayName: Directory Superuser[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL) Processing the
+received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](SSL): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=14 cap=14: 30 0C 02
+01 04 65 07 0A 01 00 04 00 04 00][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=1024 cap=1024: BA 78 7C 1E 15 D5 A7 31 2B BA 07 F7 8A A2 CE
+78...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_DONEMessage ID : 4    Search Result Done        Ldap Result           
+Result code : (SUCCESS) success            Matched Dn : 'null'            Diagnostic
+message : 'null'[10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event
+MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=330 cap=2048: 52 10 7C 4A CA 65 9E 03 48 82 D7 9D 01 C9 5A
+97...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_REQUESTMessage ID : 4    SearchRequest        baseDn : 'uid=admin,ou=system'       
+filter : '(objectClass=*)'        scope : base object        typesOnly : false        Size
+Limit : no limit        Time Limit : no limit        Deref Aliases : deref Always       
+attributes :
+'*'org.apache.directory.api.ldap.model.message.SearchRequestImpl@6f1f8e8e[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=7: 30 05 02 01 05 42 00][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType : UNBIND_REQUESTMessage
+ID : 5    UnBind
+Requestorg.apache.directory.api.ldap.model.message.UnbindRequestImpl@b33423f3[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Message received :
+HeapBuffer[pos=0 lim=85 cap=8192: 17 03 03 00 50 BD D4 DD 89 66 CB 19 3C 86 5C
+CA...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2]: Writing Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03
+03 00 50 18 3D 5E 50 F7 D6 DB 74 E6 B1 83...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=85 cap=8192: 15 03 03 00 50 18 3D 5E 50 F7 D6 DB
+74 E6 B1 83...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing
+Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03 03 00 50 05 1C E6 FC 3B 8C
+CD 57 44 77 D8...][10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] -
+Event MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Message received :
+HeapBuffer[pos=0 lim=85 cap=2048: 15 03 03 00 50 05 1C E6 FC 3B 8C CD 57 44 77
+D8...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception from
+SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$6(DefaultIoFilterChain.java:637)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:1114)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:121)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:634)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:539)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$17(AbstractPollingIoProcessor.java:505)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1242)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1231)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:683)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> Here, the handshake was fine on
+both side, then we can see in this trace that the client is sending a
+<tt>SearchRequest</tt> and get the result properly - so far, so good -, the failure
+happens at the very end, when the client has sent an <tt>UnbindRequest</tt>. Now, this is
+a bit weird, because such a request does not expect to receive any response. I would
+assume it's the moment the <tt>SSL</tt> binding is being shut down. I'm still diging...
+What makes things more complex is that I'm using <tt>MINA</tt> at both sides, so the
+problem may be on the client or server side. I may switch to <tt>MINA 2.0.16</tt> on the
+server side and keep <tt>MINA 2.0.17</tt> on the client side, to see if it still fails,
+that would make things easier to debug... 
+==============================
+
+New Comment: 
+It's a bit tricky, but as the failure is (almost) always reproductible, I can already tell
+that the problem is when the client (<tt>LDAP API</tt>) is initiating the <tt>SSL</tt>
+handshake.Technically speaking, the test starts a <tt>LDAP</tt> server (ApacheDS),
+no <tt>SSL/TLS</tt> is involved at this point, the <tt>LDAPS</tt> port is not enabled. The
+client (<tt>LDAP API</tt>) is now sending a <tt>StartTLS</tt> extended operation (it's
+a <tt>LDAP</tt> request asking the server to establish a secure communication over an
+established <tt>TCP</tt> connection: we don't open a new connection).There is a double
+<tt>SSL</tt> initialization occuring :<ul>	<li>one on the server, as we inject the
+<tt>SSLFilter</tt> in the <tt>MINA</tt> chain,</li>	<li>one on the client, for the exact
+same reason.</li></ul>The failure occurs on the second initialization, here are the
+<tt>MINA</tt> traces : <div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:39:08] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:39:08] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:08] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:39:08] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:39:08] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:39:09] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:39:09]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Message received : HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29
+01 00 01 25 03 03 5A BB 54 AD 04...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 01 00 02 01 00][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) Processing the
+received message[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected
+exception from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before
+receiving peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeSessions(AbstractPollingIoProcessor.java:864)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:694)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 54 AD DE...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=78 cap=78: 30 4C 02 01 00 78 47 0A 01 34 04 00 04 28 55
+4E...][10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (UNAVAILABLE)
+unavailable            Matched Dn : 'null'            Diagnostic message : 'UNAVAILABLE:
+The server will disconnect!'[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=81 cap=81:
+30 4F 02 01 00 78 4A 0A 01 02 04 00 04 2B 50 52...][10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+EXTENDED_RESPONSEMessage ID : 0    Extended Response        ResponseName
+:'1.3.6.1.4.1.1466.20036'        Ldap Result            Result code : (PROTOCOL_ERROR)
+protocolError            Matched Dn : 'null'            Diagnostic message :
+'PROTOCOL_ERROR: The server will disconnect!'[10:39:09] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=8: 15 03 03 00 02 01 00]java.io.IOException:
+Broken pipe[10:39:09] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception
+from SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.sessionClosed(SslFilter.java:493)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$2(DefaultIoFilterChain.java:593)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.sessionClosed(DefaultIoFilterChain.java:1078)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.sessionClosed(IoFilterAdapter.java:97)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextSessionClosed(DefaultIoFilterChain.java:597)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireSessionClosed(DefaultIoFilterChain.java:590)  
+ at
+org.apache.mina.core.service.IoServiceListenerSupport.fireSessionDestroyed(IoServiceListenerSupport.java:251)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.removeNow(AbstractPollingIoProcessor.java:1163)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1115)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)    at sun.nio.ch.FileDispatcherImpl.write0(Native
+Method)    at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)    at
+sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)    at
+sun.nio.ch.IOUtil.write(IOUtil.java:65)    at
+sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:384)    at
+org.apache.mina.transport.socket.nio.NioProcessor.write(NioProcessor.java:1)    at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.writeBuffer(AbstractPollingIoProcessor.java:1107)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flushNow(AbstractPollingIoProcessor.java:994)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.flush(AbstractPollingIoProcessor.java:921)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:688)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> This <b>might</b> be a timing
+issue, as the test is sometime running green when I'm debugging. Typically, here, what is
+interesting is that the <tt>ExtendedResponse</tt> is sent after the handsake failure,
+leading to an error (and it's expected, the socket has been closed, there is no way the
+server can send something to the client anymore.Now, while debugging, I may get some
+different failure, like this one : <div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 1[10:49:58] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Firing a
+MESSAGE_RECEIVED event for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been fired
+for session 1[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] -
+Processing a MESSAGE_RECEIVED for session 2[10:49:58] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:49:58] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing
+a MESSAGE_RECEIVED for session 1[10:49:58] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the SSL Filter
+sslFilter to the chain[10:49:58] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](no sslEngine) Initializing the SSL Handler[10:49:58] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](no sslEngine) SSL Handler
+Initialization done.[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...) : Starting the first handshake[10:50:01] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=40 cap=40: 30 26
+02 01 03 78 21 0A 01 00 04 00 04 00 8A 16...][10:50:01] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:01] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest:
+StartTlsResponse :        Ldap Result            Result code : (SUCCESS)
+success            Matched Dn : 'null'            Diagnostic message : 'null'[10:50:01]
+DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event MESSAGE_RECEIVED has been
+fired for session 1[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Adding the
+SSL Filter sslFilter to the chain[10:50:09] DEBUG [org.apache.mina.filter.ssl.SslHandler]
+- Session Client[2](no sslEngine) Initializing the SSL Handler[10:50:10] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](no sslEngine) SSL Handler
+Initialization done.[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...) : Starting the first handshake[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=302 cap=528: 16 03
+03 01 29 01 00 01 25 03 03 5A BB 57 42 0E...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=302 cap=32768: 16 03 03 01 29 01 00 01 25 03 03 5A BB 57 42
+0E...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=813 cap=1057: 16
+03 03 03 28 02 00 00 4D 03 03 5A BB 57 43 CC...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=813 cap=1024: 16 03 03 03 28 02 00 00 4D 03 03 5A BB 57 43
+CC...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=75 cap=132: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB
+5F 31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03 00 01 01][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03
+03 00 60 E1 61 07 0A 9C 58 C8 0E BD 07 72...][10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+NEED_UNWRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Client[2](ssl...): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Message received :
+HeapBuffer[pos=0 lim=182 cap=16384: 16 03 03 00 46 10 00 00 42 41 04 99 35 BB 5F
+31...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_TASK state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](ssl...) processing the
+NEED_WRAP state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](ssl...): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=6 cap=8: 14 03 03
+00 01 01][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the NEED_WRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](ssl...): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=101 cap=132: 16 03 03 00 60 99 31 3B FC A6 9D E5 7B 8B
+AB CF...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](ssl...) processing the FINISHED state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) is now secured[10:50:11]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Server[1](SSL): Processing the SSL Data[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: StartTlsResponse :        Ldap
+Result            Result code : (SUCCESS) success            Matched Dn :
+'null'            Diagnostic message : 'null'[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](ssl...): Message received :
+HeapBuffer[pos=0 lim=107 cap=1024: 14 03 03 00 01 01 16 03 03 00 60 99 31 3B FC
+A6...][10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...)
+Processing the received message[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] -
+Session Client[2](ssl...) processing the NEED_UNWRAP state[10:50:11] DEBUG
+[org.apache.mina.filter.ssl.SslHandler] - Session Client[2](ssl...) processing the
+FINISHED state[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Client[2](SSL) is now secured[10:50:11] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=61 cap=61: 30 3B 02 01 04 63 36 04 13 75 69 64 3D 61 64
+6D...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=133 cap=16384: 17 03 03 00 80 CA 0F 40 89 1A 3E 70
+F6 6D 00 9C...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Writing Message : WriteRequest: HeapBuffer[pos=0 lim=1706 cap=1706: 30 82 06 A6 02 01 04
+64 82 06 9F 04 13 75 69 64...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Message received : HeapBuffer[pos=0 lim=512 cap=512: 17 03 03 06
+F0 19 77 B0 A3 6F 3B B0 14 CC 5E C5...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_ENTRYMessage ID : 4    Search Result EntryEntry    dn[n]:
+uid=admin,ou=system    objectClass: top    objectClass: person    objectClass:
+organizationalPerson    objectClass: inetOrgPerson    objectClass: tlsKeyInfo    uid:
+admin    userPassword: 0x73 0x65 0x63 0x72 0x65 0x74    publicKey: 0x30 0x81 0x9F 0x30
+0x0D 0x06 0x09 0x2A 0x86 0x48 0x86 0xF7 0x0D 0x01 0x01 0x01 ...    publicKeyFormat:
+X.509    userCertificate: 0x30 0x82 0x01 0xF8 0x30 0x82 0x01 0x61 0x02 0x06 0x01 0x62 0x6B
+0xCC 0xAC 0x66 ...    privateKey: 0x30 0x82 0x02 0x76 0x02 0x01 0x00 0x30 0x0D 0x06 0x09
+0x2A 0x86 0x48 0x86 0xF7 ...    keyAlgorithm: RSA    privateKeyFormat: PKCS#8    cn:
+system administrator    sn: administrator    displayName: Directory Superuser[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL) Processing the
+received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session
+Server[1](SSL): Writing Message : WriteRequest: HeapBuffer[pos=0 lim=14 cap=14: 30 0C 02
+01 04 65 07 0A 01 00 04 00 04 00][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=1024 cap=1024: BA 78 7C 1E 15 D5 A7 31 2B BA 07 F7 8A A2 CE
+78...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_RESULT_DONEMessage ID : 4    Search Result Done        Ldap Result           
+Result code : (SUCCESS) success            Matched Dn : 'null'            Diagnostic
+message : 'null'[10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] - Event
+MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Message received :
+HeapBuffer[pos=0 lim=330 cap=2048: 52 10 7C 4A CA 65 9E 03 48 82 D7 9D 01 C9 5A
+97...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Client[2](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2](SSL): Processing the SSL Data[10:50:14] DEBUG
+[org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a MESSAGE_RECEIVED for
+session 2[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL):
+Writing Message : MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType :
+SEARCH_REQUESTMessage ID : 4    SearchRequest        baseDn : 'uid=admin,ou=system'       
+filter : '(objectClass=*)'        scope : base object        typesOnly : false        Size
+Limit : no limit        Time Limit : no limit        Deref Aliases : deref Always       
+attributes :
+'*'org.apache.directory.api.ldap.model.message.SearchRequestImpl@6f1f8e8e[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+WriteRequest: HeapBuffer[pos=0 lim=7 cap=7: 30 05 02 01 05 42 00][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2](SSL): Writing Message :
+MessageWriteRequest, parent : WR WrapperWriteRequest: MessageType : UNBIND_REQUESTMessage
+ID : 5    UnBind
+Requestorg.apache.directory.api.ldap.model.message.UnbindRequestImpl@b33423f3[10:50:14]
+DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Message received :
+HeapBuffer[pos=0 lim=85 cap=8192: 17 03 03 00 50 BD D4 DD 89 66 CB 19 3C 86 5C
+CA...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session Server[1](SSL)
+Processing the received message[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] -
+Session Client[2]: Writing Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03
+03 00 50 18 3D 5E 50 F7 D6 DB 74 E6 B1 83...][10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.codec.ProtocolCodecFilter] - Processing a
+MESSAGE_RECEIVED for session 1[10:50:14] DEBUG
+[org.apache.mina.core.filterchain.IoFilterEvent] - Firing a MESSAGE_RECEIVED event for
+session 1[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL):
+Message received : HeapBuffer[pos=0 lim=85 cap=8192: 15 03 03 00 50 18 3D 5E 50 F7 D6 DB
+74 E6 B1 83...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Session
+Server[1](SSL) Processing the received message[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Server[1](SSL): Processing the SSL
+Data[10:50:14] DEBUG [org.apache.mina.filter.ssl.SslFilter] - Session Server[1]: Writing
+Message : WriteRequest: HeapBuffer[pos=0 lim=85 cap=132: 15 03 03 00 50 05 1C E6 FC 3B 8C
+CD 57 44 77 D8...][10:50:14] DEBUG [org.apache.mina.core.filterchain.IoFilterEvent] -
+Event MESSAGE_RECEIVED has been fired for session 1[10:50:14] DEBUG
+[org.apache.mina.filter.ssl.SslFilter] - Session Client[2]: Message received :
+HeapBuffer[pos=0 lim=85 cap=2048: 15 03 03 00 50 05 1C E6 FC 3B 8C CD 57 44 77
+D8...][10:50:14] DEBUG [org.apache.mina.filter.ssl.SslHandler] - Unexpected exception from
+SSLEngine.closeInbound().javax.net.ssl.SSLException: Inbound closed before receiving
+peer's close_notify: possible truncation attack?    at
+sun.security.ssl.Alerts.getSSLException(Alerts.java:208)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1619)    at
+sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1587)    at
+sun.security.ssl.SSLEngineImpl.closeInbound(SSLEngineImpl.java:1517)    at
+org.apache.mina.filter.ssl.SslHandler.destroy(SslHandler.java:212)    at
+org.apache.mina.filter.ssl.SslFilter.messageReceived(SslFilter.java:520)    at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$6(DefaultIoFilterChain.java:637)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:1114)  
+ at
+org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:121)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:641)  
+ at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:634)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:539)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor.access$17(AbstractPollingIoProcessor.java:505)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1242)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.process(AbstractPollingIoProcessor.java:1231)  
+ at
+org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:683)  
+ at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)    at
+java.lang.Thread.run(Thread.java:745)</pre></div></div> Here, the handshake was fine on
+both side, then we can see in this trace that the client is sending a
+<tt>SearchRequest</tt> and get the result properly - so far, so good -, the failure
+happens at the very end, when the client has sent an <tt>UnbindRequest</tt>. Now, this is
+a bit weird, because such a request does not expect to receive any response. I would
+assume it's the moment the <tt>SSL</tt> binding is being shut down. I'm still diging...
+What makes things more complex is that I'm using <tt>MINA</tt> at both sides, so the
+problem may be on the client or server side. I may switch to <tt>MINA 2.0.16</tt> on the
+server side and keep <tt>MINA 2.0.17</tt> on the client side, to see if it still fails,
+that would make things easier to debug... 
+
+
+New Comment: 
+Does MINA have a loopback SSL test as part of test suite? 
+
+
+New Comment: 
+Yes : <tt>SslFilterTest</tt>. It uses a simple socket as a client, not a Connector.For a
+<tt>Connector</tt> + <tt>Acceptor</tt> test with SSL, use
+<tt>ConnectorTest.testTCPWithSSL</tt>. 
+
+
+New Comment: 
+Note that a better test to mimic my code would be to establish a connection, exchange some
+data, then switch to <tt>TLS</tt>. I can write such a test. 
+
+
+New Comment: 
+Its really starting to sound like there is a concurrency issue in Apache Directory with
+inserting the SSL filter.  Are read and writes fully concurrent with each other in MINA? 
+If they aren't, I could totally see an asynchronous write at the same time of the SSL
+Filter insertion causing major problems. 
+
+
+On issue key DIRMINA-1083 the Factory pattern might have been discussed on the following comment: 
+==============================
+Reads and writes are concurrent: we want to have the opportunity to abandon an operation.
+We have an executor in the chain for that purpose:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>...         
+  if ( transport.isSSLEnabled() )            {                chain =
+LdapsInitializer.init( this, ( TcpTransport ) transport );            }            else   
+        {                chain = new DefaultIoFilterChainBuilder();            }          
+ // Inject the codec into the chain            ( ( DefaultIoFilterChainBuilder ) chain
+).addLast( "codec", new ProtocolCodecFilter( this               
+.getProtocolCodecFactory() ) );            // Now inject an ExecutorFilter for the write
+operations            // We use the same number of thread than the number of IoProcessor  
+         // (NOTE : this has to be double checked)            ( (
+DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(            
+   new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+IoEventType.MESSAGE_RECEIVED ) );...</pre></div></div>And yes, that means we may have a
+concurrency issue if we inject a <tt>SslFilter</tt> in the chain while a message is
+getting written back to the client. In this case, such a message may 'collide' with the
+handshake messages.What I don't get is why it was working in <tt>2.0.16</tt> and not
+anymore... 
+==============================
+
+On issue key DIRMINA-1083 the Builder pattern might have been discussed on the following comment: 
+==============================
+Reads and writes are concurrent: we want to have the opportunity to abandon an operation.
+We have an executor in the chain for that purpose:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>...         
+  if ( transport.isSSLEnabled() )            {                chain =
+LdapsInitializer.init( this, ( TcpTransport ) transport );            }            else   
+        {                chain = new DefaultIoFilterChainBuilder();            }          
+ // Inject the codec into the chain            ( ( DefaultIoFilterChainBuilder ) chain
+).addLast( "codec", new ProtocolCodecFilter( this               
+.getProtocolCodecFactory() ) );            // Now inject an ExecutorFilter for the write
+operations            // We use the same number of thread than the number of IoProcessor  
+         // (NOTE : this has to be double checked)            ( (
+DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(            
+   new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+IoEventType.MESSAGE_RECEIVED ) );...</pre></div></div>And yes, that means we may have a
+concurrency issue if we inject a <tt>SslFilter</tt> in the chain while a message is
+getting written back to the client. In this case, such a message may 'collide' with the
+handshake messages.What I don't get is why it was working in <tt>2.0.16</tt> and not
+anymore... 
+==============================
+
+On issue key DIRMINA-1083 the chain pattern might have been discussed on the following comment: 
+==============================
+Reads and writes are concurrent: we want to have the opportunity to abandon an operation.
+We have an executor in the chain for that purpose:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>...         
+  if ( transport.isSSLEnabled() )            {                chain =
+LdapsInitializer.init( this, ( TcpTransport ) transport );            }            else   
+        {                chain = new DefaultIoFilterChainBuilder();            }          
+ // Inject the codec into the chain            ( ( DefaultIoFilterChainBuilder ) chain
+).addLast( "codec", new ProtocolCodecFilter( this               
+.getProtocolCodecFactory() ) );            // Now inject an ExecutorFilter for the write
+operations            // We use the same number of thread than the number of IoProcessor  
+         // (NOTE : this has to be double checked)            ( (
+DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(            
+   new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+IoEventType.MESSAGE_RECEIVED ) );...</pre></div></div>And yes, that means we may have a
+concurrency issue if we inject a <tt>SslFilter</tt> in the chain while a message is
+getting written back to the client. In this case, such a message may 'collide' with the
+handshake messages.What I don't get is why it was working in <tt>2.0.16</tt> and not
+anymore... 
+==============================
+
+On issue key DIRMINA-1083 the Chain pattern might have been discussed on the following comment: 
+==============================
+Reads and writes are concurrent: we want to have the opportunity to abandon an operation.
+We have an executor in the chain for that purpose:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>...         
+  if ( transport.isSSLEnabled() )            {                chain =
+LdapsInitializer.init( this, ( TcpTransport ) transport );            }            else   
+        {                chain = new DefaultIoFilterChainBuilder();            }          
+ // Inject the codec into the chain            ( ( DefaultIoFilterChainBuilder ) chain
+).addLast( "codec", new ProtocolCodecFilter( this               
+.getProtocolCodecFactory() ) );            // Now inject an ExecutorFilter for the write
+operations            // We use the same number of thread than the number of IoProcessor  
+         // (NOTE : this has to be double checked)            ( (
+DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(            
+   new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+IoEventType.MESSAGE_RECEIVED ) );...</pre></div></div>And yes, that means we may have a
+concurrency issue if we inject a <tt>SslFilter</tt> in the chain while a message is
+getting written back to the client. In this case, such a message may 'collide' with the
+handshake messages.What I don't get is why it was working in <tt>2.0.16</tt> and not
+anymore... 
+==============================
+
+New Comment: 
+Reads and writes are concurrent: we want to have the opportunity to abandon an operation.
+We have an executor in the chain for that purpose:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>...         
+  if ( transport.isSSLEnabled() )            {                chain =
+LdapsInitializer.init( this, ( TcpTransport ) transport );            }            else   
+        {                chain = new DefaultIoFilterChainBuilder();            }          
+ // Inject the codec into the chain            ( ( DefaultIoFilterChainBuilder ) chain
+).addLast( "codec", new ProtocolCodecFilter( this               
+.getProtocolCodecFactory() ) );            // Now inject an ExecutorFilter for the write
+operations            // We use the same number of thread than the number of IoProcessor  
+         // (NOTE : this has to be double checked)            ( (
+DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(            
+   new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+IoEventType.MESSAGE_RECEIVED ) );...</pre></div></div>And yes, that means we may have a
+concurrency issue if we inject a <tt>SslFilter</tt> in the chain while a message is
+getting written back to the client. In this case, such a message may 'collide' with the
+handshake messages.What I don't get is why it was working in <tt>2.0.16</tt> and not
+anymore... 
+
+
+New Comment: 
+This is defitively a problem on <tt>ApacheDS</tt>. Actually, more than one problem <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/wink.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/><ul>	<li>The
+<tt>Handshake</tt> is initialized on both side, which makes no sense</li>	<li>We don't
+block the transmission of messages once the handshake has started, which is problematic
+and will cause the connection to be shutdown</li></ul>However there are some
+inconsistencies in the <tt>MINA</tt> code. The <tt>beginHandshake</tt> method does not
+have to be called, as it's called internally by the <tt>wrap</tt> or <tt>unwrap</tt>
+method, however, as we don't handle properly the <tt>NO_HANDSHAKING</tt> status - it's
+handled the same way as the <tt>FINISHED</tt> status :<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">...    <span class="code-comment">/* no qualifier */</span>void
+handshake(NextFilter nextFilter) <span class="code-keyword">throws</span> SSLException {  
+     <span class="code-keyword">for</span> (;;) {            <span
+class="code-keyword">switch</span> (handshakeStatus) {            <span
+class="code-keyword">case</span> FINISHED:            <span
+class="code-keyword">case</span> NOT_HANDSHAKING:                <span
+class="code-keyword">if</span> (LOGGER.isDebugEnabled()) {                   
+LOGGER.debug(<span class="code-quote">"{} processing the FINISHED state"</span>,
+sslFilter.getSessionInfo(session));                }               
+session.setAttribute(SslFilter.SSL_SESSION, sslEngine.getSession());               
+handshakeComplete = <span class="code-keyword">true</span>;                <span
+class="code-comment">// Send the SECURE message only <span class="code-keyword">if</span>
+it's the first SSL handshake</span>                <span class="code-keyword">if</span>
+(firstSSLNegociation &amp;&amp; session.containsAttribute(SslFilter.USE_NOTIFICATION)) {  
+                 <span class="code-comment">// SESSION_SECURED is fired only when it's the
+first handshake</span>                    firstSSLNegociation = <span
+class="code-keyword">false</span>;                    scheduleMessageReceived(nextFilter,
+SslFilter.SESSION_SECURED);                }                <span
+class="code-keyword">if</span> (LOGGER.isDebugEnabled()) {                    <span
+class="code-keyword">if</span> (!isOutboundDone()) {                       
+LOGGER.debug(<span class="code-quote">"{} is now secured"</span>,
+sslFilter.getSessionInfo(session));                    } <span
+class="code-keyword">else</span> {                        LOGGER.debug(<span
+class="code-quote">"{} is not secured yet"</span>, sslFilter.getSessionInfo(session));    
+               }                }                <span
+class="code-keyword">return</span>;...</pre></div></div>we have, as a consequence, to call
+the <tt>beginHanshake</tt> method no matter what. This can be changed.More to come... 
+
+
+On issue key DIRMINA-1083 the chain pattern might have been discussed on the following comment: 
+==============================
+There is another problem in the <tt>SslFilter</tt> : if we add the filter 'on the fly'
+(typically what will happen with the <tt>StartTLS</tt> operation), we generally tell the
+client , which has initiated the <tt>startTLS</tt> operation, that the server agreed on
+setting the secured session, and the server will just wait for the client to initiate the
+handshake. In the mean time, the <tt>SslFilter</tt> has been added into the chain.The
+thing is that we send a message to the client, and we set the
+<tt>DISABLE_ENCRYPTION_ONCE</tt> session flag to disable the encryption of this very
+message. So far, so good, except that when unstacking the calls, we also write a second
+(empty) message, which is just a marker (this is when the <tt>IoProcessor</tt> sees this
+empty message that it knows it can generate the <tt>messageSent</tt> event).The problem is
+that once we have bypassed the 'real' message because of the 
+<tt>DISABLE_ENCRYPTION_ONCE</tt> flag, we remove this flag from the session, and the empty
+message will trigger the encryption. That's ok because the <tt>SslEngine</tt> is currently
+already initialized and the handshake has already been done, but this is really a side
+effect: <b>IF</b>, as expected, we defer the handshake waiting for the client to start it,
+then we have a problem.This is more than ugly. This is utterly broken.I do think the
+server should <b>never</b> initiate the handshake, and should instead wait for the
+<tt>HelloClient</tt> message (note that what I mean is that we should leave the
+<tt>SSLEngine</tt> in a <tt>NO_HANDSHAKING</tt> state, and don't call the
+<tt>begingHandshake())} method on the server.). We should also enqueue the message to be
+written until the handshake is completed, once the {{SslFilter</tt> has been added to the
+chain. 
+==============================
+
+New Comment: 
+There is another problem in the <tt>SslFilter</tt> : if we add the filter 'on the fly'
+(typically what will happen with the <tt>StartTLS</tt> operation), we generally tell the
+client , which has initiated the <tt>startTLS</tt> operation, that the server agreed on
+setting the secured session, and the server will just wait for the client to initiate the
+handshake. In the mean time, the <tt>SslFilter</tt> has been added into the chain.The
+thing is that we send a message to the client, and we set the
+<tt>DISABLE_ENCRYPTION_ONCE</tt> session flag to disable the encryption of this very
+message. So far, so good, except that when unstacking the calls, we also write a second
+(empty) message, which is just a marker (this is when the <tt>IoProcessor</tt> sees this
+empty message that it knows it can generate the <tt>messageSent</tt> event).The problem is
+that once we have bypassed the 'real' message because of the 
+<tt>DISABLE_ENCRYPTION_ONCE</tt> flag, we remove this flag from the session, and the empty
+message will trigger the encryption. That's ok because the <tt>SslEngine</tt> is currently
+already initialized and the handshake has already been done, but this is really a side
+effect: <b>IF</b>, as expected, we defer the handshake waiting for the client to start it,
+then we have a problem.This is more than ugly. This is utterly broken.I do think the
+server should <b>never</b> initiate the handshake, and should instead wait for the
+<tt>HelloClient</tt> message (note that what I mean is that we should leave the
+<tt>SSLEngine</tt> in a <tt>NO_HANDSHAKING</tt> state, and don't call the
+<tt>begingHandshake())} method on the server.). We should also enqueue the message to be
+written until the handshake is completed, once the {{SslFilter</tt> has been added to the
+chain. 
+
+
+On issue key DIRMINA-1083 the  state  pattern might have bee

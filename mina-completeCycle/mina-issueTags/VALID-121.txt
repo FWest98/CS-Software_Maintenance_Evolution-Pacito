@@ -1,0 +1,17 @@
+Pattern changes caused by commit: bb8193ade50a1666cb65282300badc135344b250
+
+From: Bridge-13
+To:   Bridge-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-121.txt 
+
+commit bb8193ade50a1666cb65282300badc135344b250
+Author: Trustin Lee <trustin@apache.org>
+
+    * Made sure IoFuture.setValue() calls callback only once
+    * AbstractIoFilterChain.sessionClosed() calls CloseFuture.setClosed() automatically.

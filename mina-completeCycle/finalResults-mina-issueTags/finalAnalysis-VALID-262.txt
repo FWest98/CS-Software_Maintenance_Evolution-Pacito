@@ -1,0 +1,74 @@
+Pattern changes caused by commit: 72dfee362a425a31d0f7173e9a46f6c4c29d5ab5
+
+From: Adapter-13
+To:   Adapter-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-262.txt 
+
+commit 72dfee362a425a31d0f7173e9a46f6c4c29d5ab5
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-251 (PooledThreadModel must allow the application to specify a ThreadPool implementation)
+    * Added get/setThreadPool() to PooledThreadModel
+    * Removed all indirect methods which can be configured via getThreadPool()
+
+
+
+==================================
+ Issue DIRMINA-251 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-251] PooledThreadModel must allow the application to specify a ThreadPool implementation
+-----------------
+
+-----------------
+Summary: PooledThreadModel must allow the application to specify a ThreadPool implementation
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 5 Sep 2006 04:07:39 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 6 Sep 2006 03:06:40 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Currently the PooledThreadModel by default creates a L-F thread pool instance. It should
+be flexible in supporting different thread pool implementations, such as the Java5
+Executor based one. This way, the application can specify what kind of thread pool
+implementation it wants.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+A patch that allows the application to set a preferred thread pool implementation. 
+
+

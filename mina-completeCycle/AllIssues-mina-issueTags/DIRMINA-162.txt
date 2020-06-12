@@ -1,0 +1,247 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+sessionOpened and SessionClosed event is not applicable to connectionless transport types
+because there's no connection.We also cannot maintain all IoSession instances because we
+don't know when it becomes inactive.  Perhaps we could give connectionless sessions some
+kind of 'lease' (timeout) to workaround this issue.  If there's no I/O for a certain
+period, the sessionClosed() event will be fired and the session will be disposed.  What do
+you think? 
+
+
+On issue key DIRMINA-162 the builder pattern might have been discussed on the following comment: 
+==============================
+I think you're right on the issue with sessions being opened / closed. Main thing is that
+only the higher level protocol (on top of UDP) can really determine the meaning of
+a<br/>'session' in its very own context. It might be possible to design some kind of
+protocol filter which implements generic session tracking on top of simple message
+delivery by:<ul class="alternate" type="square">	<li>tracking received message from the
+remote peer and fire off a sessionOpened() event BEFORE passing the message onto the next
+filter in the chain</li>	<li>implement a timeout-based mechanism that tracks the data
+messages passing through and closes the session if the timeout passes by (including firing
+the event)<br/>But it does not seem feasible to implement this as a generic behauviour of
+the datagram acceptor (as there are protocol which do not have the concept of a session at
+all)</li></ul>But I do think that it is a bug in the implementation of the datagram
+acceptor if it does not assembly the filter chains when the individual session get create.
+I understand that it is currently needed ot create a session per received message but it
+should then assemble the filter chain per session as one should expect from the
+documentation. It would then be <br/>necessary to document this as an user might need to
+take special precautions in this chain builder implementation. 
+==============================
+
+On issue key DIRMINA-162 the chain pattern might have been discussed on the following comment: 
+==============================
+I think you're right on the issue with sessions being opened / closed. Main thing is that
+only the higher level protocol (on top of UDP) can really determine the meaning of
+a<br/>'session' in its very own context. It might be possible to design some kind of
+protocol filter which implements generic session tracking on top of simple message
+delivery by:<ul class="alternate" type="square">	<li>tracking received message from the
+remote peer and fire off a sessionOpened() event BEFORE passing the message onto the next
+filter in the chain</li>	<li>implement a timeout-based mechanism that tracks the data
+messages passing through and closes the session if the timeout passes by (including firing
+the event)<br/>But it does not seem feasible to implement this as a generic behauviour of
+the datagram acceptor (as there are protocol which do not have the concept of a session at
+all)</li></ul>But I do think that it is a bug in the implementation of the datagram
+acceptor if it does not assembly the filter chains when the individual session get create.
+I understand that it is currently needed ot create a session per received message but it
+should then assemble the filter chain per session as one should expect from the
+documentation. It would then be <br/>necessary to document this as an user might need to
+take special precautions in this chain builder implementation. 
+==============================
+
+New Comment: 
+I think you're right on the issue with sessions being opened / closed. Main thing is that
+only the higher level protocol (on top of UDP) can really determine the meaning of
+a<br/>'session' in its very own context. It might be possible to design some kind of
+protocol filter which implements generic session tracking on top of simple message
+delivery by:<ul class="alternate" type="square">	<li>tracking received message from the
+remote peer and fire off a sessionOpened() event BEFORE passing the message onto the next
+filter in the chain</li>	<li>implement a timeout-based mechanism that tracks the data
+messages passing through and closes the session if the timeout passes by (including firing
+the event)<br/>But it does not seem feasible to implement this as a generic behauviour of
+the datagram acceptor (as there are protocol which do not have the concept of a session at
+all)</li></ul>But I do think that it is a bug in the implementation of the datagram
+acceptor if it does not assembly the filter chains when the individual session get create.
+I understand that it is currently needed ot create a session per received message but it
+should then assemble the filter chain per session as one should expect from the
+documentation. It would then be <br/>necessary to document this as an user might need to
+take special precautions in this chain builder implementation. 
+
+
+On issue key DIRMINA-162 the strategy pattern might have been discussed on the following comment: 
+==============================
+This is a great idea.  We could provide a generic session tracking strategy interface so
+users can choose their favorite session management method.  For instance:/** A kind of
+cache? */<br/>public interface ConnectionlessSessionTracker {<br/>    /**<ul>	<li>@return
+null if no session is found<br/>     */<br/>    IoSession getSession( SocketAddress
+localAddress, SocketAddress remoteAddress );<br/>}</li></ul>WDYT? 
+==============================
+
+New Comment: 
+This is a great idea.  We could provide a generic session tracking strategy interface so
+users can choose their favorite session management method.  For instance:/** A kind of
+cache? */<br/>public interface ConnectionlessSessionTracker {<br/>    /**<ul>	<li>@return
+null if no session is found<br/>     */<br/>    IoSession getSession( SocketAddress
+localAddress, SocketAddress remoteAddress );<br/>}</li></ul>WDYT? 
+
+
+On issue key DIRMINA-162 the facade pattern might have been discussed on the following comment: 
+==============================
+I already approached this but I found out that it will not work without a acceptor facade
+which encapsulates the "real" datagram acceptor and does the session tarcking on behalf
+of<br/>the client. This thing is in fact second-next on my to-do list for my current
+project. <br/>Once this facade works, it can easily implement the proposed tracker
+interface. If it works, I will supply my implementation as a diff to mina-0.9.0 
+==============================
+
+New Comment: 
+I already approached this but I found out that it will not work without a acceptor facade
+which encapsulates the "real" datagram acceptor and does the session tarcking on behalf
+of<br/>the client. This thing is in fact second-next on my to-do list for my current
+project. <br/>Once this facade works, it can easily implement the proposed tracker
+interface. If it works, I will supply my implementation as a diff to mina-0.9.0 
+
+
+New Comment: 
+Your idea sounds very good.  Did you implement anything related with this? 
+
+
+New Comment: 
+Yup. I have a working IoAcceptor, the IoConnector is planned but I didn't have time so
+far. I still need to polish the session timeout detection code but it works so far.
+Hopefully I can get this finished over the weekend. 
+
+
+On issue key DIRMINA-162 the strategy pattern might have been discussed on the following comment: 
+==============================
+Here's my first stab at fixing this. Could somebody please review it? I haven't touched
+the MINA code before just tonight <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The attached diff is against svn revision
+440993, the current trunk at this time.Basically, you can implement the methods	void
+sessionCreated(IoSession session);<br/>	IoSession getSession(SocketAddress localAddress,
+SocketAddress remoteAddress);in a ConnectionlessSessionTracker, and assign that to a
+DatagramSessionConfig. From then on, the tracker will perform session management for the
+transport.The only current problem is that the session cannot be retrieved until the
+remote socket address is known. In DatagramChannel, this happen upon read, so the session
+cannot be queried for its read buffer size. I think it should still be the same, but once
+again, please review it.Here is also a testing version of a ConnectionlessSessionTracker
+(don't use, it doesn't expire or do anything advanced enough):import
+java.net.InetSocketAddress;<br/>import java.net.SocketAddress;<br/>import
+java.util.HashMap;<br/>import java.util.Map;import
+org.apache.mina.common.ConnectionlessSessionTracker;<br/>import
+org.apache.mina.common.IoSession;public class TestSessionTracker implements
+ConnectionlessSessionTracker<br/>{<br/>	private Map&lt;String, IoSession&gt; sessionMap =
+new HashMap&lt;String, IoSession&gt;();	public IoSession getSession(SocketAddress
+localAddress, SocketAddress remoteAddress)	{		InetSocketAddress localIsa =
+(InetSocketAddress) localAddress;		InetSocketAddress remoteIsa = (InetSocketAddress)
+remoteAddress;		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		return
+sessionMap.get(key);	}	public void sessionCreated(IoSession
+session)<br/>	{<br/>		InetSocketAddress localIsa = (InetSocketAddress)
+session.getLocalAddress();<br/>		InetSocketAddress remoteIsa = (InetSocketAddress)
+session.getRemoteAddress();		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		if
+(!sessionMap.containsKey(key))		{			sessionMap.put(key, session);		}	}<br/>}I imagine that
+by integrating iofilters that know of the session tracker, etc you could implement just
+about any session management strategy.Let me know what you think! 
+==============================
+
+On issue key DIRMINA-162 the Builder pattern might have been discussed on the following comment: 
+==============================
+Here's my first stab at fixing this. Could somebody please review it? I haven't touched
+the MINA code before just tonight <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The attached diff is against svn revision
+440993, the current trunk at this time.Basically, you can implement the methods	void
+sessionCreated(IoSession session);<br/>	IoSession getSession(SocketAddress localAddress,
+SocketAddress remoteAddress);in a ConnectionlessSessionTracker, and assign that to a
+DatagramSessionConfig. From then on, the tracker will perform session management for the
+transport.The only current problem is that the session cannot be retrieved until the
+remote socket address is known. In DatagramChannel, this happen upon read, so the session
+cannot be queried for its read buffer size. I think it should still be the same, but once
+again, please review it.Here is also a testing version of a ConnectionlessSessionTracker
+(don't use, it doesn't expire or do anything advanced enough):import
+java.net.InetSocketAddress;<br/>import java.net.SocketAddress;<br/>import
+java.util.HashMap;<br/>import java.util.Map;import
+org.apache.mina.common.ConnectionlessSessionTracker;<br/>import
+org.apache.mina.common.IoSession;public class TestSessionTracker implements
+ConnectionlessSessionTracker<br/>{<br/>	private Map&lt;String, IoSession&gt; sessionMap =
+new HashMap&lt;String, IoSession&gt;();	public IoSession getSession(SocketAddress
+localAddress, SocketAddress remoteAddress)	{		InetSocketAddress localIsa =
+(InetSocketAddress) localAddress;		InetSocketAddress remoteIsa = (InetSocketAddress)
+remoteAddress;		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		return
+sessionMap.get(key);	}	public void sessionCreated(IoSession
+session)<br/>	{<br/>		InetSocketAddress localIsa = (InetSocketAddress)
+session.getLocalAddress();<br/>		InetSocketAddress remoteIsa = (InetSocketAddress)
+session.getRemoteAddress();		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		if
+(!sessionMap.containsKey(key))		{			sessionMap.put(key, session);		}	}<br/>}I imagine that
+by integrating iofilters that know of the session tracker, etc you could implement just
+about any session management strategy.Let me know what you think! 
+==============================
+
+New Comment: 
+Here's my first stab at fixing this. Could somebody please review it? I haven't touched
+the MINA code before just tonight <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>The attached diff is against svn revision
+440993, the current trunk at this time.Basically, you can implement the methods	void
+sessionCreated(IoSession session);<br/>	IoSession getSession(SocketAddress localAddress,
+SocketAddress remoteAddress);in a ConnectionlessSessionTracker, and assign that to a
+DatagramSessionConfig. From then on, the tracker will perform session management for the
+transport.The only current problem is that the session cannot be retrieved until the
+remote socket address is known. In DatagramChannel, this happen upon read, so the session
+cannot be queried for its read buffer size. I think it should still be the same, but once
+again, please review it.Here is also a testing version of a ConnectionlessSessionTracker
+(don't use, it doesn't expire or do anything advanced enough):import
+java.net.InetSocketAddress;<br/>import java.net.SocketAddress;<br/>import
+java.util.HashMap;<br/>import java.util.Map;import
+org.apache.mina.common.ConnectionlessSessionTracker;<br/>import
+org.apache.mina.common.IoSession;public class TestSessionTracker implements
+ConnectionlessSessionTracker<br/>{<br/>	private Map&lt;String, IoSession&gt; sessionMap =
+new HashMap&lt;String, IoSession&gt;();	public IoSession getSession(SocketAddress
+localAddress, SocketAddress remoteAddress)	{		InetSocketAddress localIsa =
+(InetSocketAddress) localAddress;		InetSocketAddress remoteIsa = (InetSocketAddress)
+remoteAddress;		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		return
+sessionMap.get(key);	}	public void sessionCreated(IoSession
+session)<br/>	{<br/>		InetSocketAddress localIsa = (InetSocketAddress)
+session.getLocalAddress();<br/>		InetSocketAddress remoteIsa = (InetSocketAddress)
+session.getRemoteAddress();		String key = new
+StringBuilder(localIsa.toString()).append(remoteIsa.toString()).toString();		if
+(!sessionMap.containsKey(key))		{			sessionMap.put(key, session);		}	}<br/>}I imagine that
+by integrating iofilters that know of the session tracker, etc you could implement just
+about any session management strategy.Let me know what you think! 
+
+
+New Comment: 
+Your patch is great generally, but needs subtle improvement:1. We have to decide where to
+put get/setSessionTracker().  I thought puting it in IoServiceConfig level would be
+better.  If this is right, we will need ConnectionlessIoServiceConfig interface.<br/>2. We
+also need to be notified when a user calls IoSession.close() to prevent memory
+leak.<br/>3. Connectionless is just too loooooong.  Wouldn't there be any better name? 
+
+
+New Comment: 
+I think this issue should be fixed in 1.0. 
+
+
+New Comment: 
+&gt;Your patch is great generally, but needs subtle improvement: Thanks! I expected as
+much, it is just a first stab.&gt;1. We have to decide where to put
+get/setSessionTracker(). I thought puting it in IoServiceConfig level would be better. If
+this is right, we will need ConnectionlessIoServiceConfig interface. I also initally
+thought this, but could not figure out how to access the current IoServiceConfig from the
+relevant areas in DatagramAcceptor/Connector(Delegate) without some major refactoring ...
+maybe you can provide some hints on that...&gt;2. We also need to be notified when a user
+calls IoSession.close() to prevent memory leak. I initially thought this could be left up
+to a filter (similarly, some protocols may implement certain messages (like a bye message)
+that can close a session), but it does seem like a good thing to go ahead and integrate
+into the interface.&gt;3. Connectionless is just too loooooong. Wouldn't there be any
+better name?Hehe .. but isn't that what Java is about

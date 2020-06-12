@@ -1,0 +1,35 @@
+Pattern changes caused by commit: c4ae26d4c96a18fa11c99df2d5c751b1a51e8230
+
+From: Abstract Factory-7
+To:   Abstract Factory-6
+
+From: Adapter-13
+To:   Adapter-22
+
+From: Bridge-10
+To:   Bridge-15
+
+From: Facade-23
+To:   Facade-26
+
+From: Mediator-68
+To:   Mediator-79
+
+From: Observer-2
+To:   Observer-4
+
+From: Strategy-35
+To:   Strategy-36
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-189.txt 
+
+commit c4ae26d4c96a18fa11c99df2d5c751b1a51e8230
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added the root build POM version 1.0.4 which is already in the M2 repository but wasn't released
+    * Updated all POMs to depend on the latest release instead of the latest snapshot

@@ -1,0 +1,390 @@
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I checked in the fix.  IoFilterLifeCycleManager now runs IoFilter callbacks outside of
+synchronize blocks.  Please test the fix and close this issue.Thanks,<br/>Trustin 
+
+
+On issue key DIRMINA-169 the Builder pattern might have been discussed on the following comment: 
+==============================
+I've recently run into this bug myself I think. The fix doesn't seem to help. It's a real
+showstopper since my SocketAcceptor hangs as well and no more connections are accepted.
+I've reassigned the issue to me and I will investigate further tonight. My thread dump:
+"ThreadPoolWorker-9" prio=1 tid=0x0882f280 nid=0x281d waiting for monitor entry <span
+class="error">&#91;0x880f7000..0x880f7780&#93;</span><br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.decreaseCountSafely(IoFilterLifeCycleManager.java:182)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callOnPostRemove(IoFilterLifeCycleManager.java:176)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:358)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"ThreadPoolWorker-8" prio=1 tid=0x8a5e1268 nid=0x281c in Object.wait() <span
+class="error">&#91;0x889ff000..0x889ff800&#93;</span><br/>       at
+java.lang.Object.wait(Native Method)<ul class="alternate" type="square">	<li>waiting on
+&lt;0x97879a28&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+java.lang.Thread.join(Thread.java:1103)</li>	<li>locked &lt;0x97879a28&gt; (a
+org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)</li>	<li>locked
+&lt;0x928b5590&gt; (a org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>      
+at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"SocketAcceptor-0" prio=1 tid=0x087b1cc0 nid=0x105d waiting for monitor entry <span
+class="error">&#91;0x8c6ff000..0x8c6ff680&#93;</span><br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.register(AbstractIoFilterChain.java:316)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.addLast(AbstractIoFilterChain.java:271)</li>	<li>locked
+&lt;0x9787c108&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChainBuilder.buildFilterChain(DefaultIoFilterChainBuilder.java:241)<br/>
+      at
+org.apache.mina.transport.socket.nio.support.SocketAcceptorDelegate$Worker.processSessions(SocketAcceptorDelegate.java:411)</li></ul> 
+==============================
+
+On issue key DIRMINA-169 the Chain pattern might have been discussed on the following comment: 
+==============================
+I've recently run into this bug myself I think. The fix doesn't seem to help. It's a real
+showstopper since my SocketAcceptor hangs as well and no more connections are accepted.
+I've reassigned the issue to me and I will investigate further tonight. My thread dump:
+"ThreadPoolWorker-9" prio=1 tid=0x0882f280 nid=0x281d waiting for monitor entry <span
+class="error">&#91;0x880f7000..0x880f7780&#93;</span><br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.decreaseCountSafely(IoFilterLifeCycleManager.java:182)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callOnPostRemove(IoFilterLifeCycleManager.java:176)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:358)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"ThreadPoolWorker-8" prio=1 tid=0x8a5e1268 nid=0x281c in Object.wait() <span
+class="error">&#91;0x889ff000..0x889ff800&#93;</span><br/>       at
+java.lang.Object.wait(Native Method)<ul class="alternate" type="square">	<li>waiting on
+&lt;0x97879a28&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+java.lang.Thread.join(Thread.java:1103)</li>	<li>locked &lt;0x97879a28&gt; (a
+org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)</li>	<li>locked
+&lt;0x928b5590&gt; (a org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>      
+at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"SocketAcceptor-0" prio=1 tid=0x087b1cc0 nid=0x105d waiting for monitor entry <span
+class="error">&#91;0x8c6ff000..0x8c6ff680&#93;</span><br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.register(AbstractIoFilterChain.java:316)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.addLast(AbstractIoFilterChain.java:271)</li>	<li>locked
+&lt;0x9787c108&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChainBuilder.buildFilterChain(DefaultIoFilterChainBuilder.java:241)<br/>
+      at
+org.apache.mina.transport.socket.nio.support.SocketAcceptorDelegate$Worker.processSessions(SocketAcceptorDelegate.java:411)</li></ul> 
+==============================
+
+New Comment: 
+I've recently run into this bug myself I think. The fix doesn't seem to help. It's a real
+showstopper since my SocketAcceptor hangs as well and no more connections are accepted.
+I've reassigned the issue to me and I will investigate further tonight. My thread dump:
+"ThreadPoolWorker-9" prio=1 tid=0x0882f280 nid=0x281d waiting for monitor entry <span
+class="error">&#91;0x880f7000..0x880f7780&#93;</span><br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.decreaseCountSafely(IoFilterLifeCycleManager.java:182)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callOnPostRemove(IoFilterLifeCycleManager.java:176)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:358)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787b1d8&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"ThreadPoolWorker-8" prio=1 tid=0x8a5e1268 nid=0x281c in Object.wait() <span
+class="error">&#91;0x889ff000..0x889ff800&#93;</span><br/>       at
+java.lang.Object.wait(Native Method)<ul class="alternate" type="square">	<li>waiting on
+&lt;0x97879a28&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+java.lang.Thread.join(Thread.java:1103)</li>	<li>locked &lt;0x97879a28&gt; (a
+org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>       at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>       at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)</li>	<li>locked
+&lt;0x928b5590&gt; (a org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>      
+at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0x9787be90&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+      at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>      
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+      at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>
+"SocketAcceptor-0" prio=1 tid=0x087b1cc0 nid=0x105d waiting for monitor entry <span
+class="error">&#91;0x8c6ff000..0x8c6ff680&#93;</span><br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.register(AbstractIoFilterChain.java:316)<ul
+class="alternate" type="square">	<li>waiting to lock &lt;0x928b5590&gt; (a
+org.apache.mina.common.support.IoFilterLifeCycleManager)<br/>       at
+org.apache.mina.common.support.AbstractIoFilterChain.addLast(AbstractIoFilterChain.java:271)</li>	<li>locked
+&lt;0x9787c108&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+      at
+org.apache.mina.common.DefaultIoFilterChainBuilder.buildFilterChain(DefaultIoFilterChainBuilder.java:241)<br/>
+      at
+org.apache.mina.transport.socket.nio.support.SocketAcceptorDelegate$Worker.processSessions(SocketAcceptorDelegate.java:411)</li></ul> 
+
+
+New Comment: 
+I made a stupid mistake in my fix.  Now it is fixed.  Please test again. 
+
+
+New Comment: 
+Thanks Trustin. I will try again. 
+
+
+New Comment: 
+My recent fix seems to have resolved this problem. 
+
+
+New Comment: 
+Verified. 
+
+
+On issue key DIRMINA-169 the chain pattern might have been discussed on the following comment: 
+==============================
+The fix seems to have introduced a new problem. Even though I configured my
+ThreadPoolFilter's maximumPoolSize to be 10 I see over 600 worker threads when I do a
+thread dump. All threads are stuck in ThreadPoolFilter.destroy(). See the thread dump
+below. My app dies after some time probably because it's out of resources.Here's a typical
+thread dump for one of the threads. All worker threads seem to be in the same
+state."Worker-623" prio=1 tid=0x8cae5260 nid=0x4f10 in Object.wait() <span
+class="error">&#91;0x75ee5000..0x75ee5700&#93;</span><br/>      at
+java.lang.Object.wait(Native Method)<br/>      at
+java.lang.Thread.join(Thread.java:1103)<ul class="alternate" type="square">	<li>locked
+&lt;0x97457060&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>      at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>      at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+     at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>     
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+     at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>Without
+the original synchronization in IoFilterLifeCycleManager it's possible that two threads
+call destroy() at the same time beacuse after thread A has decreased the ref counter and
+exited the synchronization block but before the call to destroy, another thread may have
+added the filter to a chain and then removed it again.To honor the expected sequence of
+life cycle calls (init - destroy - init - destroy - etc) on a filter I think we will have
+to reintroduce the synchronization we had in IoFilterLifeCycleManager before the fix. We
+will have to come up with another fix for the original problem. Or maybe it will be
+possible to make some changes to AbstractIoFilterChain.I hope this bug report made any
+sense! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-169 the Chain pattern might have been discussed on the following comment: 
+==============================
+The fix seems to have introduced a new problem. Even though I configured my
+ThreadPoolFilter's maximumPoolSize to be 10 I see over 600 worker threads when I do a
+thread dump. All threads are stuck in ThreadPoolFilter.destroy(). See the thread dump
+below. My app dies after some time probably because it's out of resources.Here's a typical
+thread dump for one of the threads. All worker threads seem to be in the same
+state."Worker-623" prio=1 tid=0x8cae5260 nid=0x4f10 in Object.wait() <span
+class="error">&#91;0x75ee5000..0x75ee5700&#93;</span><br/>      at
+java.lang.Object.wait(Native Method)<br/>      at
+java.lang.Thread.join(Thread.java:1103)<ul class="alternate" type="square">	<li>locked
+&lt;0x97457060&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>      at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>      at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+     at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>     
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+     at
+org.apache.mina.filter.ThreadPoolFilter$Worker.run(ThreadPoolFilter.java:376)</li></ul>Without
+the original synchronization in IoFilterLifeCycleManager it's possible that two threads
+call destroy() at the same time beacuse after thread A has decreased the ref counter and
+exited the synchronization block but before the call to destroy, another thread may have
+added the filter to a chain and then removed it again.To honor the expected sequence of
+life cycle calls (init - destroy - init - destroy - etc) on a filter I think we will have
+to reintroduce the synchronization we had in IoFilterLifeCycleManager before the fix. We
+will have to come up with another fix for the original problem. Or maybe it will be
+possible to make some changes to AbstractIoFilterChain.I hope this bug report made any
+sense! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+New Comment: 
+The fix seems to have introduced a new problem. Even though I configured my
+ThreadPoolFilter's maximumPoolSize to be 10 I see over 600 worker threads when I do a
+thread dump. All threads are stuck in ThreadPoolFilter.destroy(). See the thread dump
+below. My app dies after some time probably because it's out of resources.Here's a typical
+thread dump for one of the threads. All worker threads seem to be in the same
+state."Worker-623" prio=1 tid=0x8cae5260 nid=0x4f10 in Object.wait() <span
+class="error">&#91;0x75ee5000..0x75ee5700&#93;</span><br/>      at
+java.lang.Object.wait(Native Method)<br/>      at
+java.lang.Thread.join(Thread.java:1103)<ul class="alternate" type="square">	<li>locked
+&lt;0x97457060&gt; (a org.apache.mina.filter.ThreadPoolFilter$Worker)<br/>      at
+org.apache.mina.filter.ThreadPoolFilter.destroy(ThreadPoolFilter.java:209)<br/>      at
+org.apache.mina.common.support.IoFilterLifeCycleManager.callDestroyIfNecessary(IoFilterLifeCycleManager.java:214)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.deregister(AbstractIoFilterChain.java:363)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.remove(AbstractIoFilterChain.java:295)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.clear(AbstractIoFilterChain.java:304)</li>	<li>locked
+&lt;0xb2578250&gt; (a org.apache.mina.transport.socket.nio.support.SocketFilterChain)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$2.sessionClosed(AbstractIoFilterChain.java:168)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionClosed(AbstractIoFilterChain.java:453)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:52)<br/>
+     at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionClosed(AbstractIoFilterChain.java:742)<br/>
+     at
+org.apache.mina.filter.ThreadPoolFilter.processEvent(ThreadPoolFilter.java:687)<br/>     
+at
+org.apache.mina.filter.ThreadPoolFilter$Worker.processEvents(ThreadPoolFilter.java:421)<br/>
+     at
+org.apache.mina.filter.Thr

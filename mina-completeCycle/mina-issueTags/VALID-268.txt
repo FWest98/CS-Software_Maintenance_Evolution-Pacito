@@ -1,0 +1,22 @@
+Pattern changes caused by commit: f1331588dceb758dce264ef09fd9a01ac96a3e6b
+
+From: Facade-26
+To:   Facade-27
+
+From: Mediator-71
+To:   Mediator-72
+
+From: Strategy-39
+To:   Strategy-40
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-268.txt 
+
+commit f1331588dceb758dce264ef09fd9a01ac96a3e6b
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    StatCollector used for collecting IoSession throughput values

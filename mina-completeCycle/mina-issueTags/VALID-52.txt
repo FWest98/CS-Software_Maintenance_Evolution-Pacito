@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1a0641f4dab15a0ca54640aba8d465a73001e6e8
+
+From: Facade-22
+To:   Facade-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-52.txt 
+
+commit 1a0641f4dab15a0ca54640aba8d465a73001e6e8
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed compilation errors in examples
