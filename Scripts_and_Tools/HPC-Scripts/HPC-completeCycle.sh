@@ -67,25 +67,32 @@ do
 	if [ "$verbose" = true ] ; then
 	echo "$(<${projectname}-files.list)"
 	fi
+ 
+  sed -i '/AcceptorTest/d' ${projectname}-files.list
+  sed -i '/ByteBufferProxy/d' ${projectname}-files.list
 
-	java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
+  java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
-  #find ${projectpath} -maxdepth 1 -name 'pom.xml' > ${projectname}-pom.list
-
-  #NUM_LINES=$(wc -l < ${projectname}-pom.list)
-
-  #if [ $NUM_LINES -eq 1 ] ; then
-  #mvn dependency:copy-dependencies -DoutputDirectory=dependencies -Dhttps.protocols=TLSv1.2
+  FILE=pom.xml
+  if test -f "$FILE"; then
   
- 	#find ${projectpath} -name '*.jar' > ${projectname}-jars.list
+    #mvn clean install -U -DskipTests dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies -Dhttps.protocols=TLSv1.2
+    mvn dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies
+  
+ 	  find ${projectpath} -name '*.jar' > ${projectname}-jars.list
  
-	#while read line
- 	# do
- 	#   export CLASSPATH=${CLASSPATH}:$line
-	#done < ${projectname}-jars.list
+    export CLASSPATH=
+    export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar
  
-  #fi
-	
+	  while read line
+    do
+ 	   export CLASSPATH=${CLASSPATH}:$line
+    done < ${projectname}-jars.list
+ 
+    rm ${projectname}-jars.list
+ 
+  fi
+ 
 	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
 
 	rm ${projectname}-files.list
@@ -100,6 +107,8 @@ do
  	done < ${projectname}-deletefiles.list
   
   rm ${projectname}-deletefiles.list
+  
+  rm -rf dependencies
 
 	COUNTER=$((COUNTER+1))
 	git log -1 --pretty=format:"%h - %an, %ar"

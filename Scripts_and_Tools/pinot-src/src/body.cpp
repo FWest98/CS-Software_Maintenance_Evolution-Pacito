@@ -6,7 +6,7 @@
 // Copyright (C) 1996, 2004 IBM Corporation and others.  All Rights Reserved.
 // You must accept the terms of that agreement to use this software.
 //
-
+#define NDEBUG
 #include "platform.h"
 #include "semantic.h"
 #include "control.h"
