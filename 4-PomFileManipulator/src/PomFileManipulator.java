@@ -24,8 +24,8 @@ public class PomFileManipulator {
                     .replace("/",File.separator));
 
             //Create writer to the refactored POM
-            FileWriter refactoredPomFR = new FileWriter(copyOfPom);
-            BufferedWriter refactoredPomBR = new BufferedWriter(refactoredPomFR);
+            FileWriter refactoredPomFW = new FileWriter(copyOfPom);
+            BufferedWriter refactoredPomBW = new BufferedWriter(refactoredPomFW);
 
             //Create reader to original POM
             FileReader currentPomFileFR = new FileReader(new File(currentPomFile));
@@ -85,7 +85,7 @@ public class PomFileManipulator {
                         checkIfInsideDependency = true;
                     }
                     else {
-                        refactoredPomBR.write(dependencyBlock.toString());
+                        refactoredPomBW.write(dependencyBlock.toString());
                     }
 
                 }
@@ -96,13 +96,16 @@ public class PomFileManipulator {
                 //If not inside a dependency block which contains projectName,
                 // write the content of the line
                 if (!checkIfInsideDependency){
-                    refactoredPomBR.write(currentLine);
+                    refactoredPomBW.write(currentLine);
                 }
 
                 checkIfInsideDependency = false;
                 currentLine = currentPomFileBR.readLine();
             }
+            refactoredPomBW.flush();
+
             currentPomFileBR.close();
+            currentPomFileFR.close();
 
             currentPomFile = listOfPomsBR.readLine();
         }
