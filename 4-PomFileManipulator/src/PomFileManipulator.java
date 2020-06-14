@@ -109,7 +109,7 @@ public class PomFileManipulator {
             currentPomFileFR.close();
 
             File pomToDelete = new File(currentPomFile);
-            pomToDelete.renameTo(new File(currentPomFile.replace("pom","pom")));
+            pomToDelete.renameTo(new File(currentPomFile.replace("pom","oldpom")));
             copyOfPom.renameTo(new File(currentPomFile.replace("pom","newpom")));
 
             currentPomFile = listOfPomsBR.readLine();
