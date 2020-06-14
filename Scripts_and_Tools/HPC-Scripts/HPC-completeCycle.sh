@@ -70,6 +70,7 @@ do
  
   sed -i '/AcceptorTest/d' ${projectname}-files.list
   sed -i '/ByteBufferProxy/d' ${projectname}-files.list
+  sed -i '/HttpRequestEncoder/d' ${projectname}-files.list
 
   java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 

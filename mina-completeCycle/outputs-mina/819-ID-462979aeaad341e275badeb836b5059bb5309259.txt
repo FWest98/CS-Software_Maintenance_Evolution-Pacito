@@ -382,22 +382,6 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoConnector-refactored.java
 
 Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolEncoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolEncoderAdapter SynchronizedProtocolEncoder NettyEncoder TextLineEncoder ObjectSerializationEncoder
-Delegation through encoder of type ProtocolEncoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder-refactored.java
-
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolDecoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder CumulativeProtocolDecoder ObjectSerializationDecoder IntegerDecoder WrongDecoder HttpResponseDecoder
-Delegation through decoder of type ProtocolDecoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder-refactored.java
-
-Strategy Pattern.
 AsyncHttpClient is the Context class.
 IoSession is the Strategy interface.
 Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter

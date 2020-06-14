@@ -335,7 +335,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 VmPipe is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ClientToProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ClientSessionHandler EchoHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler SenderHandler ReceiverHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ClientToProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -367,7 +367,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 TestThread is the Context class.
 IoFuture is the Strategy interface.
-Concrete Strategy classes:  WriteFuture CloseFuture DefaultIoFuture ConnectFuture ServiceOperationFuture DefaultWriteRequest$1
+Concrete Strategy classes:  WriteFuture CloseFuture DefaultIoFuture ConnectFuture ServiceOperationFuture DefaultWriteRequest$1 DummyWriteFuture
 Delegation through future of type IoFuture
 File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/common/FutureTest-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFuture-refactored.java
@@ -375,10 +375,26 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
 Strategy Pattern.
 TestListener is the Context class.
 IoFuture is the Strategy interface.
-Concrete Strategy classes:  WriteFuture CloseFuture DefaultIoFuture ConnectFuture ServiceOperationFuture DefaultWriteRequest$1
+Concrete Strategy classes:  WriteFuture CloseFuture DefaultIoFuture ConnectFuture ServiceOperationFuture DefaultWriteRequest$1 DummyWriteFuture
 Delegation through notifiedFuture of type IoFuture
 File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/common/FutureTest-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFuture-refactored.java
+
+Strategy Pattern.
+StreamWriteFilterTest is the Context class.
+IoSession is the Strategy interface.
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Delegation through session of type IoSession
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Strategy Pattern.
+StreamWriteFilterTest is the Context class.
+NextFilter is the Strategy interface.
+Concrete Strategy classes:  DefaultIoFilterChain$EntryImpl$1 EventOrderChecker
+Delegation through nextFilter of type NextFilter
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
 
 Strategy Pattern.
 MockHandler is the Context class.
@@ -389,28 +405,20 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
+DefaultIoFilterChainBuilderFactoryBeanTest is the Context class.
+IoFilterChain is the Strategy interface.
+Concrete Strategy classes:  DefaultIoFilterChain
+Delegation through chain of type IoFilterChain
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/test/java/org/apache/mina/integration/spring/DefaultIoFilterChainBuilderFactoryBeanTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilterChain-refactored.java
+
+Strategy Pattern.
 ClientToProxyIoHandler is the Context class.
 IoConnector is the Strategy interface.
 Concrete Strategy classes:  AbstractIoConnector DatagramConnector SocketConnector
 Delegation through connector of type IoConnector
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/proxy/ClientToProxyIoHandler-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoConnector-refactored.java
-
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolEncoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolEncoderAdapter SynchronizedProtocolEncoder NettyEncoder TextLineEncoder ObjectSerializationEncoder
-Delegation through encoder of type ProtocolEncoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder-refactored.java
-
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolDecoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder CumulativeProtocolDecoder ObjectSerializationDecoder HttpResponseDecoder
-Delegation through decoder of type ProtocolDecoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder-refactored.java
 
 Strategy Pattern.
 AsyncHttpClient is the Context class.
@@ -447,7 +455,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ClientToProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ClientSessionHandler EchoHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler SenderHandler ReceiverHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ClientToProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java

@@ -518,22 +518,6 @@ Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolEncoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolEncoderAdapter SynchronizedProtocolEncoder NettyEncoder TextLineEncoder ObjectSerializationEncoder
-Delegation through encoder of type ProtocolEncoder
-File Location: /data/s4040112/sourcecodes/mina/mina-filter-codec-http/src/main/java/org/apache/mina/http/codec/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder-refactored.java
-
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolDecoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder CumulativeProtocolDecoder ObjectSerializationDecoder HttpResponseDecoder
-Delegation through decoder of type ProtocolDecoder
-File Location: /data/s4040112/sourcecodes/mina/mina-filter-codec-http/src/main/java/org/apache/mina/http/codec/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder-refactored.java
-
 Flyweight Pattern.
 IdleStatus is a flyweight factory.
 READER_IDLE is a flyweight object (declared public-static-final).

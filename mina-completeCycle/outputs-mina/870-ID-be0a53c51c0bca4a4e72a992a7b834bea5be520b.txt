@@ -683,7 +683,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 IoSessionLogger is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionLogger-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -691,7 +691,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 ActiveKeepAliveFilter is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/keepalive/ActiveKeepAliveFilter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -715,7 +715,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 VmPipe is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler EchoConnectorHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -739,15 +739,23 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 SingleSessionIoHandlerAdapter is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerAdapter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
+CumulativeProtocolDecoderTest is the Context class.
+IoBuffer is the Strategy interface.
+Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
+Delegation through buf of type IoBuffer
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/codec/CumulativeProtocolDecoderTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoBuffer-refactored.java
+
+Strategy Pattern.
 MockHandler is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -785,25 +793,9 @@ File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/ap
                /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventFactory-refactored.java
 
 Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolEncoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolEncoderAdapter SynchronizedProtocolEncoder NettyEncoder TextLineEncoder ObjectSerializationEncoder
-Delegation through encoder of type ProtocolEncoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder-refactored.java
-
-Strategy Pattern.
-HttpProtocolCodecFactory is the Context class.
-ProtocolDecoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder CumulativeProtocolDecoder DemuxingProtocolDecoder ObjectSerializationDecoder HttpResponseDecoder
-Delegation through decoder of type ProtocolDecoder
-File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder-refactored.java
-
-Strategy Pattern.
 AsyncHttpClient is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/protocol-http-client/src/main/java/org/apache/mina/protocol/http/client/AsyncHttpClient-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -835,7 +827,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler EchoConnectorHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -843,7 +835,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
