@@ -89,18 +89,21 @@ public class PomFileManipulator {
                     }
 
                 }
-                if (currentLine.contains("${pom.version}")){
-                    currentLine = currentLine.replace("${pom.version}", "${project.version}");
-                }
+                else{
+                    if (currentLine.contains("${pom.version}")){
+                        currentLine = currentLine.replace("${pom.version}", "${project.version}");
+                    }
 
-                //If not inside a dependency block which contains projectName,
-                // write the content of the line
-                if (!checkIfInsideDependency){
-                    refactoredPomBW.write(currentLine+"\n");
-                }
+                    //If not inside a dependency block which contains projectName,
+                    // write the content of the line
+                    if (!checkIfInsideDependency){
+                        refactoredPomBW.write(currentLine+"\n");
+                    }
 
-                checkIfInsideDependency = false;
-                currentLine = currentPomFileBR.readLine();
+                    checkIfInsideDependency = false;
+                    currentLine = currentPomFileBR.readLine();
+
+                }
             }
             refactoredPomBW.flush();
 
