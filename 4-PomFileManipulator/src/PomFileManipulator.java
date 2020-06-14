@@ -87,22 +87,20 @@ public class PomFileManipulator {
                     else {
                         refactoredPomBW.write(dependencyBlock.toString());
                     }
-
                 }
-                else{
-                    if (currentLine.contains("${pom.version}")){
-                        currentLine = currentLine.replace("${pom.version}", "${project.version}");
-                    }
+                if (currentLine.contains("${pom.version}")){
+                    currentLine = currentLine.replace("${pom.version}", "${project.version}");
+                }
 
-                    //If not inside a dependency block which contains projectName,
-                    // write the content of the line
-                    if (!checkIfInsideDependency){
-                        refactoredPomBW.write(currentLine+"\n");
-                    }
+                //If not inside a dependency block which contains projectName,
+                // write the content of the line
+                if (!checkIfInsideDependency){
+                    refactoredPomBW.write(currentLine+"\n");
+                }
 
-                    checkIfInsideDependency = false;
+                checkIfInsideDependency = false;
+                if (!currentLine.contains("/dependencies")){
                     currentLine = currentPomFileBR.readLine();
-
                 }
             }
             refactoredPomBW.flush();
@@ -111,7 +109,7 @@ public class PomFileManipulator {
             currentPomFileFR.close();
 
             File pomToDelete = new File(currentPomFile);
-            pomToDelete.renameTo(new File(currentPomFile.replace("pom","oldpom")));
+            pomToDelete.renameTo(new File(currentPomFile.replace("pom","pom")));
             copyOfPom.renameTo(new File(currentPomFile.replace("pom","newpom")));
 
             currentPomFile = listOfPomsBR.readLine();
