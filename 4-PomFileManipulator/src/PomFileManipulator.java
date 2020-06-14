@@ -83,6 +83,7 @@ public class PomFileManipulator {
 
                     if (dependencyBlockString.contains(analyzedProject)){
                         checkIfInsideDependency = true;
+                        currentLine = currentPomFileBR.readLine();
                     }
                     else {
                         refactoredPomBW.write(dependencyBlock.toString());
@@ -106,6 +107,10 @@ public class PomFileManipulator {
 
             currentPomFileBR.close();
             currentPomFileFR.close();
+
+            File pomToDelete = new File(currentPomFile);
+            pomToDelete.renameTo(new File(currentPomFile.replace("pom","oldpom")));
+            copyOfPom.renameTo(new File(currentPomFile.replace("pom","newpom")));
 
             currentPomFile = listOfPomsBR.readLine();
         }
