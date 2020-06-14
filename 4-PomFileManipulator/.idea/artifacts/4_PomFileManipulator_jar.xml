@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="4-PomFileManipulator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/4_PomFileManipulator_jar</output-path>
+    <root id="archive" name="4-PomFileManipulator.jar">
+      <element id="module-output" name="4-PomFileManipulator" />
+    </root>
+  </artifact>
+</component>
