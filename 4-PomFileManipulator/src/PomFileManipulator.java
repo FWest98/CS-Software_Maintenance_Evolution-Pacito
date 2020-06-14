@@ -43,7 +43,7 @@ public class PomFileManipulator {
 
                 if (currentLine.contains("repositories")){
                     //Skip all lines inside repositories block
-                    while(!currentLine.equals("/repositories")){
+                    while(!currentLine.contains("/repositories")){
                         currentLine = currentPomFileBR.readLine();
                     }
                     //Skip line to not write /repositories
@@ -72,7 +72,7 @@ public class PomFileManipulator {
 
                     //add possible fields (versions, exclusions, etc) to the StringBuilder.
                     currentLine = currentPomFileBR.readLine();
-                    while(!currentLine.equals("/dependency")){
+                    while(!currentLine.contains("/dependency")){
                         dependencyBlock.append(currentLine).append("\n");
                         currentLine = currentPomFileBR.readLine();
                     }
