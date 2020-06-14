@@ -41,15 +41,6 @@ public class PomFileManipulator {
 
             while (currentLine != null) {
 
-                if (currentLine.contains("repositories")){
-                    //Skip all lines inside repositories block
-                    while(!currentLine.contains("/repositories")){
-                        currentLine = currentPomFileBR.readLine();
-                    }
-                    //Skip line to not write /repositories
-                    currentLine = currentPomFileBR.readLine();
-                }
-
                 if (currentLine.contains("dependency")){
                     StringBuilder dependencyBlock = new StringBuilder();
                     dependencyBlock.append(currentLine).append("\n");
@@ -81,30 +72,30 @@ public class PomFileManipulator {
 
                     String dependencyBlockString = dependencyBlock.toString();
 
-                    if (dependencyBlockString.contains(analyzedProject)){
-                        checkIfInsideDependency = true;
-                    }
-                    else {
+                    if (!dependencyBlockString.contains(analyzedProject)){
                         refactoredPomBW.write(dependencyBlock.toString()+"\n");
                     }
-                }
-                else{
-                    if (currentLine.contains("${pom.version}")){
-                        currentLine = currentLine.replace("${pom.version}", "${project.version}");
-                    }
 
-                    //If not inside a dependency block which contains projectName,
-                    // write the content of the line
-                    if (!checkIfInsideDependency){
-                        if (!currentLine.contains("/dependencies")){
-                            refactoredPomBW.write(currentLine+"\n");
-                        }
-                    }
-
-                    checkIfInsideDependency = false;
+                    //move one line after /dependencies
                     currentLine = currentPomFileBR.readLine();
                 }
 
+
+                if (currentLine.contains("repositories")){
+                    //Skip all lines inside repositories block
+                    while(!currentLine.contains("/repositories")){
+                        currentLine = currentPomFileBR.readLine();
+                    }
+                    //Skip line to not write /repositories
+                    currentLine = currentPomFileBR.readLine();
+                }
+
+                if (currentLine.contains("${pom.version}")){
+                    currentLine = currentLine.replace("${pom.version}", "${project.version}");
+                }
+
+                refactoredPomBW.write(currentLine+"\n");
+                currentLine = currentPomFileBR.readLine();
             }
             refactoredPomBW.flush();
 
