@@ -83,7 +83,6 @@ public class PomFileManipulator {
 
                     if (dependencyBlockString.contains(analyzedProject)){
                         checkIfInsideDependency = true;
-                        currentLine = currentPomFileBR.readLine();
                     }
                     else {
                         refactoredPomBW.write(dependencyBlock.toString());
