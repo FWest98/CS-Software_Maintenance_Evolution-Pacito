@@ -96,7 +96,7 @@ public class PomFileManipulator {
                 //If not inside a dependency block which contains projectName,
                 // write the content of the line
                 if (!checkIfInsideDependency){
-                    refactoredPomBW.write(currentLine);
+                    refactoredPomBW.write(currentLine+"\n");
                 }
 
                 checkIfInsideDependency = false;
