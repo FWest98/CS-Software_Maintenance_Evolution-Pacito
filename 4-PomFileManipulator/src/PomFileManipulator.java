@@ -75,6 +75,8 @@ public class PomFileManipulator {
 
                         String dependencyBlockString = dependencyBlock.toString();
 
+                        System.out.println(dependencyBlockString);
+
                         if (!dependencyBlockString.contains(analyzedProject)){
                             refactoredPomBW.write(dependencyBlock.toString()+"\n");
                         }
