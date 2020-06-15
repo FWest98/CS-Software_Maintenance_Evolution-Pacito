@@ -99,7 +99,10 @@ public class PomFileManipulator {
                     currentLine = currentLine.replace("${pom.version}", "${project.version}");
                 }
 
-                refactoredPomBW.write(currentLine+"\n");
+                if (!currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
+                        .equals("/dependency")){
+                    refactoredPomBW.write(currentLine+"\n");
+                }
                 currentLine = currentPomFileBR.readLine();
             }
             refactoredPomBW.flush();
