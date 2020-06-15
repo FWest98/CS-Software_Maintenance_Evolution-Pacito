@@ -47,19 +47,19 @@ public class PomFileManipulator {
 
                     //add groupID to StringBuilder
                     currentLine = currentPomFileBR.readLine();
-                    groupID = currentLine;
-                    if (groupID.contains("tl-netty2")){
-                        groupID = currentLine.replace("tl-netty2", "net.gleamynode");
+                    if (currentLine.contains("tl-netty2")){
+                        currentLine = currentLine.replace("tl-netty2", "net.gleamynode");
+                        groupID = currentLine;
                     }
-                    dependencyBlock.append(groupID).append("\n");
+                    dependencyBlock.append(currentLine).append("\n");
 
                     //add artifactID to StringBuilder
                     currentLine = currentPomFileBR.readLine();
-                    artifactID = currentLine;
-                    if (artifactID.contains("tl-netty2")){
-                        artifactID = currentLine.replace("tl-netty2", "netty2");
+                    if (currentLine.contains("tl-netty2")){
+                        currentLine = currentLine.replace("tl-netty2", "netty2");
+                        artifactID = currentLine;
                     }
-                    dependencyBlock.append(artifactID).append("\n");
+                    dependencyBlock.append(currentLine).append("\n");
 
                     //add possible fields (versions, exclusions, etc) to the StringBuilder.
                     currentLine = currentPomFileBR.readLine();
