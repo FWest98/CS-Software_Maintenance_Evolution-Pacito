@@ -78,6 +78,11 @@ do
   if test -f "$FILE"; then
   
     #mvn clean install -U -DskipTests dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies -Dhttps.protocols=TLSv1.2
+    
+    find -name "pom.xml" > ${projectname}-poms.list
+    
+    java -jar /data/s4040112/Internship_RuG_2020/4-PomFileManipulator/out/artifacts/4_PomFileManipulator_jar/4-PomFileManipulator.jar ${projectname}
+    
     mvn dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies
   
  	  find ${projectpath} -name '*.jar' > ${projectname}-jars.list
@@ -95,6 +100,8 @@ do
   fi
  
 	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+ 
+  rm -rf dependencies
 
 	rm ${projectname}-files.list
  
