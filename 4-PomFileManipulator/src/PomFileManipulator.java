@@ -41,7 +41,8 @@ public class PomFileManipulator {
 
             while (currentLine != null) {
 
-                if (currentLine.contains("dependency")){
+                if (currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
+                        .equals("dependency")){
                     StringBuilder dependencyBlock = new StringBuilder();
                     dependencyBlock.append(currentLine).append("\n");
 
@@ -63,7 +64,8 @@ public class PomFileManipulator {
 
                     //add possible fields (versions, exclusions, etc) to the StringBuilder.
                     currentLine = currentPomFileBR.readLine();
-                    while(!currentLine.contains("/dependency")){
+                    while(!currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
+                            .equals("/dependency")){
                         dependencyBlock.append(currentLine).append("\n");
                         currentLine = currentPomFileBR.readLine();
                     }
