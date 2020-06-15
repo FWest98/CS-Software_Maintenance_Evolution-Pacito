@@ -70,12 +70,11 @@ public class PomFileManipulator {
                             dependencyBlock.append(currentLine).append("\n");
                             currentLine = currentPomFileBR.readLine();
                         }
+                        System.out.println("supposed to be all end dependencies" + currentLine);
                         //add last line without \n
                         dependencyBlock.append(currentLine);
 
                         String dependencyBlockString = dependencyBlock.toString();
-
-                        System.out.println(dependencyBlockString);
 
                         if (!dependencyBlockString.contains(analyzedProject)){
                             System.out.println(dependencyBlockString);
@@ -83,7 +82,7 @@ public class PomFileManipulator {
                         }
 
                         //move one line after /dependencies
-                        currentLine = currentPomFileBR.readLine();
+                        //currentLine = currentPomFileBR.readLine();
                     }
                 }
 
