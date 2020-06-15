@@ -6481,7 +6481,6 @@ option.bytecode = false;
 
     // Print Statics
 
-
     Coutput << endl << "------------------------------------------" << endl << endl;
     Coutput << "Pattern Instance Statistics:" << endl << endl;
 
@@ -6574,6 +6573,103 @@ option.bytecode = false;
 	Coutput << "nMediatorFacadeDual/nMediator = " << nMediatorFacadeDual << "/" << nMediator << endl;
 	Coutput << "nImmutable/nFlyweight = " << nImmutable << "/" << nFlyweight << endl;
 	Coutput << "nFlyweightGoFVersion = " << nFlyweightGoFVersion << endl;
+
+	static ofstream fileoutput("/data/s4040112/output.txt");
+	assert(fileoutput.is_open());
+
+	fileoutput << "Pattern Instance Statistics:" << endl << endl;
+
+	fileoutput << "Creational Patterns" << endl;
+	fileoutput << "==============================" << endl;
+	fileoutput << "Abstract Factory";
+	fileoutput.width(30 - sizeof("Abstract Factory"));
+	fileoutput << nAbstractFactory << endl;
+
+	fileoutput << "Factory Method";
+	fileoutput.width(30 - sizeof("Factory Method"));
+	fileoutput << nFactoryMethod << endl;
+
+	fileoutput << "Singleton";
+	fileoutput.width(30 - sizeof("Singleton"));
+	fileoutput << nSingleton << endl;
+
+	fileoutput << "------------------------------" << endl;
+	fileoutput << "Structural Patterns" << endl;
+	fileoutput << "==============================" << endl;
+
+	fileoutput << "Adapter";
+	fileoutput.width(30 - sizeof("Adapter"));
+	fileoutput << nAdapter << endl;
+
+	fileoutput << "Bridge";
+	fileoutput.width(30 - sizeof("Bridge"));
+	fileoutput << nBridge << endl;
+
+	fileoutput << "Composite";
+	fileoutput.width(30 - sizeof("Composite"));
+	fileoutput << nComposite << endl;
+
+	fileoutput << "Decorator";
+	fileoutput.width(30 - sizeof("Decorator"));
+	fileoutput << nDecorator << endl;
+
+	fileoutput << "Facade";
+	fileoutput.width(30 - sizeof("Facade"));
+	fileoutput << nFacade << endl;
+
+	fileoutput << "Flyweight";
+	fileoutput.width(30 - sizeof("Flyweight"));
+	fileoutput << nFlyweight << endl;
+
+	fileoutput << "Proxy";
+	fileoutput.width(30 - sizeof("Proxy"));
+	fileoutput << nProxy << endl;
+	fileoutput << "------------------------------" << endl;
+	fileoutput << "Behavioral Patterns" << endl;
+	fileoutput << "==============================" << endl;
+
+	fileoutput << "Chain of Responsibility";
+	fileoutput.width(30 - sizeof("Chain of Responsibility"));
+	fileoutput << nCoR << endl;
+
+	fileoutput << "Mediator";
+	fileoutput.width(30 - sizeof("Mediator"));
+	fileoutput << nMediator << endl;
+
+	fileoutput << "Observer";
+	fileoutput.width(30 - sizeof("Observer"));
+	fileoutput << nObserver << endl;
+
+	fileoutput << "State";
+	fileoutput.width(30 - sizeof("State"));
+	fileoutput << nState << endl;
+
+	fileoutput << "Strategy";
+	fileoutput.width(30 - sizeof("Strategy"));
+	fileoutput << nStrategy << endl;
+
+	fileoutput << "Template Method";
+	fileoutput.width(30 - sizeof("Template Method"));
+	fileoutput << nTemplate << endl;
+
+	fileoutput << "Visitor";
+	fileoutput.width(30 - sizeof("Visitor"));
+	fileoutput << nVisitor << endl;
+	fileoutput << "------------------------------" << endl;
+	fileoutput << endl;
+
+	fileoutput << "Number of classes processed: " << gen_table->getSize() << endl;
+	fileoutput << "Number of files processed: " << num_files << endl;
+	fileoutput << "Size of DelegationTable: " << d_table->size() << endl;
+	fileoutput << "Size of concrete class nodes: " << cs_table->ConcreteClasses() << endl;
+	fileoutput << "Size of undirected invocation edges: " << d_table->UniqueDirectedCalls() << endl;
+
+	fileoutput << endl << endl;
+	fileoutput << "nMediatorFacadeDual/nMediator = " << nMediatorFacadeDual << "/" << nMediator << endl;
+	fileoutput << "nImmutable/nFlyweight = " << nImmutable << "/" << nFlyweight << endl;
+	fileoutput << "nFlyweightGoFVersion = " << nFlyweightGoFVersion << endl;
+
+	fileoutput.close();
 
         //
         // Clean up all the files that have just been compiled in this new
