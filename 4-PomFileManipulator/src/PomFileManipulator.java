@@ -70,19 +70,13 @@ public class PomFileManipulator {
                             dependencyBlock.append(currentLine).append("\n");
                             currentLine = currentPomFileBR.readLine();
                         }
-                        System.out.println("supposed to be all end dependencies" + currentLine);
                         //add last line without \n
                         dependencyBlock.append(currentLine);
 
                         String dependencyBlockString = dependencyBlock.toString();
-
                         if (!dependencyBlockString.contains(analyzedProject)){
-                            System.out.println(dependencyBlockString);
                             refactoredPomBW.write(dependencyBlock.toString()+"\n");
                         }
-
-                        //move one line after /dependencies
-                        //currentLine = currentPomFileBR.readLine();
                     }
                 }
 
@@ -108,7 +102,7 @@ public class PomFileManipulator {
                 else{
                     refactoredPomBW.write(currentLine+"\n");
                 }
-
+                //Go to next line
                 currentLine = currentPomFileBR.readLine();
             }
             refactoredPomBW.flush();
@@ -117,8 +111,8 @@ public class PomFileManipulator {
             currentPomFileFR.close();
 
             File pomToDelete = new File(currentPomFile);
-            pomToDelete.renameTo(new File(currentPomFile.replace("pom","pom")));
-            copyOfPom.renameTo(new File(currentPomFile.replace("pom","newpom")));
+            pomToDelete.delete();
+            copyOfPom.renameTo(new File(currentPomFile.replace("new","")));
 
             currentPomFile = listOfPomsBR.readLine();
         }
