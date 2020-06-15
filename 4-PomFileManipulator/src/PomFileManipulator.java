@@ -41,47 +41,48 @@ public class PomFileManipulator {
 
             while (currentLine != null) {
 
-                if (currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
-                        .equals("dependency")){
-                    StringBuilder dependencyBlock = new StringBuilder();
-                    dependencyBlock.append(currentLine).append("\n");
-
-                    //add groupID to StringBuilder
-                    currentLine = currentPomFileBR.readLine();
-                    if (currentLine.contains("tl-netty2")){
-                        currentLine = currentLine.replace("tl-netty2", "net.gleamynode");
-                        groupID = currentLine;
-                    }
-                    dependencyBlock.append(currentLine).append("\n");
-
-                    //add artifactID to StringBuilder
-                    currentLine = currentPomFileBR.readLine();
-                    if (currentLine.contains("tl-netty2")){
-                        currentLine = currentLine.replace("tl-netty2", "netty2");
-                        artifactID = currentLine;
-                    }
-                    dependencyBlock.append(currentLine).append("\n");
-
-                    //add possible fields (versions, exclusions, etc) to the StringBuilder.
-                    currentLine = currentPomFileBR.readLine();
-                    while(!currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
-                            .equals("/dependency")){
+                if (currentLine.contains("<") && currentLine.contains(">")){
+                    if (currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
+                            .equals("dependency")){
+                        StringBuilder dependencyBlock = new StringBuilder();
                         dependencyBlock.append(currentLine).append("\n");
+
+                        //add groupID to StringBuilder
+                        currentLine = currentPomFileBR.readLine();
+                        if (currentLine.contains("tl-netty2")){
+                            currentLine = currentLine.replace("tl-netty2", "net.gleamynode");
+                            groupID = currentLine;
+                        }
+                        dependencyBlock.append(currentLine).append("\n");
+
+                        //add artifactID to StringBuilder
+                        currentLine = currentPomFileBR.readLine();
+                        if (currentLine.contains("tl-netty2")){
+                            currentLine = currentLine.replace("tl-netty2", "netty2");
+                            artifactID = currentLine;
+                        }
+                        dependencyBlock.append(currentLine).append("\n");
+
+                        //add possible fields (versions, exclusions, etc) to the StringBuilder.
+                        currentLine = currentPomFileBR.readLine();
+                        while(!currentLine.substring(currentLine.indexOf("<")+1,currentLine.indexOf(">"))
+                                .equals("/dependency")){
+                            dependencyBlock.append(currentLine).append("\n");
+                            currentLine = currentPomFileBR.readLine();
+                        }
+                        //add last line without \n
+                        dependencyBlock.append(currentLine);
+
+                        String dependencyBlockString = dependencyBlock.toString();
+
+                        if (!dependencyBlockString.contains(analyzedProject)){
+                            refactoredPomBW.write(dependencyBlock.toString()+"\n");
+                        }
+
+                        //move one line after /dependencies
                         currentLine = currentPomFileBR.readLine();
                     }
-                    //add last line without \n
-                    dependencyBlock.append(currentLine);
-
-                    String dependencyBlockString = dependencyBlock.toString();
-
-                    if (!dependencyBlockString.contains(analyzedProject)){
-                        refactoredPomBW.write(dependencyBlock.toString()+"\n");
-                    }
-
-                    //move one line after /dependencies
-                    currentLine = currentPomFileBR.readLine();
                 }
-
 
                 if (currentLine.contains("repositories")){
                     //Skip all lines inside repositories block
