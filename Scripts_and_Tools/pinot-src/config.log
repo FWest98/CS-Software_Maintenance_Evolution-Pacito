@@ -27,8 +27,8 @@ hostinfo               = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
-PATH: /software/software/Maven/3.5.2
-PATH: /software/software/Maven/3.5.2/bin
+PATH: /software/software/Java/1.7.0_80
+PATH: /software/software/Java/1.7.0_80/bin
 PATH: /usr/lib64/qt-3.3/bin
 PATH: /usr/local/bin
 PATH: /usr/bin
@@ -1219,7 +1219,7 @@ configure:5110: $? = 0
 configure:5180: result: none required
 configure:5188: checking for library containing libiconv_open
 configure:5218: g++ -o conftest -g   conftest.cc  >&5
-/local/tmp/ccXvmcwB.o: In function `main':
+/local/tmp/cc3sgi4a.o: In function `main':
 /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/pinot-src/conftest.cc:66: undefined reference to `libiconv_open'
 collect2: error: ld returned 1 exit status
 configure:5224: $? = 1
@@ -1582,9 +1582,9 @@ configure: failed program was:
 configure:6297: result: no
 configure:6323: checking for cygwin_win32_to_posix_path_list
 configure:6380: g++ -o conftest -g   conftest.cc  >&5
-/local/tmp/ccQd0t3I.o: In function `main':
+/local/tmp/cctixmDZ.o: In function `main':
 /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/pinot-src/conftest.cc:99: undefined reference to `cygwin_win32_to_posix_path_list'
-/local/tmp/ccQd0t3I.o:(.data+0x0): undefined reference to `cygwin_win32_to_posix_path_list'
+/local/tmp/cctixmDZ.o:(.data+0x0): undefined reference to `cygwin_win32_to_posix_path_list'
 collect2: error: ld returned 1 exit status
 configure:6386: $? = 1
 configure: failed program was:

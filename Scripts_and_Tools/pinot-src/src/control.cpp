@@ -6446,13 +6446,13 @@ option.bytecode = false;
     FindComposite(cs_table, d_table);
     //FindMediator(cs_table, d_table);
     FindTemplateMethod(d_table);
-    FindFactory(cs_table, ms_table, ast_pool);
     FindVisitor(cs_table, ms_table);
     FindObserver(cs_table, d_table);
     FindMediator2(cs_table);
     FindProxy(cs_table, d_table);
     FindAdapter(cs_table);
     FindFacade(cs_table);
+    //FindFactory(cs_table, ms_table, ast_pool);
     
     //    FindThreadSafeInterface(d_table);
 

@@ -390,6 +390,14 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
+IoFilterMapping is the Context class.
+IoFilter is the Strategy interface.
+Concrete Strategy classes:  ReferenceCountingIoFilter IoFilterAdapter WriteRequestFilter SslFilter IoFilterImpl MockFilter CompressionFilter
+Delegation through filter of type IoFilter
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/main/java/org/apache/mina/integration/spring/IoFilterMapping-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
+
+Strategy Pattern.
 ClientToProxyIoHandler is the Context class.
 IoConnector is the Strategy interface.
 Concrete Strategy classes:  AbstractIoConnector DatagramConnector SocketConnector

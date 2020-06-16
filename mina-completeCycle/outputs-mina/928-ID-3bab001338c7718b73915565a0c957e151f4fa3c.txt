@@ -808,7 +808,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 IoSessionLogger is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionLogger-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -816,7 +816,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 ActiveKeepAliveFilter is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/keepalive/ActiveKeepAliveFilter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -840,7 +840,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 VmPipe is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler EchoConnectorHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -864,26 +864,26 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 SingleSessionIoHandlerAdapter is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerAdapter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
-CumulativeProtocolDecoderTest is the Context class.
-IoBuffer is the Strategy interface.
-Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
-Delegation through buf of type IoBuffer
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/codec/CumulativeProtocolDecoderTest-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoBuffer-refactored.java
-
-Strategy Pattern.
 MockHandler is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Strategy Pattern.
+IoFilterMapping is the Context class.
+IoFilter is the Strategy interface.
+Concrete Strategy classes:  ReferenceCountingFilter IoFilterAdapter WriteRequestFilter IoFilterImpl MockFilter CompressionFilter
+Delegation through filter of type IoFilter
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/main/java/org/apache/mina/integration/spring/IoFilterMapping-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
 
 Strategy Pattern.
 SingletonStateContextLookup is the Context class.
@@ -918,9 +918,17 @@ File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/ap
                /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventFactory-refactored.java
 
 Strategy Pattern.
+Event is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext-refactored.java
+
+Strategy Pattern.
 AsyncHttpClient is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/protocol-http-client/src/main/java/org/apache/mina/protocol/http/client/AsyncHttpClient-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -952,7 +960,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler EchoConnectorHandler
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ServerHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -960,7 +968,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession AprSession SerialSession ProtocolCodecSession NioSession
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -1098,6 +1106,11 @@ STATE_CONTEXT is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/IoSessionStateContextLookup-refactored.java
 
 Flyweight Pattern.
+Event is a flyweight factory.
+WILDCARD_EVENT_ID is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+
+Flyweight Pattern.
 Server is a flyweight factory.
 VERSION_STRING is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/httpserver/codec/Server-refactored.java
@@ -1111,6 +1124,13 @@ Flyweight Pattern.
 CompressionFilter is a flyweight factory.
 DISABLE_COMPRESSION_ONCE is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/CompressionFilter-refactored.java
+
+Composite pattern.
+Event is the composite class.
+arguments is the composite instance.
+Object is the component class.
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+File Location: /apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar/java/lang(Object.class)
 
 Template Method Found.
 AbstractIoBuffer is the template class

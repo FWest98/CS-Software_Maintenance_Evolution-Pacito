@@ -54,6 +54,8 @@ done
 
 mkdir /data/s4040112/Pinot_results/outputs-${projectname}
 
+BETWEEN_TWO_COMMITS=false
+
 for line in $file_lines ; 
 do
 	git reset --hard $line
@@ -71,7 +73,7 @@ do
   sed -i '/AcceptorTest/d' ${projectname}-files.list
   sed -i '/ByteBufferProxy/d' ${projectname}-files.list
   sed -i '/HttpRequestEncoder/d' ${projectname}-files.list
-
+  
   java -jar /data/s4040112/Internship_RuG_2020/0-ProjectRefactorer/out/artifacts/0_ProjectRefactorer_jar/0-ProjectRefactorer.jar $projectname
 
   FILE=pom.xml
@@ -98,9 +100,21 @@ do
     rm ${projectname}-jars.list
  
   fi
- 
-	/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
- 
+  
+  if [ "$CURRENT_COMMIT" = "19a9be0e18ed6c68ada9bae2ea6e21a8bdc17ad5"] ; then
+    $BETWEEN_TWO_COMMITS = true;
+  fi
+  
+  if [ "$CURRENT_COMMIT" = "9265133922c62e9391c6364b04b550416f3b05d2"] ; then
+    $BETWEEN_TWO_COMMITS = false;
+  fi
+  
+  if $BETWEEN_TWO_COMMITS ; then
+    /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  else
+	  /home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  fi
+  
   rm -rf dependencies
 
 	rm ${projectname}-files.list

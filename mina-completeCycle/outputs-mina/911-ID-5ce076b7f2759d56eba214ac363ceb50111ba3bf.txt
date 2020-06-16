@@ -746,6 +746,14 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
+IoFilterMapping is the Context class.
+IoFilter is the Strategy interface.
+Concrete Strategy classes:  ReferenceCountingFilter IoFilterAdapter WriteRequestFilter IoFilterImpl MockFilter CompressionFilter
+Delegation through filter of type IoFilter
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/main/java/org/apache/mina/integration/spring/IoFilterMapping-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
+
+Strategy Pattern.
 SingletonStateContextLookup is the Context class.
 StateContext is the Strategy interface.
 Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
@@ -776,6 +784,14 @@ Concrete Strategy classes:  DefaultEventFactory
 Delegation through eventFactory of type EventFactory
 File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyFactory-refactored.java,
                /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventFactory-refactored.java
+
+Strategy Pattern.
+Event is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext-refactored.java
 
 Strategy Pattern.
 AsyncHttpClient is the Context class.
@@ -958,6 +974,11 @@ STATE_CONTEXT is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/IoSessionStateContextLookup-refactored.java
 
 Flyweight Pattern.
+Event is a flyweight factory.
+WILDCARD_EVENT_ID is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+
+Flyweight Pattern.
 Server is a flyweight factory.
 VERSION_STRING is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/httpserver/codec/Server-refactored.java
@@ -971,6 +992,13 @@ Flyweight Pattern.
 CompressionFilter is a flyweight factory.
 DISABLE_COMPRESSION_ONCE is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/CompressionFilter-refactored.java
+
+Composite pattern.
+Event is the composite class.
+arguments is the composite instance.
+Object is the component class.
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+File Location: /apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar/java/lang(Object.class)
 
 Template Method Found.
 AbstractIoBuffer is the template class
