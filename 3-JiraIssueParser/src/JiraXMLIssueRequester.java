@@ -59,7 +59,8 @@ public class JiraXMLIssueRequester {
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
 
-        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator + analyzedProject.substring(0, analyzedProject.indexOf("-")) + "finalResults-CSV.csv");
+        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator +
+                analyzedProject.substring(0, analyzedProject.indexOf("-")) + "finalResults-CSV.csv");
 
         FileWriter fw = new FileWriter(finalCSVFile.getPath());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -187,7 +188,8 @@ public class JiraXMLIssueRequester {
     public static void get_response(String issueKey, File outputFile, File csvFile) {
         try {
             String format = "xml";
-            String url = "https://issues.apache.org/jira/si/jira.issueviews:issue-" + format + "/" + issueKey + "/" + issueKey + ".xml";
+            String url = "https://issues.apache.org/jira/si/jira.issueviews:issue-" + format + "/" + issueKey + "/" +
+                    issueKey + ".xml";
 
             System.out.println(url);
             URL obj = new URL(url);
@@ -260,15 +262,23 @@ public class JiraXMLIssueRequester {
                     bufferedLine = bufferedReaderForCommitID.readLine();
                 }
 
-                String project = err.getElementsByTagName("project").item(0).getTextContent().replaceAll(",|;", "-");
+                String project = err.getElementsByTagName("project").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
                 String commitID = firstLine.substring(firstLine.lastIndexOf(" ")+1);
-                String developer = err.getElementsByTagName("assignee").item(0).getTextContent().replaceAll(",|;", "-");
-                String title = err.getElementsByTagName("title").item(0).getTextContent().replaceAll(",|;", "-");
-                String summary = err.getElementsByTagName("summary").item(0).getTextContent().replaceAll(",|;", "-");
-                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent().replaceAll(",|;", "-");
-                String issueType = err.getElementsByTagName("type").item(0).getTextContent().replaceAll(",|;", "-");
-                String createdDate = err.getElementsByTagName("created").item(0).getTextContent().replaceAll(",|;", "-");
-                String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent().replaceAll(",|;", "-");
+                String developer = err.getElementsByTagName("assignee").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String title = err.getElementsByTagName("title").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String summary = err.getElementsByTagName("summary").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String parsedIssueKey = err.getElementsByTagName("key").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String issueType = err.getElementsByTagName("type").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String createdDate = err.getElementsByTagName("created").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
+                String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
                 String patternChanges = detectedPatterns.toString();
 
                 /////////////////////////////
@@ -276,7 +286,8 @@ public class JiraXMLIssueRequester {
                 /////////////////////////////
 
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
-                        + parsedIssueKey + "," + issueType + "," + createdDate + "," + resolvedDate + "," + patternChanges);
+                        + parsedIssueKey + "," + issueType + "," + createdDate + "," + resolvedDate + ","
+                        + patternChanges);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
@@ -353,9 +364,9 @@ public class JiraXMLIssueRequester {
                 NodeList commentsNodes = doc.getElementsByTagName("comments");
                 Element commentElement = (Element) commentsNodes.item(0);
 
-                br.write("\n-----------------");
-                br.write("\n\n-----------------\n");
-                br.write("Comments: \n\n");
+                //br.write("\n-----------------");
+                //br.write("\n\n-----------------\n");
+                //br.write("Comments: \n\n");
 
                 for (int i = 0; i < commentElement.getElementsByTagName("comment").getLength() -1; i++){
                     String comment = commentElement.getElementsByTagName("comment").item(i).getTextContent()
@@ -374,12 +385,12 @@ public class JiraXMLIssueRequester {
                         }
                     }
 
-                    br.write("New Comment: \n");
-                    for (String commentSmallerLine : textLimiter(comment, 90)) {
-                        br.write(commentSmallerLine);
-                        br.write("\n");
-                    }
-                    br.write("\n\n");
+                    //br.write("New Comment: \n");
+                    //for (String commentSmallerLine : textLimiter(comment, 90)) {
+                    //    br.write(commentSmallerLine);
+                    //    br.write("\n");
+                    //}
+                    //br.write("\n\n");
                 }
 
                 br.close();
