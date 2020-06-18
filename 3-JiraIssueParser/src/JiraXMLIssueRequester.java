@@ -59,7 +59,7 @@ public class JiraXMLIssueRequester {
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
 
-        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator + analyzedProject + "-CSV.csv");
+        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator + analyzedProject.substring(0, analyzedProject.indexOf("-")) + "finalResults-CSV.csv");
 
         FileWriter fw = new FileWriter(finalCSVFile.getPath());
         BufferedWriter bw = new BufferedWriter(fw);
