@@ -81,6 +81,9 @@ do
   
     #mvn clean install -U -DskipTests dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies -Dhttps.protocols=TLSv1.2
     
+    export CLASSPATH=
+    export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar
+
     find -name "pom.xml" > ${projectname}-poms.list
     
     java -jar /data/s4040112/Internship_RuG_2020/4-PomFileManipulator/out/artifacts/4_PomFileManipulator_jar/4-PomFileManipulator.jar ${projectname}
@@ -88,9 +91,6 @@ do
     mvn dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies
   
  	  find ${projectpath} -name '*.jar' > ${projectname}-jars.list
- 
-    export CLASSPATH=
-    export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar
  
 	  while read line
     do
