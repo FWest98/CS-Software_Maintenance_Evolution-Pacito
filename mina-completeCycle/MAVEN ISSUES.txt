@@ -1,0 +1,52 @@
+2401 UNTIL 2344 - NO VALID POM (BAD PROJECT)
+
+2343 UNTIL 2031 - SUCCESSFULL
+
+2030 FAILS UNTIL 1596 
+
+[ERROR] Failed to execute goal on project mina-integration-spring: Could not resolve 
+dependencies for project org.apache.mina:mina-integration-spring:jar:2.0.0-M1-SNAPSHOT: 
+Failed to collect dependencies at org.springframework:spring-beans:jar:1.2.8: 
+Failed to read artifact descriptor for org.springframework:spring-beans:jar:1.2.8: 
+Could not transfer artifact org.springframework:spring-beans:pom:1.2.8 from/to central 
+(https://repo.maven.apache.org/maven2): Received fatal alert: protocol_version -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <goals> -rf :mina-integration-spring
+
+
+
+
+1595 UNTIL 1304 - SUCCESSFULL
+
+1303 FAILS UNTIL 10
+
+[ERROR] Failed to execute goal on project mina-integration-jmx: Could not resolve 
+dependencies for project org.apache.mina:mina-integration-jmx:bundle:2.0.0-M1-SNAPSHOT: 
+Failed to collect dependencies at commons-modeler:commons-modeler:jar:2.0.1: 
+Failed to read artifact descriptor for commons-modeler:commons-modeler:jar:2.0.1: 
+Could not transfer artifact commons-modeler:commons-modeler:pom:2.0.1 from/to central 
+(https://repo.maven.apache.org/maven2): Received fatal alert: protocol_version -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <goals> -rf :mina-integration-jmx
+
+
+
+
+9 UNTIL 0 - SUCCESSFUL
+
+
+TOTAL SUCCESSFUL = 370+291+10=671
