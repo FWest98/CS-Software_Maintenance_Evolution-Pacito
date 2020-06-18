@@ -1,0 +1,28 @@
+Pattern changes caused by commit: ef0822a4dea45efec36970145001a72dce85972f
+
+From: Adapter-22
+To:   Adapter-16
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-38
+To:   Mediator-32
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-32
+To:   Strategy-31
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1189.txt 
+
+commit ef0822a4dea45efec36970145001a72dce85972f
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed unnecessary synchronized block

@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 54e53674c17bd478622b5de07e278f00350ec9e0
+
+From: Adapter-22
+To:   Adapter-21
+
+From: Facade-20
+To:   Facade-19
+
+From: Mediator-51
+To:   Mediator-46
+
+From: Strategy-33
+To:   Strategy-32
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1600.txt 
+
+commit 54e53674c17bd478622b5de07e278f00350ec9e0
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Switched to Junit4

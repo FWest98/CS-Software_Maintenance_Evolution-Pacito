@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b582ca568f9446c8bade41aa841201af4fcb152e
+
+From: Adapter-18
+To:   Adapter-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1644.txt 
+
+commit b582ca568f9446c8bade41aa841201af4fcb152e
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the sessionCreated() method, as the codec is now initialized in the preAdd() method. As a side effect, the codec is initialized only once now, instead of twice before...

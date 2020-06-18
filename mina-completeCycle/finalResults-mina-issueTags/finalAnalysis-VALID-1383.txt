@@ -1,10 +1,10 @@
 Pattern changes caused by commit: 6d67f2f6d011b24a9d10d599a5a7c9ff31364b54
 
-From: Facade-10
-To:   Facade-11
+From: Facade-16
+To:   Facade-17
 
-From: Strategy-13
-To:   Strategy-15
+From: Strategy-27
+To:   Strategy-29
 
 
 =========================
@@ -64,9 +64,3 @@ to do when ping timeout occurs.  However, what the user can choose is limited to
 simple operations because KeepAlivePolicy is not extendable but an enum.  We need to
 replace it with KeepAliveRequestTimeoutHandler interface which is much more flexible.
  
-
------------------
-
------------------
-Comments: 
-

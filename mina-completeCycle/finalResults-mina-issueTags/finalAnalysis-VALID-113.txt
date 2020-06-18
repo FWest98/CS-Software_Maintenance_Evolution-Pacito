@@ -68,30 +68,3 @@ A MINA filter that supports Stream compression using the zlib algorithm.  Since 
 to stream data, it should support partial flushes, using the Z_SYNC_FLUSH /
 Z_PARTIAL_FLUSH method.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-The compression filter implementation.  This is against the mina 0.9.2 release. 
-
-
-New Comment: 
-Thanks for this cool filter!!!I'll include it in 0.93. 
-
-
-New Comment: 
-Applied your patch:<a href="http://svn.apache.org/viewcvs?rev=385235&amp;view=rev"
-class="external-link"
-rel="nofollow">http://svn.apache.org/viewcvs?rev=385235&amp;view=rev</a>Please review it
-and close this issue.  We could create another issue to add more compression algorithms. 
-
-
-New Comment: 
-Vinod's update:Vinod: in Zlib.java<br/>Z_PARTIAL_FLUSH has to be replaced with
-Z_SYNC_FLUSH<br/>my mistake<br/>Trustin: Oh I see.<br/>Vinod: it doesnt make a difference
-actually<br/>but its potentially confusing 
-
-

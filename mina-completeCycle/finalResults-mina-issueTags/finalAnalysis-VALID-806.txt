@@ -9,7 +9,10 @@ To:   Facade-16
 From: Mediator-33
 To:   Mediator-25
 
-From: Strategy-27
+From: Observer-3
+To:   Observer-2
+
+From: Strategy-28
 To:   Strategy-21
 
 
@@ -68,9 +71,3 @@ We are not using dependencyManagement section that greatly simplifies dependency
 management of POM.  Adding dependencyManagement section to the parent POM will save a lot
 of time when we upgrade a common dependency (e.g. SLF4J).
  
-
------------------
-
------------------
-Comments: 
-

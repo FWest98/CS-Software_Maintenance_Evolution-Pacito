@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 9a230c892c8167b2be1624d3ec955a473af76818
+
+From: Adapter-16
+To:   Adapter-17
+
+From: Mediator-32
+To:   Mediator-33
+
+From: Strategy-31
+To:   Strategy-33
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1194.txt 
+
+commit 9a230c892c8167b2be1624d3ec955a473af76818
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed RejectedExecutionException (really this time)

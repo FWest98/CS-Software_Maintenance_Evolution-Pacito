@@ -75,9 +75,3 @@ We
 concluded to get rid of ByteBuffer pooling and consequently acquire() and release() method
 which degrades API usability and performance.
  
-
------------------
-
------------------
-Comments: 
-

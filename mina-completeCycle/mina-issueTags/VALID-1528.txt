@@ -1,0 +1,24 @@
+Pattern changes caused by commit: 0346604944af88b5f97b850e806b497c7ee69690
+
+From: Adapter-22
+To:   Adapter-17
+
+From: Facade-20
+To:   Facade-19
+
+From: Mediator-55
+To:   Mediator-52
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1528.txt 
+
+commit 0346604944af88b5f97b850e806b497c7ee69690
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    * changed release.xml following DIRMINA-616
+    * configured RAT reports for site
+    * added various license headers

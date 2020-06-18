@@ -1,0 +1,97 @@
+Pattern changes caused by commit: 450c0acec4f820ad34645e50b0afa2a68e5966a4
+
+From: Adapter-21
+To:   Adapter-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1612.txt 
+
+commit 450c0acec4f820ad34645e50b0afa2a68e5966a4
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix DIRMINA-623
+
+
+
+==================================
+ Issue DIRMINA-623 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-623] Failure of test org.apache.mina.proxy.NTLMTest.testType1Message on windows Vista
+-----------------
+
+-----------------
+Summary: Failure of test org.apache.mina.proxy.NTLMTest.testType1Message on windows Vista
+-----------------
+
+-----------------
+Issue type: Test
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 23 Sep 2008 15:48:21 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Nov 2008 01:08:30 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+Failed
+
+org.apache.mina.proxy.NTLMTest.testType1Message
+
+null expected:&lt;0<span
+class="error">&#91;501280a&#93;</span>0000000f&gt; but was:&lt;0<span
+class="error">&#91;6000000&#93;</span>0000000f&gt;
+
+Stacktrace
+
+junit.framework.ComparisonFailure:
+null expected:&lt;0<span class="error">&#91;501280a&#93;</span>0000000f&gt; but
+was:&lt;0<span class="error">&#91;6000000&#93;</span>0000000f&gt;<br/>	at
+junit.framework.Assert.assertEquals(Assert.java:81)<br/>	at
+junit.framework.Assert.assertEquals(Assert.java:87)<br/>	at
+org.apache.mina.proxy.NTLMTest.testType1Message(NTLMTest.java:114)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br/>	at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>	at
+java.lang.reflect.Method.invoke(Method.java:597)<br/>	at
+junit.framework.TestCase.runTest(TestCase.java:168)<br/>	at
+junit.framework.TestCase.runBare(TestCase.java:134)<br/>	at
+junit.framework.TestResult$1.protect(TestResult.java:110)<br/>	at
+junit.framework.TestResult.runProtected(TestResult.java:128)<br/>	at
+junit.framework.TestResult.run(TestResult.java:113)<br/>	at
+junit.framework.TestCase.run(TestCase.java:124)<br/>	at
+junit.framework.TestSuite.runTest(TestSuite.java:232)<br/>	at
+junit.framework.TestSuite.run(TestSuite.java:227)<br/>	at
+org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:81)<br/>	at
+org.apache.maven.surefire.junit4.JUnit4TestSet.execute(JUnit4TestSet.java:62)<br/>	at
+org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:140)<br/>	at
+org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:127)<br/>	at
+org.apache.maven.surefire.Surefire.run(Surefire.java:177)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br/>	at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>	at
+java.lang.reflect.Method.invoke(Method.java:597)<br/>	at
+org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:345)<br/>	at
+org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:1009)
+ 

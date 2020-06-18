@@ -72,13 +72,3 @@ created lock object, but it is not declared final. not really a bug, because it 
 re-assigned - but a potential bug if someone accidentally assigns it. trivial patch
 forthcoming.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-tiny patch 
-
-

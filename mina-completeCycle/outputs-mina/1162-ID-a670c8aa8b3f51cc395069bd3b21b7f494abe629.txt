@@ -1215,6 +1215,12 @@ setAll is the template method
 doSetAll is a primitive method
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoSessionConfig-refactored.java
 
+Template Method Found.
+AbstractPropertyAccessor is the template class
+hasGetProperty is the template method
+hasGetProperty0 is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/integration-ognl/src/main/java/org/apache/mina/integration/ognl/AbstractPropertyAccessor-refactored.java
+
 Visitor pattern found.
 IoSession is an abstract Visitor class.
 AbstractProxyIoHandler is a Vistee class.
@@ -1235,7 +1241,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
 
 Mediator Pattern.
 Mediator: SynchronizedQueue
-Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/SynchronizedQueue-refactored.java
 
 Mediator Pattern.
@@ -1255,7 +1261,7 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: DefaultWriteRequest
-Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteRequest-refactored.java
 
 Mediator Pattern.
@@ -1265,12 +1271,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: IoSessionLogger
-Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionLogger-refactored.java
 
 Mediator Pattern.
 Mediator: WriteRequestWrapper
-Colleagues:  IoSessionLogger TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage FilteredWriteRequest TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage FilteredWriteRequest TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/WriteRequestWrapper-refactored.java
 
 Mediator Pattern.
@@ -1375,12 +1381,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/m
 
 Mediator Pattern.
 Mediator: ResultMessage
-Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/ResultMessage-refactored.java
 
 Mediator Pattern.
 Mediator: AddMessage
-Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/AddMessage-refactored.java
 
 Mediator Pattern.
@@ -1676,15 +1682,15 @@ Mediator                   35
 Observer                    1
 State                       0
 Strategy                   30
-Template Method             2
+Template Method             3
 Visitor                     1
 ------------------------------
 
-Number of classes processed: 326
+Number of classes processed: 333
 Number of files processed: 474
-Size of DelegationTable: 2527
-Size of concrete class nodes: 188
-Size of undirected invocation edges: 306
+Size of DelegationTable: 2600
+Size of concrete class nodes: 194
+Size of undirected invocation edges: 308
 
 
 nMediatorFacadeDual/nMediator = 3/35

@@ -1204,6 +1204,12 @@ cleanup is the template method
 destroy is a primitive method
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/statemachine/DecodingStateMachine-refactored.java
 
+Template Method Found.
+AbstractPropertyAccessor is the template class
+hasGetProperty is the template method
+hasGetProperty0 is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/integration-ognl/src/main/java/org/apache/mina/integration/ognl/AbstractPropertyAccessor-refactored.java
+
 Visitor pattern found.
 IoSession is an abstract Visitor class.
 AbstractProxyIoHandler is a Vistee class.
@@ -1216,7 +1222,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 
 Mediator Pattern.
 Mediator: SynchronizedQueue
-Colleagues:  DefaultWriteRequest TrafficMask IoSessionLogger WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  DefaultWriteRequest TrafficMask IoSessionLogger WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/SynchronizedQueue-refactored.java
 
 Mediator Pattern.
@@ -1236,7 +1242,7 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: DefaultWriteRequest
-Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteRequest-refactored.java
 
 Mediator Pattern.
@@ -1246,12 +1252,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: IoSessionLogger
-Colleagues:  DefaultWriteRequest TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  DefaultWriteRequest TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionLogger-refactored.java
 
 Mediator Pattern.
 Mediator: WriteRequestWrapper
-Colleagues:  WriteRequestFilter DefaultWriteRequest ErrorGeneratingFilter FilteredWriteRequest TrafficMask IoSessionLogger LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  WriteRequestFilter DefaultWriteRequest ErrorGeneratingFilter FilteredWriteRequest TrafficMask IoSessionLogger LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/WriteRequestWrapper-refactored.java
 
 Mediator Pattern.
@@ -1416,12 +1422,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/m
 
 Mediator Pattern.
 Mediator: ResultMessage
-Colleagues:  DefaultWriteRequest AbstractMessage IoSessionLogger WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  DefaultWriteRequest AbstractMessage IoSessionLogger WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/ResultMessage-refactored.java
 
 Mediator Pattern.
 Mediator: AddMessage
-Colleagues:  DefaultWriteRequest AbstractMessage IoSessionLogger WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  DefaultWriteRequest AbstractMessage IoSessionLogger WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/AddMessage-refactored.java
 
 Mediator Pattern.
@@ -1438,6 +1444,11 @@ Mediator Pattern.
 Mediator: ResultMessageDecoder
 Colleagues:  AbstractMessageDecoder ResultMessage
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/ResultMessageDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: SpringMainTest
+Colleagues:  AbstractTrafficControlTest SslFilterTest
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/chat/SpringMainTest-refactored.java
 
 Mediator Pattern.
 Mediator: SslFilterTest
@@ -1776,21 +1787,21 @@ Proxy                       3
 Behavioral Patterns
 ==============================
 Chain of Responsibility     0
-Mediator                   49
+Mediator                   50
 Observer                    0
 State                       0
 Strategy                   31
-Template Method             3
+Template Method             4
 Visitor                     1
 ------------------------------
 
-Number of classes processed: 337
+Number of classes processed: 343
 Number of files processed: 509
-Size of DelegationTable: 2730
-Size of concrete class nodes: 202
-Size of undirected invocation edges: 313
+Size of DelegationTable: 2780
+Size of concrete class nodes: 207
+Size of undirected invocation edges: 316
 
 
-nMediatorFacadeDual/nMediator = 12/49
+nMediatorFacadeDual/nMediator = 12/50
 nImmutable/nFlyweight = 1/24
 nFlyweightGoFVersion = 0

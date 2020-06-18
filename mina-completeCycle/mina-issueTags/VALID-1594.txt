@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 32af03bce71670afc566be556084bab32f74b798
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Mediator-52
+To:   Mediator-51
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1594.txt 
+
+commit 32af03bce71670afc566be556084bab32f74b798
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed more useless test.
+    Added some Javadoc and moved a method down in the file (I have created a 'handler methods' section)

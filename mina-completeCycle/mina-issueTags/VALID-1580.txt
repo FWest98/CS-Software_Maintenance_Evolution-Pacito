@@ -1,0 +1,19 @@
+Pattern changes caused by commit: de1134b2eef2c0767b7dc9ab84e12be852c45f10
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Mediator-57
+To:   Mediator-58
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1580.txt 
+
+commit de1134b2eef2c0767b7dc9ab84e12be852c45f10
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Unfold some method chaining.

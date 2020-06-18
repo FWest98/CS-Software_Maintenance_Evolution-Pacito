@@ -70,13 +70,3 @@ It
 seems like IoSessionRecycler.remove() is not invoked when a user calls IoSession.close()
 of an acceptor-side datagram session.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-It affects only trunk 
-
-

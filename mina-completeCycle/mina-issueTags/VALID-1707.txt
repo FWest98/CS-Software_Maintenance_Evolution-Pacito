@@ -1,0 +1,37 @@
+Pattern changes caused by commit: be50669c9832e999391be7af09bfe7d774464bcb
+
+From: Adapter-21
+To:   Adapter-7
+
+From: Bridge-21
+To:   Bridge-16
+
+From: Composite-1
+To:   Composite-0
+
+From: Facade-19
+To:   Facade-13
+
+From: Flyweight-29
+To:   Flyweight-27
+
+From: Mediator-44
+To:   Mediator-28
+
+From: Strategy-32
+To:   Strategy-22
+
+From: Template Method-5
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1707.txt 
+
+commit be50669c9832e999391be7af09bfe7d774464bcb
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    reverted back to 2.0.0-M6-SNAPSHOT. It seems that one of the previous run of mvn release:prepare has been cmmitted ...

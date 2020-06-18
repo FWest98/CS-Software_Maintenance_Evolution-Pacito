@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 28a8c22fea37be56180492a52edbb6f643780b6b
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Bridge-25
+To:   Bridge-21
+
+From: Mediator-58
+To:   Mediator-51
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1584.txt 
+
+commit 28a8c22fea37be56180492a52edbb6f643780b6b
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Switched to Junit 4 construct, adding @Test, @Before, @After and static asserts elements in the test

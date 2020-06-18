@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1764aaffc322b5286e0e4b4b12eaa4565d0a1341
+
+From: Flyweight-25
+To:   Flyweight-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1506.txt 
+
+commit 1764aaffc322b5286e0e4b4b12eaa4565d0a1341
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix for DIRMINA-587

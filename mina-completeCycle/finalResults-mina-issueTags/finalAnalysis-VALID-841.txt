@@ -65,26 +65,3 @@ encapsulates the method call Thread.setName in a try/catch block and logs a warn
 SecurityException is thrown, and modifies all current calls to Thread.setName to use the
 ThreadUtil class
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-the patch! 
-
-
-New Comment: 
-Fixed.  Instead of introducing ThreadUtil, I modified NamePreservingRunnable which is
-widely used by I/O workers.  All setName() calls are now handled by
-NamePreservingRunnable, and therefore NamePreservingRunnable takes care of the raised
-exceptions now.  Please confirm this bug is fixed and close this issue. 
-
-
-New Comment: 
-And.. thanks for the patch! <img class="emoticon"
-src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
-width="16" align="absmiddle" alt="" border="0"/> 
-
-

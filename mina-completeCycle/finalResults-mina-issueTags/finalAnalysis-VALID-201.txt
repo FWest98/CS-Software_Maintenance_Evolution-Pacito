@@ -81,20 +81,3 @@ session.write(message).setCallback(Callback.CLOSE);
 
 which is much better than before.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-HTH 
-
-
-New Comment: 
-This issue got more simplified thanks to <a
-href="https://issues.apache.org/jira/browse/DIRMINA-217" title="Make IoFuture and its
-subclasses interfaces" class="issue-link"
-data-issue-key="DIRMINA-217"><del>DIRMINA-217</del></a> 
-
-

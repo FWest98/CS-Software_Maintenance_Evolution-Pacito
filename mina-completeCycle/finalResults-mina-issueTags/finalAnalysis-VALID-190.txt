@@ -68,9 +68,3 @@ chance to read the available data from the stream. I followed the example of the
 httpserver that is provided with MINA, only there is no handling of client socket closure
 there. 
  
-
------------------
-
------------------
-Comments: 
-

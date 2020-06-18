@@ -80,16 +80,3 @@ protocol implementation.
 To resolve this issue, all filter implementations must create
 its session attribute key dynamically, instead of using a static key.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-related discussion on the mailing-list:<br/><a
-href="http://www.nabble.com/Adding-more-than-one-filter-of-the-same-type.-tf3644119s16868.html#a10177107"
-class="external-link"
-rel="nofollow">http://www.nabble.com/Adding-more-than-one-filter-of-the-same-type.-tf3644119s16868.html#a10177107</a> 
-
-

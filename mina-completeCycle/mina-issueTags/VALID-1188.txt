@@ -1,0 +1,28 @@
+Pattern changes caused by commit: b0659171e8517b6a6bd72f88eab8cfe19633e55e
+
+From: Adapter-17
+To:   Adapter-22
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-33
+To:   Mediator-38
+
+From: Observer-0
+To:   Observer-1
+
+From: Strategy-33
+To:   Strategy-32
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1188.txt 
+
+commit b0659171e8517b6a6bd72f88eab8cfe19633e55e
+Author: Trustin Lee <trustin@apache.org>
+
+    Renamed unbindAll() to unbind() - unbind() has too ambiguous meaning.  It's just better to unbind all addressed.

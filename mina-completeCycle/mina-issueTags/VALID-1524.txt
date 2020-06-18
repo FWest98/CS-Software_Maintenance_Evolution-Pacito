@@ -1,0 +1,22 @@
+Pattern changes caused by commit: e082be35742d2399e033231e84e96e80ff51bded
+
+From: Adapter-17
+To:   Adapter-22
+
+From: Facade-19
+To:   Facade-20
+
+From: Mediator-52
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1524.txt 
+
+commit e082be35742d2399e033231e84e96e80ff51bded
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Added dependency on commons-codec base64 classes

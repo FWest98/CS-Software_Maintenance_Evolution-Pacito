@@ -73,9 +73,3 @@ DemuxingProtocolCodecFactory is somewhat monolithic and needs polishing.  It wou
 more elegant to provide DemuxingProtocolEncoder and DemuxingProtocolDecoder separately,
 and to implement DemuxingProtocolCodecFactory by combining the two.
  
-
------------------
-
------------------
-Comments: 
-

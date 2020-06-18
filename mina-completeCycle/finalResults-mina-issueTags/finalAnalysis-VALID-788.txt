@@ -74,32 +74,3 @@ to stop the connect process while it is not yet established. for example in case
 Connection_Timeout would occur, the user should wait till the time out is finished. is it
 possible to stop it whenever we desire?
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-This kind of functionality maybe also needed in a proxy server where the connection to the
-proxied server should be closed if the proxy client is closing the connection. 
-
-
-New Comment: 
-There's already connection timeout setting.SocketConnectorConfig cfg = new
-SocketConnectorConfig();<br/>cfg.setConnectTimeout( 10 ); // 10 secondsconnector.bind(
-address, handler, cfg );Please reopen this issue if this setting doesn't work. 
-
-
-New Comment: 
-Setting timeout is not the what I need<br/>I want to be able to cancel the connection
-before timeout is over<br/>For example by calling future.cancel()<br/>The client user may
-have entered some wrong host names and soon he wants to cancel the current connection to
-enter another one, instead of waiting N seconds till the connection is timed out 
-
-
-New Comment: 
-Now I see your point.  I edited the subject of the issue for the clearer description. 
-Because it's a new feature, we are going to add it in 2.x. 
-
-

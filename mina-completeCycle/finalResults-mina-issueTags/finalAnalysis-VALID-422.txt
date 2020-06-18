@@ -66,33 +66,3 @@ no room for new Transport.<br/>I propose : <br/>1st  : change the transportType
 constructor visibility to public<br/>2snd : move the staticly defined TransportTypes to
 the different io.datagram, io.socket, etc.. packages
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Now you can create your own TransportType singletons.  Please check out and refer to
-JavaDoc. <img class="emoticon"
-src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
-width="16" align="absmiddle" alt="" border="0"/>I'm still looking for better way to
-separate TransportType constants to each packages, but it looks more clean for
-TransportType to have all default constants.  WDYT? 
-
-
-New Comment: 
-Well it's still problematic in trunk for creating a separate package for Serial
-communications 
-
-
-New Comment: 
-What about just removing TransportType and using Java String instead?  It has been a
-problem whenever we add a new transport type. 
-
-
-New Comment: 
-so far I understand MINA's behaviour, it's looking like a good solution, and going to a
-simplify a little 
-
-

@@ -1,0 +1,28 @@
+Pattern changes caused by commit: f6cfa423ac83a4a430a5ab9eaba77d4e3912a0eb
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-29
+To:   Mediator-35
+
+From: Observer-0
+To:   Observer-1
+
+From: Strategy-29
+To:   Strategy-30
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1134.txt 
+
+commit f6cfa423ac83a4a430a5ab9eaba77d4e3912a0eb
+Author: Trustin Lee <trustin@apache.org>
+
+    Added findSessions and findAndRegisterSessions operation to DefaultModelMBean

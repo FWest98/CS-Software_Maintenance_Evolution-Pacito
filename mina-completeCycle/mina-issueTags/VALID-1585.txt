@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 5690e4df6cb602f5b0d217d9db234871c91b9f0d
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Mediator-51
+To:   Mediator-52
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1585.txt 
+
+commit 5690e4df6cb602f5b0d217d9db234871c91b9f0d
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the 'break' in the decoding loop. When the decoder is stateful, this 'break' just makes some part of the buffer to be lost.

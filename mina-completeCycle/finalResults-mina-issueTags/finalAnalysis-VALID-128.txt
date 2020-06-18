@@ -82,18 +82,3 @@ retain the previous thread pool composition:
 <ul>	<li>call setThreadModel(
 ThreadModel.MANUAL ),</li>	<li>or remove your code that adds a thread pool
 filter.</li></ul> 
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Done:<a href="http://svn.apache.org/viewcvs?rev=385262&amp;view=rev" class="external-link"
-rel="nofollow">http://svn.apache.org/viewcvs?rev=385262&amp;view=rev</a><br/><a
-href="http://svn.apache.org/viewcvs?rev=385263&amp;view=rev" class="external-link"
-rel="nofollow">http://svn.apache.org/viewcvs?rev=385263&amp;view=rev</a><br/><a
-href="http://svn.apache.org/viewcvs?rev=385266&amp;view=rev" class="external-link"
-rel="nofollow">http://svn.apache.org/viewcvs?rev=385266&amp;view=rev</a> 
-
-

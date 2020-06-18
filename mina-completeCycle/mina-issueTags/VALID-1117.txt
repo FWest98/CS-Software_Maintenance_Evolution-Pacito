@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 456971c0a33707bbccf11bad7ce8688e46368539
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-34
+To:   Mediator-28
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1117.txt 
+
+commit 456971c0a33707bbccf11bad7ce8688e46368539
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed unnecessary if block

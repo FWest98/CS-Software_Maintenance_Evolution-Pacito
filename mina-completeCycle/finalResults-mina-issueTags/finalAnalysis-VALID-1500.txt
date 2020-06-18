@@ -1,0 +1,69 @@
+Pattern changes caused by commit: 912385eb3402a82ce69ee2c994e5b11c4ddffca1
+
+From: Adapter-22
+To:   Adapter-17
+
+From: Facade-17
+To:   Facade-16
+
+From: Mediator-48
+To:   Mediator-45
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1500.txt 
+
+commit 912385eb3402a82ce69ee2c994e5b11c4ddffca1
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    New IoFilter that implements DIRMINA-519
+
+
+
+==================================
+ Issue DIRMINA-519 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-519] BufferingFilter
+-----------------
+
+-----------------
+Summary: BufferingFilter
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 24 Jan 2008 09:58:30 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 10 Aug 2008 20:56:25 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+As JDK provides BufferedOutputStream, we could provide BufferingFilteer which does the
+same thing, which buffers encoded data and flushes it out when the buffer becomes full or
+the flush operation is explicitly requested.  This kind of filter is sometimes useful when
+a session is generating very small messages too frequently and consequently generates
+unnecessary traffic overhead.
+ 

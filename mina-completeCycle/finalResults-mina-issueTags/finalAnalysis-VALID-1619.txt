@@ -1,0 +1,123 @@
+Pattern changes caused by commit: 9c1600b434e85ce1f5832030d5cd98fba812f515
+
+From: Adapter-21
+To:   Adapter-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1619.txt 
+
+commit 9c1600b434e85ce1f5832030d5cd98fba812f515
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Fixed DIRMINA-656
+
+
+
+==================================
+ Issue DIRMINA-656 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-656] Methods log in LoggingFilter.java use the subsequent eventLevel instead of current
+-----------------
+
+-----------------
+Summary: Methods log in LoggingFilter.java use the subsequent eventLevel instead of current
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 12 Jan 2009 19:53:42 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 12 Jan 2009 22:21:37 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+The log methods in class LoggingFilter use the subsequent eventLevel instead of
+current
+
+For example:
+
+If the current eventLevel i= LogLevel.INFO the log method uses
+logger.warn to print the message (see source code for proof).
+
+    private void
+log(LogLevel eventLevel, String message) {<br/>    	if (eventLevel == LogLevel.TRACE) 
+{  
+ 		logger.trace(message);    	}
+ else if (eventLevel.getLevel() &gt;
+LogLevel.INFO.getLevel()) 
+{    		logger.info(message);    	}
+ else if
+(eventLevel.getLevel() &gt; LogLevel.WARN.getLevel()) 
+{    		logger.warn(message);    	}
+
+else if (eventLevel.getLevel() &gt; LogLevel.ERROR.getLevel()) 
+{   
+		logger.error(message);    	}
+    }
+
+Remedy:
+
+Either replace the &gt; operator by a &gt;=
+operator in all three log methods or use a switch statement (see code below)
+
+   
+/**
+<ul>	<li>Log if the logger and the current event log level are compatible. We
+log</li>	<li>a message and an exception.</li>	<li></li>	<li>@param eventLevel the event
+log level as requested by the user</li>	<li>@param message the message to
+log</li>	<li>@param cause the exception cause to log<br/>     */<br/>    private void
+log(LogLevel eventLevel, String message, Throwable cause) <div class="error"><span
+class="error">Unknown macro: {        switch(eventLevel)        {            case TRACE:  
+             logger.trace(message, cause);                break;            case DEBUG:   
+        case INFO:                logger.info(message, cause);                break;      
+     case WARN:                logger.warn(message, cause);                break;         
+  case ERROR:                logger.error(message, cause);                break;        } 
+  }</span> </div></li></ul>
+    /**
+<ul>	<li>Log if the logger and the current event log
+level are compatible. We log</li>	<li>a formated message and its
+parameters.</li>	<li></li>	<li>@param eventLevel the event log level as requested by the
+user</li>	<li>@param message the formated message to log</li>	<li>@param param the
+parameter injected into the message<br/>     */<br/>    private void log(LogLevel
+eventLevel, String message, Object param) <div class="error"><span class="error">Unknown
+macro: {        switch(eventLevel)        {            case TRACE:               
+logger.trace(message, param);                break;            case DEBUG:            case
+INFO:                logger.info(message, param);                break;            case
+WARN:                logger.warn(message, param);                break;            case
+ERROR:                logger.error(message, param);                break;        }   
+}</span> </div></li></ul>
+    /**
+<ul>	<li>Log if the logger and the current event log
+level are compatible. We log</li>	<li>a simple message.</li>	<li></li>	<li>@param
+eventLevel the event log level as requested by the user</li>	<li>@param message the
+message to log<br/>     */<br/>    private void log(LogLevel eventLevel, String message)
+<div class="error"><span class="error">Unknown macro: {        switch(eventLevel)        {
+           case TRACE:                logger.trace(message);                break;        
+   case DEBUG:            case INFO:                logger.info(message);               
+break;            case WARN:                logger.warn(message);                break;   
+        case ERROR:                logger.error(message);                break;        }  
+ }</span> </div></li></ul> 

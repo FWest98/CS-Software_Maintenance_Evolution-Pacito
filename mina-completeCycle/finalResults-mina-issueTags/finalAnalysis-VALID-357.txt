@@ -82,14 +82,3 @@ Restricting an acceptor to bind to only one port will dramatically simplify the 
 properties of IoServiceConfig will be merged into IoService.  Applying this practice to
 IoConnector will also be very helpful to implement reconnection feature.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Removing 'connection' from the title of this issue because both IoAcceptor and IoConnector
-should be able to manage more than one connections.  My bad! 
-
-

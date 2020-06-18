@@ -64,13 +64,3 @@ This will be fixed by having socket acceptor and connectors
 each use their own processor. Additionally, the number of processors for each will be
 configurable independently.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Done. 
-
-

@@ -74,18 +74,3 @@ Here's the related mail discussion:
 <a href="http://tinyurl.com/2bh9lo" class="external-link"
 rel="nofollow">http://tinyurl.com/2bh9lo</a>
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Done.  I made sure reuseAddress and sendBufferSize is configured properly. 
-
-
-New Comment: 
-reuseAddress is still false if a user creates a new SocketAcceptorConfig or
-DatagramAcceptorConfig. 
-
-

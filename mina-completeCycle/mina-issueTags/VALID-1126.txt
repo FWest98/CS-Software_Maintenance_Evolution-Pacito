@@ -1,0 +1,32 @@
+Pattern changes caused by commit: f6706aa7d9e0e82c42819583509cfba497b01d45
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-35
+To:   Mediator-29
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1126.txt 
+
+commit f6706aa7d9e0e82c42819583509cfba497b01d45
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added OGNL integration module which will provide complicated query language for finding sessions managed by a service
+    * Changed DefaultModelMBean to use integration-ognl

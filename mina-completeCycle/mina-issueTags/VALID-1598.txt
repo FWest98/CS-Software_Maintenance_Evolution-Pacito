@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 19a4b199c3a5c85816346691ef8acde4ca6dfdc3
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Mediator-51
+To:   Mediator-52
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1598.txt 
+
+commit 19a4b199c3a5c85816346691ef8acde4ca6dfdc3
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Minor code refactoring :
+    o added some comments
+    o used a switch to replace a 'if' cascade
+    o added a TODO

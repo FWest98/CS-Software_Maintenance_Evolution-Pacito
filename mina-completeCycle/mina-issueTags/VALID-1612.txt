@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 450c0acec4f820ad34645e50b0afa2a68e5966a4
+
+From: Adapter-21
+To:   Adapter-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1612.txt 
+
+commit 450c0acec4f820ad34645e50b0afa2a68e5966a4
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix DIRMINA-623

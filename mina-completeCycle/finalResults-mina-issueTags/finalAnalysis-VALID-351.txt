@@ -71,9 +71,3 @@ recycled at all because we are using the former to put the session to the recycl
 using the latter to get the session from the recycler.  These two address can differ when
 the running system is under mixed IP system (IPv4 and IPv6).
  
-
------------------
-
------------------
-Comments: 
-

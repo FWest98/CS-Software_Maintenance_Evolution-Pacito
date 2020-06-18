@@ -71,16 +71,3 @@ href="http://www.nabble.com/Move-MINA-SM-to-Trunk-tf4612579s16868.html"
 class="external-link"
 rel="nofollow">http://www.nabble.com/Move-MINA-SM-to-Trunk-tf4612579s16868.html</a>
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-mina-sm has been moved into trunk and has been renamed to statemachine. The code has been
-moved to the o.a.m.statemachine package. I've updated the root pom and made a proper
-sub-module pom in statemachine. I think I've got the poms right. Let me know if I've made
-some stupid mistake. 
-
-

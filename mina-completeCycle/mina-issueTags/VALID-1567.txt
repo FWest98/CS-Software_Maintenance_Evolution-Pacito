@@ -1,0 +1,22 @@
+Pattern changes caused by commit: c3aebb56044154bb99e3f89d40b11625ce4fbc49
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Mediator-57
+To:   Mediator-58
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1567.txt 
+
+commit c3aebb56044154bb99e3f89d40b11625ce4fbc49
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Switched to Junit 4 syntax :
+    - we don't extend testCase anymore
+    - we are using @Test, and such annotations
+    o Removed the useless Assert.

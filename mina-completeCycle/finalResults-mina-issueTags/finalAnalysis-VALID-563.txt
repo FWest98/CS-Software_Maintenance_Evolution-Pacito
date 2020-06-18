@@ -63,18 +63,3 @@ Some applications don't need to receive events in order, but need to process eve
 simultaneously for performance.  ExecutorFilter could provide an option that disables
 event ordering for such applications.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Hi Trustin,I have made some changes in ExecutorFilter.java class to handle parallel
-processing, but I think we need to put that code in some other class, say, a sub-class of
-"ExecutorFilter" and let the user specify a flag (in SocketAcceptorConfig ), to indicate
-if parallel processing is required. Depending on that initialize the appropriate executor
-filter class. This is just a design suggestion, may be you can think of a better
-alternative. Thanks, 
-
-

@@ -9,11 +9,11 @@ To:   Facade-17
 From: Mediator-29
 To:   Mediator-35
 
-From: Observer-1
-To:   Observer-2
+From: Observer-2
+To:   Observer-3
 
-From: Strategy-26
-To:   Strategy-27
+From: Strategy-27
+To:   Strategy-28
 
 
 =========================
@@ -74,9 +74,3 @@ much faster.  (String takes time for matching as the key length gets long)</li>	
 href="http://www.nabble.com/setEnumAttribute--tf3795432s16868.html#a10735078"
 class="external-link"
 rel="nofollow">http://www.nabble.com/setEnumAttribute--tf3795432s16868.html#a10735078</a></li></ul> 
-
------------------
-
------------------
-Comments: 
-

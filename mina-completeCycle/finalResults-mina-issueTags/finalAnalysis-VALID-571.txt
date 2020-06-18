@@ -72,9 +72,3 @@ invocation into an event object. ExecutorFilter and SSLFilter are good examples,
 might have more than that in the near future.  It would be great to extract Event and
 EventType types from ExecutorFilter and to provide them as a utility.
  
-
------------------
-
------------------
-Comments: 
-

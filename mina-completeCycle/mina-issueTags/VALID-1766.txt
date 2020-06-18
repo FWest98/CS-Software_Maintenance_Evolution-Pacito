@@ -1,0 +1,37 @@
+Pattern changes caused by commit: d4a689791eac44a16a90f950a541f45d67d79202
+
+From: Adapter-7
+To:   Adapter-22
+
+From: Bridge-16
+To:   Bridge-21
+
+From: Composite-0
+To:   Composite-1
+
+From: Facade-13
+To:   Facade-19
+
+From: Flyweight-27
+To:   Flyweight-29
+
+From: Mediator-28
+To:   Mediator-44
+
+From: Strategy-22
+To:   Strategy-32
+
+From: Template Method-2
+To:   Template Method-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1766.txt 
+
+commit d4a689791eac44a16a90f950a541f45d67d79202
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    [maven-release-plugin] prepare release 2.0.0-RC1

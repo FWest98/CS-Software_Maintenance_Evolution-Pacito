@@ -62,13 +62,3 @@ be flexible in supporting different thread pool implementations, such as the Jav
 Executor based one. This way, the application can specify what kind of thread pool
 implementation it wants.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-A patch that allows the application to set a preferred thread pool implementation. 
-
-

@@ -68,13 +68,3 @@ IoServiceManager.startCollectingStats() requires a parameter that indicates the 
 interval.  This parameter can be removed and provided as a separate property for easier
 JMX management.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-changes commited to trunk 
-
-

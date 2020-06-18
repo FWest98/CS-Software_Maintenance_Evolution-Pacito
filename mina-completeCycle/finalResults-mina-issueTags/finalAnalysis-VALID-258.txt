@@ -65,9 +65,3 @@ Currently, IoFuture allows only one callback.  This can be a problem when a user
 add another callback to the existing callback.  We can provide a utility class that
 creates a chain, but we could just use the existing JavaBeans event framework.
  
-
------------------
-
------------------
-Comments: 
-

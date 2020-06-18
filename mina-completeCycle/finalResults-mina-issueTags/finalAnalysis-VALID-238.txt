@@ -61,14 +61,3 @@ instance. Our code relies on each client-side socket being unique and providing 
 name via toString(). For an InetSocketAddress, the toString() returns ip-address/host and
 port. A patch is attached.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Checked in the fix.  Please try the latest version from trunk, and close this issue. 
-Thank you for the patch! 
-
-

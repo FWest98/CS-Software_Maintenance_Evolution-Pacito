@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 1d7326d2f539cc5df352d45103026a2d42267c55
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Mediator-52
+To:   Mediator-51
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1599.txt 
+
+commit 1d7326d2f539cc5df352d45103026a2d42267c55
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Fixed the documentation about the 'autoStart' tag
+    o Define some constant for autoStart
+    o Removed one handler method
+    o Minor code refactoring

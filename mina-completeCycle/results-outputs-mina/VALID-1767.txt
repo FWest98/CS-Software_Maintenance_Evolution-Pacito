@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 5d13a7f440557c5432d22291a8efc4d10722da5c
+
+From: Adapter-22
+To:   Adapter-7
+
+From: Bridge-21
+To:   Bridge-16
+
+From: Composite-1
+To:   Composite-0
+
+From: Facade-19
+To:   Facade-13
+
+From: Flyweight-29
+To:   Flyweight-27
+
+From: Mediator-44
+To:   Mediator-28
+
+From: Strategy-32
+To:   Strategy-22
+
+From: Template Method-5
+To:   Template Method-2
+

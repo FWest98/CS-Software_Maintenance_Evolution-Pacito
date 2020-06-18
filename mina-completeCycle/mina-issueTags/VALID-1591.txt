@@ -1,0 +1,21 @@
+Pattern changes caused by commit: dd422d2a3db4b7d7ca9f62628a69fd911f503ef8
+
+From: Adapter-22
+To:   Adapter-23
+
+From: Mediator-51
+To:   Mediator-52
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1591.txt 
+
+commit dd422d2a3db4b7d7ca9f62628a69fd911f503ef8
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Doing some cleaning in tests :
+    o removing dead code
+    o using Junit 4 annotations

@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 1a86718806570be7973d43600713d2f94362c1d9
+
+From: Bridge-20
+To:   Bridge-15
+
+From: Composite-1
+To:   Composite-0
+
+From: Facade-16
+To:   Facade-13
+
+From: Flyweight-29
+To:   Flyweight-27
+
+From: Mediator-30
+To:   Mediator-27
+
+From: Strategy-29
+To:   Strategy-22
+
+From: Template Method-5
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1841.txt 
+
+commit 1a86718806570be7973d43600713d2f94362c1d9
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    reverted to version 2.0.0-RC2-SNAPSHOT, aborting the release

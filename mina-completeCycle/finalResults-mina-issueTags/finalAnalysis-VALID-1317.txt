@@ -1,7 +1,7 @@
 Pattern changes caused by commit: d8b2599c359d1def795da082e92c56b022d2e274
 
-From: Mediator-23
-To:   Mediator-24
+From: Mediator-48
+To:   Mediator-49
 
 
 =========================
@@ -60,20 +60,3 @@ means MINA performs several unnecessary system calls.  For exaimple,
 Socket.setReceiveBufferSize() is always called even if a user didn't change the default
 value.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-The following test method:    @Test<br/>    public void mina() throws Exception {<br/>    
-   SocketAcceptor acceptor = new NioSocketAcceptor();<br/>        acceptor.setHandler(new
-IoHandlerAdapter());<br/>        acceptor.setDefaultLocalAddress(new
-InetSocketAddress(8080));<br/>        acceptor.bind();        long start =
-System.currentTimeMillis();<br/>        for (int i = 0; i &lt; 10000; i ++) {           
-new Socket("127.0.0.1", 8080).close();        }        long end =
-System.currentTimeMillis();<br/>        System.out.println(end - start);<br/>    }prints
-out the following result:Before optimization - 38412<br/>After optimization 11212 
-
-

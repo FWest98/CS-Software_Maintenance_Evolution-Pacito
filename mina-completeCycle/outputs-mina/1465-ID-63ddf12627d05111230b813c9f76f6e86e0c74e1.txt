@@ -370,11 +370,60 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput-refactored.java
 
 Bridge Pattern.
+AbstractTrafficControlTest is abstract.
+IoAcceptor is an interface.
+AbstractTrafficControlTest delegates IoAcceptor.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractTrafficControlTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoAcceptor-refactored.java
+
+Bridge Pattern.
+AbstractTrafficControlTest is abstract.
+ConnectFuture is an interface.
+AbstractTrafficControlTest delegates ConnectFuture.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractTrafficControlTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/ConnectFuture-refactored.java
+
+Bridge Pattern.
+AbstractTrafficControlTest is abstract.
+IoSession is an interface.
+AbstractTrafficControlTest delegates IoSession.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractTrafficControlTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Bridge Pattern.
+AbstractTrafficControlTest is abstract.
+CloseFuture is an interface.
+AbstractTrafficControlTest delegates CloseFuture.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractTrafficControlTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/CloseFuture-refactored.java
+
+Bridge Pattern.
 AbstractStateContextLookup is abstract.
 StateContextFactory is an interface.
 AbstractStateContextLookup delegates StateContextFactory.
 File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/AbstractStateContextLookup-refactored.java,
                /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContextFactory-refactored.java
+
+Bridge Pattern.
+AbstractProxyIoHandler is abstract.
+IoSession is an interface.
+AbstractProxyIoHandler delegates IoSession.
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/proxy/AbstractProxyIoHandler-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Bridge Pattern.
+EchoProtocolHandler is abstract.
+IoSessionConfig is an interface.
+EchoProtocolHandler delegates IoSessionConfig.
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/echoserver/EchoProtocolHandler-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionConfig-refactored.java
+
+Bridge Pattern.
+EchoProtocolHandler is abstract.
+IoSession is an interface.
+EchoProtocolHandler delegates IoSession.
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/echoserver/EchoProtocolHandler-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Bridge Pattern.
 AbstractMessageDecoder is abstract.
@@ -418,7 +467,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 VmPipe is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler ReverseProtocolHandler ServerToProxyIoHandler TennisPlayer NetCatProtocolHandler ImageClient TimeServerHandler SwingChatClientHandler MemoryMonitorHandler
+Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 VmPipeEventOrderTest$5 MockHandler MockHandler ReverseProtocolHandler AbstractProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ImageClient TimeServerHandler SwingChatClientHandler MemoryMonitorHandler ServerSessionHandler ClientSessionHandler EchoHandler EchoConnectorHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -442,10 +491,42 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 SingleSessionIoHandlerAdapter is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerAdapter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Strategy Pattern.
+DatagramConfigTest is the Context class.
+IoAcceptor is the Strategy interface.
+Concrete Strategy classes:  AbstractIoAcceptor SocketAcceptor DatagramAcceptor
+Delegation through acceptor of type IoAcceptor
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramConfigTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoAcceptor-refactored.java
+
+Strategy Pattern.
+DatagramConfigTest is the Context class.
+IoConnector is the Strategy interface.
+Concrete Strategy classes:  AbstractIoConnector DatagramConnector SocketConnector
+Delegation through connector of type IoConnector
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramConfigTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoConnector-refactored.java
+
+Strategy Pattern.
+MockHandler is the Context class.
+IoSession is the Strategy interface.
+Concrete Strategy classes:  AbstractIoSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
+Delegation through session of type IoSession
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
+
+Strategy Pattern.
+Event is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext-refactored.java
 
 Strategy Pattern.
 SingletonStateContextLookup is the Context class.
@@ -454,6 +535,54 @@ Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateCo
 Delegation through context of type StateContext
 File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/SingletonStateContextLookup-refactored.java,
                /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext-refactored.java
+
+Strategy Pattern.
+StateMachineProxyBuilder is the Context class.
+StateContextLookup is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContextLookup SingletonStateContextLookup IoSessionStateContextLookup
+Delegation through contextLookup of type StateContextLookup
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContextLookup-refactored.java
+
+Strategy Pattern.
+StateMachineProxyBuilder is the Context class.
+EventFactory is the Strategy interface.
+Concrete Strategy classes:  DefaultEventFactory
+Delegation through eventFactory of type EventFactory
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventFactory-refactored.java
+
+Strategy Pattern.
+StateMachineProxyBuilder is the Context class.
+EventArgumentsInterceptor is the Strategy interface.
+Concrete Strategy classes: 
+Delegation through interceptor of type EventArgumentsInterceptor
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventArgumentsInterceptor-refactored.java
+
+Strategy Pattern.
+MethodInvocationHandler is the Context class.
+StateContextLookup is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContextLookup SingletonStateContextLookup IoSessionStateContextLookup
+Delegation through contextLookup of type StateContextLookup
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContextLookup-refactored.java
+
+Strategy Pattern.
+MethodInvocationHandler is the Context class.
+EventArgumentsInterceptor is the Strategy interface.
+Concrete Strategy classes: 
+Delegation through interceptor of type EventArgumentsInterceptor
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventArgumentsInterceptor-refactored.java
+
+Strategy Pattern.
+MethodInvocationHandler is the Context class.
+EventFactory is the Strategy interface.
+Concrete Strategy classes:  DefaultEventFactory
+Delegation through eventFactory of type EventFactory
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/StateMachineProxyBuilder-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/EventFactory-refactored.java
 
 Strategy Pattern.
 ImageCodecFactory is the Context class.
@@ -466,7 +595,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ImageCodecFactory is the Context class.
 ProtocolDecoder is the Strategy interface.
-Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder DecodingStateProtocolDecoder CumulativeProtocolDecoder DemuxingProtocolDecoder ObjectSerializationDecoder PrefixedStringDecoder ImageResponseDecoder ImageRequestDecoder
+Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder DecodingStateProtocolDecoder CumulativeProtocolDecoder DemuxingProtocolDecoder ObjectSerializationDecoder PrefixedStringDecoder ImageResponseDecoder ImageRequestDecoder NettyDecoder
 Delegation through decoder of type ProtocolDecoder
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageCodecFactory-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder-refactored.java
@@ -482,7 +611,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ImageClient is the Context class.
 IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession SerialSession ProtocolCodecSession NioSession
+Concrete Strategy classes:  AbstractIoSession SerialSession ProtocolCodecSession NioSession EventOrderCounter
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/client/ImageClient-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
@@ -502,6 +631,38 @@ Concrete Strategy classes:  SwingChatClient
 Delegation through callback of type Callback
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/SwingChatClientHandler-refactored.java,
                /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/SwingChatClientHandler-refactored.java
+
+Strategy Pattern.
+SslFilterTest is the Context class.
+SocketAcceptor is the Strategy interface.
+Concrete Strategy classes:  NioSocketAcceptor AprSocketAcceptor
+Delegation through acceptor of type SocketAcceptor
+File Location: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ssl/SslFilterTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/SocketAcceptor-refactored.java
+
+Strategy Pattern.
+StateTest is the Context class.
+Transition is the Strategy interface.
+Concrete Strategy classes:  AbstractTransition NoopTransition
+Delegation through transition1 of type Transition
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/test/java/org/apache/mina/statemachine/StateTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/transition/Transition-refactored.java
+
+Strategy Pattern.
+StateTest is the Context class.
+Transition is the Strategy interface.
+Concrete Strategy classes:  AbstractTransition NoopTransition
+Delegation through transition2 of type Transition
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/test/java/org/apache/mina/statemachine/StateTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/transition/Transition-refactored.java
+
+Strategy Pattern.
+StateTest is the Context class.
+Transition is the Strategy interface.
+Concrete Strategy classes:  AbstractTransition NoopTransition
+Delegation through transition3 of type Transition
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/test/java/org/apache/mina/statemachine/StateTest-refactored.java,
+               /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/transition/Transition-refactored.java
 
 Flyweight Pattern.
 TrafficMask is a flyweight factory.
@@ -614,6 +775,11 @@ NAME is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/tapedeck/PasswordCommand-refactored.java
 
 Flyweight Pattern.
+Event is a flyweight factory.
+WILDCARD_EVENT_ID is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+
+Flyweight Pattern.
 IoSessionStateContextLookup is a flyweight factory.
 DEFAULT_SESSION_ATTRIBUTE_NAME is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/IoSessionStateContextLookup-refactored.java
@@ -622,6 +788,13 @@ Flyweight Pattern.
 CompressionFilter is a flyweight factory.
 DISABLE_COMPRESSION_ONCE is a flyweight object (declared public-static-final).
 File location: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/CompressionFilter-refactored.java
+
+Composite pattern.
+Event is the composite class.
+arguments is the composite instance.
+Object is the component class.
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/event/Event-refactored.java
+File Location: /apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar/java/lang(Object.class)
 
 Template Method Found.
 AbstractIoService is the template class
@@ -635,25 +808,67 @@ setAll is the template method
 doSetAll is a primitive method
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoSessionConfig-refactored.java
 
+Template Method Found.
+DecodingStateMachine is the template class
+cleanup is the template method
+destroy is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/statemachine/DecodingStateMachine-refactored.java
+
+Template Method Found.
+AbstractPropertyAccessor is the template class
+hasGetProperty is the template method
+hasGetProperty0 is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/integration-ognl/src/main/java/org/apache/mina/integration/ognl/AbstractPropertyAccessor-refactored.java
+
+Visitor pattern found.
+IoSession is an abstract Visitor class.
+AbstractProxyIoHandler is a Vistee class.
+IoHandlerAdapter is an abstract Visitee class.
+ ChainedIoHandler DemuxingIoHandler StreamIoHandler IoFilterChainTest$1 SenderHandler ReceiverHandler KeepAliveFilterTest$2 SimpleIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 VmPipeEventOrderTest$5 VmPipeSessionCrossCommunicationTest$1 VmPipeSessionCrossCommunicationTest$2 VmPipeSessionCrossCommunicationTest$2$1 EchoProtocolHandler EchoProtocolHandler AbstractFileRegionTest$1 AbstractFileRegionTest$2 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 AbstractConnectorTest$3 ReverseProtocolHandler AbstractProxyIoHandler TennisPlayer ChatProtocolHandler NetCatProtocolHandler ImageServerIoHandler ImageServerIoHandler ImageClient TimeServerHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ServerSessionHandler ClientSessionHandler EchoHandler EchoConnectorHandler ServerToProxyIoHandler
+sessionCreated is the accept method.
+setTrafficMask is the visit method.
+NONE is exposed to visitor IoSession
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/proxy/AbstractProxyIoHandler-refactored.java
+
 Mediator Pattern.
 Mediator: SynchronizedQueue
-Colleagues:  DefaultWriteRequest TrafficMask WriteRequestWrapper LineDelimiter TennisBall ResultMessage AddMessage TextLineEncoder
+Colleagues:  DefaultWriteRequest TrafficMask WriteRequestWrapper LineDelimiter AbstractStateContext AbstractTransition TennisBall ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/SynchronizedQueue-refactored.java
 
 Mediator Pattern.
 Mediator: IoBuffer
-Colleagues:  ImageResponseEncoder IoBufferAllocator
+Colleagues:  ObjectSerializationOutputStream IoBufferAllocator ObjectSerializationInputStream ImageResponseEncoder
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoBuffer-refactored.java
 
 Mediator Pattern.
+Mediator: AbstractIoService
+Colleagues:  AbstractTrafficControlTest NotifyingTask IdleStatusChecker IoFuture SslFilterTest IoServiceListenerSupport
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoService-refactored.java
+
+Mediator Pattern.
+Mediator: DefaultConnectFuture
+Colleagues:  AbstractTrafficControlTest DefaultIoFuture ConnectorTest
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultConnectFuture-refactored.java
+
+Mediator Pattern.
 Mediator: DefaultWriteRequest
-Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter TennisBall ResultMessage AddMessage TextLineEncoder
+Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter AbstractStateContext AbstractTransition TennisBall ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteRequest-refactored.java
 
 Mediator Pattern.
+Mediator: DefaultWriteFuture
+Colleagues:  ConnectorTest DefaultIoFuture
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteFuture-refactored.java
+
+Mediator Pattern.
 Mediator: WriteRequestWrapper
-Colleagues:  WriteRequestFilter DefaultWriteRequest KeepAliveFilter FilteredWriteRequest TrafficMask LineDelimiter TennisBall ResultMessage AddMessage TextLineEncoder
+Colleagues:  WriteRequestFilter DefaultWriteRequest ErrorGeneratingFilter FilteredWriteRequest KeepAliveFilter TrafficMask LineDelimiter AbstractStateContext AbstractTransition TennisBall ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/WriteRequestWrapper-refactored.java
+
+Mediator Pattern.
+Mediator: CumulativeProtocolDecoder
+Colleagues:  ObjectSerializationTest DemuxingProtocolDecoder ObjectSerializationDecoder PrefixedStringDecoder ImageResponseDecoder IoSession
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/CumulativeProtocolDecoder-refactored.java
 
 Mediator Pattern.
 Mediator: DemuxingProtocolDecoder
@@ -661,14 +876,49 @@ Colleagues:  CumulativeProtocolDecoder MessageDecoder AbstractMessageDecoder Pro
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/demux/DemuxingProtocolDecoder-refactored.java
 
 Mediator Pattern.
+Mediator: TextLineDecoder
+Colleagues:  ObjectSerializationTest LineDelimiter
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: TextLineEncoder
+Colleagues:  ObjectSerializationTest IoSession TrafficMask DefaultWriteRequest WriteRequestWrapper LineDelimiter AbstractStateContext AbstractTransition TennisBall ResultMessage AddMessage ProtocolEncoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder-refactored.java
+
+Mediator Pattern.
+Mediator: ProtocolCodecSession
+Colleagues:  ObjectSerializationTest AbstractProtocolEncoderOutput AbstractProtocolDecoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolCodecSession-refactored.java
+
+Mediator Pattern.
+Mediator: SynchronizedProtocolDecoder
+Colleagues:  ObjectSerializationTest CumulativeProtocolDecoder TextLineDecoder NettyDecoder
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/SynchronizedProtocolDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: ObjectSerializationEncoder
+Colleagues:  ObjectSerializationTest ProtocolEncoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder-refactored.java
+
+Mediator Pattern.
 Mediator: ObjectSerializationDecoder
 Colleagues:  CumulativeProtocolDecoder ProtocolDecoderOutput AbstractProtocolDecoderOutput
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder-refactored.java
 
 Mediator Pattern.
+Mediator: SynchronizedProtocolEncoder
+Colleagues:  ObjectSerializationTest TextLineEncoder ObjectSerializationEncoder PrefixedStringEncoder ImageResponseEncoder
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/SynchronizedProtocolEncoder-refactored.java
+
+Mediator Pattern.
 Mediator: PrefixedStringDecoder
 Colleagues:  CumulativeProtocolDecoder ProtocolDecoderOutput AbstractProtocolDecoderOutput
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: PrefixedStringEncoder
+Colleagues:  ObjectSerializationTest ProtocolEncoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringEncoder-refactored.java
 
 Mediator Pattern.
 Mediator: AbstractDatagramSessionConfig
@@ -687,8 +937,53 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: IoSessionInputStream
-Colleagues:  KeyStoreFactory IoBuffer
+Colleagues:  KeyStoreFactory IoBuffer SslFilterTest StreamIoHandler
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/stream/IoSessionInputStream-refactored.java
+
+Mediator Pattern.
+Mediator: ExecutorFilterRegressionTest
+Colleagues:  AbstractTrafficControlTest ExecutorFilter SslFilterTest
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/executor/ExecutorFilterRegressionTest-refactored.java
+
+Mediator Pattern.
+Mediator: EventOrderChecker
+Colleagues:  IoFilterAdapter EventOrderCounter ErrorGeneratingFilter
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/executor/ExecutorFilterRegressionTest-refactored.java
+
+Mediator Pattern.
+Mediator: ConnectionThrottleFilterTest
+Colleagues:  AbstractTrafficControlTest DummySession SslFilterTest
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/firewall/ConnectionThrottleFilterTest-refactored.java
+
+Mediator Pattern.
+Mediator: AbstractTrafficControlTest
+Colleagues:  SslFilterTest AbstractIoService
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractTrafficControlTest-refactored.java
+
+Mediator Pattern.
+Mediator: VmPipeTrafficControlTest
+Colleagues:  AbstractTrafficControlTest AbstractIoService IoConnector VmPipeAddress
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/vmpipe/VmPipeTrafficControlTest-refactored.java
+
+Mediator Pattern.
+Mediator: SocketTrafficControlTest
+Colleagues:  AbstractTrafficControlTest AbstractIoService IoConnector
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/SocketTrafficControlTest-refactored.java
+
+Mediator Pattern.
+Mediator: DatagramTrafficControlTest
+Colleagues:  AbstractTrafficControlTest AbstractIoService IoConnector
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramTrafficControlTest-refactored.java
+
+Mediator Pattern.
+Mediator: DatagramConfigTest
+Colleagues:  AbstractTrafficControlTest AbstractIoService SslFilterTest
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramConfigTest-refactored.java
+
+Mediator Pattern.
+Mediator: DatagramRecyclerTest
+Colleagues:  AbstractTrafficControlTest SslFilterTest AbstractIoService
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java
 
 Mediator Pattern.
 Mediator: ArrayEditor
@@ -716,9 +1011,19 @@ Colleagues:  AbstractStateContextLookup IoSession
 FileLocation: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/IoSessionStateContextLookup-refactored.java
 
 Mediator Pattern.
+Mediator: ImageRequestEncoder
+Colleagues:  ObjectSerializationTest ImageRequest ProtocolEncoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageRequestEncoder-refactored.java
+
+Mediator Pattern.
 Mediator: ImageResponseDecoder
 Colleagues:  CumulativeProtocolDecoder ProtocolDecoderOutput AbstractProtocolDecoderOutput
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: ImageResponseEncoder
+Colleagues:  ObjectSerializationTest ImageResponse ProtocolEncoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseEncoder-refactored.java
 
 Mediator Pattern.
 Mediator: ImageRequestDecoder
@@ -727,12 +1032,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/m
 
 Mediator Pattern.
 Mediator: ResultMessage
-Colleagues:  DefaultWriteRequest AbstractMessage WriteRequestWrapper TextLineEncoder
+Colleagues:  DefaultWriteRequest AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/ResultMessage-refactored.java
 
 Mediator Pattern.
 Mediator: AddMessage
-Colleagues:  DefaultWriteRequest AbstractMessage WriteRequestWrapper TextLineEncoder
+Colleagues:  DefaultWriteRequest AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest PropertyTypeConverter AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/AddMessage-refactored.java
 
 Mediator Pattern.
@@ -751,6 +1056,16 @@ Colleagues:  AbstractMessageDecoder AddMessage
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AddMessageDecoder-refactored.java
 
 Mediator Pattern.
+Mediator: SpringMainTest
+Colleagues:  AbstractTrafficControlTest SslFilterTest
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/chat/SpringMainTest-refactored.java
+
+Mediator Pattern.
+Mediator: SslFilterTest
+Colleagues:  AbstractTrafficControlTest AbstractIoService
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ssl/SslFilterTest-refactored.java
+
+Mediator Pattern.
 Mediator: DefaultSerialSessionConfig
 Colleagues:  AbstractIoSessionConfig SerialSessionConfig
 FileLocation: /data/s4040112/sourcecodes/mina/transport-serial/src/main/java/org/apache/mina/transport/serial/DefaultSerialSessionConfig-refactored.java
@@ -759,6 +1074,11 @@ Mediator Pattern.
 Mediator: CompressionFilter
 Colleagues:  WriteRequestFilter IoSession DefaultWriteRequest Zlib
 FileLocation: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/CompressionFilter-refactored.java
+
+Mediator Pattern.
+Mediator: NettyDecoder
+Colleagues:  ObjectSerializationTest ProtocolDecoderOutput AbstractProtocolDecoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/filter-codec-netty/src/main/java/org/apache/mina/filter/codec/netty/NettyDecoder-refactored.java
 
 Proxy Pattern.
 ObjectSerializationOutputStream is a proxy.
@@ -827,6 +1147,124 @@ IoHandlerChain is the adaptee class.
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/ChainedIoHandler-refactored.java
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/IoHandlerChain-refactored.java
 
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ExecutorFilterRegressionTest is an adapter class.
+ExecutorFilter is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/executor/ExecutorFilterRegressionTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/executor/ExecutorFilter-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ConnectionThrottleFilterTest is an adapter class.
+ConnectionThrottleFilter is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/firewall/ConnectionThrottleFilterTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/firewall/ConnectionThrottleFilter-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ConnectionThrottleFilterTest is an adapter class.
+DummySession is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/firewall/ConnectionThrottleFilterTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DummySession-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ConnectionThrottleFilterTest is an adapter class.
+DummySession is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/firewall/ConnectionThrottleFilterTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DummySession-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+DatagramConfigTest is an adapter class.
+IoAcceptor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramConfigTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoAcceptor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+DatagramConfigTest is an adapter class.
+IoConnector is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramConfigTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoConnector-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+DatagramRecyclerTest is an adapter class.
+NioDatagramAcceptor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/NioDatagramAcceptor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+DatagramRecyclerTest is an adapter class.
+NioDatagramConnector is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramRecyclerTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/NioDatagramConnector-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+VmPipeAddressEditorTest is an adapter class.
+VmPipeAddressEditor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/test/java/org/apache/mina/integration/beans/VmPipeAddressEditorTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/main/java/org/apache/mina/integration/beans/VmPipeAddressEditor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+InetSocketAddressEditorTest is an adapter class.
+InetSocketAddressEditor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/test/java/org/apache/mina/integration/beans/InetSocketAddressEditorTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/main/java/org/apache/mina/integration/beans/InetSocketAddressEditor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+InetAddressEditorTest is an adapter class.
+InetAddressEditor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/test/java/org/apache/mina/integration/beans/InetAddressEditorTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/integration-beans/src/main/java/org/apache/mina/integration/beans/InetAddressEditor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+SslFilterTest is an adapter class.
+SocketAcceptor is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ssl/SslFilterTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/SocketAcceptor-refactored.java
+
+Adapter Pattern.
+Adapting classes:  AbstractTest TestCase Assert Object Test
+ConnectorTest is an adapter class.
+SslFilter is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ConnectorTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/ssl/SslFilter-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ZlibTest is an adapter class.
+Zlib is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/filter-compression/src/test/java/org/apache/mina/filter/compression/ZlibTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/Zlib-refactored.java
+
+Adapter Pattern.
+Adapting classes:  TestCase Assert Object Test
+ZlibTest is an adapter class.
+Zlib is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/filter-compression/src/test/java/org/apache/mina/filter/compression/ZlibTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/filter-compression/src/main/java/org/apache/mina/filter/compression/Zlib-refactored.java
+
+Adapter Pattern.
+Adapting classes:  RMockTestCase AbstractMockStrategyTestCase BasicJUnitStrategyTestCase AbstractStrategyTestCase TestCase Assert Object Test
+StateTest is an adapter class.
+State is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/test/java/org/apache/mina/statemachine/StateTest-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/statemachine/src/main/java/org/apache/mina/statemachine/State-refactored.java
+
+Facade Pattern.
+ErrorGeneratingFilter is a facade class.
+Hidden types: WriteRequest DefaultWriteRequest IoBuffer
+Facade access types: ErrorGeneratingFilter
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/errorgenerating/ErrorGeneratingFilter-refactored.java
+
 Facade Pattern.
 KeepAliveFilter is a facade class.
 Hidden types: IoFilterChain KeepAliveMessageFactory WriteRequest IoSession KeepAliveRequestTimeoutHandler IoSessionConfig
@@ -841,8 +1279,8 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 
 Facade Pattern.
 TextLineDecoder is a facade class.
-Hidden types: LineDelimiter IoSession IoBuffer ProtocolDecoderOutput
-Facade access types: TextLineCodecFactory
+Hidden types: LineDelimiter IoSession ProtocolDecoderOutput
+Facade access types: TextLineDecoderTest TextLineCodecFactory
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder-refactored.java
 
 Facade Pattern.
@@ -850,6 +1288,12 @@ TextLineEncoder is a facade class.
 Hidden types: IoSession IoBuffer LineDelimiter ProtocolEncoderOutput
 Facade access types: TextLineCodecFactory
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder-refactored.java
+
+Facade Pattern.
+ProtocolCodecSession is a facade class.
+Hidden types: AbstractProtocolEncoderOutput AbstractProtocolDecoderOutput
+Facade access types: TextLineDecoderTest ObjectSerializationTest
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolCodecSession-refactored.java
 
 Facade Pattern.
 ObjectSerializationEncoder is a facade class.
@@ -876,6 +1320,12 @@ Facade access types: PrefixedStringCodecFactory
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringEncoder-refactored.java
 
 Facade Pattern.
+ObjectSerializationTest is a facade class.
+Hidden types: ProtocolCodecSession ProtocolEncoder ObjectSerializationOutputStream IoBuffer ObjectSerializationInputStream ProtocolDecoder
+Facade access types: ObjectSerializationTest
+File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/codec/serialization/ObjectSerializationTest-refactored.java
+
+Facade Pattern.
 Main is a facade class.
 Hidden types: IoService IoAcceptor DefaultIoFilterChainBuilder
 Facade access types: Main
@@ -893,6 +1343,24 @@ Hidden types: ImageResponse IoBuffer ProtocolEncoderOutput
 Facade access types: ImageResponseEncoder
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseEncoder-refactored.java
 
+Facade Pattern.
+SslFilterTest is a facade class.
+Hidden types: NioSocketAcceptor IoAcceptor IoService DefaultIoFilterChainBuilder SocketAcceptor
+Facade access types: SslFilterTest
+File Location: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ssl/SslFilterTest-refactored.java
+
+Facade Pattern.
+ConnectorTest is a facade class.
+Hidden types: SslFilter DefaultIoFilterChainBuilder IoService IoConnector ConnectFuture AvailablePortFinder WriteFuture IoBuffer IoSession CloseFuture TransportMetadata
+Facade access types: ConnectorTest
+File Location: /data/s4040112/sourcecodes/mina/example/src/test/java/org/apache/mina/example/echoserver/ConnectorTest-refactored.java
+
+Facade Pattern.
+NettyDecoder is a facade class.
+Hidden types: IoBuffer ProtocolDecoderOutput
+Facade access types: NettyDecoder
+File Location: /data/s4040112/sourcecodes/mina/filter-codec-netty/src/main/java/org/apache/mina/filter/codec/netty/NettyDecoder-refactored.java
+
 
 ------------------------------------------
 
@@ -906,32 +1374,32 @@ Singleton                   0
 ------------------------------
 Structural Patterns
 ==============================
-Adapter                     7
-Bridge                     14
-Composite                   0
+Adapter                    23
+Bridge                     21
+Composite                   1
 Decorator                   5
-Facade                     11
-Flyweight                  24
+Facade                     17
+Flyweight                  25
 Proxy                       3
 ------------------------------
 Behavioral Patterns
 ==============================
 Chain of Responsibility     0
-Mediator                   25
+Mediator                   50
 Observer                    0
 State                       0
-Strategy                   15
-Template Method             2
-Visitor                     0
+Strategy                   29
+Template Method             4
+Visitor                     1
 ------------------------------
 
-Number of classes processed: 265
+Number of classes processed: 330
 Number of files processed: 465
-Size of DelegationTable: 1328
-Size of concrete class nodes: 161
-Size of undirected invocation edges: 181
+Size of DelegationTable: 2671
+Size of concrete class nodes: 204
+Size of undirected invocation edges: 298
 
 
-nMediatorFacadeDual/nMediator = 4/25
-nImmutable/nFlyweight = 1/24
+nMediatorFacadeDual/nMediator = 12/50
+nImmutable/nFlyweight = 1/25
 nFlyweightGoFVersion = 0

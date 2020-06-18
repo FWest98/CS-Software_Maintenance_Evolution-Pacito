@@ -73,19 +73,3 @@ processors cannot be shared among different services.  This becomes a serious is
 more than one service is deployed into the same JVM.  Therefore, we need a way to share
 the I/O processors among the services with the same transport type.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Updated issue description; I think it is too difficult to provide sharing for acceptor and
-connector threads other than I/O processors.  So I just narrowed down the scope of this
-issue.  Moreover, what's most critical part if sharing I/O processors.  The acceptor and
-connector threads are not that busy to cause contention IMHO, and it will be no problem at
-all once <a href="https://issues.apache.org/jira/browse/DIRMINA-341" title="Allow binding
-multiple SocketAddresses per IoAcceptor." class="issue-link"
-data-issue-key="DIRMINA-341"><del>DIRMINA-341</del></a> is resolved. 
-
-

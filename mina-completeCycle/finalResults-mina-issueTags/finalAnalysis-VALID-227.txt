@@ -65,39 +65,3 @@ does not work with the latest SVN snapshot of MINA without this patch (attached)
 
 Oleg
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Please reviewOleg 
-
-
-New Comment: 
-I think this problem is very bad since things could get very, very messed up if you wrap
-one of these stream instances in e.g. a BufferedOutputStream. I'm not sure whether we want
-non blocking writes here. If we use join() as suggested in Oleg's patch we could also
-check isWritten() on the WriteFuture and throw an IOException if it couldn't be written.
-WDYT?BTW, the patch looks great. I have no objections. But I would like to add the
-isWritten() check as well. I'll go ahead and apply it right away. 
-
-
-New Comment: 
-I've made the changes as suggested by Oleg. I've also readded the code which joins on the
-CloseFuture in IoSessionOutputStream.close(). I think it is safe to have it there now when
-we also join on the writes. I've also added code which throws IOException if a write fails
-or if the session isn't connected when trying to write. I think this is more in line with
-the contract of InputStream. 
-
-
-New Comment: 
-That fixed the problem for me. Thanks a bunchOleg 
-
-
-New Comment: 
-Wouldn't we need a property that allows a user to swith the synchronous operations into
-the asynchronous one? 
-
-

@@ -63,9 +63,3 @@ throughput in a certain situation.  Removing the added if block immediately boos
 throughput up.  Instead of the problematic if statement, I added channel.isConnected()
 check before the write loop in SocketIoProcessor.
  
-
------------------
-
------------------
-Comments: 
-

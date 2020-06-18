@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 2221baeb39a3290886950f2465c0ee0bc93a7b20
+
+From: Adapter-19
+To:   Adapter-23
+
+From: Facade-17
+To:   Facade-18
+
+From: Mediator-47
+To:   Mediator-50
+
+From: Strategy-29
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1278.txt 
+
+commit 2221baeb39a3290886950f2465c0ee0bc93a7b20
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    moving mina subproject module protocol-http-client to asyncweb as client module

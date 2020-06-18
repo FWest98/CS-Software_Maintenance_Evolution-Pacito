@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 31a61e553be2a2915471d6383f913a7a7e869495
+
+From: Bridge-20
+To:   Bridge-12
+
+From: Composite-1
+To:   Composite-0
+
+From: Facade-16
+To:   Facade-14
+
+From: Flyweight-29
+To:   Flyweight-27
+
+From: Mediator-30
+To:   Mediator-24
+
+From: Strategy-29
+To:   Strategy-22
+
+From: Template Method-5
+To:   Template Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1881.txt 
+
+commit 31a61e553be2a2915471d6383f913a7a7e869495
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    reverted back tro 2.0.0-RC2, once more ...

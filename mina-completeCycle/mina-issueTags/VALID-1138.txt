@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 35880a92131f9bb51f5093bbec63d16ea9afe234
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-35
+To:   Mediator-29
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1138.txt 
+
+commit 35880a92131f9bb51f5093bbec63d16ea9afe234
+Author: Trustin Lee <trustin@apache.org>
+
+    Improved IoSessionFinder to deny modification of session attributes

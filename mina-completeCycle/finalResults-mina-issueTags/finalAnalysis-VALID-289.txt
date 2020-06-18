@@ -79,9 +79,3 @@ replaced with 'Executor':
 ExecutorFilter</li>	<li>PooledThreadModel -&gt;
 ExecutorThreadModel</li>	<li>org.apache.mina.filter.thread -&gt;
 org.apache.mina.filter.executor</li></ul> 
-
------------------
-
------------------
-Comments: 
-

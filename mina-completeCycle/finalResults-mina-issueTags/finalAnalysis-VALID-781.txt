@@ -16,10 +16,10 @@ From: Mediator-20
 To:   Mediator-30
 
 From: Observer-0
-To:   Observer-1
+To:   Observer-2
 
 From: Strategy-14
-To:   Strategy-26
+To:   Strategy-27
 
 
 =========================
@@ -78,108 +78,3 @@ Description:
 It's just an update of the MANIFEST files.  Never related with API design, so won't fix
 in 2.0.0-M1.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-If mina 1.1.0 consolidates to one project, the maven-osgi plugin can easily create a jar
-that is also an OSGi bundle. 
-
-
-New Comment: 
-Since the creation of a single project Mina appears to be shelved.  To move the OSGi
-effort forward, I would like to create a  OSGi bundle for wrapping the current Mina 1.0.0
-release. Before I attach the pom.xml for the project called mina-integration-osgi<br/>I
-have a few questions of the community.Java 1.4?<br/>My first intention was to do this for
-Java5, but do we also need an OSGi wrapping project for a java 1.4 of Mina 1.0.0? Wrapped
-Dependencies?<br/>In the example I am showing below is for a Java5 release (no backport
-libs) Here are the dependencies that will be wrapped in the bundle:<br/>              
-&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-core&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;		&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-java5&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;		&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-filter-ssl&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;		&lt;dependency&gt;		
-   &lt;!--This dependency is using several transients 		       
-net.gleamynode.netty2.mina--&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-filter-codec-netty&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;		&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-filter-compression&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;		&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-integration-spring&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;			&lt;exclusions&gt;
-                          &lt;exclusion&gt;                             
-&lt;groupId&gt;org.springframework&lt;/groupId&gt;			      
-&lt;artifactId&gt;spring-beans&lt;/artifactId&gt;                          
-&lt;/exclusion&gt;                           &lt;exclusion&gt;                            
- &lt;groupId&gt;org.springframework&lt;/groupId&gt;			     
-&lt;artifactId&gt;spring-core&lt;/artifactId&gt;                          
-&lt;/exclusion&gt;                         &lt;/exclusions&gt;		
-&lt;/dependency&gt;		&lt;dependency&gt;			&lt;groupId&gt;org.apache.mina&lt;/groupId&gt;			&lt;artifactId&gt;mina-integration-jmx&lt;/artifactId&gt;			&lt;version&gt;${pom.version}&lt;/version&gt;		&lt;/dependency&gt;<br/>Are
-these dependencies all that need to be delievered in the bundle to meet Mina 1.0.0
-functionality?Provided Dependencies?<br/>At OSGi runtime the two additional dependencies
-will be provided by other OSGi common use bundles 
-wrapping:<br/>&lt;dependency&gt;			&lt;groupId&gt;commons-collections&lt;/groupId&gt;			&lt;artifactId&gt;commons-collections&lt;/artifactId&gt;			&lt;version&gt;3.0&lt;/version&gt;			&lt;scope&gt;provided&lt;/scope&gt;&lt;/dependency&gt;&lt;dependency&gt;	
-               &lt;groupId&gt;org.slf4j&lt;/groupId&gt;	              
-&lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;	               
-&lt;version&gt;1.0&lt;/version&gt;	              
-&lt;scope&gt;provided&lt;/scope&gt;&lt;/dependency&gt;<br/>Are there any more dependencies
-that I am missing?Ignored Dependencies?<br/>The OSGi Maven Plugin provides an analysis
-mode so one can tell library depenency usage. When bundleing Mina 1.0.0 the analysis is
-showing an unusual circular dependency on a no longer used mina library.<span
-class="error">&#91;INFO&#93;</span> org.apache.mina.protocol used by;<br/>          +--
-net.gleamynode.netty2.mina<span class="error">&#91;INFO&#93;</span>
-org.apache.commons.logging used by;<br/>          +-- net.gleamynode.netty2<span
-class="error">&#91;INFO&#93;</span> net.gleamynode.netty2 used by;<div
-class='table-wrap'><table class='confluenceTable'><tbody><tr><td
-class='confluenceTd'>&#8211; net.gleamynode.netty2.mina<br/>          +--
-org.apache.mina.filter.codec.netty</td></tr></tbody></table></div>I have a hunch that I
-can simple ignore the org.apache.mina.protocol library.<br/>Is there any reason I
-can't?Pending imput I expect to attach the project pom tomorrow. 
-
-
-New Comment: 
-Here is an example of the Manifest.MF for a created OSGi bundle. 
-
-
-New Comment: 
-This pom.xml can be use with a Java5 version of Mina 1.0.0. 
-
-
-New Comment: 
-Sorry for catching up this issue late.  Is your patch still applicable for MINA?  I think
-Netty stuff can be ignored.  Please let me know if anything has changed since then. 
-
-
-New Comment: 
-Yes as a matter of fact the latest Mina OSGi work is still on the apacheDS. You will find
-three projects in sandbox/jconlon/osgi-mina.   These projects are for the Mina 1.1.  The
-first of these projects is mina-integration-osgi this is a wrapping bundle for mina. The
-second mina-osgi-example is a OSGi version of the Chat example.  The third
-mina-osgi-example-integration-test is a Spring-OSGi based testing framework for the second
-project.I have not moved them to my Mina sandbox or said much about them because many of
-the third party dependencies Enrique and I built for OSGi enabling ADS are in the process
-of moving to the OSGi felix commons area.  Additionally the Spring-OSGi efforts are in a
-state of flux so the testing framework is not very stable nor is it available from stable
-maven repos.However the main osgi bundling of mina 1.1 (mina-integration-osgi) should
-build for you as it does me right now. The other two projects are a bit more bold in their
-use of third party snapshots and thus are more shakey as they require sets of pre-built
-dependencies that you won't likely have.  Time will fructify these dependencies and we
-should have something provided by third parties soon.Would you like me to create a OSGi
-wrapper project for the latest trunk? 
-
-
-New Comment: 
-&gt; Would you like me to create a OSGi wrapper project for the latest trunk?That would be
-great! 
-
-
-New Comment: 
-This issue has been resolved by using Apache Felix maven-bundle-plugin v1.0.0.  All MINA
-modules are now OSGi bundles thanks to the bundle plugin.  Please confirm the fix and let
-me know. 
-
-
-New Comment: 
-It seems like the latest felix bundle plugin doesn't work well with multiprojects.  I
-think we need to wait for the better plugin to be released. 
-
-
-New Comment: 
-All JARs are now OSGi bundles.  I used maven-bundle-plugin + some Ant tasks.  It seems to
-load OK in Felix.  Any external dependencies will need to be provided as OSGi bundles
-though (e.g. jzlib and rxtx). 
-
-

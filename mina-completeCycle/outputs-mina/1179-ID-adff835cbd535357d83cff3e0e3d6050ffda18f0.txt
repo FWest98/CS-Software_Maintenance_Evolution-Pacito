@@ -859,7 +859,7 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/min
 Strategy Pattern.
 VmPipe is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler SenderHandler ReceiverHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ImageClient ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
+Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ImageClient ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -887,22 +887,6 @@ Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession Datagr
 Delegation through session of type IoSession
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerAdapter-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
-
-Strategy Pattern.
-StreamWriteFilterTest is the Context class.
-IoSession is the Strategy interface.
-Concrete Strategy classes:  AbstractIoSession VmPipeSession SocketSession DatagramSession SerialSession ProtocolCodecSession NioSession
-Delegation through session of type IoSession
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
-
-Strategy Pattern.
-StreamWriteFilterTest is the Context class.
-NextFilter is the Strategy interface.
-Concrete Strategy classes:  DefaultIoFilterChain$EntryImpl$1 EventOrderChecker
-Delegation through nextFilter of type NextFilter
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java,
-               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
 
 Strategy Pattern.
 MockHandler is the Context class.
@@ -1035,7 +1019,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 Strategy Pattern.
 ChatClientSupport is the Context class.
 IoHandler is the Strategy interface.
-Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler SenderHandler ReceiverHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ImageClient ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
+Concrete Strategy classes:  AbstractIoConnector$1 IoHandlerAdapter SingleSessionIoHandlerDelegate ChainedIoHandler StreamIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 MockHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler ServerToProxyIoHandler TennisPlayer EchoProtocolHandler NetCatProtocolHandler ImageClient ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler ClientSessionHandler EchoHandler
 Delegation through handler of type IoHandler
 File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java,
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoHandler-refactored.java
@@ -1223,6 +1207,12 @@ setAll is the template method
 doSetAll is a primitive method
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoSessionConfig-refactored.java
 
+Template Method Found.
+AbstractPropertyAccessor is the template class
+hasGetProperty is the template method
+hasGetProperty0 is a primitive method
+File Location: /data/s4040112/sourcecodes/mina/integration-ognl/src/main/java/org/apache/mina/integration/ognl/AbstractPropertyAccessor-refactored.java
+
 Visitor pattern found.
 IoSession is an abstract Visitor class.
 AbstractProxyIoHandler is a Vistee class.
@@ -1235,7 +1225,7 @@ File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/
 
 Mediator Pattern.
 Mediator: SynchronizedQueue
-Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/util/SynchronizedQueue-refactored.java
 
 Mediator Pattern.
@@ -1255,17 +1245,17 @@ FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina
 
 Mediator Pattern.
 Mediator: DefaultWriteRequest
-Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask WriteRequestWrapper LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteRequest-refactored.java
 
 Mediator Pattern.
 Mediator: IoSessionLogger
-Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest
+Colleagues:  WriteRequestWrapper TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSessionLogger-refactored.java
 
 Mediator Pattern.
 Mediator: WriteRequestWrapper
-Colleagues:  IoSessionLogger TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage FilteredWriteRequest TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger TrafficMask LineDelimiter AbstractTransition AbstractStateContext TennisBall HttpVersion ResultMessage AddMessage FilteredWriteRequest TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/WriteRequestWrapper-refactored.java
 
 Mediator Pattern.
@@ -1297,11 +1287,6 @@ Mediator Pattern.
 Mediator: IoSessionInputStream
 Colleagues:  KeyStoreFactory IoBuffer SslFilterTest StreamIoHandler
 FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/stream/IoSessionInputStream-refactored.java
-
-Mediator Pattern.
-Mediator: StreamWriteFilterTest
-Colleagues:  AbstractTrafficControlTest SslFilterTest IoSession
-FileLocation: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java
 
 Mediator Pattern.
 Mediator: AbstractTrafficControlTest
@@ -1350,12 +1335,12 @@ FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/m
 
 Mediator Pattern.
 Mediator: ResultMessage
-Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/ResultMessage-refactored.java
 
 Mediator Pattern.
 Mediator: AddMessage
-Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest
+Colleagues:  IoSessionLogger AbstractMessage WriteRequestWrapper TextLineEncoder AbstractTrafficControlTest AbstractPropertyAccessor
 FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/AddMessage-refactored.java
 
 Mediator Pattern.
@@ -1435,13 +1420,6 @@ ChainedIoHandler is an adapter class.
 IoHandlerChain is the adaptee class.
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/ChainedIoHandler-refactored.java
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/IoHandlerChain-refactored.java
-
-Adapter Pattern.
-Adapting classes:  TestCase Assert Object Test
-StreamWriteFilterTest is an adapter class.
-IoSession is the adaptee class.
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/filter/stream/StreamWriteFilterTest-refactored.java
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Adapter Pattern.
 Adapting classes:  TestCase Assert Object Test
@@ -1595,7 +1573,7 @@ Singleton                   0
 ------------------------------
 Structural Patterns
 ==============================
-Adapter                    13
+Adapter                    12
 Bridge                     25
 Composite                   1
 Decorator                   6
@@ -1606,21 +1584,21 @@ Proxy                       3
 Behavioral Patterns
 ==============================
 Chain of Responsibility     0
-Mediator                   30
+Mediator                   29
 Observer                    0
 State                       0
-Strategy                   31
-Template Method             2
+Strategy                   29
+Template Method             3
 Visitor                     1
 ------------------------------
 
-Number of classes processed: 324
+Number of classes processed: 321
 Number of files processed: 474
-Size of DelegationTable: 2245
-Size of concrete class nodes: 187
-Size of undirected invocation edges: 299
+Size of DelegationTable: 2137
+Size of concrete class nodes: 184
+Size of undirected invocation edges: 284
 
 
-nMediatorFacadeDual/nMediator = 3/30
+nMediatorFacadeDual/nMediator = 3/29
 nImmutable/nFlyweight = 2/25
 nFlyweightGoFVersion = 0

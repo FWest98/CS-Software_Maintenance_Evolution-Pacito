@@ -6,11 +6,11 @@ To:   Flyweight-20
 From: Mediator-52
 To:   Mediator-50
 
-From: Observer-8
-To:   Observer-7
+From: Observer-9
+To:   Observer-8
 
-From: Strategy-34
-To:   Strategy-33
+From: Strategy-35
+To:   Strategy-34
 
 
 =========================
@@ -78,24 +78,3 @@ msgWrittenThroughput, msgReadThroughput, bytesWrittenThroughputand bytesReadThro
 could be corrupted and return an unexpected value since they are not thread safe and 2
 different threads may be changing them.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Thanks for this patch, I'm reviewing it now, <br/>first comments :easly fixable :<ul
-class="alternate" type="square">	<li>code style is not the good one for 1.X branch, I know
-it's annoying :o)</li>	<li>it's using java.util.concurrent in place of the
-backport</li></ul>more problematic :<ul class="alternate" type="square">	<li>it's
-preventing HTTP like protocols to calculate an average session throughput</li>	<li>doesn't
-give per service instantaneous throughtput stats, but total values (service life wide
-total)</li>	<li>adding ScheduledWrites and QueuedEvents is a good idea but doesn't give
-those stats for the polling period, but again a total value</li></ul> 
-
-
-New Comment: 
-This issue has to be resolved in 1.0.2. 
-
-

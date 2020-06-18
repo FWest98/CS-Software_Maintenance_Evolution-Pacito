@@ -1,0 +1,22 @@
+Pattern changes caused by commit: d007652ddb2ac8ace51f46490de1fa9604fd5cf1
+
+From: Adapter-17
+To:   Adapter-22
+
+From: Facade-19
+To:   Facade-20
+
+From: Mediator-52
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1531.txt 
+
+commit d007652ddb2ac8ace51f46490de1fa9604fd5cf1
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fixed author tags

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 801151dc401777bbbb683fd97a6a96561190aa9d
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Mediator-52
+To:   Mediator-51
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1596.txt 
+
+commit 801151dc401777bbbb683fd97a6a96561190aa9d
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Use logger instead of sys.out/ use StringBuilder instead of StringBuffer

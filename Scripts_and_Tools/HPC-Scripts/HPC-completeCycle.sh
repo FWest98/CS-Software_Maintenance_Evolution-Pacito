@@ -15,6 +15,8 @@ export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.ja
 
 COUNTER=1
 
+#This value needs to be changed according to the number of issues the analyzed software contains in 
+#the JIRA repository, for more information check the comments in the Java project 3-JiraIssueParser
 NUMBEROFISSUES=1126
 
 cd /data/s4040112/sourcecodes/mina
@@ -54,8 +56,6 @@ done
 
 mkdir /data/s4040112/Pinot_results/outputs-${projectname}
 
-BETWEEN_TWO_COMMITS=false
-
 for line in $file_lines ; 
 do
 	git reset --hard $line
@@ -88,7 +88,7 @@ do
     
     java -jar /data/s4040112/Internship_RuG_2020/4-PomFileManipulator/out/artifacts/4_PomFileManipulator_jar/4-PomFileManipulator.jar ${projectname}
     
-    mvn dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies
+    mvn dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies -Dhttps.protocols=TLSv1.2
   
  	  find ${projectpath} -name '*.jar' > ${projectname}-jars.list
  
@@ -103,20 +103,10 @@ do
   
   echo "$line"
   
-  if [ "$line" == 19a9be0e18ed6c68ada9bae2ea6e21a8bdc17ad5 ] ; then
-    BETWEEN_TWO_COMMITS=true;
-  fi
-  
-  if [ "$line" == 9265133922c62e9391c6364b04b550416f3b05d2 ] ; then
-    BETWEEN_TWO_COMMITS=false;
-  fi
-  
-  if [ $BETWEEN_TWO_COMMITS = true ] ; then
-    /home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
-  else
-	  /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
-  fi
-  
+  #Change depending on the version of pinot needed, the version inside tools2 does not scan the Factory Patterns due to its instability issues
+  #/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+
   rm -rf dependencies
 
 	rm ${projectname}-files.list

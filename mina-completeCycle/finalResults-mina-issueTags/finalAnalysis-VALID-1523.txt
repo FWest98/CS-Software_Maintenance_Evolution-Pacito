@@ -1,13 +1,19 @@
 Pattern changes caused by commit: 2764c02d518e960bc0eb83cab3c493a088b9ab64
 
-From: Flyweight-24
-To:   Flyweight-27
+From: Facade-18
+To:   Facade-19
 
-From: Mediator-30
-To:   Mediator-31
+From: Flyweight-26
+To:   Flyweight-29
 
-From: Strategy-20
-To:   Strategy-22
+From: Mediator-50
+To:   Mediator-52
+
+From: Strategy-31
+To:   Strategy-33
+
+From: Template Method-4
+To:   Template Method-5
 
 
 =========================
@@ -68,143 +74,3 @@ proxies.
 IoFilters are not adequate for proxies because proxies needs changes in the
 socket addresses (both local and remote) of IoSession.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-Niklas wrote:Now, one thing we should consider is whether we want to
-support<br/>specifying proxyHost, proxyPort via system properties, just like
-Socket<br/>does. In that case I don't think it will be as simple as wrapping
-like<br/>suggested above. Maybe we could support this by having some kind of<br/>factory
-which looks at the system properties?Lóránt Pintér wrote:However, I'd vote for supporting
-proxyHost and such, because there are a<br/>lot of legacy systems out there moving to
-MINA. When they finally<br/>migrate to MINA, their users don't really want to know about
-the change,<br/>and don't expect changes in the configuration of the system.I think all of
-these systems will then create something like<br/>LegacyProxyConnector inherited from
-ProxyingConnector, and set the proxy<br/>parameters from proxyHost etc. As I think a lot
-of people would<br/>implement this redundantly, MINA could have it out of the box as well. 
-
-
-New Comment: 
-Related mailing list thread: <a href="http://tinyurl.com/2lu7z3" class="external-link"
-rel="nofollow">http://tinyurl.com/2lu7z3</a> 
-
-
-New Comment: 
-From the recent discussion, we concluded we don't need any core API modification. 
-Therefore, we can implement this feature later, but at least before 2.0.0-RC1. 
-
-
-New Comment: 
-First cut of proxy connector. Supports unauthenticated proxies and proxies with Basic
-authentication.Still quite messy - needs some refactoring to work with IoC containers
-properly.Tested with MINA 1.1. 
-
-
-New Comment: 
-This is a great news, James.  Please let us keep updated with your contribution. 
-
-
-New Comment: 
-Updated to better support IoC containers. Fixed some issues with the Basic auth.Now just
-need to look at NTLM/Digest auth and possibly SOCKS. Also port to MINA 2.0... 
-
-
-New Comment: 
-I'm currently working on the NTLM auth as it can be usefull for me to use on other
-protocols.<br/>I'll mail you James for some questions and maybe api improvements. 
-
-
-New Comment: 
-Ported to MINA 2.0 - tested with MINA 2.0.0 M1NTLM/Digest/Socks still unimplemented, may
-not have time to do this for a while 
-
-
-New Comment: 
-Based on James work i hacked around and achieved working NTLM &amp; socks 4 &amp; 4a proxy
-support<br/>But it still needs a lot of work : code cleaning, API reworking, socks 5 &amp;
-digest support<br/>i'll keep sending infos on  progress made 
-
-
-New Comment: 
-Wow, that's a great news!  Please let us get updated! 
-
-
-New Comment: 
-Due to personal events i've made less progress than expected.<br/>But Socks5 support is
-now added and digest auth is currently in progress.<br/>Code still needs lot of workThe
-problem is that it is hard to test the code as i have no dedicated network to test it. For
-example, i've been unable to find a free proxy supporting Socks5 with GSSAPI
-auth.<br/>Generally speaking i've been forced to use many different proxies because each
-of them has a unique combination of auth methods.<br/>So i may need help on this, if some
-of you could test the proxy program within their network it would help debbuging.Regarding
-a previous comment on IOC containers, i've no idea on how to make code IoC friendly : i'll
-accept any clue on this ;pAnother important point is that the code contains some basic
-objects (HttpHeader, HttpResponse etc...) that i think should be refactored to use
-AsyncWeb (not sure this is the official MINA http project ?) code<br/>WDYT ?That's all for
-the moment<br/>Any comments or help is appreciated. 
-
-
-New Comment: 
-Hi community,This is a great day (althought i spent 3 hours in the strike this morning
-<img class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
-height="16" width="16" align="absmiddle" alt="" border="0"/> ...) <br/>as i'm proud to
-announce after 4 months of work that <br/>i'm releasing a proxy support connector for MINA
-2.0-M1.This release features :HTTP proxy : <ul class="alternate"
-type="square">	<li>Support for NTLM authentication</li>	<li>Support for Digest
-authentication</li>	<li>Transparent support for reconnection to a http proxy that does not
-support connection keep alive</li>	<li>Support for HTTP/1.1 requests</li>	<li>Support for
-multi valued headers</li>	<li>Configuration of prefered authentication
-mechanism</li>	<li>Smart proxy authentication system that dynamically and automatically
-selects the mechanism to use</li></ul>SOCKS :<ul class="alternate"
-type="square">	<li>Support for SOCKS4 and SOCKS4a</li>	<li>Support for SOCKS5 with support
-for GSSAPI authentication via Kerberos V</li></ul>Moreover i added some test classes and
-junit testcases to test internals and <br/>cover most of the revelant functionnalities.I
-hope this work will be usefull for the community as i put great efforts on it<br/>I'm
-really excited by looking forward for your questions, comments, etc...Regards,<ul
-class="alternate" type="square">	<li>Edouard De Oliveira -<br/><a
-href="http://tedorg.free.fr/en/projects.php" class="external-link"
-rel="nofollow">http://tedorg.free.fr/en/projects.php</a></li></ul> 
-
-
-New Comment: 
-Great !!!This seems to be a tremendous piece of work ! I wish RATP have as much commitment
-to do their job as you do <img class="emoticon"
-src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
-width="16" align="absmiddle" alt="" border="0"/> 
-
-
-New Comment: 
-Excellent - I look forward to seeing this included in a future release of MINA! In
-particular the NTLM and Socks support you have added will be invaluable.Thanks,<br/>James 
-
-
-New Comment: 
-A MINA-2.0.0-M2 is currently under work, so I see those proposals as perfect candidate for
-a 2.0.0-M3. 
-
-
-New Comment: 
-First comments : formatting is wrong you can get our formatting rules for eclipse here
-:<br/><a href="http://mina.apache.org/developer-guide.data/ImprovedJavaConventions.xml"
-class="external-link"
-rel="nofollow">http://mina.apache.org/developer-guide.data/ImprovedJavaConventions.xml</a><br/>No
-tabs, 4 whitespaces in place.you don't need to add<br/>if (logger.isDebugEnabled())
-{<br/>Because slf4j will do string concatenation only when the log level is
-suffisant.Anyway, nice contribution !! I'll try to say more as soon I can run it. 
-
-
-New Comment: 
-Updates :<br/>Mina coding conventions applied &amp; log4j.isDebugEnabled() calls removed
-when unnecessary (99 % in fact ^^)<br/>Thx to Julien for his comments 
-
-
-New Comment: 
-Source code updated to comply with MINA 2.0.0-M2 version.<br/>Some minor refactorings were
-madeAdded a telnet test client : tested it by communicating with a SMTP server through a
-http &amp; socks proxy. 
-
-

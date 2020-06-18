@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 16a4cec3166c35fbe1092c0b8b5e54cb4deaad03
+
+From: Adapter-17
+To:   Adapter-18
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1645.txt 
+
+commit 16a4cec3166c35fbe1092c0b8b5e54cb4deaad03
+Author: Ashish Paliwal <apaliwal@apache.org>
+
+    Removed unused imports, added assertTrue to empty catch blocks to address PMD report observations
+    Submitted By: Ashish Paliwal (apaliwal.at.apache.org)

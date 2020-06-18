@@ -62,14 +62,3 @@ Description:
 Is there any way how to prevent MINA ByteBuffer from losing the previously set mark()
 when autoexpanding?
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-I checked in the fix.  Please check out the trunk and test if my fix works.  Please close
-this issue after your confirmation. 
-
-

@@ -3,6 +3,11 @@ On issue key DIRMINA-209 the singleton pattern might have been discussed, namely
 SocketIoProcessor singleton causes performance wall under load 
 ==============================
 
+On issue key DIRMINA-587 the proxy pattern might have been discussed, namely here: 
+==============================
+The proxy sample does not work - results in a NullPointerException 
+==============================
+
 On issue key DIRMINA-185 the decorator pattern might have been discussed on the following comment: 
 ==============================
 I would like to see the IoFilterLCM go away.IoFilter's that want the current behavior can
@@ -967,6 +972,27 @@ src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16
 width="16" align="absmiddle" alt="" border="0"/> 
 ==============================
 
+On issue key DIRMINA-616 the command pattern might have been discussed on the following comment: 
+==============================
+It does not work... The 2.2-beta63-SNAPSHOT does not exist anywhere ... (skipped some rude
+sentences about maven ...)<span class="error">&#91;INFO&#93;</span> A required plugin was
+not found: Plugin could not be found - check that the goal name is correct: Unable to
+download the artifact from any repositoryTry downloading the file manually from the
+project website.Then, install it using the command: <br/>    mvn install:install-file
+-DgroupId=org.apache.maven.plugins -DartifactId=maven-assembly-plugin
+-Dversion=2.2-beta-3-SNAPSHOT -Dpackaging=maven-plugin -Dfile=/path/to/fileAlternatively,
+if you host your own repository you can deploy the file there: <br/>    mvn
+deploy:deploy-file -DgroupId=org.apache.maven.plugins -DartifactId=maven-assembly-plugin
+-Dversion=2.2-beta-3-SNAPSHOT -Dpackaging=maven-plugin -Dfile=/path/to/file -Durl=<span
+class="error">&#91;url&#93;</span> -DrepositoryId=<span class="error">&#91;id&#93;</span> 
+org.apache.maven.plugins:maven-assembly-plugin:maven-plugin:2.2-beta-3-SNAPSHOTfrom the
+specified remote repositories:<br/>  central (<a href="http://repo1.maven.org/maven2"
+class="external-link" rel="nofollow">http://repo1.maven.org/maven2</a>) 
+org.apache.maven.plugins:maven-assembly-plugin:maven-plugin:2.2-beta-3-SNAPSHOTfrom the
+specified remote repositories:<br/>  central (<a href="http://repo1.maven.org/maven2"
+class="external-link" rel="nofollow">http://repo1.maven.org/maven2</a>) 
+==============================
+
 On issue key DIRMINA-456 the Adapter pattern might have been discussed on the following comment: 
 ==============================
 Good call Heath .  You were spot on with everything running in the same thread.  (Cool
@@ -1226,6 +1252,11 @@ Works for me.  As long as it's definitely called before the sessionCreated() fil
 chain/handler method <img class="emoticon"
 src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
 width="16" align="absmiddle" alt="" border="0"/> 
+==============================
+
+On issue key DIRMINA-623 the proxy pattern might have been discussed, namely here: 
+==============================
+Failure of test org.apache.mina.proxy.NTLMTest.testType1Message on windows Vista 
 ==============================
 
 On issue key DIRMINA-405 the mediate pattern might have been discussed, namely here: 

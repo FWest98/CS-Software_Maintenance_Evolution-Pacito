@@ -1,7 +1,13 @@
 Pattern changes caused by commit: 44c5a153ede5d6fb8a37e12e8674d671662c1c28
 
-From: Mediator-32
+From: Adapter-17
+To:   Adapter-16
+
+From: Mediator-33
 To:   Mediator-34
+
+From: Strategy-33
+To:   Strategy-31
 
 
 =========================

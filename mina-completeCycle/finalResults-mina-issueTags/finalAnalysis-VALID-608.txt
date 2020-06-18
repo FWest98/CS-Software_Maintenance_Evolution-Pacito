@@ -68,14 +68,3 @@ SocketIoProcessor runs for users who need precise traffic control.
 To resolve this issue,
 ProtocolCodecFilter should stop calling decoder as soon as the traffic mask is updated.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-ProtocolCodecFilter's internal ProtocolDecoderOutput implementation now stops flushing
-events when read operation is suspended. 
-
-

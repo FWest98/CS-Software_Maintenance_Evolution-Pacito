@@ -73,36 +73,3 @@ href="http://mail-archives.apache.org/mod_mbox/directory-mina-dev/200604.mbox/%3
 class="external-link"
 rel="nofollow">http://mail-archives.apache.org/mod_mbox/directory-mina-dev/200604.mbox/%3c44325244.2020109@falcom.de%3e</a>
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-summarizing list thread:<ul>	<li>configure size of read buffer and automatically disable
-reads once the buffer is full</li>	<li>buffer would be a filter that is inserted
-<b>before</b> the ThreadPoolFilter</li>	<li>this eliminates the complexities of tracking
-things in greater detail and all the goop from the thread pool</li>	<li>writes still tbd,
-one thought is to block the write, but that has implications if no thread pool filter is
-in use</li></ul> 
-
-
-New Comment: 
-I created a filter to throttle reads. The default per-connection 1mb buffer may/probably
-is too large.. suggestions welcome.The filter wraps the ThreadPoolFilter (just adds itself
-before + after) 
-
-
-New Comment: 
-I think 1 mega bytes are a little bit more than much.  Probably we could set it to about
-the default socket read buffer size in Linux.  Perhaps with an extra room like 50%?  WDYT? 
-
-
-New Comment: 
-We still need to take care of write overflow and more convenient way to prevent
-OutOfMemoryError, but Peter's patch at least solves the situation when the server is
-overloaded.  I'd like to mark this issue as resolved and provide another issue for the
-remaining problems. 
-
-

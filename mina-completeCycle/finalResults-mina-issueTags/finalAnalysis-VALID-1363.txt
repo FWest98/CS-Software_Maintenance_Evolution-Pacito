@@ -1,0 +1,60 @@
+Pattern changes caused by commit: 92d4586b9a99a4d4344fb526ce5f84ab23790b02
+
+From: Strategy-24
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1363.txt 
+
+commit 92d4586b9a99a4d4344fb526ce5f84ab23790b02
+Author: Niklas Therning <niklas@apache.org>
+
+    Fixed DIRMINA-559: StateMachineProxyFactory has been renamed to StateMachineProxyBuilder and there are now some boolean flags which control whether methods on the proxied interfaces which cannot be converted into events should be ignored or not.
+
+
+
+==================================
+ Issue DIRMINA-559 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-559] State machines for IoFilter cannot be created
+-----------------
+
+-----------------
+Summary: State machines for IoFilter cannot be created
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 25 Mar 2008 22:18:43 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 25 Mar 2008 22:21:08 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+Currently, it is not possible to create a state machine proxy for IoFilter since this
+interface has methods which doesn't take an IoSession as argument (e.g. onPreAdd())
+ 

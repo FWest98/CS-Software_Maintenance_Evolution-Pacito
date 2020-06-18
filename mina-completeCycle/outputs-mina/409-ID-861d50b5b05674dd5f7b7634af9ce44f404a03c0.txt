@@ -654,6 +654,14 @@ File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/min
                /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoSession-refactored.java
 
 Strategy Pattern.
+IoFilterMapping is the Context class.
+IoFilter is the Strategy interface.
+Concrete Strategy classes:  ReferenceCountingIoFilter IoFilterAdapter LoggingFilter Add Release StreamWriteFilter IoFilterImpl DefaultIoFilterChainBuilderTest$1 DefaultIoFilterChainBuilderTest$2 MockFilter CompressionFilter
+Delegation through filter of type IoFilter
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/main/java/org/apache/mina/integration/spring/IoFilterMapping-refactored.java,
+               /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoFilter-refactored.java
+
+Strategy Pattern.
 DefaultIoFilterChainBuilderFactoryBeanTest is the Context class.
 IoFilterChain is the Strategy interface.
 Concrete Strategy classes:  AbstractIoFilterChain VmPipeFilterChain SocketFilterChain DatagramFilterChain
@@ -931,6 +939,14 @@ _testRegressively is the notify method.
 bind is the update method.
 Subject class(es):
 File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/AbstractBindTest-refactored.java
+
+Observer Pattern.
+DefaultIoFilterChainBuilderFactoryBean is an observer iterator.
+IoFilterMapping is the generic type for the listeners.
+setFilters is the notify method.
+setFilter is the update method.
+Subject class(es): DefaultIoFilterChainBuilderFactoryBeanTest
+File Location: /data/s4040112/sourcecodes/mina/integration-spring/src/main/java/org/apache/mina/integration/spring/DefaultIoFilterChainBuilderFactoryBean-refactored.java
 
 Observer Pattern.
 ChatProtocolHandler is an observer iterator.
@@ -1546,18 +1562,18 @@ Behavioral Patterns
 ==============================
 Chain of Responsibility     0
 Mediator                   55
-Observer                    8
+Observer                    9
 State                       0
-Strategy                   36
+Strategy                   37
 Template Method             2
 Visitor                     1
 ------------------------------
 
-Number of classes processed: 291
+Number of classes processed: 300
 Number of files processed: 248
-Size of DelegationTable: 2951
-Size of concrete class nodes: 175
-Size of undirected invocation edges: 401
+Size of DelegationTable: 3029
+Size of concrete class nodes: 184
+Size of undirected invocation edges: 404
 
 
 nMediatorFacadeDual/nMediator = 11/55

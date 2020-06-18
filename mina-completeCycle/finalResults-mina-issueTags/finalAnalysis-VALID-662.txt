@@ -75,9 +75,3 @@ Moving
 idleTime and writeTimeout property in IoSession to IoSessionConfig will make the two
 property more IoC-friendly.
  
-
------------------
-
------------------
-Comments: 
-

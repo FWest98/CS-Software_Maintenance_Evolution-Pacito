@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 9c1600b434e85ce1f5832030d5cd98fba812f515
+
+From: Adapter-21
+To:   Adapter-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1619.txt 
+
+commit 9c1600b434e85ce1f5832030d5cd98fba812f515
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Fixed DIRMINA-656

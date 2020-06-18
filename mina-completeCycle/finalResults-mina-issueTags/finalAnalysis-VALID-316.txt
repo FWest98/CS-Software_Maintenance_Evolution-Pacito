@@ -68,28 +68,3 @@ org.apache.mina.common.BufferDataException: dataLength: -1393754107 (Hexdump: em
 I
 suspect this has something to do with the reading of the prefixed data.
  
-
------------------
-
------------------
-Comments: 
-
-New Comment: 
-It would be nice if we can, but it takes a lot of energy to fulfill it.  We'll have to
-analyze the object stream so we can find out when it ends.  Moreover, this will break when
-Sun adds something to the protocol.  That's why we used the header data which represents
-the length of the serialized object.What do you think about providing object input/output
-stream classes that can read/write the stream that MINA wrote? 
-
-
-New Comment: 
-I suspected it  might be a big task...<br/>MINA object stream classes would be quite
-helpful, especially if they could be added to existing code with few other changes. Thanks
-a lot for looking at this. 
-
-
-New Comment: 
-OK.  Then we will provide MINA version of ObjectInputStream and ObjectOutputStream.  Thank
-you for your cooperation. 
-
-

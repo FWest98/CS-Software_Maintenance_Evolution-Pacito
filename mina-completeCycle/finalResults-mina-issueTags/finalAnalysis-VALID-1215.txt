@@ -3,8 +3,8 @@ Pattern changes caused by commit: 189c15f061839a15b98138b1af0023ea8edd4309
 From: Facade-18
 To:   Facade-17
 
-From: Template Method-2
-To:   Template Method-3
+From: Template Method-3
+To:   Template Method-4
 
 
 =========================
@@ -66,9 +66,3 @@ accepted properly. The HTTP spec hints at reading the content until the connecti
 closed if the response length or chunk size is not mentioned. The Http protocol filter
 needs to be fixed for this.
  
-
------------------
-
------------------
-Comments: 
-
