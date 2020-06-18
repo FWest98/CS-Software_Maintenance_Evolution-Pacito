@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 28fe9a57eb04a1354cde4f5dd236db2879a30cc1
+
+From: Facade-18
+To:   Facade-19
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1274.txt 
+
+commit 28fe9a57eb04a1354cde4f5dd236db2879a30cc1
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    Error generating IoFilter

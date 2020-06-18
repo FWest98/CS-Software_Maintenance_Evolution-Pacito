@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 53fd205e3f831fdfca1eac3a4a90aaad0ee0eebf
+
+From: Mediator-24
+To:   Mediator-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1415.txt 
+
+commit 53fd205e3f831fdfca1eac3a4a90aaad0ee0eebf
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    moved back transport serial

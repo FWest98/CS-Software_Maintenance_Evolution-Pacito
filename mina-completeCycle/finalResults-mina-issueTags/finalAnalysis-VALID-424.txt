@@ -1,0 +1,116 @@
+Pattern changes caused by commit: a88268234fe5b5216982a891ca1f7f8b7a2ede4e
+
+From: Facade-21
+To:   Facade-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-424.txt 
+
+commit a88268234fe5b5216982a891ca1f7f8b7a2ede4e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-337 (SwingChatClient example throws NPE)
+    * Applied Maarten's patch
+
+
+
+==================================
+ Issue DIRMINA-337 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-337] SwingChatClient example throws NPE
+-----------------
+
+-----------------
+Summary: SwingChatClient example throws NPE
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 23 Jan 2007 12:27:15 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 24 Jan 2007 06:28:56 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+session.write( "LOGIN " + name );<br/>is called before the session is retrieved from the
+ConnectFuture
+
+I will attach a trivial patch.<br/>(also added an ExecutorFilter to
+serverContext.xml)
+
+java.lang.NullPointerException<br/> at
+org.apache.mina.example.chat.client.ChatClientSupport.login(ChatClientSupport.java:93)   
+at org.apache.mina.example.chat.client.SwingChatClient.connected(SwingChatClient.java:283)
+   at
+org.apache.mina.example.chat.client.SwingChatClientHandler.sessionOpened(SwingChatClientHandler.java:69)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain$TailFilter.sessionOpened(AbstractIoFilterChain.java:658)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionOpened(AbstractIoFilterChain.java:290)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:53)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionOpened(AbstractIoFilterChain.java:760)
+   at org.apache.mina.filter.LoggingFilter.sessionOpened(LoggingFilter.java:114)    at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionOpened(AbstractIoFilterChain.java:290)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:53)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionOpened(AbstractIoFilterChain.java:760)
+   at org.apache.mina.common.IoFilterAdapter.sessionOpened(IoFilterAdapter.java:63)    at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionOpened(AbstractIoFilterChain.java:290)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.access$700(AbstractIoFilterChain.java:53)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain$EntryImpl$1.sessionOpened(AbstractIoFilterChain.java:760)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain$HeadFilter.sessionOpened(AbstractIoFilterChain.java:593)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.callNextSessionOpened(AbstractIoFilterChain.java:290)
+   at
+org.apache.mina.common.support.AbstractIoFilterChain.fireSessionOpened(AbstractIoFilterChain.java:282)
+   at
+org.apache.mina.common.support.IoServiceListenerSupport.fireSessionCreated(IoServiceListenerSupport.java:197)
+   at
+org.apache.mina.transport.socket.nio.SocketIoProcessor.doAddNew(SocketIoProcessor.java:172)
+   at
+org.apache.mina.transport.socket.nio.SocketIoProcessor.access$300(SocketIoProcessor.java:49)
+   at
+org.apache.mina.transport.socket.nio.SocketIoProcessor$Worker.run(SocketIoProcessor.java:535)
+   at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:43)   
+at<br/>java.lang.Thread.run(Thread.java:595)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+trivial fix 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8877ea271fe411282decc24d4568ca93cba431ed
+
+From: Facade-17
+To:   Facade-16
+
+From: Mediator-55
+To:   Mediator-48
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-999.txt 
+
+commit 8877ea271fe411282decc24d4568ca93cba431ed
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-473 (ReadThrottleFilter throws IllegalStateException)
+    * Added more sanity check to track down the problem more precisely

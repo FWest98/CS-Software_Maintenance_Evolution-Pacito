@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 99833b2282afd5b6047caf28c9f321665fa87e0c
+
+From: Facade-10
+To:   Facade-11
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-721.txt 
+
+commit 99833b2282afd5b6047caf28c9f321665fa87e0c
+Author: Mark Webb <mwebb@apache.org>
+
+    Updated to align with the renaming of protocol-http-client

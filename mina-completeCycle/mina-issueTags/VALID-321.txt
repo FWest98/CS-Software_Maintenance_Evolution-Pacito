@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f918acef3a059b31cc94f44927e88a25c5145cc0
+
+From: Flyweight-22
+To:   Flyweight-24
+
+From: Mediator-55
+To:   Mediator-56
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-321.txt 
+
+commit f918acef3a059b31cc94f44927e88a25c5145cc0
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-244 (Example HTTP server using ProtocolCodeFactory)
+    * Added John Preston's contribution to the example package

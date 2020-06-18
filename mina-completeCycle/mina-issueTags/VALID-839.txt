@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 7d6cac9e560576422e5394dc684cc282a5ae28de
+
+From: Adapter-16
+To:   Adapter-13
+
+From: Facade-18
+To:   Facade-16
+
+From: Mediator-41
+To:   Mediator-35
+
+From: Observer-3
+To:   Observer-2
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-839.txt 
+
+commit 7d6cac9e560576422e5394dc684cc282a5ae28de
+Author: Maarten Bosteels <maarten@apache.org>
+
+    MdcInjectionFilter: added constructor that takes EnumSet of all keys to should be set in the MDC

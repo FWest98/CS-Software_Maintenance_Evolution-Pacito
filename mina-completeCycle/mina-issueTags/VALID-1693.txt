@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c03f96c1b8af35857e97a58b7aafdbcd845a909c
+
+From: Facade-12
+To:   Facade-13
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1693.txt 
+
+commit c03f96c1b8af35857e97a58b7aafdbcd845a909c
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Restore back the initial API (will fix DIRMINA-706)

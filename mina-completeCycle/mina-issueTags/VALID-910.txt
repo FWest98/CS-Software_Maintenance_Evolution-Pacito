@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 5ce076b7f2759d56eba214ac363ceb50111ba3bf
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-14
+To:   Facade-15
+
+From: Mediator-35
+To:   Mediator-41
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-25
+To:   Strategy-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-910.txt 
+
+commit 5ce076b7f2759d56eba214ac363ceb50111ba3bf
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added CircularQueue which is more GC friendly and outperforms LinkedList
+    * CachedBufferAllocator now uses CircularQueue

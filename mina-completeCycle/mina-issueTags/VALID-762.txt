@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 0b75310ae80408e4230ecc82a9467f1d00d681c2
+
+From: Mediator-19
+To:   Mediator-20
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-762.txt 
+
+commit 0b75310ae80408e4230ecc82a9467f1d00d681c2
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    APR (Apache Portable Runtime) based transport

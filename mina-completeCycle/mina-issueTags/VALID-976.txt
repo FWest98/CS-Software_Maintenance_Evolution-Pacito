@@ -1,0 +1,30 @@
+Pattern changes caused by commit: f406855a2cb9b03ebd47e8ae5ad84b72a0b5a4dd
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-43
+To:   Mediator-49
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-26
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-976.txt 
+
+commit f406855a2cb9b03ebd47e8ae5ad84b72a0b5a4dd
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added IoEventQueueThrottle
+    * Added UnorderedThreadPoolExecutor that knows how to interact with IoEventQueueHandler
+    * Added IoEventSizeEstimator and its default implementation.

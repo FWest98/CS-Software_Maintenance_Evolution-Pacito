@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 6eaca3c117f18ced5b24c64c9e7ff4097f09b035
+
+From: Facade-11
+To:   Facade-10
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-717.txt 
+
+commit 6eaca3c117f18ced5b24c64c9e7ff4097f09b035
+Author: Trustin Lee <trustin@apache.org>
+
+    * Moved org.apache.mina.http to org.apache.mina.protocol.http
+    * Renamed http.client.ssl.TrustManagerFactoryImpl to http.client.SimpleTrustManagerFactory

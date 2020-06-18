@@ -1,0 +1,74 @@
+Pattern changes caused by commit: d2f937b55a3d7f6f393f8028b4e39b9dea745879
+
+From: Flyweight-22
+To:   Flyweight-21
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-407.txt 
+
+commit d2f937b55a3d7f6f393f8028b4e39b9dea745879
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-322 (Remove ThreadModel)
+    * Removed ThreadModel and its related subtypes, properties, and integration classes
+
+
+
+==================================
+ Issue DIRMINA-322 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-322] Remove ThreadModel
+-----------------
+
+-----------------
+Summary: Remove ThreadModel
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Dec 2006 07:49:15 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Dec 2006 07:52:00 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+As we discussed in the mailing list:
+
+<a
+href="http://www.nabble.com/Is-ThreadModel-really-useful--tf2778892.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Is-ThreadModel-really-useful--tf2778892.html</a>
+
+ThreadModel
+should be removed for API simplicity.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

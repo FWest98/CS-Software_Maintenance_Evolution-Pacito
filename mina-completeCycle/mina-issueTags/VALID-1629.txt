@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 475c76899ed7752f49be242708d8645338dc549d
+
+From: Flyweight-28
+To:   Flyweight-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1629.txt 
+
+commit 475c76899ed7752f49be242708d8645338dc549d
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the EMPTY_* objects are they aren't immutable. That will fix DIRMINA-664

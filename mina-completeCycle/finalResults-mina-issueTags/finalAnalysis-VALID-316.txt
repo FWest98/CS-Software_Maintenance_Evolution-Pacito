@@ -1,0 +1,95 @@
+Pattern changes caused by commit: 19162cffab8b391ca1e92f378a95ff1e51560a40
+
+From: Proxy-0
+To:   Proxy-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-316.txt 
+
+commit 19162cffab8b391ca1e92f378a95ff1e51560a40
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-161 (A ObjectSerializationEncoder that works with Java's ObjectInputStream.readObject())
+    * Added ObjectSerializationInput/OutputStream
+
+
+
+==================================
+ Issue DIRMINA-161 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-161] A ObjectSerializationEncoder that works with Java's ObjectInputStream.readObject()
+-----------------
+
+-----------------
+Summary: A ObjectSerializationEncoder that works with Java's ObjectInputStream.readObject()
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 10 Jan 2006 02:12:17 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Sep 2006 05:07:15 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Having a class similar to ObjectSerializationDecoder/Encoder that was compatable with
+ObjectInputStream.readObject() would be very helpful for those who are rewriting servers
+to use MINA without the ability to change client code.
+
+Currently, an attempt to use
+readObject() to receive information from the existing ObjectSerializationEncoder results
+in:<br/> org.apache.mina.filter.codec.ProtocolDecoderException:
+org.apache.mina.common.BufferDataException: dataLength: -1393754107 (Hexdump: empty)
+
+I
+suspect this has something to do with the reading of the prefixed data.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It would be nice if we can, but it takes a lot of energy to fulfill it.  We'll have to
+analyze the object stream so we can find out when it ends.  Moreover, this will break when
+Sun adds something to the protocol.  That's why we used the header data which represents
+the length of the serialized object.What do you think about providing object input/output
+stream classes that can read/write the stream that MINA wrote? 
+
+
+New Comment: 
+I suspected it  might be a big task...<br/>MINA object stream classes would be quite
+helpful, especially if they could be added to existing code with few other changes. Thanks
+a lot for looking at this. 
+
+
+New Comment: 
+OK.  Then we will provide MINA version of ObjectInputStream and ObjectOutputStream.  Thank
+you for your cooperation. 
+
+

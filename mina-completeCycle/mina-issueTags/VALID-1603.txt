@@ -1,0 +1,30 @@
+Pattern changes caused by commit: a2d136046f67d5fb29bcb7b5b98a137d61549349
+
+From: Flyweight-29
+To:   Flyweight-28
+
+From: Mediator-31
+To:   Mediator-29
+
+From: Strategy-22
+To:   Strategy-21
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1603.txt 
+
+commit a2d136046f67d5fb29bcb7b5b98a137d61549349
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    merging some code simplification :
+     * Removed IoService idle event, you still have IoSession idle.
+     * Reworked IdleStatusChecker for make the code easier to understand.
+     * Removed setTrafficMask and keeped suspendWrite / suspendRead methods.
+     * Removed trafficMask event from the IoFilter chain.
+     * Applied http://issues.apache.org/jira/browse/DIRMINA-620 by
+       removing superfluous IoSession close() methods. When you close a
+       session, you need to use session.close(boolean); and say explicitly
+       if you want to flush the write queue or no.

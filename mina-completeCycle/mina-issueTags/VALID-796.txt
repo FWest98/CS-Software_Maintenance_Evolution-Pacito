@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 4d5100e38080ae0e9a49d59202f369aa1cd6fa49
+
+From: Bridge-20
+To:   Bridge-22
+
+From: Mediator-28
+To:   Mediator-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-796.txt 
+
+commit 4d5100e38080ae0e9a49d59202f369aa1cd6fa49
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added WriteRequestFilter that helps implementation of data transformation filters
+    * Changed CompressionFilter and RequestResponseFilter to extend WriteRequestFilter (NOTE: SslFilter and ProtocolCodecFilter is somewhat different from usual data transformation filters in that it can generate more than two messages.)

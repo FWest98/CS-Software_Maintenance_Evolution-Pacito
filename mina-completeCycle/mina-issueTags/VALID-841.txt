@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 87e11cf504ef244ac808bd82dd493fd979276c19
+
+From: Mediator-42
+To:   Mediator-43
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-841.txt 
+
+commit 87e11cf504ef244ac808bd82dd493fd979276c19
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-462 (Thread.setName causes SecurityException in sandbox contexts (such as Applets))
+    * Moved all Thread.setName call to NamePerservingRunnable

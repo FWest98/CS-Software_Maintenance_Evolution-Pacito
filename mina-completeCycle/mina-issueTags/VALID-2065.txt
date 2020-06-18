@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f69c36be0b6d16a18cccf0f8f304fb5bc77239ec
+
+From: Strategy-1
+To:   Strategy-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-2065.txt 
+
+commit f69c36be0b6d16a18cccf0f8f304fb5bc77239ec
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    in progress out of order IoHandler executor

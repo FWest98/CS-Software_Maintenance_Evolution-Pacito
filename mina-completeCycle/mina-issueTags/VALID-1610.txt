@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 9794e6541a289b1199ace80a5706994970ba552d
+
+From: Strategy-21
+To:   Strategy-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1610.txt 
+
+commit 9794e6541a289b1199ace80a5706994970ba552d
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the ServerSocket creation and socket connection in the Socket/DatagramConfigImpl classes : it breaks badly in an applet or on Vista.

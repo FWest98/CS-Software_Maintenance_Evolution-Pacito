@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 19162cffab8b391ca1e92f378a95ff1e51560a40
+
+From: Proxy-0
+To:   Proxy-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-316.txt 
+
+commit 19162cffab8b391ca1e92f378a95ff1e51560a40
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-161 (A ObjectSerializationEncoder that works with Java's ObjectInputStream.readObject())
+    * Added ObjectSerializationInput/OutputStream

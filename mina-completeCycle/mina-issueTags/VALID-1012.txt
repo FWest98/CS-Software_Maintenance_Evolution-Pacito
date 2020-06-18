@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 3f659d731b534c95ae795016bbcf6c0b6abd952d
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-49
+To:   Mediator-43
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-27
+To:   Strategy-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1012.txt 
+
+commit 3f659d731b534c95ae795016bbcf6c0b6abd952d
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-375 (Synchronous Client API)
+    * Added IoSessionConfig.useReadOperation
+    * Added IoSession.read() - only usable when useReadOperation is true
+    * Added ReadFuture and its default implementation

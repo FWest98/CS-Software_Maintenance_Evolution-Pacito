@@ -1,0 +1,30 @@
+Pattern changes caused by commit: c3de2a091df0498f83210c76aed7eb284074b3be
+
+From: Bridge-8
+To:   Bridge-9
+
+From: Decorator-4
+To:   Decorator-5
+
+From: Facade-10
+To:   Facade-11
+
+From: Flyweight-16
+To:   Flyweight-17
+
+From: Mediator-16
+To:   Mediator-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-479.txt 
+
+commit c3de2a091df0498f83210c76aed7eb284074b3be
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-368 (IoFilter.messageSent should have access to WriteRequest instead of the written message.)
+    * Changed the method signature of IoFilter.messageSent() to provide access to WriteRequest
+    * WriterRequest became an interface now.  DefaultWriteRequest and WriteRequestWrapper are added.

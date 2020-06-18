@@ -1,0 +1,19 @@
+Pattern changes caused by commit: b73b0d7eb6a3a6651c7361189e808098431576a4
+
+From: Mediator-48
+To:   Mediator-49
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1005.txt 
+
+commit b73b0d7eb6a3a6651c7361189e808098431576a4
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced CRLF with CrLf to conform with our naming rules
+    * Added IntegerDecodingState
+    * Added ShortIntegerDecodingState
+    * Added SingleByteDecodingState

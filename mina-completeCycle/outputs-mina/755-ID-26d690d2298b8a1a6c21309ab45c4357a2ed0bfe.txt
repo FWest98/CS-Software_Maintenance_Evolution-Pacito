@@ -643,3 +643,269 @@ bind is the template method
 doBind is a primitive method
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoAcceptor-refactored.java
 
+Visitor pattern found.
+IoSession is an abstract Visitor class.
+StreamIoHandler is a Vistee class.
+IoHandlerAdapter is an abstract Visitee class.
+ ChainedIoHandler StreamIoHandler IoFilterChainTest$1 SenderHandler ReceiverHandler SimpleIoHandler ClientIoHandler ServerIoHandler VmPipeEventOrderTest$1 VmPipeEventOrderTest$2 VmPipeEventOrderTest$3 VmPipeEventOrderTest$4 VmPipeSessionCrossCommunicationTest$1 VmPipeSessionCrossCommunicationTest$2 VmPipeSessionCrossCommunicationTest$2$1 EchoProtocolHandler EchoProtocolHandler MockHandler AbstractConnectorTest$1 AbstractConnectorTest$2 ReverseProtocolHandler AbstractProxyIoHandler TennisPlayer ChatProtocolHandler NetCatProtocolHandler ServerHandler ServerSessionHandler HttpIoHandler SwingChatClientHandler MemoryMonitorHandler MemMonClient ClientSessionHandler EchoHandler EchoConnectorHandler ClientToProxyIoHandler ServerToProxyIoHandler
+sessionOpened is the accept method.
+setAttribute is the visit method.
+KEY_IN is exposed to visitor IoSession
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/stream/StreamIoHandler-refactored.java
+
+Mediator Pattern.
+Mediator: WriteRequestWrapper
+Colleagues:  TextLineEncoder TrafficMask AbstractIoSession TennisBall AddMessage ResultMessage
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/WriteRequestWrapper-refactored.java
+
+Mediator Pattern.
+Mediator: IoAcceptorWrapper
+Colleagues:  Main Main AbstractIoService AbstractIoAcceptor AbstractIoSession
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoAcceptorWrapper-refactored.java
+
+Mediator Pattern.
+Mediator: IoConnectorWrapper
+Colleagues:  Main Main AbstractIoService
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/IoConnectorWrapper-refactored.java
+
+Mediator Pattern.
+Mediator: DefaultWriteRequest
+Colleagues:  WriteRequestWrapper TrafficMask AbstractIoSession LineDelimiter TennisBall AddMessage ResultMessage TextLineEncoder
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultWriteRequest-refactored.java
+
+Mediator Pattern.
+Mediator: AbstractIoSession
+Colleagues:  StreamIoHandler IoFilterChain AsyncHttpClient ChatClientSupport WriteRequestWrapper IoSession
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoSession-refactored.java
+
+Mediator Pattern.
+Mediator: AbstractIoAcceptor
+Colleagues:  Main Main Main IoServiceListenerSupport AbstractIoService
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/AbstractIoAcceptor-refactored.java
+
+Mediator Pattern.
+Mediator: ObjectSerializationDecoder
+Colleagues:  CumulativeProtocolDecoder ProtocolDecoderOutput AbstractProtocolDecoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: AbstractSocketSessionConfig
+Colleagues:  AbstractIoSessionConfig SocketSessionConfig
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/AbstractSocketSessionConfig-refactored.java
+
+Mediator Pattern.
+Mediator: AbstractDatagramSessionConfig
+Colleagues:  AbstractIoSessionConfig DatagramSessionConfig
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/AbstractDatagramSessionConfig-refactored.java
+
+Mediator Pattern.
+Mediator: IoSessionInputStream
+Colleagues:  StreamIoHandler ByteBuffer AbstractByteBuffer
+FileLocation: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/stream/IoSessionInputStream-refactored.java
+
+Mediator Pattern.
+Mediator: NameValuePair
+Colleagues:  AbstractIoSession LangUtils
+FileLocation: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/NameValuePair-refactored.java
+
+Mediator Pattern.
+Mediator: AddMessage
+Colleagues:  WriteRequestWrapper AbstractMessage TextLineEncoder
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/AddMessage-refactored.java
+
+Mediator Pattern.
+Mediator: AddMessageDecoder
+Colleagues:  AbstractMessageDecoder AddMessage AbstractByteBuffer
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AddMessageDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: ResultMessage
+Colleagues:  WriteRequestWrapper AbstractMessage TextLineEncoder
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/message/ResultMessage-refactored.java
+
+Mediator Pattern.
+Mediator: ResultMessageEncoder
+Colleagues:  AbstractMessageEncoder ResultMessage AbstractByteBuffer
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/ResultMessageEncoder-refactored.java
+
+Mediator Pattern.
+Mediator: AddMessageEncoder
+Colleagues:  AbstractMessageEncoder AbstractByteBuffer AddMessage
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AddMessageEncoder-refactored.java
+
+Mediator Pattern.
+Mediator: ResultMessageDecoder
+Colleagues:  AbstractMessageDecoder AbstractByteBuffer ResultMessage
+FileLocation: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/sumup/codec/ResultMessageDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: HttpResponseDecoder
+Colleagues:  CumulativeProtocolDecoder AbstractIoSession HttpResponseMessage HttpDecoder ProtocolDecoderOutput AbstractProtocolDecoderOutput
+FileLocation: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpResponseDecoder-refactored.java
+
+Mediator Pattern.
+Mediator: DefaultSerialSessionConfig
+Colleagues:  AbstractIoSessionConfig SerialSessionConfig
+FileLocation: /data/s4040112/sourcecodes/mina/transport-serial/src/main/java/org/apache/mina/transport/serial/DefaultSerialSessionConfig-refactored.java
+
+Proxy Pattern.
+ObjectSerializationOutputStream is a proxy.
+OutputStream is a proxy interface.
+The real object(s): DataOutputStream
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationOutputStream-refactored.java
+
+Proxy Pattern.
+ObjectSerializationInputStream is a proxy.
+InputStream is a proxy interface.
+The real object(s): DataInputStream
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationInputStream-refactored.java
+
+Proxy Pattern.
+ClientPanel is a proxy.
+JPanel is a proxy interface.
+The real object(s): JTextField
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/udp/ClientPanel-refactored.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineEncoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder-refactored.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineDecoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder-refactored.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationEncoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder-refactored.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationDecoder is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder-refactored.java
+
+Adapter Pattern.
+Adapting classes:  IoHandlerAdapter Object IoHandler
+ChainedIoHandler is an adapter class.
+IoHandlerChain is the adaptee class.
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/ChainedIoHandler-refactored.java
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/handler/chain/IoHandlerChain-refactored.java
+
+Facade Pattern.
+TextLineDecoder is a facade class.
+Hidden types: LineDelimiter IoSession ByteBuffer ProtocolDecoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder-refactored.java
+
+Facade Pattern.
+TextLineEncoder is a facade class.
+Hidden types: IoSession ByteBuffer LineDelimiter ProtocolEncoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder-refactored.java
+
+Facade Pattern.
+ObjectSerializationEncoder is a facade class.
+Hidden types: ByteBuffer ProtocolEncoderOutput
+Facade access types: ObjectSerializationCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder-refactored.java
+
+Facade Pattern.
+ObjectSerializationDecoder is a facade class.
+Hidden types: ProtocolDecoderOutput ByteBuffer
+Facade access types: ObjectSerializationCodecFactory
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder-refactored.java
+
+Facade Pattern.
+SSLFilter is a facade class.
+Hidden types: SSLHandler IoFilterChain IoSessionLogger ByteBuffer WriteRequestWrapper WriteRequest WriteFuture DefaultWriteFuture
+Facade access types: ChatClientSupport AsyncHttpClient
+File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/ssl/SSLFilter-refactored.java
+
+Facade Pattern.
+Main is a facade class.
+Hidden types: IoService IoAcceptor DefaultIoFilterChainBuilder
+Facade access types: Main
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/httpserver/stream/Main-refactored.java
+
+Facade Pattern.
+Main is a facade class.
+Hidden types: SocketAcceptor AbstractIoService DefaultIoFilterChainBuilder AbstractIoAcceptor
+Facade access types: Main
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/Main-refactored.java
+
+Facade Pattern.
+Main is a facade class.
+Hidden types: IoService IoAcceptor DefaultIoFilterChainBuilder
+Facade access types: Main
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/echoserver/Main-refactored.java
+
+Facade Pattern.
+AsyncHttpClient is a facade class.
+Hidden types: AbstractIoConnector SSLFilter DefaultIoFilterChainBuilder AbstractIoService ConnectFuture IoSession
+Facade access types: Wget
+File Location: /data/s4040112/sourcecodes/mina/protocol-http-client/src/main/java/org/apache/mina/protocol/http/client/AsyncHttpClient-refactored.java
+
+Facade Pattern.
+HttpResponseDecoder is a facade class.
+Hidden types: IoSession HttpResponseMessage HttpDecoder ProtocolDecoderOutput ByteBuffer HttpMessage
+Facade access types: HttpResponseDecoder
+File Location: /data/s4040112/sourcecodes/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpResponseDecoder-refactored.java
+
+Facade Pattern.
+ChatClientSupport is a facade class.
+Hidden types: IoSession BogusSSLContextFactory SSLFilter DefaultIoFilterChainBuilder AbstractIoService AbstractIoConnector ConnectFuture CloseFuture
+Facade access types: ChatClientSupport
+File Location: /data/s4040112/sourcecodes/mina/example/src/main/java/org/apache/mina/example/chat/client/ChatClientSupport-refactored.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     5
+Bridge                     12
+Composite                   0
+Decorator                   6
+Facade                     11
+Flyweight                  15
+Proxy                       3
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                   19
+Observer                    0
+State                       0
+Strategy                   14
+Template Method             4
+Visitor                     1
+------------------------------
+
+Number of classes processed: 193
+Number of files processed: 305
+Size of DelegationTable: 1196
+Size of concrete class nodes: 110
+Size of undirected invocation edges: 192
+
+
+nMediatorFacadeDual/nMediator = 2/19
+nImmutable/nFlyweight = 0/15
+nFlyweightGoFVersion = 0

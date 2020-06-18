@@ -1,0 +1,18 @@
+Pattern changes caused by commit: b9d5c894ea041beb2dbc0e2bdf2f205bfc9d1aed
+
+From: Mediator-23
+To:   Mediator-21
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-464.txt 
+
+commit b9d5c894ea041beb2dbc0e2bdf2f205bfc9d1aed
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-365 (Make use of covariant return types)
+    * Applied covariant return types to all core classes (except VM pipe transport in trunk.  It needs more work.)
+    * We can't do much with covariant return type not introducing transport-specific session types such as SocketSession, so you will have to use trunk to get the most out of it.  1.1 has limited support on the other hand.

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: a88268234fe5b5216982a891ca1f7f8b7a2ede4e
+
+From: Facade-21
+To:   Facade-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-424.txt 
+
+commit a88268234fe5b5216982a891ca1f7f8b7a2ede4e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-337 (SwingChatClient example throws NPE)
+    * Applied Maarten's patch

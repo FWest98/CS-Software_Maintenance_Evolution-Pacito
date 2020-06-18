@@ -1,0 +1,101 @@
+Pattern changes caused by commit: a9c99cf7e3c1a686a55f85be3442fda12aa120b5
+
+From: Flyweight-21
+To:   Flyweight-20
+
+From: Mediator-52
+To:   Mediator-50
+
+From: Observer-8
+To:   Observer-7
+
+From: Strategy-34
+To:   Strategy-33
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-431.txt 
+
+commit a9c99cf7e3c1a686a55f85be3442fda12aa120b5
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-331 (StatCollector is not thread safe and some stats are being mixed up)
+    * Added more generics support to IoService
+    * Fixed incorrect calculation of bytesReadThroughput
+
+
+
+==================================
+ Issue DIRMINA-331 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-331] StatCollector is not thread safe and some stats are being mixed up
+-----------------
+
+-----------------
+Summary: StatCollector is not thread safe and some stats are being mixed up
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 12 Jan 2007 08:07:46 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Jan 2007 09:55:31 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The instance variable polledSessions is not thread-safe (i.e. uses ArrayList) and its
+access is not always protected (e.g. StatCollector$Worker#run()). Under  heavy load this
+is producing an error in the Worker.
+
+The bytesReadThroughput statistic is incorrectly
+being set. It is adding up the throughput of written messages.
+
+Instance variables:
+msgWrittenThroughput, msgReadThroughput, bytesWrittenThroughputand bytesReadThroughput
+could be corrupted and return an unexpected value since they are not thread safe and 2
+different threads may be changing them.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Thanks for this patch, I'm reviewing it now, <br/>first comments :easly fixable :<ul
+class="alternate" type="square">	<li>code style is not the good one for 1.X branch, I know
+it's annoying :o)</li>	<li>it's using java.util.concurrent in place of the
+backport</li></ul>more problematic :<ul class="alternate" type="square">	<li>it's
+preventing HTTP like protocols to calculate an average session throughput</li>	<li>doesn't
+give per service instantaneous throughtput stats, but total values (service life wide
+total)</li>	<li>adding ScheduledWrites and QueuedEvents is a good idea but doesn't give
+those stats for the polling period, but again a total value</li></ul> 
+
+
+New Comment: 
+This issue has to be resolved in 1.0.2. 
+
+

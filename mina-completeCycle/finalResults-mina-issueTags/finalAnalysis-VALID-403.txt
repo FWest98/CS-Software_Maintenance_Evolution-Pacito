@@ -1,0 +1,146 @@
+Pattern changes caused by commit: 1448380da6b7e832750426311747e5caa9392b2c
+
+From: Facade-20
+To:   Facade-21
+
+From: Mediator-48
+To:   Mediator-58
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-403.txt 
+
+commit 1448380da6b7e832750426311747e5caa9392b2c
+Author: Trustin Lee <trustin@apache.org>
+
+    Merged changes in branches/1.0 (DIRMINA-321)
+
+
+
+==================================
+ Issue DIRMINA-321 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-321] BufferUnderflowException in ObjectSerializationInputStream
+-----------------
+
+-----------------
+Summary: BufferUnderflowException in ObjectSerializationInputStream
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Dec 2006 06:29:17 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Dec 2006 07:30:45 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Andrew Vokhmin's report:
+
+MINA 1.0 provides an own object serialization streams. But I
+have a problem<br/>with it...<br/>or may be It's my unawareness.
+
+Try MINA 1.0.0 and MINA
+1.0.1;<br/>JDK 1.5.0_09<br/>Windows 2003 Server
+
+Source:
+
+import
+java.io.ByteArrayInputStream;<br/>import java.io.ByteArrayOutputStream;<br/>import
+java.io.ObjectInputStream;<br/>import java.io.ObjectOutputStream;
+
+import
+junit.framework.TestCase;
+
+import<br/>org.apache.mina.filter.codec.serialization.ObjectSerializationInputStream;<br/>import<br/>org.apache.mina.filter.codec.serialization.ObjectSerializationOutputStream;
+
+public
+class ObjectSerializationStreamsTest extends TestCase {
+
+       public
+ObjectSerializationStreamsTest(String arg0) 
+{               super(arg0);       }
+      
+public static void main(String[] args)
+
+{junit.textui.TestRunner.run(ObjectSerializationStreamsTest.class);       }
+      
+protected void setUp() throws Exception 
+{               super.setUp();       }
+      
+protected void tearDown() throws Exception 
+{               super.tearDown();       }
+    
+  /*
+<ul>	<li>Standart Object streams works - OK...<br/>        */<br/>       public void
+testObjectStandartStreams() throws Exception {               ObjectInputStream osis;      
+        ObjectOutputStream osos;               //Integer msgA = new Integer(12345);       
+       String msgA = "Test";               ByteArrayOutputStream baos = new
+ByteArrayOutputStream();               osos = new ObjectOutputStream(baos);              
+osos.writeObject(msgA);               osos.flush();               byte xbA[] =
+baos.toByteArray();               osis = new ObjectInputStream(new
+ByteArrayInputStream(xbA));               osos.writeObject(msgA);               Object msg
+= osis.readObject();               assertEquals(msgA, msg);               osos.close();   
+           osis.close();       }</li></ul>
+       /*
+<ul>	<li>MINA Object streams works -
+FAILED!..<br/>        */<br/>       public void testObjectSerializationStreams() throws
+Exception {               ObjectSerializationInputStream osis;              
+ObjectSerializationOutputStream osos;               //Integer msgA = new Integer(12345);  
+            String msgA = new String("Test");               ByteArrayOutputStream baos =
+new ByteArrayOutputStream();               osos = new
+ObjectSerializationOutputStream(baos);               osos.writeObject(msgA);              
+osos.flush();               byte xbA[] = baos.toByteArray();               osis = new
+ObjectSerializationInputStream(newByteArrayInputStream(xbA));              
+osos.writeObject(msgA);               Object msg = osis.readObject();              
+assertEquals(msgA, msg);               osos.close();               osis.close();      
+}</li></ul>
+}
+
+Output:
+
+..E<br/>Time: 0,109<br/>There was 1
+error:<br/>1)<br/>testObjectSerializationStreams(ru.territory.telex.mina.test.ObjectSerializat<br/>ionStreamsTest)java.nio.BufferUnderflowException<br/>
+      at org.apache.mina.common.ByteBuffer.getObject(ByteBuffer.java:1613)<br/>      
+at<br/>org.apache.mina.filter.codec.serialization.ObjectSerializationInputStream.re<br/>adObject(ObjectSerializationInputStream.java:125)<br/>
+     
+at<br/>ru.territory.telex.mina.test.ObjectSerializationStreamsTest.testObjectSerial<br/>izationStreams(ObjectSerializationStreamsTest.java:61)<br/>
+      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>      
+at<br/>sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39<br/>)<br/>
+     
+at<br/>sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl<br/>.java:25)<br/>
+     
+at<br/>ru.territory.telex.mina.test.ObjectSerializationStreamsTest.main(ObjectSeria<br/>lizationStreamsTest.java:20)
+
+FAILURES!!!<br/>Tests
+run: 2,  Failures: 0,  Errors: 1
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

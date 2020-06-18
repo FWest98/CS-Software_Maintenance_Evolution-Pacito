@@ -1,0 +1,29 @@
+Pattern changes caused by commit: c5ab3ca1da04960c2e57a25f18c7b3be68be348f
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-33
+To:   Mediator-27
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1096.txt 
+
+commit c5ab3ca1da04960c2e57a25f18c7b3be68be348f
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced NewThreadExecutor with ThreadPoolExecutor with short timeout.
+    * AbstractPollingIoConnector's worker now exits even if it's not disposed because the creation overhead of a new thread doesn't exist anymore, and that's because we are using ThreadPoolExecutor.

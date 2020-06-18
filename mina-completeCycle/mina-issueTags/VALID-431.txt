@@ -1,0 +1,27 @@
+Pattern changes caused by commit: a9c99cf7e3c1a686a55f85be3442fda12aa120b5
+
+From: Flyweight-21
+To:   Flyweight-20
+
+From: Mediator-52
+To:   Mediator-50
+
+From: Observer-8
+To:   Observer-7
+
+From: Strategy-34
+To:   Strategy-33
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-431.txt 
+
+commit a9c99cf7e3c1a686a55f85be3442fda12aa120b5
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-331 (StatCollector is not thread safe and some stats are being mixed up)
+    * Added more generics support to IoService
+    * Fixed incorrect calculation of bytesReadThroughput

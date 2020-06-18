@@ -1,0 +1,20 @@
+Pattern changes caused by commit: d100492f5302153307ca66401fd36312130bc135
+
+From: Flyweight-23
+To:   Flyweight-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-390.txt 
+
+commit d100492f5302153307ca66401fd36312130bc135
+Author: Niklas Therning <niklas@apache.org>
+
+    Renamed SocketSessionConfigImpl to DefaultSocketSessionConfig.
+    Renamed DatagramSessionConfigImpl to DefaultDatagramSessionConfig and moved it into o.a.m.transport.socket.nio.
+    Added VmPipeSessionConfig interface and default implementation DefaultVmPipeSessionConfig for vmpipe transport.
+    Added setSessionConfig( IoSessionConfig ) method to IoService.
+    BaseIoService now handles to IoSessionConfig instance for the IoService. getSessionConfig() and setSessionConfig() have been removed from the concrete classes implementing IoService (SocketAcceptor, DatagramConnector, etc).

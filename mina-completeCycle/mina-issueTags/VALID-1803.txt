@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7b2707ebf121bb92cf84e52f9f4ff38d721fae64
+
+From: Bridge-16
+To:   Bridge-15
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1803.txt 
+
+commit 7b2707ebf121bb92cf84e52f9f4ff38d721fae64
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Changed an error message which was misleading
+    o Removed the disposalFuture which is totally useless
+    o When calling dispose, kill the executor by calling shutdownNow
+    o Don't wait for the dispose() to be done, as we were waiting on our own thread to signal itself on terminaison : a dead eand !
+    This is a fix for DIRMINA-755

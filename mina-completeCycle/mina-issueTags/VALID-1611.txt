@@ -1,0 +1,16 @@
+Pattern changes caused by commit: bf28f0888bac1c9b92ec172842dd42d3a825b1b8
+
+From: Mediator-29
+To:   Mediator-28
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1611.txt 
+
+commit bf28f0888bac1c9b92ec172842dd42d3a825b1b8
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    More removal of Config related values, as we don't create a socket anymore to check what are the local values.

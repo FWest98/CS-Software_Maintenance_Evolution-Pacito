@@ -605,90 +605,6 @@ BaseIoSession is the component class.
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/vmpipe/support/VmPipeSessionImpl-refactored.java
 File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/support/BaseIoSession-refactored.java
 
-Factory Method pattern.
-Object is a Factory Method class.
-DefaultIoFilterChainBuilder is a concrete Factory Method class.
-clone is a factory method returns  DefaultIoFilterChainBuilder
- which extends Object
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/common/DefaultIoFilterChainBuilder-refactored.java
-
-Factory Method pattern.
-ProtocolCodecFactory is a Factory Method class.
-DemuxingProtocolCodecFactory is a concrete Factory Method class.
-getEncoder is a factory method returns  ProtocolEncoderImpl
- which extends ProtocolEncoder
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/demux/DemuxingProtocolCodecFactory-refactored.java
-
-Factory Method pattern.
-ProtocolCodecFactory is a Factory Method class.
-DemuxingProtocolCodecFactory is a concrete Factory Method class.
-getDecoder is a factory method returns  ProtocolDecoderImpl
- which extends ProtocolDecoder
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/filter/codec/demux/DemuxingProtocolCodecFactory-refactored.java
-
-Factory Method pattern.
-IoConnector is a Factory Method class.
-DatagramConnectorDelegate is a concrete Factory Method class.
-connect is a factory method returns  RegistrationRequest
- which extends ConnectFuture
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/support/DatagramConnectorDelegate-refactored.java
-
-Factory Method pattern.
-IoConnector is a Factory Method class.
-DatagramConnectorDelegate is a concrete Factory Method class.
-connect is a factory method returns  RegistrationRequest
- which extends ConnectFuture
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/support/DatagramConnectorDelegate-refactored.java
-
-Factory Method pattern.
-BaseIoAcceptor is a Factory Method class.
-DatagramAcceptorDelegate is a concrete Factory Method class.
-newSession is a factory method returns  DatagramSessionImpl
- which extends IoSession
-File Location: /data/s4040112/sourcecodes/mina/core/src/main/java/org/apache/mina/transport/socket/nio/support/DatagramAcceptorDelegate-refactored.java
-
-Factory Method pattern.
-AbstractTrafficControlTest is a Factory Method class.
-VmPipeTrafficControlTest is a concrete Factory Method class.
-createServerSocketAddress is a factory method returns  VmPipeAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/vmpipe/VmPipeTrafficControlTest-refactored.java
-
-Factory Method pattern.
-AbstractBindTest is a Factory Method class.
-VmPipeBindTest is a concrete Factory Method class.
-createSocketAddress is a factory method returns  VmPipeAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/vmpipe/VmPipeBindTest-refactored.java
-
-Factory Method pattern.
-AbstractTrafficControlTest is a Factory Method class.
-SocketTrafficControlTest is a concrete Factory Method class.
-createServerSocketAddress is a factory method returns  InetSocketAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/SocketTrafficControlTest-refactored.java
-
-Factory Method pattern.
-AbstractTrafficControlTest is a Factory Method class.
-DatagramTrafficControlTest is a concrete Factory Method class.
-createServerSocketAddress is a factory method returns  InetSocketAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramTrafficControlTest-refactored.java
-
-Factory Method pattern.
-AbstractBindTest is a Factory Method class.
-SocketBindTest is a concrete Factory Method class.
-createSocketAddress is a factory method returns  InetSocketAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/SocketBindTest-refactored.java
-
-Factory Method pattern.
-AbstractBindTest is a Factory Method class.
-DatagramBindTest is a concrete Factory Method class.
-createSocketAddress is a factory method returns  InetSocketAddress
- which extends SocketAddress
-File Location: /data/s4040112/sourcecodes/mina/core/src/test/java/org/apache/mina/transport/socket/nio/DatagramBindTest-refactored.java
-
 Visitor pattern found.
 IoSession is an abstract Visitor class.
 StreamIoHandler is a Vistee class.
@@ -1359,8 +1275,8 @@ Pattern Instance Statistics:
 
 Creational Patterns
 ==============================
-Abstract Factory            4
-Factory Method              6
+Abstract Factory            0
+Factory Method              0
 Singleton                   2
 ------------------------------
 Structural Patterns

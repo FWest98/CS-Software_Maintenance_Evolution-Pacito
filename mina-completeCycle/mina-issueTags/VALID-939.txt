@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 36b569077405f767dc8fc3eb26235c925cb66dc7
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-43
+To:   Mediator-49
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-26
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-939.txt 
+
+commit 36b569077405f767dc8fc3eb26235c925cb66dc7
+Author: Niklas Therning <niklas@apache.org>
+
+    DIRMINA-463: Changed StateMachineFactory to make it simpler to specify the transition annotation to use. Removed IoHandlerStateMachineFactory and IoFilterStateMachineFactory.

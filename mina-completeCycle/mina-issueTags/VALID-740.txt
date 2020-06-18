@@ -1,0 +1,19 @@
+Pattern changes caused by commit: feaf7d525ea24ef6f4b9388c96cc5cb4507f1b12
+
+From: Flyweight-17
+To:   Flyweight-16
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-740.txt 
+
+commit feaf7d525ea24ef6f4b9388c96cc5cb4507f1b12
+Author: Trustin Lee <trustin@apache.org>
+
+    * Removed IoSession parameter from IoFilterChain because it's redundant
+    * Removed WriteRequest parameter from IoProcessor.flush because it's unnecesary
+    * Multi-thread support for both DatagramAcceptor and DatagramConnector (need to test on various platforms)
+    * Removed IoSessionRecycler because all datagram sessions are now connected datagram socket.

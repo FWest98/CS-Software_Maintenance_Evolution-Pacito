@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 97b6367262fb81108eab7df3600d0f435e653e28
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-15
+To:   Facade-14
+
+From: Mediator-41
+To:   Mediator-36
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-25
+To:   Strategy-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-849.txt 
+
+commit 97b6367262fb81108eab7df3600d0f435e653e28
+Author: Mark Webb <mwebb@apache.org>
+
+    changed the parameter of setBlacklist to an Iterable object.

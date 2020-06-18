@@ -1,0 +1,29 @@
+Pattern changes caused by commit: d0653c348c443c4b2d9a195513262a7293789018
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-35
+To:   Mediator-29
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1172.txt 
+
+commit d0653c348c443c4b2d9a195513262a7293789018
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added KeyStoreFactory (moved and modified from KeyStoreFactoryBean in integration-spring)
+    * Added SslContextFactory (moved and modified from SslContextFactoryBean in integration-spring)

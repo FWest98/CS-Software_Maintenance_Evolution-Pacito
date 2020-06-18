@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b995f0a922d1d700ee5373d7bfd583b3f7769a92
+
+From: Flyweight-15
+To:   Flyweight-16
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-768.txt 
+
+commit b995f0a922d1d700ee5373d7bfd583b3f7769a92
+Author: Trustin Lee <trustin@apache.org>
+
+    * Reverted DatagramAcceptor because my experimental implementation behaves unpredictably on some platforms.

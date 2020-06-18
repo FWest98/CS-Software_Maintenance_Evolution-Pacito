@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 292553e1f60a4d09f9404843a540e165c80d4f78
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-27
+To:   Mediator-33
+
+From: Observer-0
+To:   Observer-1
+
+From: Strategy-29
+To:   Strategy-30
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1097.txt 
+
+commit 292553e1f60a4d09f9404843a540e165c80d4f78
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a bug that AbstractPollingIoConnector's worker doesn't exit when the connection attempt was successful.

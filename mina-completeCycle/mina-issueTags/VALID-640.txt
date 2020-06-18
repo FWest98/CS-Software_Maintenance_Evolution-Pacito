@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 08e0cb6a98cd9ee4797e33c065bbfc5196536392
+
+From: Bridge-6
+To:   Bridge-9
+
+From: Mediator-14
+To:   Mediator-15
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-640.txt 
+
+commit 08e0cb6a98cd9ee4797e33c065bbfc5196536392
+Author: Trustin Lee <trustin@apache.org>
+
+    * Renamed Base* to Abstract* which sounds more familiar to most developers
+    * Renamed DelegatedIoAcceptor to IoAcceptorWrapper and DelegatedIoConnector to IoConnectorWrapper respectively
+    * Renamed SessionIdleStatusChecked to IdleStatusChecker to make its name get aligned with IdleStatus type
+    * Renamed SessionLog to IoSessionLogger to make its name get aligned with IoSession type and SLF4J Logger type

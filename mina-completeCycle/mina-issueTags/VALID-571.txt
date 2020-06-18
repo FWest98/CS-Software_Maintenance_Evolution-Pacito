@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 047d3749a069fb3204521c0696828728b590fd57
+
+From: Bridge-7
+To:   Bridge-6
+
+From: Flyweight-17
+To:   Flyweight-16
+
+From: Strategy-16
+To:   Strategy-14
+
+From: Template Method-4
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-571.txt 
+
+commit 047d3749a069fb3204521c0696828728b590fd57
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-361 (Event type and EventType enum
+    * Added IoEventType
+    * Added IoEvent and IoFilterEvent
+    * Removed duplicate event classes from executor filters and ssl filter

@@ -1,0 +1,84 @@
+Pattern changes caused by commit: a7cadb75bafc504c231f5b81dcd105f84a264c75
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-41
+To:   Mediator-35
+
+From: Observer-1
+To:   Observer-0
+
+From: Strategy-30
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1090.txt 
+
+commit a7cadb75bafc504c231f5b81dcd105f84a264c75
+Author: Trustin Lee <trustin@apache.org>
+
+    Cleaned up ProfilerTimerFilter while fixing DIRMINA-482 (ProfilerTimerFilter synchronizes on a non-final lock object)
+
+
+
+==================================
+ Issue DIRMINA-482 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-482] ProfilerTimerFilter synchronizes on a non-final lock object
+-----------------
+
+-----------------
+Summary: ProfilerTimerFilter synchronizes on a non-final lock object
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 21 Nov 2007 14:21:33 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 22 Nov 2007 04:39:22 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+I found that in the ProfilerTimerFilter  there is a synchronization on an specially
+created lock object, but it is not declared final. not really a bug, because it is never
+re-assigned - but a potential bug if someone accidentally assigns it. trivial patch
+forthcoming.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+tiny patch 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 98c6dc80b30bec6007815b5398aca20b5dc1a531
+
+From: Facade-16
+To:   Facade-17
+
+From: Mediator-47
+To:   Mediator-54
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-992.txt 
+
+commit 98c6dc80b30bec6007815b5398aca20b5dc1a531
+Author: Trustin Lee <trustin@apache.org>
+
+    Added a test case for DIRMINA-472 (Close request for an acceptor-side datagram session doesn't dispose the session.)
+    * Only trunk had this bug.  Simply forgot to call IoSessionRecycler.remove()

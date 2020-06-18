@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 6dd503714eb4427ace33f967a0f358ff728e1461
+
+From: Adapter-7
+To:   Adapter-6
+
+From: Facade-16
+To:   Facade-13
+
+From: Flyweight-18
+To:   Flyweight-16
+
+From: Proxy-3
+To:   Proxy-2
+
+From: Mediator-26
+To:   Mediator-23
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-463.txt 
+
+commit 6dd503714eb4427ace33f967a0f358ff728e1461
+Author: Trustin Lee <trustin@apache.org>
+
+    * Fixed all compiler warnings (DIRMINA-274) Remove Java Generics Compiler Warnings
+    * Applied Java 5 Generics to
+    ** Collections
+    ** Sets
+    ** Maps
+    ** Lists
+    ** Queues
+    ** Hashtables

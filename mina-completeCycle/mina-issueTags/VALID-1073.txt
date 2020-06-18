@@ -1,0 +1,18 @@
+Pattern changes caused by commit: b9b7ab781b1b4cec85e4752ed1a280449b278ac4
+
+From: Mediator-40
+To:   Mediator-39
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1073.txt 
+
+commit b9b7ab781b1b4cec85e4752ed1a280449b278ac4
+Author: Trustin Lee <trustin@apache.org>
+
+    Implementing APR transport...
+    * AprSocketAcceptor needs some work
+    * AprSocketConnector doesn't work for now

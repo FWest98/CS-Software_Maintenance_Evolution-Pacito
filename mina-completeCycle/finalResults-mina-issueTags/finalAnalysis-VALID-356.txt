@@ -1,0 +1,80 @@
+Pattern changes caused by commit: a8c00bcdc43e7fcc2c76ce5f91dc96e774415e1c
+
+From: Adapter-13
+To:   Adapter-12
+
+From: Facade-25
+To:   Facade-26
+
+From: Strategy-41
+To:   Strategy-40
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-356.txt 
+
+commit a8c00bcdc43e7fcc2c76ce5f91dc96e774415e1c
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    DIRMINA-280 & DIRMINA-281
+    - removed polling argument for startStatcollecting
+    - added getter and setter for statCollectingPollingTime
+    - new IoServiceManager constructor fro setting polling time and auto-startup when MBean registered
+
+
+
+==================================
+ Issue DIRMINA-281 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-281] Move millisecondsPolling parameter in IoServiceManager.startCollectingStats() to a separate property 'pollingInterval'
+-----------------
+
+-----------------
+Summary: Move millisecondsPolling parameter in IoServiceManager.startCollectingStats() to a separate property 'pollingInterval'
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 7 Oct 2006 07:20:45 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 20 Jan 2007 22:46:24 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+IoServiceManager.startCollectingStats() requires a parameter that indicates the polling
+interval.  This parameter can be removed and provided as a separate property for easier
+JMX management.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+changes commited to trunk 
+
+

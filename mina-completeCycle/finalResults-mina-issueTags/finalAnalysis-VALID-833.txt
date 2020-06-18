@@ -1,0 +1,86 @@
+Pattern changes caused by commit: d062272389dc70cbcf5f2b2c4fdcd514f5a4284e
+
+From: Adapter-12
+To:   Adapter-13
+
+From: Composite-0
+To:   Composite-1
+
+From: Flyweight-18
+To:   Flyweight-19
+
+From: Strategy-25
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-833.txt 
+
+commit d062272389dc70cbcf5f2b2c4fdcd514f5a4284e
+Author: Niklas Therning <niklas@apache.org>
+
+    Resolved DIRMINA-457: mina-sm from sandbox has now been imported into trunk as the statemachine module.
+
+
+
+==================================
+ Issue DIRMINA-457 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-457] Move MINA-SM to the trunk
+-----------------
+
+-----------------
+Summary: Move MINA-SM to the trunk
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 15 Oct 2007 07:40:32 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 20 Oct 2007 11:23:15 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+As discussed here:
+
+<a
+href="http://www.nabble.com/Move-MINA-SM-to-Trunk-tf4612579s16868.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Move-MINA-SM-to-Trunk-tf4612579s16868.html</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+mina-sm has been moved into trunk and has been renamed to statemachine. The code has been
+moved to the o.a.m.statemachine package. I've updated the root pom and made a proper
+sub-module pom in statemachine. I think I've got the poms right. Let me know if I've made
+some stupid mistake. 
+
+

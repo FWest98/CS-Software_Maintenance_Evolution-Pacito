@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 1dc5135fec0de11f2bea6aa77604d477113da64b
+
+From: Flyweight-16
+To:   Flyweight-18
+
+From: Mediator-18
+To:   Mediator-19
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-684.txt 
+
+commit 1dc5135fec0de11f2bea6aa77604d477113da64b
+Author: Mark Webb <mwebb@apache.org>
+
+    initial check-in.  much is left to do in the commenting section.  This will at least get the ball rolling and allow others to make updates.

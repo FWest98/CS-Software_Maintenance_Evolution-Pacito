@@ -1,0 +1,28 @@
+Pattern changes caused by commit: fd4ddfe0dd1a9aa1b173ecb3aa7a950e7edbe2e3
+
+From: Adapter-12
+To:   Adapter-16
+
+From: Flyweight-25
+To:   Flyweight-24
+
+From: Mediator-29
+To:   Mediator-32
+
+From: Strategy-29
+To:   Strategy-31
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1186.txt 
+
+commit fd4ddfe0dd1a9aa1b173ecb3aa7a950e7edbe2e3
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added IoAcceptor.defaultLocalAddress(es) - bind() will use this property
+    * Added IoAcceptor.bind(SocketAddress...)
+    * Added IoAcceptor.unbind(SocketAddress...)
+    * Added IoAcceptor.unbindAll()

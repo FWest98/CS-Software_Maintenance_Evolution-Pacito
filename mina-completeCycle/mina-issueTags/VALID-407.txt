@@ -1,0 +1,17 @@
+Pattern changes caused by commit: d2f937b55a3d7f6f393f8028b4e39b9dea745879
+
+From: Flyweight-22
+To:   Flyweight-21
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-407.txt 
+
+commit d2f937b55a3d7f6f393f8028b4e39b9dea745879
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-322 (Remove ThreadModel)
+    * Removed ThreadModel and its related subtypes, properties, and integration classes

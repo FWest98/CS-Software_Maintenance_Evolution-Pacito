@@ -1,0 +1,83 @@
+Pattern changes caused by commit: 861d50b5b05674dd5f7b7634af9ce44f404a03c0
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Mediator-58
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-408.txt 
+
+commit 861d50b5b05674dd5f7b7634af9ce44f404a03c0
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-323 (Remove ByteBuffer pooling / acquire() / release())
+    * Removed PooledByteBufferAllocator
+    * Removed ByteBuffer.acquire() and release()
+    * Fixed compilation errors and tests caused by the changes above
+
+
+
+==================================
+ Issue DIRMINA-323 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-323] Remove ByteBuffer pooling / acquire() / release()
+-----------------
+
+-----------------
+Summary: Remove ByteBuffer pooling / acquire() / release()
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Dec 2006 07:56:41 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Dec 2006 08:37:54 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+According to the recent discussion:
+
+<a
+href="http://www.nabble.com/Is-MINA-ByteBuffer-pool-of-dubious-value--tf2652301.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Is-MINA-ByteBuffer-pool-of-dubious-value--tf2652301.html</a><br/><a
+href="http://www.nabble.com/To-keep-direct-buffer-support-or-not-tf2778928.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/To-keep-direct-buffer-support-or-not-tf2778928.html</a>
+
+We
+concluded to get rid of ByteBuffer pooling and consequently acquire() and release() method
+which degrades API usability and performance.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

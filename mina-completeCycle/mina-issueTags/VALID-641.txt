@@ -1,0 +1,16 @@
+Pattern changes caused by commit: a27568a815c1708ea447274731e8b6c378bb535c
+
+From: Composite-1
+To:   Composite-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-641.txt 
+
+commit a27568a815c1708ea447274731e8b6c378bb535c
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed a unused class

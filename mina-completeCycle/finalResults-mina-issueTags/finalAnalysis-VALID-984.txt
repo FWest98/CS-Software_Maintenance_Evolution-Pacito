@@ -1,0 +1,127 @@
+Pattern changes caused by commit: b0d9c7d8c12884ac005726e6e6edbc6a78d60fad
+
+From: Mediator-49
+To:   Mediator-47
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-984.txt 
+
+commit b0d9c7d8c12884ac005726e6e6edbc6a78d60fad
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-341 (Allow binding multiple SocketAddresses per IoAcceptor.)
+    * Added IoAcceptor.localAddresses property
+
+
+
+==================================
+ Issue DIRMINA-341 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-341] Allow binding multiple SocketAddresses per IoAcceptor.
+-----------------
+
+-----------------
+Summary: Allow binding multiple SocketAddresses per IoAcceptor.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sun, 28 Jan 2007 04:06:54 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 9 Nov 2007 11:37:00 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+2.0-M1-SNAPSHOT allows only one SocketAddress to be bound per IoAcceptor.  People want to
+bind the same protocol handler into more than one NICs with different port.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+How about just adding setLocalAddresses(SocketAddress[] addresses)? 
+
+
+New Comment: 
+That's what I was talking about.  What about Set&lt;? extends SocketAddress&gt; then? 
+
+
+New Comment: 
+I am insterested in this capability, but I want to make sure there is an option to specify
+1 selector thread per bound address. 
+
+
+New Comment: 
+We could resolve this issue with 1 selector thread for multiple bind address first, and
+then implement more flexible thread model configuration as Michael pointed out in the
+other issue. 
+
+
+New Comment: 
+When a message comes in in the message handler portion of the IO code, how do you get the
+bound address for which the message was intended?  Is this something that's in the
+IoSession for the getLocalAddress()?  If so, there's no way to get the port that the
+connection was bound to is there?  That would probably make the job a little easier for
+people to determine which port a connection was attached to.I agree, using a single
+selector thread for the multiple bind addresses is a good thing(tm).What may also be a
+good idea is to create a connection context or a service context that specifies the
+service space in which a connection has been connected to.  This way, the system can
+automatically "context switch" between different configurations based on the connected
+port that an IoSession is attached to.  Something like an IoSessionContext?  Just a
+thought. 
+
+
+New Comment: 
+IoSession provides both getLocalAddress and getRemoteAddress, so user can determine which
+port it's bound to.  You will have to downcast the IoSession to SocketSession though.Your
+idea is interesting...but I am not sure if it's a common use case.  It's very easy to
+implement by IoHandler implementor. 
+
+
+New Comment: 
+To make more sense, why not visualize it.  Here's a proposal to an idea for a change to
+the org.apache.mina.integration.spring.Binding class:&lt;bean
+class="org.apache.mina.integration.spring.Binding"&gt;<br/>    &lt;property
+name="address"&gt;<br/>        &lt;list&gt;<br/>            127.0.0.1:2525<br/>           
+10.10.10.25:2525<br/>            10.10.10.25:2526<br/>        &lt;/list&gt;<br/>   
+&lt;/property&gt;<br/>&lt;/bean&gt;Which will allow the Binding to bind to those three
+addresses.  Then, you can use getLocalAddress and the port to which the connection was
+made.  It may make more sense to attach it specifically to a different IoSession so the
+IoSession only applies to the connected socket, and a context attached therein.  But
+either way would probably work for the first release of 2.0.0.  I think a context switch
+would make sense there, however, so different rules or connection rules can be applied to
+different binding ports.Say, for instance, someone wants to do a blacklist on
+10.10.10.25:2526, but not on 10.10.10.25:2525; this is why a context switch may make sense
+in this regard.  Just something to think about. 
+
+

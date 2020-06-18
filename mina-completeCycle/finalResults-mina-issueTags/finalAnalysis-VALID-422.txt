@@ -1,0 +1,98 @@
+Pattern changes caused by commit: 24b433419b8ac58ac44035292ca6090a84905291
+
+From: Flyweight-21
+To:   Flyweight-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-422.txt 
+
+commit 24b433419b8ac58ac44035292ca6090a84905291
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-16 (org.apache.mina.common.TransportType)
+    * Changed TransportType into an interface
+    * Added TransportType.getAddressType()
+    * Added TransportType.getSessionConfigType()
+    * Removed transport type registry feature because it's not used anywhere
+    ** Removed the related unit test
+
+
+
+==================================
+ Issue DIRMINA-16 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-16] org.apache.mina.common.TransportType
+-----------------
+
+-----------------
+Summary: org.apache.mina.common.TransportType
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 12 Apr 2005 23:44:24 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 18 Jan 2007 07:27:32 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+the TransportType define the differents TransportType in MINA (Socket,Datagram, VM Pipe).
+The types are static and hardcoded. The constructor of Transport type is private. It leave
+no room for new Transport.<br/>I propose : <br/>1st  : change the transportType
+constructor visibility to public<br/>2snd : move the staticly defined TransportTypes to
+the different io.datagram, io.socket, etc.. packages
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Now you can create your own TransportType singletons.  Please check out and refer to
+JavaDoc. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I'm still looking for better way to
+separate TransportType constants to each packages, but it looks more clean for
+TransportType to have all default constants.  WDYT? 
+
+
+New Comment: 
+Well it's still problematic in trunk for creating a separate package for Serial
+communications 
+
+
+New Comment: 
+What about just removing TransportType and using Java String instead?  It has been a
+problem whenever we add a new transport type. 
+
+
+New Comment: 
+so far I understand MINA's behaviour, it's looking like a good solution, and going to a
+simplify a little 
+
+

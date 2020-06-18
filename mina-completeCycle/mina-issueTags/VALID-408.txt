@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 861d50b5b05674dd5f7b7634af9ce44f404a03c0
+
+From: Adapter-23
+To:   Adapter-22
+
+From: Mediator-58
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-408.txt 
+
+commit 861d50b5b05674dd5f7b7634af9ce44f404a03c0
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-323 (Remove ByteBuffer pooling / acquire() / release())
+    * Removed PooledByteBufferAllocator
+    * Removed ByteBuffer.acquire() and release()
+    * Fixed compilation errors and tests caused by the changes above

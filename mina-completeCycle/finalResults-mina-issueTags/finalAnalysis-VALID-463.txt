@@ -1,0 +1,119 @@
+Pattern changes caused by commit: 6dd503714eb4427ace33f967a0f358ff728e1461
+
+From: Adapter-7
+To:   Adapter-6
+
+From: Facade-16
+To:   Facade-13
+
+From: Flyweight-18
+To:   Flyweight-16
+
+From: Proxy-3
+To:   Proxy-2
+
+From: Mediator-26
+To:   Mediator-23
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-463.txt 
+
+commit 6dd503714eb4427ace33f967a0f358ff728e1461
+Author: Trustin Lee <trustin@apache.org>
+
+    * Fixed all compiler warnings (DIRMINA-274) Remove Java Generics Compiler Warnings
+    * Applied Java 5 Generics to
+    ** Collections
+    ** Sets
+    ** Maps
+    ** Lists
+    ** Queues
+    ** Hashtables
+
+
+
+==================================
+ Issue DIRMINA-274 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-274] remove java generics compiler warnings
+-----------------
+
+-----------------
+Summary: remove java generics compiler warnings
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 2 Oct 2006 14:23:39 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 3 Apr 2007 05:25:34 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+There are approximately 100 compiler warnings that deal with java generics.  I would like
+to fix these in order to decrease the number of compiler warnings.  I believe that this
+would make for cleaner code.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+What tool are you using to build MINA 1.0?  You won't see any warnings if you are using
+Maven 2.  If your IDE is configured to use the 1.5 source format, please reconfigure it to
+use 1.4 format.  We are going to migrate to Java 5 in 1.1.0.  1.0.x will be maintained as
+long as 1.1.x (the unstable version) is promoted to 1.2.0 (the stable version). 
+
+
+New Comment: 
+Mark wrote:<br/>--------<br/>I am using Eclipse.  Setting the compiler to use Java 1.4
+source<br/>removed all of the warnings.I guess if Java1.4 is still going to be supported,
+then the work I<br/>would have to do on this should be placed on hold.  Not a
+problem,<br/>just a MINA newbie wanting to help out <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Thank you.<br/>--------<br/>We will start
+to develop MINA 1.1 very soon.  Actually 1.0 branch has been moved to branches/mina/1.0
+and the trunk contains the initial copy of 1.1.  So you can start fixing those warnings
+and provide us a patch against the trunk.PS: You could comment at the JIRA web page
+instead of replying to the automatic notification message. 
+
+
+New Comment: 
+Based on Email conversation with Trustin, the trunk contains the initial copy of 1.1. 
+Therefore I will start to submit patches based on updates to Java 1.5. 
+
+
+New Comment: 
+This cuts the compiler warnings down to 16 using a default configuration in Eclipse. 
+
+
+New Comment: 
+Should be fixed in 1.1.0 
+
+

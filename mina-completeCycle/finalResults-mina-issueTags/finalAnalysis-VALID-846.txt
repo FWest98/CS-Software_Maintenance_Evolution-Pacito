@@ -1,0 +1,127 @@
+Pattern changes caused by commit: e8b5fa0414ecc9873388fee6f7a382574db4fd3b
+
+From: Adapter-19
+To:   Adapter-18
+
+From: Bridge-25
+To:   Bridge-23
+
+From: Facade-17
+To:   Facade-15
+
+From: Flyweight-27
+To:   Flyweight-25
+
+From: Mediator-45
+To:   Mediator-41
+
+From: Observer-3
+To:   Observer-2
+
+From: Strategy-31
+To:   Strategy-25
+
+From: Template Method-4
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-846.txt 
+
+commit e8b5fa0414ecc9873388fee6f7a382574db4fd3b
+Author: Trustin Lee <trustin@apache.org>
+
+    * Generified IoFutureListener - no need to down cast IoFuture anymore!
+    * Fixed some compiler warnings
+    * Resolved issue: DIRMINA-432 (IoService method for writing Object to all the managed IoSession)
+    ** Added CompositeIoFuture
+    ** Added MessageBroadcaster
+    ** NOTE: I found returning Map<IoSession, WriteFuture> is not necessary because the caller already knows which session is associated with which WriteFuture.
+
+
+
+==================================
+ Issue DIRMINA-432 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-432] IoService method for writing Object to all the managed IoSession
+-----------------
+
+-----------------
+Summary: IoService method for writing Object to all the managed IoSession
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 3 Sep 2007 07:00:49 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 26 Oct 2007 09:43:17 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Would be convenient to ad a method to IoService for writing a message to all the managed
+sessions.<br/>in IoService : <br/>public WriteFuture writeAllSession(Object message);
+
+the
+implementation could be done in AbstractIoService.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+writeAllSession sounds like 'writing sessions' than 'writing a message to all sessions'. 
+What would be a better name?Or... it would be more flexible to provide a utility class
+that sends a message to a certain set of sessions so a user can send to any combination of
+sessions.  WDYT? 
+
+
+New Comment: 
+Why not simply 'write(..)' ?So we can have :WriteFuture write(Set&lt;IoSession&gt;
+sessions,Object message);and a general broadcast (just a shortcut using the set of managed
+session as first paramaeter):<br/>WriteFuture write(Object messsage); 
+
+
+New Comment: 
+The WriteFuture write(Object messsage); can be placed in IoService, but as Trustin thought
+ write(Set&lt;IoSession&gt;,Object message) need to go to a utility class because the set
+can be composed of session of different IoService. 
+
+
+New Comment: 
+WDYT of adding a class in o.a.mina.common called SessionWriter with the folowing static
+method :<br/>public static WriteFuture write(Set&lt;IoSession&gt; sessions,Object
+message); <br/>public static WriteFuture write(IoSession[] sessions,Object message); 
+
+
+New Comment: 
+I'd prefer MessageBroadcaster.  And users will want to know which peer failed to receive
+the broadcast message, so we need to return something different
+like....<ul>	<li>Map&lt;IoSession, WriteFuture&gt; or</li>	<li>CompositeIoFuture (new
+interface) that can combine any IoFutures (e.g. ConnectFuture + WriteFuture).</li></ul> 
+
+

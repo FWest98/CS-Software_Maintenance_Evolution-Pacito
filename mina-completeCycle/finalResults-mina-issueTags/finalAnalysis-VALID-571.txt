@@ -1,0 +1,80 @@
+Pattern changes caused by commit: 047d3749a069fb3204521c0696828728b590fd57
+
+From: Bridge-7
+To:   Bridge-6
+
+From: Flyweight-17
+To:   Flyweight-16
+
+From: Strategy-16
+To:   Strategy-14
+
+From: Template Method-4
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-571.txt 
+
+commit 047d3749a069fb3204521c0696828728b590fd57
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-361 (Event type and EventType enum
+    * Added IoEventType
+    * Added IoEvent and IoFilterEvent
+    * Removed duplicate event classes from executor filters and ssl filter
+
+
+
+==================================
+ Issue DIRMINA-361 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-361] Event type and EventType enum
+-----------------
+
+-----------------
+Summary: Event type and EventType enum
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 26 Mar 2007 02:11:17 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 13 Jul 2007 02:30:13 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Filters which queues received events into a collection needs to convert a method
+invocation into an event object. ExecutorFilter and SSLFilter are good examples, and we
+might have more than that in the near future.  It would be great to extract Event and
+EventType types from ExecutorFilter and to provide them as a utility.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

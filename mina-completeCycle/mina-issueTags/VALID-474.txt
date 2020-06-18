@@ -1,0 +1,23 @@
+Pattern changes caused by commit: b0e42f13342f124722c0bd71f61555b00278f210
+
+From: Facade-12
+To:   Facade-11
+
+From: Mediator-18
+To:   Mediator-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-474.txt 
+
+commit b0e42f13342f124722c0bd71f61555b00278f210
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-366 (Default socket option values are retrieved incorrectly.)
+    * Made sure the default reuseAddress value of an accepted socket to be true
+    * Removed unnecessary code in DatagramSessionConfig implementations
+    * Removed SessionUtil in trunk because it's hardly useful
+    * Removed a sentence in SessionUtil that sets reuseAddress to true bindly which can cause a problem for a non-acceptor session

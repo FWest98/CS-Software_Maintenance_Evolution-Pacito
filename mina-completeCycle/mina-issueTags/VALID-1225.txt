@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 40fbf71f1168765c806d50785e347adaa585fd3d
+
+From: Bridge-26
+To:   Bridge-25
+
+From: Mediator-41
+To:   Mediator-40
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1225.txt 
+
+commit 40fbf71f1168765c806d50785e347adaa585fd3d
+Author: Trustin Lee <trustin@apache.org>
+
+    Reimplemented DecodingStateProtocolDecoder not to complain when a state slices the received buffer.

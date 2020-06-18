@@ -1,0 +1,83 @@
+Pattern changes caused by commit: 654f07f7fe3120dc99b1a240a9f5cf00ba13a076
+
+From: Bridge-11
+To:   Bridge-12
+
+From: Mediator-14
+To:   Mediator-17
+
+From: Template Method-3
+To:   Template Method-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-662.txt 
+
+commit 654f07f7fe3120dc99b1a240a9f5cf00ba13a076
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-417 (Move idleTime and writeTimeout property to IoSessionConfig (from IoSession).)
+    * Moved idleTime and writeTimeout property to IoSessionConfig
+    * Added IoSessionConfig.setAll() and added its default implementation to AbstractIoSessionConfig
+    * Removed SerialSessionConfig.timeout because it can be replaced with IoService.connectTimeout
+
+
+
+==================================
+ Issue DIRMINA-417 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-417] Move idleTime and writeTimeout property to IoSessionConfig (from IoSession).
+-----------------
+
+-----------------
+Summary: Move idleTime and writeTimeout property to IoSessionConfig (from IoSession).
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 3 Aug 2007 08:09:57 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 18 Aug 2007 02:54:12 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+As discussed in the following mailing list thread:
+
+<a
+href="http://www.nabble.com/passing-settings-into-an-IoHandler-tf4207413s16868.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/passing-settings-into-an-IoHandler-tf4207413s16868.html</a>
+
+Moving
+idleTime and writeTimeout property in IoSession to IoSessionConfig will make the two
+property more IoC-friendly.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

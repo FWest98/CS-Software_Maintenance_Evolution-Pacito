@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 4c163be9661c2a0c468281e73001288b04559dfa
+
+From: Adapter-13
+To:   Adapter-19
+
+From: Facade-16
+To:   Facade-17
+
+From: Mediator-35
+To:   Mediator-42
+
+From: Observer-2
+To:   Observer-3
+
+From: Strategy-29
+To:   Strategy-30
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-840.txt 
+
+commit 4c163be9661c2a0c468281e73001288b04559dfa
+Author: Mark Webb <mwebb@apache.org>
+
+    added a test for the connection throttle filter

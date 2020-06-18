@@ -1,0 +1,20 @@
+Pattern changes caused by commit: b0d9c7d8c12884ac005726e6e6edbc6a78d60fad
+
+From: Mediator-49
+To:   Mediator-47
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-984.txt 
+
+commit b0d9c7d8c12884ac005726e6e6edbc6a78d60fad
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-341 (Allow binding multiple SocketAddresses per IoAcceptor.)
+    * Added IoAcceptor.localAddresses property

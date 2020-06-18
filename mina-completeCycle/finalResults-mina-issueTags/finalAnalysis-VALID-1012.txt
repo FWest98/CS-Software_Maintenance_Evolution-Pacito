@@ -1,0 +1,228 @@
+Pattern changes caused by commit: 3f659d731b534c95ae795016bbcf6c0b6abd952d
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-49
+To:   Mediator-43
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-27
+To:   Strategy-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1012.txt 
+
+commit 3f659d731b534c95ae795016bbcf6c0b6abd952d
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-375 (Synchronous Client API)
+    * Added IoSessionConfig.useReadOperation
+    * Added IoSession.read() - only usable when useReadOperation is true
+    * Added ReadFuture and its default implementation
+
+
+
+==================================
+ Issue DIRMINA-375 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-375] Synchronous Client API
+-----------------
+
+-----------------
+Summary: Synchronous Client API
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 12 May 2007 14:51:54 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 13 Nov 2007 10:45:54 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Hi,
+
+There was mention of a synchronous client api for MINA on the mailing list, so I
+thought I'd offer my implementation.
+
+<a
+href="http://www.nabble.com/forum/ViewPost.jtp?post=10445399&amp;framed=y"
+class="external-link"
+rel="nofollow">http://www.nabble.com/forum/ViewPost.jtp?post=10445399&amp;framed=y</a>
+
+As
+far as I can tell it works, but I've never given it a good run under heavy load.  The
+areas I think could use some review are:<br/>Connection - possible to use generics?  Only
+makes sense if you can tie it to what the filters are doing I
+think.<br/>ConnectionFactoryImpl - is the managedSessions processing
+required?<br/>SequentialExecutor/DaemonThreadFactory - are there better/pre existing ways
+of doing these?<br/>Connection/NonBlockingConnection - any point having them separate? 
+Did this initially for JCA resource adapter idea - didn't want to offer non blocking to
+EJB clients.
+
+Regards,<br/>Brad.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch created against mina/branches/1.1. 
+
+
+New Comment: 
+Attaching some examples.  It's hard to think of a good example that doesn't involve some
+antiquated proprietary system!  A HTTP client comes to mind, but it is so well covered
+elsewhere.I thought of a potential caveat.  if you're not converting from ByteBuffers
+(like netcat, for example) the ByteBuffer gets passed back out of connection.receive() but
+I think at this stage it will have been released by MINA.  You could use an IOFilter to
+aquire() them if you really needed this to work. 
+
+
+New Comment: 
+Will fix this issue in 2.0.0-M1 because it might affect the overall API design on the
+connector side. 
+
+
+New Comment: 
+First of all, thank you very much Brad for excellent idea and contribution!  Literally
+cool! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/biggrin.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>I think Brad's patch can be easily
+integrated into IoSession; IoSession could have a read() method that returns
+ReadFuture:<ul>	<li>Object m = session.read().await(10000).getMessage(); // Returns null
+unless received within 10 sec.</li>	<li>Object m =
+session.read(10000).await().getMessage(); // Throws exception unless received within 10
+sec.</li></ul>This could be implemented by adding a queue of ReadFutures to IoSession and
+modifying DefaultIoFilterChain to poll the ReadFuture and give notification for each
+messageReceived event.  By utilizing existing facilities that IoSession and MINA provides,
+the amount of change could become much smaller.Possible list of thrown exceptions would
+be:<ul>	<li>EOFException - if the session is closed.</li>	<li>SocketTimeoutException - on
+timeout</li></ul>One problem is that these exceptions are not a RuntimeIoException.  We
+could create DisconnectionException and ReadTimeoutException that extend
+RuntimeIoException though.WDYT everyone? 
+
+
+New Comment: 
+No objection?  This is the last call.  I will proceed as I mentioned above soon. <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1I really like the idea of having an IoSession.read() method that returns a ReadFuture so
+that you can block and/or register a IoFutureListener that handles the next message
+received.  This would greatly simplify so much of the state management we currently have
+to do in our IoHandler's.Let me know where I can help with integrating this into trunk. 
+
+
+New Comment: 
+Sorry for delayed response.  I have been <b>extremely</b> busy sipping cocktails and
+generally lazing about on my honeymoon <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  Alas, all good things must come to an
+end!Certainly integrating into IoSession is a great idea - I didn't consider this in my
+implementation as I wanted something purely additive.  This opens up the possibility of
+having an IO Handler as well as blocking reads - you will need to define when/if the
+IoHandler callback is called if there is also a ReadFuture from IoSession.read().  I would
+urge some caution in providing an API with slight differences in returning null vs
+throwing exception as suggested above:<ul>	<li>Object m =
+session.read().await(10000).getMessage(); // Returns null unless received within 10
+sec.</li>	<li>Object m = session.read(10000).await().getMessage(); // Throws exception
+unless received within 10 sec.</li></ul>These two statements are very similar but have a
+very subtle difference that is not intuitive and likely to be a source of confusion
+(especially if the latter throws unchecked exceptions).I suspect that the needs of most
+people looking for a synchronous API (who are probably new to MINA) would be met best by
+hiding/short circuiting the ReadFuture, eg:<ul>	<li>Object m = session.getMessage(); // or
+readMessage() or whatever, waits forever for message</li>	<li>Object m =
+session.getMessage(10000); // Throws timeout exception unless received within 10
+sec.</li></ul>This would certainly make for an easier tutorial <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  Advanced users may like to use
+session.read(10000) since the ReadFuture returned offers a bit more flexibility and
+power.Cheers,<br/>Brad. 
+
+
+New Comment: 
+I've found some issues with my implementation idea.The idea was to poll the queue of
+ReadFutures and notify the future.  The problem is that any received data is discarded if
+no ReadFuture is in the queue.  This can happen at any time, especially in broadband
+network where data flows very fast.  One possible solution is to buffer all received data,
+but it will lead to memory leak for those who don't call read() at all.  I can't think of
+any easy way of fixing this problem by integrating read() into IoSession.  Brad's initial
+idea might be right, although it introduces more classes. 
+
+
+New Comment: 
+Niklas came up with continuation sub-module, which might simplify this issue unbelievably.
+ I recommend everyone to take a look into his code.  It's in the sandbox. 
+
+
+New Comment: 
+Actually, the continuations stuff may be overkill for a single client. In that situation a
+simpler one thread per client API would be better. Now if you had 100 clients running in
+the same JVM things would be different. My plan is to use continuations for our
+(www.spamdrain.net) spam filtering proxies. These proxies are both servers and clients and
+there could be hundreds or thousands of connections running simultaneously. In such an
+environment the one thread per client type of API wouldn't work. 
+
+
+New Comment: 
+IoSession.read() and ReadFuture have been added as discussed.  To work around the memory
+usage and event order problem, I added IoSessionConfig.useReadOperation flag so user can
+enable or disable IoSession.read().  Once enabled, all received messages are queued into
+an internal queue.I didn't add any timeout exception though because it can cause ambiguity
+as Brad pointed out.  Just calling ReadFuture.await(timeout) will return false when the
+message is not received within the specified time frame. 
+
+
+New Comment: 
+Please try the new API with the attached ReadFutureTest.java  It's a very simple kind of
+telnet client. 
+
+
+New Comment: 
+Hi Trustin,Looks good.  To clarify one of my comments above, I actually prefer throwing
+exceptions rather than returning null, but it is better to be consistent with the rest of
+the API in this case.One potential caveat is that if the protocol codec being used can
+convert messages into exceptions, then these messages returned from the peer are
+indistinguishable from exceptions generated locally that would usually go to
+exceptionCaught.   Whereas messageReceived would still be called in a ProtocolHandler,
+ReadFuture.getMessage() will wrap and throw the exception instead of just returning it so
+the behaviour is a little bit inconsistent.  This was why I used a wrapper for the values
+in my original patch.  I don't know if anyone would actually do this - I don't think it's
+a serious issue as long as it is documented.Cheers,<br/>Brad. 
+
+

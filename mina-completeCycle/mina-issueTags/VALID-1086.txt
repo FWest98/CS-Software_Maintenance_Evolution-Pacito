@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 9e5ff9b4b5ff7547d7d6c64ff4eb93abadf4211e
+
+From: Flyweight-23
+To:   Flyweight-24
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1086.txt 
+
+commit 9e5ff9b4b5ff7547d7d6c64ff4eb93abadf4211e
+Author: Trustin Lee <trustin@apache.org>
+
+    * Renamed protected methods in AbstractIoService, AbstractPollingIoProcessor and their subclasses
+    * Added final modifier to avoid API abusing

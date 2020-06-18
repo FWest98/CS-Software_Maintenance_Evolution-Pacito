@@ -1,0 +1,95 @@
+Pattern changes caused by commit: adf11feaec713566949d08a0adbaaaa4c2ed4a34
+
+From: Facade-19
+To:   Facade-20
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-387.txt 
+
+commit adf11feaec713566949d08a0adbaaaa4c2ed4a34
+Author: Niklas Therning <niklas@apache.org>
+
+    * DIRMINA-314: LoggingFilter will now log each event to different loggers. The loggers share a common prefix which is configurable. By default this prefix will be the name of the logger used by SessionLog.
+    * Made SessionLog.getLogger() public and added SessionLog.getPrefix().
+    * The logger and prefix used by SessionLog can now be configured using the static SessionLog.setPrefix() and SessionLog.setLogger() methods. This is easier than having to add an attribute to the session.
+
+
+
+==================================
+ Issue DIRMINA-314 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-314] LoggingFilter should use different loggers for each event and the logger prefix and level should be configurable
+-----------------
+
+-----------------
+Summary: LoggingFilter should use different loggers for each event and the logger prefix and level should be configurable
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 21 Nov 2006 09:07:03 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 26 Mar 2007 07:47:53 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+It would be nice to be able to set my own logger name for LoggingFilter to use. It can be
+done today by setting an attribute in my session but then the prefix used by SessionLog
+will be null. 
+
+It would also be nice to be able to set the log level to be used.
+Currently the level is always INFO.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I would like to add that I think the default logger name should be changed.Currently the
+SessionLog class logs all messages using the Logger classname of my IoHandler.  This
+presents a problem for me in that I can no longer differentiate log messages emitted from
+the SessionLog class versus log messages emitted from my own IoHandler class.  (Although
+setting my own logger name for LoggingFilter will mitigate this problem it would be nice
+if the default changed to something that isn't going to collide with the user's logging
+names out of the box.) 
+
+
+New Comment: 
+SessionLog.setLogger(session, logger) and SessionLog.setPrefix(session, prefix) have been
+added. The default logger used by SessionLog has been changed. It'll now append
+.SessionLog to the name of the IoHandler class and use that as the name of the default
+logger.The log level used by LoggingFilter can now be changed using
+LoggingFilter.setDefaultLogLevel() and LoggingFilter.setExceptionCaughtLogLevel(). The
+defaultLogLevel will be used for all events except exceptionCaught which will use the
+exceptionCaughtLogLevel. The default is INFO for both of them.LoggingFilter will use
+different loggers for each event. This makes it simpler to filter out unwanted events. The
+default prefix for the loggers is the name of the logger used by SessionLog (e.g.
+org.apache.mina.example.echoserver.EchoProtocolHandler.SessionLog.sessionOpened). 
+
+

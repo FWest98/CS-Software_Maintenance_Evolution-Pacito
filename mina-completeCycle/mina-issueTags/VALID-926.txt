@@ -1,0 +1,22 @@
+Pattern changes caused by commit: a9c291e8b50f40864db570f6a65473ce87891153
+
+From: Bridge-20
+To:   Bridge-22
+
+From: Facade-14
+To:   Facade-15
+
+From: Mediator-36
+To:   Mediator-37
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-926.txt 
+
+commit a9c291e8b50f40864db570f6a65473ce87891153
+Author: Trustin Lee <trustin@apache.org>
+
+    Now echoserver example performs very very well without any custom configuration. :D

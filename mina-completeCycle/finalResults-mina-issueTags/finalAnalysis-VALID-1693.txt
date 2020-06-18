@@ -1,0 +1,124 @@
+Pattern changes caused by commit: c03f96c1b8af35857e97a58b7aafdbcd845a909c
+
+From: Facade-12
+To:   Facade-13
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1693.txt 
+
+commit c03f96c1b8af35857e97a58b7aafdbcd845a909c
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Restore back the initial API (will fix DIRMINA-706)
+
+
+
+==================================
+ Issue DIRMINA-706 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-706] The project ftpserver can't work with mina-2.0-m5
+-----------------
+
+-----------------
+Summary: The project ftpserver can't work with mina-2.0-m5
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 28 Apr 2009 08:02:09 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 28 Apr 2009 22:21:45 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+After reading the article <span class="error">&#91;Embedding FtpServer in 5
+minutes&#93;</span>, I've tried it myself. The following is my source code. The server
+could not be started while I was using mina-core-2.0.0-M5.jar. If the jar was changed to
+mina-core-2.0.0-M4.jar everything would went well.
+
+package org.cxz.mina;<br/>import
+org.apache.ftpserver.FtpServer;<br/>import
+org.apache.ftpserver.FtpServerFactory;<br/>import
+org.apache.ftpserver.ftplet.FtpException;<br/>public class FtpSvrMgr {<br/>	public static
+void main(String[] args) throws FtpException 
+{		FtpServerFactory serverFactory = new
+FtpServerFactory();		FtpServer server = serverFactory.createServer();		// start the
+server		server.start();	}
+}
+
+Exceptions:
+
+Exception in thread "main"
+java.lang.NoSuchMethodError:
+org.apache.mina.transport.socket.SocketAcceptor.bind(Ljava/net/SocketAddress;)V<br/>	at
+org.apache.ftpserver.listener.nio.NioListener.start(NioListener.java:182)<br/>	at
+org.apache.ftpserver.impl.DefaultFtpServer.start(DefaultFtpServer.java:77)<br/>	at
+org.cxz.mina.FtpSvrMgr.main(FtpSvrMgr.java:14)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This seems odd. I've tried replacing M4 for M5 and get no problems. And the
+IoAcceptor.bind() method that it claims to be missing is one of the very core methods in
+MINA which has not changed for a very long time.Could you maybe try attaching your copy of
+MINA M5? 
+
+
+New Comment: 
+When the m4 is used, there's no issue. 
+
+
+New Comment: 
+The issues happens when we use the m5. 
+
+
+New Comment: 
+The attach is the m5 jar, which has been tried. 
+
+
+New Comment: 
+Chang is right. And this is my fault ... :/I have changed the API from :    void
+bind(SocketAddress address) throws IOException;to    void bind(SocketAddress... addresses)
+throws IOException;thinking that it cover the case of a single argument.I will restore the
+previous API.Sorry for that. 
+
+
+New Comment: 
+Fixed in :<br/><a href="http://svn.apache.org/viewvc?rev=769571&amp;view=rev"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=769571&amp;view=rev</a> 
+
+
+New Comment: 
+I've reproduced the previous scenerio, and the m5 version mina-core works well.<br/>This
+is my first time to take part in open source project.<br/>Thanks you guys. 
+
+

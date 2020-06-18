@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 090d9b1c4bbf47f7f4c514e0c9051de5c975d3f7
+
+From: Bridge-22
+To:   Bridge-20
+
+From: Facade-18
+To:   Facade-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1282.txt 
+
+commit 090d9b1c4bbf47f7f4c514e0c9051de5c975d3f7
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    moving these examples which break into my sandbox until we figure out what to do with it

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 189c15f061839a15b98138b1af0023ea8edd4309
+
+From: Facade-18
+To:   Facade-17
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1215.txt 
+
+commit 189c15f061839a15b98138b1af0023ea8edd4309
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced URL with URI
+    * Fixed issue: DIRMINA-487 (Fix HTTP response with no content-length header)
+    ** All DecodingState now has finishDecode(ProtocolDecoderOutput) which is invoked when a session is closed.
+    ** Added ConsumeToDisconnectionDecodingState

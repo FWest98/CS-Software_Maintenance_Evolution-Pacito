@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 9265133922c62e9391c6364b04b550416f3b05d2
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Flyweight-24
+To:   Flyweight-25
+
+From: Mediator-35
+To:   Mediator-33
+
+From: Observer-0
+To:   Observer-1
+
+From: Strategy-29
+To:   Strategy-30
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1093.txt 
+
+commit 9265133922c62e9391c6364b04b550416f3b05d2
+Author: Trustin Lee <trustin@apache.org>
+
+    * pushed down all non-abstract non-static methods to AbstractIoBuffer
+    * Added more final modifiers to AbstractIoSession

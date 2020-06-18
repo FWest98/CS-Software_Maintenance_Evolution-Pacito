@@ -1,0 +1,75 @@
+Pattern changes caused by commit: 42197edbae216ee072f38628779315f1a66e5fa6
+
+From: Facade-17
+To:   Facade-18
+
+From: Mediator-38
+To:   Mediator-49
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1253.txt 
+
+commit 42197edbae216ee072f38628779315f1a66e5fa6
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-504 (Allow ProtocolEncoder to generate non-IoBuffer objects)
+    * Changed ProtocolEncoderOutput.write() to accept an Object as a parameter
+    * Renamed ProtocolEncoderOutput.getBufferQueue() to getEncodedMessageQueue()
+
+
+
+==================================
+ Issue DIRMINA-504 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-504] Allow ProtocolEncoder to generate non-IoBuffer objects
+-----------------
+
+-----------------
+Summary: Allow ProtocolEncoder to generate non-IoBuffer objects
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 28 Dec 2007 03:41:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 28 Dec 2007 03:47:43 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+For now, ProtocolEncoderOutput.write() accepts only IoBuffer as a parameter, and
+therefore a user cannot generate FileRegion or any other kind of object for multi-layered
+protocols.  ProtocolEncoderOutput.write() should accept any object to remove this
+limitation.  Additionally, ProtocolEncoderOutput.mergeAll() should perform sanity check
+before merging IoBuffers because the content of the queue might be mixed up with IoBuffers
+and non-IoBuffers.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

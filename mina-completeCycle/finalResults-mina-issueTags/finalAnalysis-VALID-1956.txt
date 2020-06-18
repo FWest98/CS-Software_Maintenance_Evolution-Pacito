@@ -1,0 +1,70 @@
+Pattern changes caused by commit: 9b9c96cb4bbff37f486267561f039d9e9244f803
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1956.txt 
+
+commit 9b9c96cb4bbff37f486267561f039d9e9244f803
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    DIRMINA-858 optional IoFuture on write
+
+
+
+==================================
+ Issue DIRMINA-858 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-858] write future implementation
+-----------------
+
+-----------------
+Summary: write future implementation
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 3 Sep 2011 08:01:52 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 10 Nov 2011 11:56:32 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+This future is completed when all the ByteBuffers resulting of the encoding of the
+message are wrote on the socket. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+What Future is this? 
+
+

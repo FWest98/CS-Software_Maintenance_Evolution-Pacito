@@ -101,18 +101,20 @@ do
  
   fi
   
-  if [ "$CURRENT_COMMIT" = "19a9be0e18ed6c68ada9bae2ea6e21a8bdc17ad5"] ; then
-    $BETWEEN_TWO_COMMITS = true;
+  echo "$line"
+  
+  if [ "$line" == 19a9be0e18ed6c68ada9bae2ea6e21a8bdc17ad5 ] ; then
+    BETWEEN_TWO_COMMITS=true;
   fi
   
-  if [ "$CURRENT_COMMIT" = "9265133922c62e9391c6364b04b550416f3b05d2"] ; then
-    $BETWEEN_TWO_COMMITS = false;
+  if [ "$line" == 9265133922c62e9391c6364b04b550416f3b05d2 ] ; then
+    BETWEEN_TWO_COMMITS=false;
   fi
   
-  if $BETWEEN_TWO_COMMITS ; then
-    /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  if [ $BETWEEN_TWO_COMMITS = true ] ; then
+    /home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
   else
-	  /home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+	  /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
   fi
   
   rm -rf dependencies

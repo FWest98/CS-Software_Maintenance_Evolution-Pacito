@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 3e0b62e2937f9a03c36db6194389bf36d1fc21e9
+
+From: Facade-10
+To:   Facade-11
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-697.txt 
+
+commit 3e0b62e2937f9a03c36db6194389bf36d1fc21e9
+Author: Mark Webb <mwebb@apache.org>
+
+    initial creation.  All this does is grab a url and print the page to the screen, just like a simple call to the unix command wget.

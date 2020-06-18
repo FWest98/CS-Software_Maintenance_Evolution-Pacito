@@ -1,0 +1,19 @@
+Pattern changes caused by commit: aca02e76a44943028e34de49140231846d09c8bc
+
+From: Mediator-25
+To:   Mediator-28
+
+From: Strategy-15
+To:   Strategy-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1517.txt 
+
+commit aca02e76a44943028e34de49140231846d09c8bc
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    DIRMINA-608 extracted stats and idle state methods to make AbstractIoService lighter

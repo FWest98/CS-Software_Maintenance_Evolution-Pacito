@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 5c080949fc24570573028240172ebd2778f4eeb8
+
+From: Bridge-25
+To:   Bridge-26
+
+From: Mediator-41
+To:   Mediator-51
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1216.txt 
+
+commit 5c080949fc24570573028240172ebd2778f4eeb8
+Author: Trustin Lee <trustin@apache.org>
+
+    * Renamed ConsumeToDisconnectionDecodingState to ConsumeToEndOfSessionDecodingState
+    * Renamed StateMachineProtocolDecoder into DecodingStateProtocolDecoder
+    ** DecodingStateProtocolDecoder now works with DecodingState instead of DecodingStateMachine, which is more flexible.

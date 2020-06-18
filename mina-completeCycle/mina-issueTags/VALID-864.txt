@@ -1,0 +1,31 @@
+Pattern changes caused by commit: a1da74bf5cf67067209419f4d82afb72570ff133
+
+From: Adapter-18
+To:   Adapter-12
+
+From: Facade-16
+To:   Facade-15
+
+From: Mediator-40
+To:   Mediator-35
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-26
+To:   Strategy-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-864.txt 
+
+commit a1da74bf5cf67067209419f4d82afb72570ff133
+Author: Trustin Lee <trustin@apache.org>
+
+    * Revamped ReadThrottleFilterBuilder
+    ** Renamed to ReadThrottleFilterChainBuilder
+    ** Added ReadThrottleFilterChain to allow access to important properties
+    ** Added MessageSizeEstimator and its default implementation for flexible calculation of inflow traffic

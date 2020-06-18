@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1d48d746a66e7e26cc6a0a62a921b45a6c6f51f3
+
+From: Composite-2
+To:   Composite-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-521.txt 
+
+commit 1d48d746a66e7e26cc6a0a62a921b45a6c6f51f3
+Author: Mark Webb <mwebb@apache.org>
+
+    class that can be replaced by the Stack class found in the JDK.  Also, this class is not being used anywhere in the 2.0 MINA baseline.

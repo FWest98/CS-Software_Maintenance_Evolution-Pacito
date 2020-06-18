@@ -1,0 +1,79 @@
+Pattern changes caused by commit: a8c1e6218ae458c85665a3c054d9b1d04343f6fa
+
+From: Bridge-13
+To:   Bridge-14
+
+From: Facade-24
+To:   Facade-25
+
+From: Flyweight-25
+To:   Flyweight-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-351.txt 
+
+commit a8c1e6218ae458c85665a3c054d9b1d04343f6fa
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-273 Session created with non-existent service
+    Fixed issue: DIRMINA-283 Filter.sessionCreated/Filter.sessionOpened called AFTER Filter.filterWrite...
+    * Added AbstractIoFilterChain.CONNECT_FUTURE attribute key to store the connect future until the future becomes now.
+    * AbstractIoFilterChain.fireSessionOpened() and fireExceptionCaught() take care of finishing the ConnectFuture attached to sessions.
+    * Made sure the behavior of ConnectFuture and IoFilterChain is all identical for all transports
+
+
+
+==================================
+ Issue DIRMINA-283 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-283] Sessions are not recycled in IPv6 environment when bind interface is not specified.
+-----------------
+
+-----------------
+Summary: Sessions are not recycled in IPv6 environment when bind interface is not specified.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 9 Oct 2006 03:12:30 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 9 Oct 2006 03:22:33 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The local address, which is specified when an IoHandler is bound, and the local address,
+that IoSession.getLocalAddress(), are different from each other.  Sessions are not being
+recycled at all because we are using the former to put the session to the recycler and
+using the latter to get the session from the recycler.  These two address can differ when
+the running system is under mixed IP system (IPv4 and IPv6).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

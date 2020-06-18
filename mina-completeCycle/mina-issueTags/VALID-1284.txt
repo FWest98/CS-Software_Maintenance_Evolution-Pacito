@@ -1,0 +1,16 @@
+Pattern changes caused by commit: bbcbd7a18fa84b5b252977a2002a6bed1d72dde5
+
+From: Mediator-48
+To:   Mediator-47
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1284.txt 
+
+commit bbcbd7a18fa84b5b252977a2002a6bed1d72dde5
+Author: Trustin Lee <trustin@apache.org>
+
+    Moved transport-serial and related files from trunk to sandbox due to LGPL issues - need to wait until Feb 20

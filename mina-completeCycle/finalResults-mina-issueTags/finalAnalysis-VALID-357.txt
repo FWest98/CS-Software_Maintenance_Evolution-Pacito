@@ -1,0 +1,95 @@
+Pattern changes caused by commit: b49aebedf34cf91d021aa23712fd42daf901b68d
+
+From: Adapter-12
+To:   Adapter-13
+
+From: Facade-26
+To:   Facade-24
+
+From: Flyweight-26
+To:   Flyweight-24
+
+From: Mediator-57
+To:   Mediator-55
+
+From: Observer-6
+To:   Observer-5
+
+From: Strategy-40
+To:   Strategy-34
+
+From: Template Method-0
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-357.txt 
+
+commit b49aebedf34cf91d021aa23712fd42daf901b68d
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-290 (Make IoService (IoConnector and IoAcceptor) manage only one service.)
+    * IoService (IoAcceptor and IoConnector) now can handler only one service at once.
+    ** No more default settings.
+    * Merged IoServiceConfig implementations into the respective IoService implementations as setters.
+    * Removed a few spring framework integration classes which is not necessary now.(Binding and IoAcceptorBeanFactory)
+
+
+
+==================================
+ Issue DIRMINA-290 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-290] Make IoService (IoConnector and IoAcceptor) manage only one service.
+-----------------
+
+-----------------
+Summary: Make IoService (IoConnector and IoAcceptor) manage only one service.
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 18 Oct 2006 02:09:44 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 20 Jan 2007 22:43:52 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Allowing IoAcceptor to bind more than one ports per one instance makes the API complex. 
+Restricting an acceptor to bind to only one port will dramatically simplify the API.  The
+properties of IoServiceConfig will be merged into IoService.  Applying this practice to
+IoConnector will also be very helpful to implement reconnection feature.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Removing 'connection' from the title of this issue because both IoAcceptor and IoConnector
+should be able to manage more than one connections.  My bad! 
+
+

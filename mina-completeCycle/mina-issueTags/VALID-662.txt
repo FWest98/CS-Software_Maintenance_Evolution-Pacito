@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 654f07f7fe3120dc99b1a240a9f5cf00ba13a076
+
+From: Bridge-11
+To:   Bridge-12
+
+From: Mediator-14
+To:   Mediator-17
+
+From: Template Method-3
+To:   Template Method-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-662.txt 
+
+commit 654f07f7fe3120dc99b1a240a9f5cf00ba13a076
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-417 (Move idleTime and writeTimeout property to IoSessionConfig (from IoSession).)
+    * Moved idleTime and writeTimeout property to IoSessionConfig
+    * Added IoSessionConfig.setAll() and added its default implementation to AbstractIoSessionConfig
+    * Removed SerialSessionConfig.timeout because it can be replaced with IoService.connectTimeout

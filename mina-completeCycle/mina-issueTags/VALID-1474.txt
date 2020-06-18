@@ -1,0 +1,16 @@
+Pattern changes caused by commit: aa0c474ae433a7a035bbe6f13c7737c3926a75e9
+
+From: Mediator-24
+To:   Mediator-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1474.txt 
+
+commit aa0c474ae433a7a035bbe6f13c7737c3926a75e9
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    renamed org.apache.mina.common to org.apache.mina.core

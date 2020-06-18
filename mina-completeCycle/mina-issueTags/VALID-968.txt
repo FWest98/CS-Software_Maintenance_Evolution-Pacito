@@ -1,0 +1,28 @@
+Pattern changes caused by commit: cd5324de8b22e627b5f3630edcd6ac9ff1b54e01
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-43
+To:   Mediator-49
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-26
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-968.txt 
+
+commit cd5324de8b22e627b5f3630edcd6ac9ff1b54e01
+Author: Trustin Lee <trustin@apache.org>
+
+    More JavaDoc

@@ -1,0 +1,145 @@
+Pattern changes caused by commit: c3de2a091df0498f83210c76aed7eb284074b3be
+
+From: Bridge-8
+To:   Bridge-9
+
+From: Decorator-4
+To:   Decorator-5
+
+From: Facade-10
+To:   Facade-11
+
+From: Flyweight-16
+To:   Flyweight-17
+
+From: Mediator-16
+To:   Mediator-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-479.txt 
+
+commit c3de2a091df0498f83210c76aed7eb284074b3be
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-368 (IoFilter.messageSent should have access to WriteRequest instead of the written message.)
+    * Changed the method signature of IoFilter.messageSent() to provide access to WriteRequest
+    * WriterRequest became an interface now.  DefaultWriteRequest and WriteRequestWrapper are added.
+
+
+
+==================================
+ Issue DIRMINA-368 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-368] IoFilter.messageSent should have access to WriteRequest instead of the written message.
+-----------------
+
+-----------------
+Summary: IoFilter.messageSent should have access to WriteRequest instead of the written message.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 11 Apr 2007 13:33:31 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 Apr 2007 13:39:07 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+IoFilter.filterWrite() accepts WriteRequest as its parameter to allow an IoFilter
+implementation to alter the WriteRequest or create a new WriteRequest.  This is
+particularly useful when the filter transforms a received message.  Good examples of this
+scenario are ProtocolCodecFilter and SSLFilter.
+
+Because these examples are wrapping an
+outgoing message with an internal type, the filter implementor was able to get the
+original message by unwrapping in IoFilter.messageSent() like the following:
+
+    public
+void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest req) 
+{       
+nextFilter.filterWrite(session, new WriteRequest(new
+TransformedMessage(req.getMessage())));    }
+    public void messageSent(NextFilter
+nextFilter, IoSession session, Object message) {<br/>        if (message instanceof
+TransformedMessage) 
+{            nextFilter.messageSent(session, ((TransformedMessage)
+message).getOriginalMessage());            return;        }
+        ......<br/>    }
+
+But,
+what if the transformation is not wrapping but unwrapping?  We can't perform the
+reverse-transformation like we did in the example above, because we don't know what the
+original message was in IoFilter.messageSent().
+
+    public void filterWrite(NextFilter
+nextFilter, IoSession session, WriteRequest req) 
+{        nextFilter.filterWrite(session,
+new WriteRequest(                ((OuterMessage) req.getMessage()).getInnerMessage())); 
+// Unwrap on write.    }
+    public void messageSent(NextFilter nextFilter, IoSession
+session, Object message) {<br/>        if (message instanceof InnerMessage) 
+{           
+// TODO Transform the message back to OuterMessage.  But how?        }
+        ......<br/>
+   }
+
+To fix this problem, there should be at least one common type that any IoFilter
+implementation can understand, and that type has to be the parameter of
+IoFilter.messageSent().  A good candidate is WriteRequest, which is already exposed in the
+IoFilter interface.  With this change applied, the IoFilter implementation will look like
+the following:
+
+    public void filterWrite(NextFilter nextFilter, IoSession session,
+WriteRequest req) 
+{        // Wrap on write.        nextFilter.filterWrite(session, new
+TransformedWriteRequest(request));    }
+    public void messageSent(NextFilter nextFilter,
+IoSession session, WriteRequest request) {<br/>        if (request instanceof
+TransformedWriteRequest) 
+{            // Unwrap on messageSent.           
+nextFilter.messageSent(session, ((TransformedWriteRequest) request).getWriteRequest());   
+        return;        }
+        ......<br/>    }
+
+    private static class
+TransformedWriteRequest extends WriteRequestWrapper {<br/>        private
+TransformedWriteRequest(WriteRequest req) 
+{            super(req);        }
+       
+public Object getMessage() 
+{            // Wrapping with TransformedWriteRequest is
+actually unwrapping the message.            // and unwrapping this write request is
+actually wrapping the message back.            return ((OuterMessage)
+super.getMessage()).getInnerMessage();        }
+    }
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

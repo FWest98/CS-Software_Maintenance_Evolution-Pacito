@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 1448380da6b7e832750426311747e5caa9392b2c
+
+From: Facade-20
+To:   Facade-21
+
+From: Mediator-48
+To:   Mediator-58
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-403.txt 
+
+commit 1448380da6b7e832750426311747e5caa9392b2c
+Author: Trustin Lee <trustin@apache.org>
+
+    Merged changes in branches/1.0 (DIRMINA-321)

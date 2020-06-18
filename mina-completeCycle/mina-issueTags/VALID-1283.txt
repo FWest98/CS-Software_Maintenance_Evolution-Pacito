@@ -1,0 +1,25 @@
+Pattern changes caused by commit: ec14b595de20c1e01adf627a15b5c14d7ae54fa2
+
+From: Decorator-6
+To:   Decorator-5
+
+From: Facade-17
+To:   Facade-16
+
+From: Mediator-49
+To:   Mediator-48
+
+From: Strategy-27
+To:   Strategy-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1283.txt 
+
+commit ec14b595de20c1e01adf627a15b5c14d7ae54fa2
+Author: Maarten Bosteels <maarten@apache.org>
+
+    resolve DIRMINA-513 : get rid of IoSessionLogger

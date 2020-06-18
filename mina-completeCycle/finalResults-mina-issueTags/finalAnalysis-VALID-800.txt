@@ -1,0 +1,127 @@
+Pattern changes caused by commit: f946bde597202d88d979d61e6e43ec3a31156f3d
+
+From: Decorator-6
+To:   Decorator-4
+
+From: Mediator-35
+To:   Mediator-33
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-800.txt 
+
+commit f946bde597202d88d979d61e6e43ec3a31156f3d
+Author: Trustin Lee <trustin@apache.org>
+
+    * Removed unused classes implemented poorly
+    * Added IoService.isActive() and replaced IoAcceptor.isBound() with it
+    * Added IoServiceListenerSupport.isActive(); AbstractIoConnector uses it
+    * Moved all calls to IoSession.increaseXXX() to DefaultIoFilterChain
+    ** Removed duplicate calls in NioDatagramAcceptor
+    ** Moved IoSession.increaseReadMessages() call from ProtocolCodecFilter to DefaultIoFilterChain because it's more accurate when more than one ProtocolCodecFilter is used.
+    * Changed all unsafe operations in AbstractIoSession and AbstractIoService 'private'.
+    * Resolved DIRMINA-317 (add supporting statistical methods to IoService)
+    ** Added getActivationTime() - activationTime is more useful than creationTime
+    ** Added getReadBytes()
+    ** Added getWrittenBytes()
+    ** Added getReadMessages()
+    ** Added getWrittenMessages()
+    ** Added getScheduledWriteBytes()
+    ** Added getScheduledWriteMessages()
+
+
+
+==================================
+ Issue DIRMINA-317 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-317] add supporting statistical methods to IoService
+-----------------
+
+-----------------
+Summary: add supporting statistical methods to IoService
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 28 Nov 2006 01:49:46 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 30 Sep 2007 12:09:18 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+I was looking at the IoService class and noticed that there are some fields that would be
+nice to have:
+
+    long getCreationTime();<br/>    long getReadBytes();<br/>    long
+getWrittenBytes();<br/>    long getReadMessages();<br/>    long
+getWrittenMessages();
+
+These methods are in the IoSession interface, and thought it would
+make sense to also have them in the IoService interface.  The last 4 might be a little
+tougher to implement, but it would be nice for times in which we need some performance
+numbers.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch adds creation time support to IoService. 
+
+
+New Comment: 
+Once these methods are implemented, we could optimize StatCollector and result in more
+correct statistics. 
+
+
+New Comment: 
+to make this patch easier, I think it makes the most sense to place the code in the
+BaseIoService class.  Thoughts? 
+
+
+New Comment: 
+We need to add getScheduledWriteMessages() and getScheduledWriteBytes(), too.  (See <a
+href="https://issues.apache.org/jira/browse/DIRMINA-276" title="[MINA] How to get the
+number of being-processed messages?" class="issue-link"
+data-issue-key="DIRMINA-276"><del>DIRMINA-276</del></a>) 
+
+
+New Comment: 
+All proposed methods have been added except for getCreationTime().  creationTime has been
+replaced with activationTime, which is set when the service is actually activated (e.g. on
+bind). 
+
+
+New Comment: 
+Now we are ready to refactor our stat collectors... 
+
+
+New Comment: 
+Mark, please confirm and close. 
+
+

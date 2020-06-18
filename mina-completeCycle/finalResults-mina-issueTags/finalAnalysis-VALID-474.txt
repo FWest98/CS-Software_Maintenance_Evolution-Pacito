@@ -1,0 +1,91 @@
+Pattern changes caused by commit: b0e42f13342f124722c0bd71f61555b00278f210
+
+From: Facade-12
+To:   Facade-11
+
+From: Mediator-18
+To:   Mediator-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-474.txt 
+
+commit b0e42f13342f124722c0bd71f61555b00278f210
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-366 (Default socket option values are retrieved incorrectly.)
+    * Made sure the default reuseAddress value of an accepted socket to be true
+    * Removed unnecessary code in DatagramSessionConfig implementations
+    * Removed SessionUtil in trunk because it's hardly useful
+    * Removed a sentence in SessionUtil that sets reuseAddress to true bindly which can cause a problem for a non-acceptor session
+
+
+
+==================================
+ Issue DIRMINA-366 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-366] Default socket option values are retrieved incorrectly.
+-----------------
+
+-----------------
+Summary: Default socket option values are retrieved incorrectly.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 5 Apr 2007 08:33:35 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 16 May 2007 02:49:04 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The default value of REUSE_ADDR is currently 'false', but it should be 'true' for a newly
+accepted socket.
+
+The default send buffer size changes when a connection is really
+established.  For example, the default value of sendBufferSize is currently 8192, when
+retrieved from new Socket(), but the real sendBufferSize differs when retrieved from a
+connected socket (e.g. new Socket("localhost", 22)).
+
+Here's the related mail discussion:
+<a href="http://tinyurl.com/2bh9lo" class="external-link"
+rel="nofollow">http://tinyurl.com/2bh9lo</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Done.  I made sure reuseAddress and sendBufferSize is configured properly. 
+
+
+New Comment: 
+reuseAddress is still false if a user creates a new SocketAcceptorConfig or
+DatagramAcceptorConfig. 
+
+

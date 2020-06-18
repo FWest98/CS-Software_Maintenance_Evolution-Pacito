@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 462979aeaad341e275badeb836b5059bb5309259
+
+From: Facade-18
+To:   Facade-17
+
+From: Strategy-22
+To:   Strategy-20
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-818.txt 
+
+commit 462979aeaad341e275badeb836b5059bb5309259
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-454 (Trivial denial of service in TextLineDecoder)
+    * Applied Owen Jacobson's patch

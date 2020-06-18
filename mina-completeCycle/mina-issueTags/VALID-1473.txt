@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 79cd7434ba210687a1fae32fa1ce59f3f42817e3
+
+From: Mediator-25
+To:   Mediator-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1473.txt 
+
+commit 79cd7434ba210687a1fae32fa1ce59f3f42817e3
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Divided the common package in many sub-packages, as explicited on the dev mailing-list.
+    o Modified the code accordingly (imports)
+    o Changed some methods to make them public, in order to get them visible from other packages

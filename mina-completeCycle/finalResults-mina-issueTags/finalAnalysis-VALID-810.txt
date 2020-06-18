@@ -1,0 +1,95 @@
+Pattern changes caused by commit: 33dab1ed8fb913fbae1f7ca7f8d21b88d51d97ee
+
+From: Adapter-12
+To:   Adapter-15
+
+From: Facade-16
+To:   Facade-18
+
+From: Mediator-25
+To:   Mediator-38
+
+From: Observer-2
+To:   Observer-3
+
+From: Strategy-21
+To:   Strategy-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-810.txt 
+
+commit 33dab1ed8fb913fbae1f7ca7f8d21b88d51d97ee
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-447 (Allow adding more than one IoFilters of the same type)
+    * Added AttributeKey for fast attribute matching
+    * Certain filters can be added more than once now, but not the same instance twice
+
+
+
+==================================
+ Issue DIRMINA-447 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-447] Allow adding more than one IoFilters of the same type.
+-----------------
+
+-----------------
+Summary: Allow adding more than one IoFilters of the same type.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 28 Sep 2007 19:55:27 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 30 Sep 2007 18:52:52 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Currently, many existing filters such as ProtocolCodecFilter can't be added more than
+once to the same filter chain.  It is because filters usually store its state information
+as a session attribute; adding more than one filters of the same type will mess their
+internal state.
+
+Therefore, users can't do something more complex like multi-layered
+protocol implementation.
+
+To resolve this issue, all filter implementations must create
+its session attribute key dynamically, instead of using a static key.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+related discussion on the mailing-list:<br/><a
+href="http://www.nabble.com/Adding-more-than-one-filter-of-the-same-type.-tf3644119s16868.html#a10177107"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Adding-more-than-one-filter-of-the-same-type.-tf3644119s16868.html#a10177107</a> 
+
+

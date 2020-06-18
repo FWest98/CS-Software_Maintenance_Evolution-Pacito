@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 8262d739c80cb2f39a75c24fd8cebf6ea6586a05
+
+From: Bridge-9
+To:   Bridge-11
+
+From: Flyweight-16
+To:   Flyweight-15
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-644.txt 
+
+commit 8262d739c80cb2f39a75c24fd8cebf6ea6586a05
+Author: Trustin Lee <trustin@apache.org>
+
+    * Renamed TransportType to IoServiceMetadata
+    * Added IoServiceMetadata.hasFragmentation()
+    * Added DefaultIoServiceMetadata
+    * Removed static fields in IoServiceMetadata which caused bad coupling
+    * Removed IoSession.getTransportType() because IoServiceMetadata can be retrieved via IoSession.getService().getMetadata()
+    * Removed transport.socket.nio.support package, and moved the classes there to transport.socket.nio.  Datagram transport doesn't use wrapper anymore.
+    * Fixed freezing SocketBindTest

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c4e2cec8716f70b0d8ca64af8d53da01ebe545ba
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-410.txt 
+
+commit c4e2cec8716f70b0d8ca64af8d53da01ebe545ba
+Author: Trustin Lee <trustin@apache.org>
+
+    Made policy on derived buffers more strict and robust by disallowing expansion of the parent buffer, which causes disparity between the parent and its derived buffers.

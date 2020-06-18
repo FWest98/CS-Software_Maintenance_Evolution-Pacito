@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 64143243dd75b269c12a2088219f6966ca35bb94
+
+From: Bridge-22
+To:   Bridge-20
+
+From: Facade-15
+To:   Facade-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-907.txt 
+
+commit 64143243dd75b269c12a2088219f6966ca35bb94
+Author: Trustin Lee <trustin@apache.org>
+
+    * Fixed a problem that scheduledWrite* per service doesn't decrease.
+    * Added IoBuffer.free() which is completely optional. (I might remove it; still testing it..)
+    * Updated EchoServer example

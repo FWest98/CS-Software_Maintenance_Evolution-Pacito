@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 2a41ae14294ab24a37abb6ed23ad2f628105bc9c
+
+From: Mediator-51
+To:   Mediator-41
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1223.txt 
+
+commit 2a41ae14294ab24a37abb6ed23ad2f628105bc9c
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed a silly bug that DecodingStateProtocolDecoder just dropped undecoded data.

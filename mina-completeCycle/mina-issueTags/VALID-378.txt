@@ -1,0 +1,37 @@
+Pattern changes caused by commit: f75c64d05ad5a6acd5818fe001c3d3fcae957db8
+
+From: Singleton-1
+To:   Singleton-0
+
+From: Adapter-28
+To:   Adapter-23
+
+From: Bridge-28
+To:   Bridge-22
+
+From: Facade-30
+To:   Facade-19
+
+From: Flyweight-29
+To:   Flyweight-23
+
+From: Mediator-89
+To:   Mediator-48
+
+From: State-1
+To:   State-0
+
+From: Strategy-52
+To:   Strategy-36
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-378.txt 
+
+commit f75c64d05ad5a6acd5818fe001c3d3fcae957db8
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed all warnings resulted by -source 1.5 option

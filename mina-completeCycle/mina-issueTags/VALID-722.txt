@@ -1,0 +1,16 @@
+Pattern changes caused by commit: a87c793f2ca47fda5c40ee9b166023e04872720e
+
+From: Facade-11
+To:   Facade-10
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-722.txt 
+
+commit a87c793f2ca47fda5c40ee9b166023e04872720e
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed compilation errors in wget.java

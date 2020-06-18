@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 39d3f3d50a0f6944d2d3a5389c4e01a26ab3b37e
+
+From: Bridge-25
+To:   Bridge-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1237.txt 
+
+commit 39d3f3d50a0f6944d2d3a5389c4e01a26ab3b37e
+Author: Mike Heath <mheath@apache.org>
+
+    Fixed DIRMINA-495 - Add support for initializing the IoSession from the code that invokes the IoConnector.connect(...) method.

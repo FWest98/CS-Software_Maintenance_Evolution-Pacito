@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 4d70edfd3d05297e15cd8ff23b02b86b0e31254c
+
+From: Bridge-23
+To:   Bridge-20
+
+From: Mediator-30
+To:   Mediator-28
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-788.txt 
+
+commit 4d70edfd3d05297e15cd8ff23b02b86b0e31254c
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-269 (Cancellation operation for ConnectFuture)
+    * Added ConnectFuture.cancel()
+    * Added cancellation feature to NioSocketConnector
+    * Other connector implementations don't need for cancellation operation effectively, so no change has been made.
+    * Added AbstractIoConnector.finishSessionInitialization() to remove code duplication

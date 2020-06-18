@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b84fd8a78c2348fc90c99e9656f1101d8e0e321c
+
+From: Proxy-3
+To:   Proxy-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-647.txt 
+
+commit b84fd8a78c2348fc90c99e9656f1101d8e0e321c
+Author: Mark Webb <mwebb@apache.org>
+
+    new class.  This class will help to maintain information in the LoggingFilter, and ConnectionThrottleFilter.  The purpose of this class is to create a thread-safe class that supports mostly reads from the map, and minimal writes.

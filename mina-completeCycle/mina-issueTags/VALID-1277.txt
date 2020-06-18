@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 735ebac1137066f07874dc1518a86f470d931af1
+
+From: Facade-19
+To:   Facade-18
+
+From: Flyweight-24
+To:   Flyweight-22
+
+From: Strategy-31
+To:   Strategy-27
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1277.txt 
+
+commit 735ebac1137066f07874dc1518a86f470d931af1
+Author: Alex Karasulu <akarasulu@apache.org>
+
+    moving filter-codec-http module in mina subproject to asyncweb subproject as
+    codec module

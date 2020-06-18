@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 23e7e6efb75996a2b8dd2c74fcbe055ee5fa90f2
+
+From: Flyweight-16
+To:   Flyweight-15
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-747.txt 
+
+commit 23e7e6efb75996a2b8dd2c74fcbe055ee5fa90f2
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed compiler warnings

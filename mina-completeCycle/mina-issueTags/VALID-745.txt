@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4171c6a7075bd00f124ad94a0dd34996b44d596f
+
+From: Strategy-15
+To:   Strategy-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-745.txt 
+
+commit 4171c6a7075bd00f124ad94a0dd34996b44d596f
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed compiler warnings

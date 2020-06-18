@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 24b433419b8ac58ac44035292ca6090a84905291
+
+From: Flyweight-21
+To:   Flyweight-22
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-422.txt 
+
+commit 24b433419b8ac58ac44035292ca6090a84905291
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-16 (org.apache.mina.common.TransportType)
+    * Changed TransportType into an interface
+    * Added TransportType.getAddressType()
+    * Added TransportType.getSessionConfigType()
+    * Removed transport type registry feature because it's not used anywhere
+    ** Removed the related unit test

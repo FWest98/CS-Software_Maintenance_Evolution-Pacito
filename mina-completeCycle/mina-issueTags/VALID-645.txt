@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 0eed9c3f42e772dced38ce11148f92223f834664
+
+From: Mediator-15
+To:   Mediator-14
+
+From: Strategy-14
+To:   Strategy-12
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-645.txt 
+
+commit 0eed9c3f42e772dced38ce11148f92223f834664
+Author: Trustin Lee <trustin@apache.org>
+
+    * Moved classes in filter.codec.support to filter.codec
+    * Renamed SimpleProtocolEncoderOutput to AbstractProtocolEncoderOutput
+    * Renamed SimpleProtocolDecoderOutput to AbstractProtocolDecoderOutput
+    * Simplified AbstractProtocolDecoderOutput so anyone can extend it, and moved complicated part to ProtocolCodecFilter

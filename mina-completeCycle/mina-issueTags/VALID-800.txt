@@ -1,0 +1,33 @@
+Pattern changes caused by commit: f946bde597202d88d979d61e6e43ec3a31156f3d
+
+From: Decorator-6
+To:   Decorator-4
+
+From: Mediator-35
+To:   Mediator-33
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-800.txt 
+
+commit f946bde597202d88d979d61e6e43ec3a31156f3d
+Author: Trustin Lee <trustin@apache.org>
+
+    * Removed unused classes implemented poorly
+    * Added IoService.isActive() and replaced IoAcceptor.isBound() with it
+    * Added IoServiceListenerSupport.isActive(); AbstractIoConnector uses it
+    * Moved all calls to IoSession.increaseXXX() to DefaultIoFilterChain
+    ** Removed duplicate calls in NioDatagramAcceptor
+    ** Moved IoSession.increaseReadMessages() call from ProtocolCodecFilter to DefaultIoFilterChain because it's more accurate when more than one ProtocolCodecFilter is used.
+    * Changed all unsafe operations in AbstractIoSession and AbstractIoService 'private'.
+    * Resolved DIRMINA-317 (add supporting statistical methods to IoService)
+    ** Added getActivationTime() - activationTime is more useful than creationTime
+    ** Added getReadBytes()
+    ** Added getWrittenBytes()
+    ** Added getReadMessages()
+    ** Added getWrittenMessages()
+    ** Added getScheduledWriteBytes()
+    ** Added getScheduledWriteMessages()

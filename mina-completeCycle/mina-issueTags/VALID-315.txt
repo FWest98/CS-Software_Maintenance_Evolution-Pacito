@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 95c8a64382b1a428b6dc29ef8b128587ba87b85b
+
+From: Adapter-12
+To:   Adapter-13
+
+From: Flyweight-21
+To:   Flyweight-22
+
+From: Mediator-57
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-315.txt 
+
+commit 95c8a64382b1a428b6dc29ef8b128587ba87b85b
+Author: Trustin Lee <trustin@apache.org>
+
+    Applied Greg's patch on DIRMINA-162 (datagram session management fails) with small modification:
+    * Changed the type of TTL and expiration interval to integer (seconds).
+    * ExpirationSessionRecycler doesn't implement ExpirationListener directly. I made an inner class instead.
+    * Removed the static getInstance() method in ExpiringSessionRecycler because we are already using a static global expirer by default. We need some documentation on creating many recyclers though.

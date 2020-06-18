@@ -1,0 +1,22 @@
+Pattern changes caused by commit: bb52df2e184b271e4ab0be224819fecb2c122b7d
+
+From: Bridge-26
+To:   Bridge-18
+
+From: Mediator-38
+To:   Mediator-35
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1250.txt 
+
+commit bb52df2e184b271e4ab0be224819fecb2c122b7d
+Author: Mike Heath <mheath@apache.org>
+
+    Fixed DIRMINA-495 to add IoFuture to IoSessionInitializer.initializeSession parameter list.

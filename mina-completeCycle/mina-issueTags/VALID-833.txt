@@ -1,0 +1,25 @@
+Pattern changes caused by commit: d062272389dc70cbcf5f2b2c4fdcd514f5a4284e
+
+From: Adapter-12
+To:   Adapter-13
+
+From: Composite-0
+To:   Composite-1
+
+From: Flyweight-18
+To:   Flyweight-19
+
+From: Strategy-25
+To:   Strategy-29
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-833.txt 
+
+commit d062272389dc70cbcf5f2b2c4fdcd514f5a4284e
+Author: Niklas Therning <niklas@apache.org>
+
+    Resolved DIRMINA-457: mina-sm from sandbox has now been imported into trunk as the statemachine module.

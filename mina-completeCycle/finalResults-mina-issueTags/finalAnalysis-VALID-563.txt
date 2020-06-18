@@ -1,0 +1,80 @@
+Pattern changes caused by commit: fadb5c080aa4eae1af24514129b6b750b4afc1a2
+
+From: Flyweight-16
+To:   Flyweight-17
+
+From: Strategy-14
+To:   Strategy-16
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-563.txt 
+
+commit fadb5c080aa4eae1af24514129b6b750b4afc1a2
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-334 (Add an option that disables event ordering in ExecutorFilter.)
+    * Added UnorderedExecutorFilter
+
+
+
+==================================
+ Issue DIRMINA-334 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-334] Add an option that disables event ordering in ExecutorFilter.
+-----------------
+
+-----------------
+Summary: Add an option that disables event ordering in ExecutorFilter.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 15 Jan 2007 03:37:40 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 Jul 2007 06:25:30 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Some applications don't need to receive events in order, but need to process events more
+simultaneously for performance.  ExecutorFilter could provide an option that disables
+event ordering for such applications.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hi Trustin,I have made some changes in ExecutorFilter.java class to handle parallel
+processing, but I think we need to put that code in some other class, say, a sub-class of
+"ExecutorFilter" and let the user specify a flag (in SocketAcceptorConfig ), to indicate
+if parallel processing is required. Depending on that initialize the appropriate executor
+filter class. This is just a design suggestion, may be you can think of a better
+alternative. Thanks, 
+
+

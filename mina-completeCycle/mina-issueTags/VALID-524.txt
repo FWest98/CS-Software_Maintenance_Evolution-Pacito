@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 5c50eb324d82d504bd10b24e2c2a8fdd716fde51
+
+From: Bridge-9
+To:   Bridge-6
+
+From: Mediator-17
+To:   Mediator-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-524.txt 
+
+commit 5c50eb324d82d504bd10b24e2c2a8fdd716fde51
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-380 (Invocation chaining for IoFuture)
+    * Applied invocation chanining to IoFuture and its subtypes

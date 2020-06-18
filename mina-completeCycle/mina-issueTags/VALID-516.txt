@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 5dd3616c3827aa32c36be74c35194465c20a2f77
+
+From: Proxy-2
+To:   Proxy-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-516.txt 
+
+commit 5dd3616c3827aa32c36be74c35194465c20a2f77
+Author: Mark Webb <mwebb@apache.org>
+
+    initial commit for the UDP example.  This example will have a server which will listen for packets that will represent the amount of memory used by a client application.  While this is just an example, there could be some 'real world' applicability with it.
+    Thanks for Brigham Stevens for his contribution on the SimpleSessionRecycler code.  This class might be placed into the baseline, but that is a discussion for later.
+    As for now, I just wanted to check this in so that we would at least have something.  I will follow this up with a tutorial in the MINA documentation site.

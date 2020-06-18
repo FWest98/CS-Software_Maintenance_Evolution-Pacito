@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b0fbb8fe0363be35aaee71a2e704d31f05f84fcb
+
+From: Observer-5
+To:   Observer-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-333.txt 
+
+commit b0fbb8fe0363be35aaee71a2e704d31f05f84fcb
+Author: Niklas Therning <niklas@apache.org>
+
+    Added SSL and JMX support to chat server example (DIRMINA-227).

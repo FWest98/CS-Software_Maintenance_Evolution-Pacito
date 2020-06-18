@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 98c6dc80b30bec6007815b5398aca20b5dc1a531
+
+From: Facade-16
+To:   Facade-17
+
+From: Mediator-47
+To:   Mediator-54
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-992.txt 
+
+commit 98c6dc80b30bec6007815b5398aca20b5dc1a531
+Author: Trustin Lee <trustin@apache.org>
+
+    Added a test case for DIRMINA-472 (Close request for an acceptor-side datagram session doesn't dispose the session.)
+    * Only trunk had this bug.  Simply forgot to call IoSessionRecycler.remove()
+
+
+
+==================================
+ Issue DIRMINA-472 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-472] Close request for an acceptor-side datagram session doesn't dispose the session.
+-----------------
+
+-----------------
+Summary: Close request for an acceptor-side datagram session doesn't dispose the session.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 10 Nov 2007 13:38:05 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 10 Nov 2007 14:45:42 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Related mailing list thread:
+
+<a
+href="http://www.nabble.com/Setting-timeout-for-UDP-sessions-tf4776816s16868.html"
+class="external-link"
+rel="nofollow">http://www.nabble.com/Setting-timeout-for-UDP-sessions-tf4776816s16868.html</a>
+
+It
+seems like IoSessionRecycler.remove() is not invoked when a user calls IoSession.close()
+of an acceptor-side datagram session.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It affects only trunk 
+
+

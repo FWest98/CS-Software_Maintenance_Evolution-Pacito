@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 653d1a5ff37904e4515bc375d24dcb301862dad4
+
+From: Flyweight-0
+To:   Flyweight-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-2141.txt 
+
+commit 653d1a5ff37904e4515bc375d24dcb301862dad4
+Author: Jeff MAURY <jeffmaury@apache.org>
+
+    Added text line coded and related unit tests

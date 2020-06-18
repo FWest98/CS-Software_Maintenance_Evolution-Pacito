@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 6882b2e47967aec67b1d8a2d02491941940e5f46
+
+From: Mediator-34
+To:   Mediator-35
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1119.txt 
+
+commit 6882b2e47967aec67b1d8a2d02491941940e5f46
+Author: Trustin Lee <trustin@apache.org>
+
+    Added TrafficMaskAddressEditor

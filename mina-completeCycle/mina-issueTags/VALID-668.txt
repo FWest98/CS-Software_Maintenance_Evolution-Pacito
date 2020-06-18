@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ec36c34649535f99079a8646f73ae0d82c924318
+
+From: Facade-10
+To:   Facade-9
+
+From: Observer-2
+To:   Observer-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-668.txt 
+
+commit ec36c34649535f99079a8646f73ae0d82c924318
+Author: Maarten Bosteels <maarten@apache.org>
+
+    use MdcLoggingFilter in chat example

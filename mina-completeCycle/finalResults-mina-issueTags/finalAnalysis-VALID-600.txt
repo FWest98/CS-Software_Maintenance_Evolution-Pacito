@@ -1,0 +1,82 @@
+Pattern changes caused by commit: 7800974144718f5b40b311dee49798b6259b0fa0
+
+From: Mediator-14
+To:   Mediator-13
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-600.txt 
+
+commit 7800974144718f5b40b311dee49798b6259b0fa0
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-405 (IoSession.suspendRead() doesn't suspend read operation immediately when ProtocolCodecFilter is used.)
+    * IoSession.receivedMessage was being increased too early.
+
+
+
+==================================
+ Issue DIRMINA-405 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-405] IoSession.suspendRead() doesn't suspend read operation immediately when ProtocolCodecFilter is used.
+-----------------
+
+-----------------
+Summary: IoSession.suspendRead() doesn't suspend read operation immediately when ProtocolCodecFilter is used.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 26 Jul 2007 06:18:21 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 27 Jul 2007 17:15:20 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+IoSession.suspendRead() changes the sessions's traffic mask and notifies the
+SocketIoProcessor.  It is a normal behavior that the actual traffic control occurs
+asynchronously.  For example, If a user calls IoSession.suspendRead() after receiving a
+message after ExecutorFilter doesn't assure he or she receives another message even after
+suspendRead() is called.
+
+However, it must guaranteed that no more messageReceived event
+is fired immediately after suspendRead() is called from the same thread that
+SocketIoProcessor runs for users who need precise traffic control.
+
+To resolve this issue,
+ProtocolCodecFilter should stop calling decoder as soon as the traffic mask is updated.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+ProtocolCodecFilter's internal ProtocolDecoderOutput implementation now stops flushing
+events when read operation is suspended. 
+
+

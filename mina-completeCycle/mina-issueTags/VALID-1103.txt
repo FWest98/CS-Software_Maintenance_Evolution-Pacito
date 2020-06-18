@@ -1,0 +1,16 @@
+Pattern changes caused by commit: fff3ee7e593982ec6659531ac1a06ef2cbe4bf6f
+
+From: Mediator-33
+To:   Mediator-34
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1103.txt 
+
+commit fff3ee7e593982ec6659531ac1a06ef2cbe4bf6f
+Author: Trustin Lee <trustin@apache.org>
+
+    Made property editors bi-directional

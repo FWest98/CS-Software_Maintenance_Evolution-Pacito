@@ -1,0 +1,17 @@
+Pattern changes caused by commit: cb7896a19ecf8d1528b87d22c6f6e53e24ae3db7
+
+From: Strategy-2
+To:   Strategy-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-2133.txt 
+
+commit cb7896a19ecf8d1528b87d22c6f6e53e24ae3db7
+Author: Emmanuel Lécharny <elecharny@apache.org>
+
+    The IoClient and IoServer interface don't have to extend the IoService
+    interface.

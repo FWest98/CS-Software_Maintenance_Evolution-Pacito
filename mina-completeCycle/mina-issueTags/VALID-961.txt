@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 851472062193ee3d14f4ae999c2a76703cac81c6
+
+From: Flyweight-24
+To:   Flyweight-23
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-961.txt 
+
+commit 851472062193ee3d14f4ae999c2a76703cac81c6
+Author: Mike Heath <mheath@apache.org>
+
+    Added utility methods for adding a collection of types per encoder.

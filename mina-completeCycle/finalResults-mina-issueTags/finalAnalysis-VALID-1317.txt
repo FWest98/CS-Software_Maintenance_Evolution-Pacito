@@ -1,0 +1,79 @@
+Pattern changes caused by commit: d8b2599c359d1def795da082e92c56b022d2e274
+
+From: Mediator-23
+To:   Mediator-24
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1317.txt 
+
+commit d8b2599c359d1def795da082e92c56b022d2e274
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-546 (Reduce unnecessary system calls when a new session is created)
+
+
+
+==================================
+ Issue DIRMINA-546 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-546] Reduce unnecessary system calls when a new session is created.
+-----------------
+
+-----------------
+Summary: Reduce unnecessary system calls when a new session is created.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 11 Mar 2008 10:08:55 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 11 Mar 2008 10:15:23 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+So far, MINA has been setting all socket parameters for every newly created socket.  It
+means MINA performs several unnecessary system calls.  For exaimple,
+Socket.setReceiveBufferSize() is always called even if a user didn't change the default
+value.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The following test method:    @Test<br/>    public void mina() throws Exception {<br/>    
+   SocketAcceptor acceptor = new NioSocketAcceptor();<br/>        acceptor.setHandler(new
+IoHandlerAdapter());<br/>        acceptor.setDefaultLocalAddress(new
+InetSocketAddress(8080));<br/>        acceptor.bind();        long start =
+System.currentTimeMillis();<br/>        for (int i = 0; i &lt; 10000; i ++) {           
+new Socket("127.0.0.1", 8080).close();        }        long end =
+System.currentTimeMillis();<br/>        System.out.println(end - start);<br/>    }prints
+out the following result:Before optimization - 38412<br/>After optimization 11212 
+
+

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 0fa430bdacdd97e3f4f563c8389c7105a0e66cbf
+
+From: Bridge-11
+To:   Bridge-12
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-726.txt 
+
+commit 0fa430bdacdd97e3f4f563c8389c7105a0e66cbf
+Author: Trustin Lee <trustin@apache.org>
+
+    Big Refactoring:
+    * Added IoProcessor - a thin layer which is similar to the reactor pattern
+    * Renamed AbstractIoFilterChain to DefaultIoFilterChain because of the abstract methods of AbstractIoFilterChain are now moved to IoProcessor interface
+    * Moved common parts of various IoFilterChain implementations to DefaultIoFilterChain
+    * Removed other unnecessary IoFilterChain implementations
+    * Added IoSession.getProcessor() so that DefaultIoFilterChain can access the associated IoProcessor
+    * Extracted interface from SerialSession, and all the implementation goes to SerialSessionImpl

@@ -1,0 +1,114 @@
+Pattern changes caused by commit: c3b9024af49ef17faef0994dda37dfc29a1a43ae
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Bridge-23
+To:   Bridge-24
+
+From: Facade-14
+To:   Facade-15
+
+From: Mediator-36
+To:   Mediator-40
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-24
+To:   Strategy-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-857.txt 
+
+commit c3b9024af49ef17faef0994dda37dfc29a1a43ae
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-393 (Allow users to choose a Map implementation for storing session attributes.)
+    * Added IoSessionAttributeMap
+    * Added IoSessionAttributeMapFactory
+    * Added AbstractIoService.finishSessionInitialization() to initialize session attribute map
+    * Fixed some compiler warnings and typo...
+
+
+
+==================================
+ Issue DIRMINA-393 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-393] Allow users to choose a Map implementation for storing session attributes.
+-----------------
+
+-----------------
+Summary: Allow users to choose a Map implementation for storing session attributes.
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 5 Jul 2007 05:07:33 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Oct 2007 04:08:04 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Currently, users don't have any control over how session attributes are stored and
+managed.  Adding SessionAttributesMapFactory property to IoService will give more control
+to the users, although we will have to provide the best generic implementation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It's extremely useful for many applications!<br/>For an example, if you want to implement
+a GoogleFileSystem like system, you need to synchronize huge data packets within several
+chunk servers.<br/>Suppose, if every request attribute size is larger than 2 mega bytes
+and you have to handle 1k clients(of course, this is not the chunk server scenario), the
+sessions attributes will consume 2000 mega memory!<br/>If the Map can be implemented by
+users, users may adopt other memory/disk swap technology to handle these cases. I have
+experience to do this kind of jobs.  I use the BerkerlyDB java edition to do this.  It
+will be excited to add this feature into Mina. If it does happen, Mina is really for
+multi-purpose.<br/>If there is no one else to pick up this job, I guess I can participate
+to do this and implement the JE map edition for Mina. 
+
+
+New Comment: 
+Is there really a need to store that much data in your session attributes? 
+
+
+New Comment: 
+Sometimes, it's needed. Especially when you developed an application server framework that
+is used by other developers.<br/>You usually told them send an request and add handler to
+deal with the response. Most of them don't have much knowledge for the request size. Some
+of them may send huge requests because they think your application server can handle them.
+If the server cannot take this kind of burden to throw OutOfMemoryException, your whole
+app server framework will be complained. I agree in fact, in the user level, they can
+control the request size to simply split big requests to small requests. But some
+developers may not be happy if you ask them to do it manually. 
+
+

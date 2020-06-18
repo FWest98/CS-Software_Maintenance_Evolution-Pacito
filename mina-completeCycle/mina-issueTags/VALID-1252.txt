@@ -1,0 +1,24 @@
+Pattern changes caused by commit: d616c6056add234aad29168ad1eca3a1cc14cd08
+
+From: Bridge-18
+To:   Bridge-22
+
+From: Mediator-35
+To:   Mediator-38
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1252.txt 
+
+commit d616c6056add234aad29168ad1eca3a1cc14cd08
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-495 (IoConnector needs a way to store information into the IoSession before the IoHandler gets ahold of it)
+    * Changed IoSessionInitializer<ConnectFuture> to IoSessionInitializer<? extends ConnectFuture> for more API flexibility
+    * Introduced @SuppressWarning inevitably eek!

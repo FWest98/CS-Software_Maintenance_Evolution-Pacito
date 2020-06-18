@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 00528a71703cc59c83672b29aafbcab5a30c5e58
+
+From: Facade-14
+To:   Facade-16
+
+From: Mediator-39
+To:   Mediator-41
+
+From: Strategy-25
+To:   Strategy-30
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1084.txt 
+
+commit 00528a71703cc59c83672b29aafbcab5a30c5e58
+Author: Maarten Bosteels <maarten@apache.org>
+
+    added code for tutorial on ProtocolCodecFactory

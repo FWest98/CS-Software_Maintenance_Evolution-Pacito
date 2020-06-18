@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f2039b34dc7adaf974132707a160b2e9896c0a38
+
+From: Facade-16
+To:   Facade-17
+
+From: Mediator-48
+To:   Mediator-55
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-998.txt 
+
+commit f2039b34dc7adaf974132707a160b2e9896c0a38
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-473 (ReadThrottleFilter throws IllegalStateException)
+    * Reverted the previous change partially - the counter is reset when it goes negative.

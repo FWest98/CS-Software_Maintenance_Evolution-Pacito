@@ -1,0 +1,21 @@
+Pattern changes caused by commit: fb835269773d722b95108a496a1189ef083b8237
+
+From: Facade-11
+To:   Facade-10
+
+From: Strategy-16
+To:   Strategy-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-488.txt 
+
+commit fb835269773d722b95108a496a1189ef083b8237
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-369 (StreamIoHandler can flush garbled data.)
+    * Applied defensive copying to IoSessionOutputStream
+    * Fixed BindException problem in http server

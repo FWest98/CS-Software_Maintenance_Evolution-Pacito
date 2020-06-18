@@ -1,0 +1,28 @@
+Pattern changes caused by commit: a7d75db455f040c33dd2e7cad23b346a2fb86232
+
+From: Adapter-12
+To:   Adapter-18
+
+From: Facade-15
+To:   Facade-16
+
+From: Mediator-37
+To:   Mediator-43
+
+From: Observer-1
+To:   Observer-2
+
+From: Strategy-25
+To:   Strategy-26
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-928.txt 
+
+commit a7d75db455f040c33dd2e7cad23b346a2fb86232
+Author: Trustin Lee <trustin@apache.org>
+
+    SslBufferUtil.allocate() obeys IoBuffer.useDirectBuffer property correctly.

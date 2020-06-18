@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c12f4b2a6478971141b18307fa298fed6bb4a5a5
+
+From: Mediator-13
+To:   Mediator-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-608.txt 
+
+commit c12f4b2a6478971141b18307fa298fed6bb4a5a5
+Author: Trustin Lee <trustin@apache.org>
+
+    reverted back the changes relates with DIRMINA-405

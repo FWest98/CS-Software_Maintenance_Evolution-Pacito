@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 6aa8283e5f741e1ff54dec603f4c6d55fd89067b
+
+From: Bridge-22
+To:   Bridge-23
+
+From: Flyweight-17
+To:   Flyweight-18
+
+From: Mediator-33
+To:   Mediator-34
+
+From: Strategy-21
+To:   Strategy-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-832.txt 
+
+commit 6aa8283e5f741e1ff54dec603f4c6d55fd89067b
+Author: Niklas Therning <niklas@apache.org>
+
+    Moved state machine code from sandbox to trunk

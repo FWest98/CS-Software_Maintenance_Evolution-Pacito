@@ -1,0 +1,29 @@
+Pattern changes caused by commit: ca6cae0781c69d109d7365ce2b70a25819151c79
+
+From: Bridge-9
+To:   Bridge-8
+
+From: Facade-13
+To:   Facade-12
+
+From: Mediator-21
+To:   Mediator-18
+
+From: Observer-4
+To:   Observer-2
+
+From: Strategy-18
+To:   Strategy-17
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-466.txt 
+
+commit ca6cae0781c69d109d7365ce2b70a25819151c79
+Author: Trustin Lee <trustin@apache.org>
+
+    * Code cleanup
+    * Fixed a problem with IoC containers

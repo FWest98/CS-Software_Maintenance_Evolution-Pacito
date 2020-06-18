@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 89327971029f1c9e7dd060c035678758f362b384
+
+From: Observer-2
+To:   Observer-1
+
+From: Strategy-26
+To:   Strategy-25
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1039.txt 
+
+commit 89327971029f1c9e7dd060c035678758f362b384
+Author: Trustin Lee <trustin@apache.org>
+
+    Removed unnecessary spring integration classes

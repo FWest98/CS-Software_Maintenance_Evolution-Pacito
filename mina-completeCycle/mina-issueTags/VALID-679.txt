@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 6dd0f67c94c26cedeec96d071c9cc00d2304812d
+
+From: Bridge-12
+To:   Bridge-11
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-679.txt 
+
+commit 6dd0f67c94c26cedeec96d071c9cc00d2304812d
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced anonymous dummy IoSessions in test cases with DummySession
+    * Added DummySession.setFilterChain()
+    * Added DummySession.setConfig()

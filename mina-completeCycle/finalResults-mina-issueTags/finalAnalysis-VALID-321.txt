@@ -1,0 +1,70 @@
+Pattern changes caused by commit: f918acef3a059b31cc94f44927e88a25c5145cc0
+
+From: Flyweight-22
+To:   Flyweight-24
+
+From: Mediator-55
+To:   Mediator-56
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-321.txt 
+
+commit f918acef3a059b31cc94f44927e88a25c5145cc0
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-244 (Example HTTP server using ProtocolCodeFactory)
+    * Added John Preston's contribution to the example package
+
+
+
+==================================
+ Issue DIRMINA-244 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-244] Example HTTP server using ProtocolCodeFactory
+-----------------
+
+-----------------
+Summary: Example HTTP server using ProtocolCodeFactory
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 11 Aug 2006 17:18:08 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 20 Sep 2006 06:34:07 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The attached files implement a HTTP server by providing a protocol codec for HTTP
+requests.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

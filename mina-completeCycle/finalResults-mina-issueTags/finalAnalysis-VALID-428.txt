@@ -1,0 +1,127 @@
+Pattern changes caused by commit: be7e6d28b57bf09a5554e17322b375ec9ee74d1e
+
+From: Adapter-22
+To:   Adapter-21
+
+From: Facade-22
+To:   Facade-20
+
+From: Flyweight-22
+To:   Flyweight-21
+
+From: Mediator-55
+To:   Mediator-52
+
+From: Strategy-36
+To:   Strategy-34
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-428.txt 
+
+commit be7e6d28b57bf09a5554e17322b375ec9ee74d1e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolving DIRMINA-306 (Invalid sequence of events with VmPipe Transport)
+    * Added a test case for the issue
+    * Changed VmPipeFilterChain to use event queue to order events
+
+
+
+==================================
+ Issue DIRMINA-306 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-306] Invalid sequence of events with VmPipe Transport
+-----------------
+
+-----------------
+Summary: Invalid sequence of events with VmPipe Transport
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 13 Nov 2006 18:52:40 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Jan 2007 07:20:31 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+Sometimes when using VmPipe transport, event sequences get out of order. Namely, the
+messageReceived method is invoked before the sessionOpened. To following sequence of
+events highlights the problem:
+<ul class="alternate" type="square">	<li>using
+VmPipeConnector and VmPipeAcceptor</li>	<li>client connects to server</li>	<li>server's
+IoHandler#sessionOpened method is called</li>	<li>server sends a message from the
+sessionOpened method</li>	<li>client receives that message
+(IoHandler#messageReceived)</li>	<li>client's IoHandler#sessionOpened method is
+invoked</li></ul>
+IoHandler#sessionOpened should always be invoked before the first
+invocation of IoHandler#messageReceived.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I've tried to reproduce the above scenario in a simple example. However, that proves to be
+more difficult than expected (even in my library the issue does not show up in more than
+20% of all launches). I will further try to create a simple sample that has the same
+issue. In the meantime, here is the log output from my library (an experimental
+implementation of RFC 3080):7451 <span class="error">&#91;AnonymousIoService-5&#93;</span>
+INFO ch.iserver.beepj.transport.mina.MinaTransport - transport session opened<br/>7452
+<span class="error">&#91;AnonymousIoService-5&#93;</span> INFO
+ch.iserver.beepj.internal.SessionImpl - <span
+class="error">&#91;2044542|&lt;initial&gt;|false&#93;</span> connection established to
+anonymous(12855300)<br/>7453 <span class="error">&#91;AnonymousIoService-5&#93;</span>
+INFO ch.iserver.beepj.internal.SessionImpl - <span
+class="error">&#91;2044542|&lt;initial&gt;|false&#93;</span> sendRPY on channel 0 to
+message 0<br/>7463 <span class="error">&#91;AnonymousIoService-5&#93;</span> INFO
+ch.iserver.beepj.internal.SessionImpl - <span
+class="error">&#91;2882193|&lt;initial&gt;|true&#93;</span> received RPY:
+channel=0,message=0<br/>7473 <span class="error">&#91;AnonymousIoService-6&#93;</span>
+INFO ch.iserver.beepj.internal.SessionImpl - <span
+class="error">&#91;2882193|&lt;alive&gt;|true&#93;</span> connection established to
+vm:8002The last two statements are mixed up. 2044542 is the identity hash code of the
+server session, while 2882193 is the identity hash code of the client session. 
+
+
+New Comment: 
+Apologies for letting this issue behind.  MINA team has been busy with day job.  Please
+let us fix it in 1.0.2. 
+
+
+New Comment: 
+I've just checked in the fix.  A queue is employed internally to maintain the order of
+events.  Please let me know if this works for you, and close this issue.I'm currently
+uploading snapshot JARs which is supposed to be located at:<a
+href="http://people.apache.org/repo/m2-snapshot-repository/org/apache/mina/"
+class="external-link"
+rel="nofollow">http://people.apache.org/repo/m2-snapshot-repository/org/apache/mina/</a>Please
+check in 10 minutes to download them, or you can build by yourself. 
+
+

@@ -1,0 +1,25 @@
+Pattern changes caused by commit: f85b2d3f30ddc004ef3640866adb36b964f621de
+
+From: Adapter-6
+To:   Adapter-5
+
+From: Facade-11
+To:   Facade-10
+
+From: Mediator-17
+To:   Mediator-16
+
+From: Strategy-17
+To:   Strategy-16
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-478.txt 
+
+commit f85b2d3f30ddc004ef3640866adb36b964f621de
+Author: Trustin Lee <trustin@apache.org>
+
+    Ran Eclipse code clean-up

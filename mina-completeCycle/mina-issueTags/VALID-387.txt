@@ -1,0 +1,18 @@
+Pattern changes caused by commit: adf11feaec713566949d08a0adbaaaa4c2ed4a34
+
+From: Facade-19
+To:   Facade-20
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-387.txt 
+
+commit adf11feaec713566949d08a0adbaaaa4c2ed4a34
+Author: Niklas Therning <niklas@apache.org>
+
+    * DIRMINA-314: LoggingFilter will now log each event to different loggers. The loggers share a common prefix which is configurable. By default this prefix will be the name of the logger used by SessionLog.
+    * Made SessionLog.getLogger() public and added SessionLog.getPrefix().
+    * The logger and prefix used by SessionLog can now be configured using the static SessionLog.setPrefix() and SessionLog.setLogger() methods. This is easier than having to add an attribute to the session.

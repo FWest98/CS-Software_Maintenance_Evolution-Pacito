@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 82e5289dc59d6ddaca374d34a53bd86ad0bbbdfb
+
+From: Bridge-6
+To:   Bridge-5
+
+From: Facade-10
+To:   Facade-9
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-606.txt 
+
+commit 82e5289dc59d6ddaca374d34a53bd86ad0bbbdfb
+Author: Trustin Lee <trustin@apache.org>
+
+    Moved StreamIoHandler from org.apache.mina.handler to org.apache.mina.handler.stream

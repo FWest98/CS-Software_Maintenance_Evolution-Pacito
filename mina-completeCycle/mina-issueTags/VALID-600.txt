@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 7800974144718f5b40b311dee49798b6259b0fa0
+
+From: Mediator-14
+To:   Mediator-13
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-600.txt 
+
+commit 7800974144718f5b40b311dee49798b6259b0fa0
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-405 (IoSession.suspendRead() doesn't suspend read operation immediately when ProtocolCodecFilter is used.)
+    * IoSession.receivedMessage was being increased too early.

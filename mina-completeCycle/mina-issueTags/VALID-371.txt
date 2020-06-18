@@ -1,0 +1,44 @@
+Pattern changes caused by commit: 095c88ab280fabdd2adab8296bc688363cd15b1f
+
+From: Adapter-12
+To:   Adapter-28
+
+From: Bridge-15
+To:   Bridge-28
+
+From: Composite-2
+To:   Composite-3
+
+From: Facade-23
+To:   Facade-30
+
+From: Flyweight-24
+To:   Flyweight-29
+
+From: Proxy-2
+To:   Proxy-3
+
+From: Mediator-55
+To:   Mediator-89
+
+From: Observer-5
+To:   Observer-8
+
+From: State-0
+To:   State-1
+
+From: Strategy-34
+To:   Strategy-52
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-371.txt 
+
+commit 095c88ab280fabdd2adab8296bc688363cd15b1f
+Author: Trustin Lee <trustin@apache.org>
+
+    * Updated pom to apply the changes caused by TLP promotion
+    * Removed unused files

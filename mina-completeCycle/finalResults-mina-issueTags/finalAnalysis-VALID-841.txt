@@ -1,0 +1,90 @@
+Pattern changes caused by commit: 87e11cf504ef244ac808bd82dd493fd979276c19
+
+From: Mediator-42
+To:   Mediator-43
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-841.txt 
+
+commit 87e11cf504ef244ac808bd82dd493fd979276c19
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-462 (Thread.setName causes SecurityException in sandbox contexts (such as Applets))
+    * Moved all Thread.setName call to NamePerservingRunnable
+
+
+
+==================================
+ Issue DIRMINA-462 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-462] Thread.setName causes SecurityException in sandbox contexts (such as Applets)
+-----------------
+
+-----------------
+Summary: Thread.setName causes SecurityException in sandbox contexts (such as Applets)
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 24 Oct 2007 15:50:26 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 25 Oct 2007 06:21:10 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+In several places (Executors and Connectors) it is called the method Thread.setName.
+<br/>In an applet context this is forbidden by the sandbox, and a SecurityException
+arises.
+
+Provided is a patch that creates the class org.apache.mina.util.ThreadUtil which
+encapsulates the method call Thread.setName in a try/catch block and logs a warning if a
+SecurityException is thrown, and modifies all current calls to Thread.setName to use the
+ThreadUtil class
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+the patch! 
+
+
+New Comment: 
+Fixed.  Instead of introducing ThreadUtil, I modified NamePreservingRunnable which is
+widely used by I/O workers.  All setName() calls are now handled by
+NamePreservingRunnable, and therefore NamePreservingRunnable takes care of the raised
+exceptions now.  Please confirm this bug is fixed and close this issue. 
+
+
+New Comment: 
+And.. thanks for the patch! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
