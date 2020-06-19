@@ -231,7 +231,7 @@ public class JiraXMLIssueRequester {
                 String bufferedLine = bufferedReaderForCommitID.readLine();
                 boolean reached = false;
 
-                List<String> patternChangesArray = new ArrayList<>();
+                List<String> patternChangesArray = new ArrayList<>(17);
 
                 while (bufferedLine != null && reached == false) {
 
