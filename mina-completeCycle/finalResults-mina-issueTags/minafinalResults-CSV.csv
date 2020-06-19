@@ -1,4 +1,4 @@
-Project,CommitID,Developer,Title,Summary,IssueKey,IssueType,CreatedDate,ResolvedDate,PatternChanges
+Project,CommitID,Developer,Title,Summary,IssueKey,IssueType,CreatedDate,ResolvedDate,Abstract Factory,Factory Method,Singleton,Adapter,Bridge,Composite,Decorator,Facade,Flyweight,Proxy,Chain of Responsibility,Mediator,Observer,State,Strategy,Template Method,Visitor
 MINA,de1134b2eef2c0767b7dc9ab84e12be852c45f10,,,,,,,,, , , 1 instances of the Adapter Pattern were ADDED, , , , , , , , 1 instances of the Mediator Pattern were ADDED, , , , , , , 
 MINA,b995f0a922d1d700ee5373d7bfd583b3f7769a92,,,,,,,,, , , , , , , , 1 instances of the Flyweight Pattern were ADDED, , , , , , , , , 
 MINA,1a86718806570be7973d43600713d2f94362c1d9,,,,,,,,, , , , 5 instances of the Bridge Pattern were REMOVED, 1 instances of the Composite Pattern were REMOVED, , 3 instances of the Facade Pattern were REMOVED, 2 instances of the Flyweight Pattern were REMOVED, , , 3 instances of the Mediator Pattern were REMOVED, , , 7 instances of the Strategy Pattern were REMOVED, , , , , , , , 
