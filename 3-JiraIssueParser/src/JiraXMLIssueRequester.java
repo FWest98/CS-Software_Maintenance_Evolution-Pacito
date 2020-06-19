@@ -88,6 +88,9 @@ public class JiraXMLIssueRequester {
                     projectIssueKey.substring(0,projectIssueKey.indexOf("-"));
                 }
             }
+            else{
+                addNonIssueEntryToCSV(analyzedFile, finalCSVFile);
+            }
 
         }
 
@@ -104,6 +107,212 @@ public class JiraXMLIssueRequester {
             }
         }
 
+    }
+
+    private static void addNonIssueEntryToCSV(File analyzedFile, File finalCSVFile) throws IOException {
+
+        FileWriter csvFileWriter = new FileWriter(finalCSVFile.getPath(), true);
+        BufferedWriter csvBufferedWriter = new BufferedWriter(csvFileWriter);
+        PrintWriter csvPrintWriter = new PrintWriter(csvBufferedWriter);
+
+        File issueTagsFile = new File(analyzedProject + File.separator + analyzedFile.getName());
+        FileReader fileReaderForCommitID = new FileReader(issueTagsFile.getPath());
+        BufferedReader bufferedReaderForCommitID = new BufferedReader(fileReaderForCommitID);
+        String firstLine = bufferedReaderForCommitID.readLine();
+        String before;
+        String after;
+        //StringBuilder detectedPatterns = new StringBuilder();
+        String detectedPattern;
+        String bufferedLine = bufferedReaderForCommitID.readLine();
+        boolean reached = false;
+
+        List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
+
+        while (bufferedLine != null && reached == false) {
+
+            //In the issueTags file, there's a line with ='s that marks the end of the changes in patterns
+            if (bufferedLine.contains("=")) {
+                reached = true;
+            } else {
+                if (!bufferedLine.isEmpty()) {
+                    before = bufferedLine.substring(bufferedLine.lastIndexOf(" ") + 1);
+                    after = bufferedReaderForCommitID.readLine();
+                    after = after.substring(after.lastIndexOf(" ") + 1);
+                    detectedPattern = before.substring(0, before.indexOf("-"));
+
+                    String numberBeforeString = before.substring(before.indexOf("-")+1);
+                    int numberBefore = Integer.parseInt(numberBeforeString);
+                    String numberAfterString = after.substring(after.indexOf("-")+1);
+                    int numberAfter = Integer.parseInt(numberAfterString);
+
+                    int patternDifferences = numberBefore - numberAfter;
+
+
+                    if (patternDifferences > 0) {
+                        switch(detectedPattern) {
+                            case "Abstract Factory":
+                                patternChangesArray.add(0, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Factory Method":
+                                patternChangesArray.add(1, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Singleton":
+                                patternChangesArray.add(2, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Adapter":
+                                patternChangesArray.add(3, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Bridge":
+                                patternChangesArray.add(4, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Composite":
+                                patternChangesArray.add(5, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Decorator":
+                                patternChangesArray.add(6, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Facade":
+                                patternChangesArray.add(7, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Flyweight":
+                                patternChangesArray.add(8, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Proxy":
+                                patternChangesArray.add(9, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Chain of Responsibility":
+                                patternChangesArray.add(10, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Mediator":
+                                patternChangesArray.add(11, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Observer":
+                                patternChangesArray.add(12, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "State":
+                                patternChangesArray.add(13, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Strategy":
+                                patternChangesArray.add(14, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Template Method":
+                                patternChangesArray.add(15, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                            case "Visitor":
+                                patternChangesArray.add(16, patternDifferences + " instances of the "
+                                        + detectedPattern + " Pattern were REMOVED");
+                                break;
+                        }
+                        //detectedPatterns.append(patternDifferences + " instances of the "
+                        //+ detectedPattern + " Pattern were REMOVED,");
+                    } else {
+                        switch(detectedPattern) {
+                            case "Abstract Factory":
+                                patternChangesArray.add(0, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Factory Method":
+                                patternChangesArray.add(1, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Singleton":
+                                patternChangesArray.add(2, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Adapter":
+                                patternChangesArray.add(3, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Bridge":
+                                patternChangesArray.add(4, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Composite":
+                                patternChangesArray.add(5, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Decorator":
+                                patternChangesArray.add(6, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Facade":
+                                patternChangesArray.add(7, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Flyweight":
+                                patternChangesArray.add(8, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Proxy":
+                                patternChangesArray.add(9, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Chain of Responsibility":
+                                patternChangesArray.add(10, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Mediator":
+                                patternChangesArray.add(11, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Observer":
+                                patternChangesArray.add(12, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "State":
+                                patternChangesArray.add(13, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Strategy":
+                                patternChangesArray.add(14, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Template Method":
+                                patternChangesArray.add(15, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                            case "Visitor":
+                                patternChangesArray.add(16, Math.abs(patternDifferences) + " instances of the "
+                                        + detectedPattern + " Pattern were ADDED");
+                                break;
+                        }
+                        //detectedPatterns.append(Math.abs(patternDifferences) + " instances of the "
+                        //        + detectedPattern + " Pattern were ADDED,");
+                    }
+                }
+            }
+            bufferedLine = bufferedReaderForCommitID.readLine();
+        }
+
+        String project = analyzedProject.substring(0,analyzedProject.indexOf("-")).toUpperCase();
+        String commitID = firstLine.substring(firstLine.lastIndexOf(" ")+1);
+
+        String patternChanges = String.join(", ", patternChangesArray);
+
+        /////////////////////////////
+        ///// WRITE TO CSV FILE /////
+        /////////////////////////////
+
+        csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "" + "," + "" + ","
+                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges);
+        csvPrintWriter.flush();
+        csvPrintWriter.close();
     }
 
     /*
