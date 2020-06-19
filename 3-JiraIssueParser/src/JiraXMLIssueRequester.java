@@ -67,7 +67,11 @@ public class JiraXMLIssueRequester {
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
-                + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "ResolvedDate" + "," + "PatternChanges");
+                + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "ResolvedDate" + "," + "Abstract Factory"
+                + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + "," + "Bridge" + "," + "Composite"
+                + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy" + "," + "Chain of Responsibility"
+                + "," + "Mediator" + "," + "Observer" + "," + "State"  + "," + "Strategy"  + "," + "Template Method"
+                + "," + "Visitor");
         pw.flush();
         pw.close();
 
