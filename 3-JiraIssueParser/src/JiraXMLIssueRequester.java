@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -231,7 +232,7 @@ public class JiraXMLIssueRequester {
                 String bufferedLine = bufferedReaderForCommitID.readLine();
                 boolean reached = false;
 
-                List<String> patternChangesArray = Arrays.asList(new String[17]);
+                List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
 
                 while (bufferedLine != null && reached == false) {
 
