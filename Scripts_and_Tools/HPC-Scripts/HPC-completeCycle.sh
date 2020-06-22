@@ -30,8 +30,6 @@ git rev-list --reverse trunk > commitOrder.txt
 filename=commitOrder.txt
 file_lines=`cat $filename`
 
-#mkdir -p outputs
-
 projectpath="/data/s4040112/sourcecodes/mina"
 projectname="mina"
 verbose=false
@@ -54,7 +52,7 @@ break;;
 esac
 done
 
-mkdir /data/s4040112/Pinot_results/outputs-${projectname}
+mkdir /data/s4040112/pinot_outputs-${projectname}
 
 for line in $file_lines ; 
 do
@@ -104,8 +102,8 @@ do
   echo "$line"
   
   #Change depending on the version of pinot needed, the version inside tools2 does not scan the Factory Patterns due to its instability issues
-  #/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
-  /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/Pinot_results/outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  #/home/s4040112/tools/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/pinot_outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
+  /home/s4040112/tools2/bin/pinot @${projectname}-newfiles.list 2>&1 | tee /data/s4040112/pinot_outputs-${projectname}/$COUNTER-ID-$CURRENT_COMMIT.txt
 
   rm -rf dependencies
 
@@ -138,9 +136,9 @@ cd /data/s4040112
 mkdir -p ${projectname}-completeCycle
 
 #mv the outputs from pinot to the specified folder
-mv /data/s4040112/Pinot_results/outputs-${projectname}/ ${projectname}-completeCycle/
+mv /data/s4040112/pinot_outputs-${projectname}/ ${projectname}-completeCycle/
 
-cd /data/s4040112/${projectname}-completeCycle/outputs-${projectname}
+cd /data/s4040112/${projectname}-completeCycle/pinot_outputs-${projectname}
 
 cp /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/HPC-Scripts/HPC-blank-error-validChecker.sh .
 
@@ -167,9 +165,9 @@ mv additionalInformation ..
 cd /data/s4040112/${projectname}-completeCycle
 
 #Scan consecutive commits for comparison of patterns
-java -jar /data/s4040112/Internship_RuG_2020/2-PinotOutputComparator/out/artifacts/PinotOutputComparator_jar/PinotOutputComparator.jar outputs-${projectname}
+java -jar /data/s4040112/Internship_RuG_2020/2-PinotOutputComparator/out/artifacts/PinotOutputComparator_jar/PinotOutputComparator.jar pinot_outputs-${projectname}
 
-cd results-outputs-${projectname}
+cd comparison_results-${projectname}
 
 cp /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/HPC-Scripts/HPC-issueTagExtractor.sh .
 

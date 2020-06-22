@@ -8,9 +8,9 @@ if [ $# -eq 0 ]
     echo "No arguments supplied. Usage ./issueTagExtractor.sh gitHubFolderName\nThis gitHubFolderName needs to exactly match the one on your system"
 fi
 
-touch commitHashes.list
+touch listOfValidFiles.list
 
-egrep -l commit VALID-* > commitHashes.list
+egrep -l commit VALID-* > listOfValidFiles.list
 
 currentFolder=$(pwd)
 
@@ -18,7 +18,7 @@ mkdir -p $1-issueTags
 
 cp [vV]* ./$1-issueTags
 
-input="commitHashes.list"
+input="listOfValidFiles.list"
 while IFS= read -r line
 do
     FIRSTLINE=`head -n 1 $line`

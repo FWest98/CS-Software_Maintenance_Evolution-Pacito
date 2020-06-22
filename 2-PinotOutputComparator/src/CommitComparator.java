@@ -10,14 +10,12 @@ changes in the detected patterns between consecutive commits
 @param the analyzedProject String needs to be changed according to
 the name of the folder containing the pinot outputs
 
-@input The jar should be executed inside a folder which contains a folder named "outputs-projectName",
+@input The jar should be executed inside a folder which contains a folder named "pinot_outputs-projectName",
 inside this folder are the results from github-looper.sh after running on all commits of a project.
 The name of this folder is usually "projectName_results".
 
-
-@output a folder named results-*nameOfInputFolder*, containing several files,
-each corresponding to an analysis between two commits. Depending on the name it has
-"Valid" or "no-differences", means that changes happened or not, respectively.
+@output a folder named comparison_results-projectName, containing several files,
+each corresponding to an analysis between two commits.
 
 @author Filipe Capela S4040112
  */
@@ -33,14 +31,14 @@ public class CommitComparator {
         if (args.length == 0){
             System.out.println("Error: No correct folder name has been passed as an argument");
             System.out.println("Example of proper usage is: java -jar " +
-                    "pinotAnalysisProgressChecker.jar \"outputs-hadoop\"");
+                    "pinotAnalysisProgressChecker.jar \"pinot_outputs-mina\"");
             System.exit(0);
         }
 
         analyzedProject = args[0];
 
         //Create directory to store results if it does not exist already
-        File directory = new File("results-"+analyzedProject);
+        File directory = new File("comparison_results-"+analyzedProject.substring(analyzedProject.lastIndexOf("-")+1));
         directory.mkdir();
 
         //Store the files from pinot outputs to an array
@@ -186,7 +184,8 @@ public class CommitComparator {
         File resultFile;
 
         if (!firstPatterns.equals(secondPatterns)){
-            resultFile = new File("results-" + analyzedProject + File.separator + "VALID-" + counter + ".txt");
+            resultFile = new File("comparison_results-"+analyzedProject.substring(analyzedProject.lastIndexOf("-")+1) +
+                    File.separator + "VALID-" + counter + ".txt");
             //resultFile = new File(".\\results-" + analyzedProject + "\\" + "No_differences-" + counter + ".txt");
 
             FileWriter writer = new FileWriter(resultFile);

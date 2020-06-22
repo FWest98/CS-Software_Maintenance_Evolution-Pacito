@@ -60,8 +60,8 @@ public class JiraXMLIssueRequester {
 
         File[] issueTagsFiles = createDirectoryAndFileArray();
 
-        File finalCSVFile = new File("finalResults-" + analyzedProject + File.separator +
-                analyzedProject.substring(0, analyzedProject.indexOf("-")) + "finalResults-CSV.csv");
+        File finalCSVFile = new File("finalResults-" + analyzedProject.substring(0,analyzedProject.indexOf("-")) + File.separator +
+                analyzedProject.substring(0, analyzedProject.indexOf("-")) + "-finalResults-CSV.csv");
 
         FileWriter fw = new FileWriter(finalCSVFile.getPath());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -99,7 +99,7 @@ public class JiraXMLIssueRequester {
         }
 
         //Create directory to store results if it does not exist already
-        File directory = new File("AllIssues-" + analyzedProject);
+        File directory = new File("AllIssues-" + analyzedProject.substring(0,analyzedProject.indexOf("-")));
         directory.mkdir();
 
         int totalNumberOfIssues = Integer.parseInt(args[1]);
@@ -292,7 +292,7 @@ public class JiraXMLIssueRequester {
     private static File[] createDirectoryAndFileArray() {
 
         //Create directory to store results if it does not exist already
-        File directory = new File("finalResults-" + analyzedProject);
+        File directory = new File("finalResults-" + analyzedProject.substring(0,analyzedProject.indexOf("-")));
         directory.mkdir();
 
         //Store the files from issueTags outputs to an array
@@ -619,7 +619,7 @@ public class JiraXMLIssueRequester {
                 ///// WRITE TO INDIVIDUAL FILES /////
                 /////////////////////////////////////
 
-                File finalResultsFile = new File("finalResults-" + analyzedProject + File.separator +
+                File finalResultsFile = new File("finalResults-" + analyzedProject.substring(0,analyzedProject.indexOf("-")) + File.separator +
                         "finalAnalysis-" + outputFile.getName());
                 Files.copy(issueTagsFile.toPath(), finalResultsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 FileWriter fr = new FileWriter(finalResultsFile, true);
@@ -755,8 +755,8 @@ public class JiraXMLIssueRequester {
                     .parse(new InputSource(new StringReader(response.toString())));
             NodeList errNodes = doc.getElementsByTagName("item");
 
-            FileWriter writeIssueFW = new FileWriter(new File("AllIssues-" + analyzedProject + File.separator +
-                    issueKey + ".txt"));
+            FileWriter writeIssueFW = new FileWriter(new File("AllIssues-" + analyzedProject.substring(0,analyzedProject.indexOf("-"))
+                    + File.separator + issueKey + ".txt"));
             BufferedWriter writeIssueBW = new BufferedWriter(writeIssueFW);
 
             if (errNodes.getLength() > 0) {
