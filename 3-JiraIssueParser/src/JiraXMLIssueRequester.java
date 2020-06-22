@@ -273,7 +273,7 @@ public class JiraXMLIssueRequester {
         String project = analyzedProject.substring(0,analyzedProject.indexOf("-")).toUpperCase();
         String commitID = firstLine.substring(firstLine.lastIndexOf(" ")+1);
 
-        String patternChanges = String.join(", ", patternChangesArray);
+        String patternChanges = String.join(",", patternChangesArray);
 
         /////////////////////////////
         ///// WRITE TO CSV FILE /////
