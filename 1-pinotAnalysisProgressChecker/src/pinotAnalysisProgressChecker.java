@@ -35,7 +35,7 @@ public class pinotAnalysisProgressChecker {
         //name of the folder where the project intended to be analyzed is
         String projectName = args[0];
 
-        FileWriter finalProductFW = new FileWriter(projectName+"-finalAnalysis.csv");
+        FileWriter finalProductFW = new FileWriter(projectName+"-progressAnalysis.csv");
         BufferedWriter finalProductBW = new BufferedWriter(finalProductFW);
 
         /////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ public class pinotAnalysisProgressChecker {
 
         while(nextLineBlank != null){
 
-            finalProductBW.write(nextLineBlank.substring(0,nextLineBlank.indexOf("-"))+",1,blank\n");
+            finalProductBW.write(nextLineBlank.substring(0,nextLineBlank.indexOf("-"))+",blank\n");
 
             nextLineBlank = blankBR.readLine();
         }
@@ -68,7 +68,7 @@ public class pinotAnalysisProgressChecker {
 
         while(nextLineEmpty != null){
 
-            finalProductBW.write(nextLineEmpty.substring(0,nextLineEmpty.indexOf("-"))+",2,error\n");
+            finalProductBW.write(nextLineEmpty.substring(0,nextLineEmpty.indexOf("-"))+",error\n");
 
             nextLineEmpty = emptyBR.readLine();
         }
@@ -87,7 +87,7 @@ public class pinotAnalysisProgressChecker {
 
         while(nextLineValid != null){
 
-            finalProductBW.write(nextLineValid.substring(0,nextLineValid.indexOf("-"))+",3,valid\n");
+            finalProductBW.write(nextLineValid.substring(0,nextLineValid.indexOf("-"))+",valid\n");
 
             nextLineValid = validBR.readLine();
         }

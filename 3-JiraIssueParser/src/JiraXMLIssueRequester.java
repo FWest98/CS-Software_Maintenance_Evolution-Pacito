@@ -36,6 +36,8 @@ the pattern changes, developers, etc.
 Additionally, for each commit containing an issue tag, a file is created with
 the same information as the csv, but with the addition of the comments extracted
 from JIRA.
+Lastly, a file is created for each existing issue there exists in this projects
+JIRA repository, all these files are written onto AllFiles-projectName/
  */
 
 public class JiraXMLIssueRequester {
@@ -102,17 +104,22 @@ public class JiraXMLIssueRequester {
         File directory = new File("AllIssues-" + analyzedProject.substring(0,analyzedProject.indexOf("-")));
         directory.mkdir();
 
-        int totalNumberOfIssues = Integer.parseInt(args[1]);
 
+        // This portion of code handles the loop that checks for key-words in all the issues in the repository and writes
+        // these to individual files
+        int totalNumberOfIssues = Integer.parseInt(args[1]);
         if (projectIssueKey != null){
             for (int counter = 1; counter <= totalNumberOfIssues; counter++){
                 String issueKey = projectIssueKey.substring(0,projectIssueKey.indexOf("-")) + "-" + String.valueOf(counter);
                 scanIssue(issueKey);
             }
         }
-
     }
 
+    /*
+    This function is in charge of printing the information regarding pattern changes in commits that do not contain
+    issue keys onto the final csv file.
+     */
     private static void addNonIssueEntryToCSV(File analyzedFile, File finalCSVFile) throws IOException {
 
         FileWriter csvFileWriter = new FileWriter(finalCSVFile.getPath(), true);
@@ -330,17 +337,6 @@ public class JiraXMLIssueRequester {
                     }
 
                 }
-                /*
-                if (line.contains("ZOOKEEPER-") || line.contains("DIRMINA-") || line.contains("HDFS-") || line.contains("CASSANDRA-")) {
-                    String[] segments = line.split(" |\\.|:|\\(|\\)");
-
-                    for (String segment : segments) {
-                        if (segment.contains("ZOOKEEPER-") || segment.contains("DIRMINA-") || segment.contains("HDFS-") || line.contains("CASSANDRA-")) {
-                            issueKey = segment;
-                        }
-                    }
-                }
-                 */
 
                 line = reader.readLine();
             }
@@ -696,6 +692,11 @@ public class JiraXMLIssueRequester {
         }
     }
 
+    /*
+    This function is responsible for doing checking all the issues in a JIRA repository for a given project
+    and writing the information to separate files, it is similar to the getResponse, but this only checks for the
+    summary, key and comments to detect possible occurrences of discussion of patterns in these issues.
+     */
     private static void scanIssue(String issueKey) {
 
         try {

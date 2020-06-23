@@ -4,18 +4,17 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /*
-This class aims to analyse pinot outputs, to understand if there are
+This class aims to analyze pinot outputs, to understand if there are
 changes in the detected patterns between consecutive commits
 
 @param the analyzedProject String needs to be changed according to
 the name of the folder containing the pinot outputs
 
-@input The jar should be executed inside a folder which contains a folder named "pinot_outputs-projectName",
-inside this folder are the results from github-looper.sh after running on all commits of a project.
-The name of this folder is usually "projectName_results".
+@input The jar should be executed upon a folder named "pinot_outputs-projectName",
+inside this folder are the results executing pinot on all commits of a project.
 
 @output a folder named comparison_results-projectName, containing several files,
-each corresponding to an analysis between two commits.
+each corresponding an analysis between two consecutive commits.
 
 @author Filipe Capela S4040112
  */
@@ -69,7 +68,6 @@ public class CommitComparator {
                 pinotComparator(firstPatterns,secondPatterns, files[i+1]);
             }
         }
-
     }
 
     /*
@@ -81,8 +79,6 @@ public class CommitComparator {
         boolean hasErrors = checkIfFileHasErrors(file1)||checkIfFileHasErrors(file2);
 
         if (hasErrors) {
-            //File errorAnalysis = new File(".\\results-" + analyzedProject + "\\" + "Error-" + counter + ".txt");
-            //errorAnalysis.createNewFile();
             counter++;
         }
 
@@ -96,8 +92,6 @@ public class CommitComparator {
      */
     private static boolean checkIfAnyFileIsEmpty(File file1, File file2) throws IOException {
         if (file1.length() == 0 || file2.length() == 0){
-            //File noAnalysis = new File(".\\results-"+analyzedProject + "\\Blank-" + counter + ".txt");
-            //noAnalysis.createNewFile();
             counter++;
             return true;
         }

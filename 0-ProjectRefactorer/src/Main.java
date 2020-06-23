@@ -4,15 +4,14 @@ import java.util.List;
 
 public class Main {
 
-    //How to run java -jar pathToJar nameOfTheProject
-    //nameOfTheProject is very important, should be the same name as the gitHub folder
-    //If anything is written in the second argument booleanToDelete, the original files are deleted
+    //How to run java -jar pathToJar projectName
+    //projectName is very important, should be the same name as the gitHub folder
 
     public static void main(String[] args) throws IOException {
 
         if (args.length == 0){
             System.out.println("Error: No project name (name of GitHub folder) has been passed as an argument");
-            System.out.println("Proper Usage is: java -jar 0-ProjectRefactorer.jar nameOfGitHubFolder");
+            System.out.println("Proper Usage is: java -jar 0-ProjectRefactorer.jar projectName");
             System.exit(0);
         }
 
@@ -41,40 +40,10 @@ public class Main {
             while ((fileline = tempBR.readLine()) != null) {
                 //Condition to not check comment lines
                 if (!fileline.contains(" *")) {
-
                     if (fileline.contains("<") && fileline.contains(">")) {
                         if(fileline.indexOf("<") < fileline.indexOf(">")){
-
                             String regexRemoveDiamonds = "<(?<=<)(.*?)(?=>)>>|<(?<=<)(.*?)(?=>)>";
                             fileline = fileline.replaceAll(regexRemoveDiamonds, "");
-                            /*
-                            String newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">"));
-                            // If it is a nested generic
-                            if (newGenericType.contains("<")){
-                                newGenericType = fileline.substring(fileline.indexOf("<") + 1, fileline.indexOf(">")+1);
-
-                                // when there's a <HashMap<int,X>>, usually only the nested contains GenericTypes
-                                newGenericType = newGenericType.substring(newGenericType.indexOf("<")+1,
-                                        newGenericType.indexOf(">"));
-
-                                //System.out.println("newGen2" + newGenericType);
-                            }
-                            String[] multipleGenericTypes = newGenericType.split(",");
-
-                            for (String genericType: multipleGenericTypes) {
-                                //Check if the genericType starts with upperCase
-
-                                if (genericType != null && !genericType.isEmpty()){
-                                    char[] genericTypeIntoChars = genericType.toCharArray();
-                                    if (Character.isUpperCase(genericTypeIntoChars[0])){
-                                        //System.out.println(genericType);
-                                        if (genericType != "Object"){
-                                            genericTypes.add(genericType);
-                                        }
-                                    }
-                                }
-                            }
-                            */
                         }
                     }
 
@@ -86,27 +55,6 @@ public class Main {
                     String regexForAnnotations = "(?<=.|^)(@[a-zA-Z].+?)(?=' '|$)";
                     fileline = fileline.replaceAll(regexForAnnotations,"");
 
-
-                    /*if (fileline.contains("@")) {
-                        if (fileline.indexOf(" ", fileline.indexOf("@")) != -1) {
-                            String annotation = fileline.substring(fileline.indexOf("@"),
-                                    fileline.indexOf(" ", fileline.indexOf("@")));
-                            fileline = fileline.replace(annotation + " ", "");
-                        }
-                        else{
-                            fileline = "";
-                        }
-                    }
-
-                     */
-
-                    //Loop through all found GenericTypes so far
-                    /*for (String genericType : genericTypes) {
-                        if (fileline.contains(genericType)) {
-                            fileline = fileline.replace(genericType, "Object");
-                        }
-                    }
-                     */
                 }
                 newFileBW.write(fileline+"\r\n");
             }
@@ -120,19 +68,6 @@ public class Main {
         newListOfFilesFW.flush();
         newListOfFilesBW.close();
         newListOfFilesFW.close();
-        /*
-        if (args[1] != null){
-            // This portion of the code is used to delete the new files in the end (if necessary)
-            FileReader newListOfFilesFReader = new FileReader(projectName+"-files.list");
-            BufferedReader newListOfFilesBReader = new BufferedReader(newListOfFilesFReader);
-            String newFilesListLine;
-            while ((newFilesListLine = newListOfFilesBReader.readLine()) != null) {
-                File fileToDelete = new File(newFilesListLine);
-                fileToDelete.deleteOnExit();
-            }
-        }
-
-         */
     }
 
 }

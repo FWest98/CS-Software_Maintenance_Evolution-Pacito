@@ -57,10 +57,7 @@ mkdir /data/s4040112/pinot_outputs-${projectname}
 for line in $file_lines ; 
 do
 	git reset --hard $line
-    	CURRENT_COMMIT=$(git log -n1 --format=format:"%H")
-
-	#don't forget to run sudo updatedb, since locate finds all files but needs to be updated using this command
-	#updatedb
+  CURRENT_COMMIT=$(git log -n1 --format=format:"%H")
 
 	find ${projectpath} -name '*.java' > ${projectname}-files.list
 
@@ -77,8 +74,6 @@ do
   FILE=pom.xml
   if test -f "$FILE"; then
   
-    #mvn clean install -U -DskipTests dependency:copy-dependencies -DoutputDirectory=/data/s4040112/sourcecodes/${projectname}/dependencies -Dhttps.protocols=TLSv1.2
-    
     export CLASSPATH=
     export CLASSPATH=${CLASSPATH}:/apps/generic/software/Java/1.7.0_80/jre/lib/rt.jar
 
