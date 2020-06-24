@@ -21,6 +21,12 @@ NUMBEROFISSUES=1126
 
 cd /data/s4040112/sourcecodes/mina
 git pull
+
+#A new .mailmap needs to be created for different projects, hence, change the content of the file or change
+#the location to match the location of the new .mailmap
+cp /data/s4040112/Internship_RuG_2020/Scripts_and_Tools/HPC-Scripts/.mailmap .
+git shortlog -se -n > listOfContributionsPerDeveloper.txt
+
 FINAL_COMMIT=$(git show -s --format=%H)
 
 #depending on the project, the main branch can either be master or trunk
