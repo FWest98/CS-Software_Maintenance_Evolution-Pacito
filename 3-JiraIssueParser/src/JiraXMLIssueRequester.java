@@ -19,7 +19,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.HOURS;
 
 /*
 Function that fetches information from JIRA's issue tracking
@@ -74,7 +73,7 @@ public class JiraXMLIssueRequester {
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
                 + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
-                + "," + "TimeToResolve(Hours)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
+                + "," + "TimeToResolve(Days)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
                 + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy"
                 + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + ","
                 + "Strategy"  + "," + "Template Method" + "," + "Visitor");
