@@ -3,6 +3,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +49,6 @@ public class JiraXMLIssueRequester {
 
     public static void main(String[] args) throws IOException {
 
-
         if (args.length != 2){
             System.out.println("Error: No project name has been passed as an argument, this argument should be" +
                     "\"projectName\"-issueTags numberOfIssues \n For more information regarding the number of issues" +
@@ -69,11 +70,11 @@ public class JiraXMLIssueRequester {
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
-                + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "ResolvedDate" + "," + "Abstract Factory"
-                + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + "," + "Bridge" + "," + "Composite"
-                + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy" + "," + "Chain of Responsibility"
-                + "," + "Mediator" + "," + "Observer" + "," + "State"  + "," + "Strategy"  + "," + "Template Method"
-                + "," + "Visitor");
+                + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
+                + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
+                + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy"
+                + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + ","
+                + "Strategy"  + "," + "Template Method" + "," + "Visitor");
         pw.flush();
         pw.close();
 
@@ -564,6 +565,8 @@ public class JiraXMLIssueRequester {
                         .replaceAll(",|;", "-");
                 String resolvedDate = err.getElementsByTagName("resolved").item(0).getTextContent()
                         .replaceAll(",|;", "-");
+                String updatedDate = err.getElementsByTagName("updated").item(0).getTextContent()
+                        .replaceAll(",|;", "-");
                 //String patternChanges = detectedPatterns.toString();
                 String patternChanges = String.join(",", patternChangesArray);
 
@@ -571,9 +574,21 @@ public class JiraXMLIssueRequester {
                 ///// WRITE TO CSV FILE /////
                 /////////////////////////////
 
+                String latestDateBetweenUpdatedAndResolved;
+                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E, dd MMM yyyy HH:mm:ss x");
+                LocalDateTime resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatter);
+                LocalDateTime updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatter);
+
+                if (resolvedTime.isAfter(updatedTime)){
+                    latestDateBetweenUpdatedAndResolved = resolvedDate;
+                }
+                else{
+                    latestDateBetweenUpdatedAndResolved = updatedDate;
+                }
+
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
-                        + parsedIssueKey + "," + issueType + "," + createdDate + "," + resolvedDate + ","
-                        + patternChanges);
+                        + parsedIssueKey + "," + issueType + "," + createdDate + ","
+                        + latestDateBetweenUpdatedAndResolved + "," + patternChanges);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
