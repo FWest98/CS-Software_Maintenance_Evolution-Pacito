@@ -283,6 +283,14 @@ public class JiraXMLIssueRequester {
 
         String patternChanges = String.join(",", patternChangesArray);
 
+        // In this portion of the code we need to extract the commit message to compare to the issues description from
+        // JIRA
+
+
+
+
+
+
         /////////////////////////////
         ///// WRITE TO CSV FILE /////
         /////////////////////////////
@@ -575,7 +583,7 @@ public class JiraXMLIssueRequester {
                 /////////////////////////////
 
                 String latestDateBetweenUpdatedAndResolved;
-                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E, dd MMM yyyy HH:mm:ss x");
+                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E, d MMM yyyy HH:mm:ss x");
                 LocalDateTime resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatter);
                 LocalDateTime updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatter);
 
