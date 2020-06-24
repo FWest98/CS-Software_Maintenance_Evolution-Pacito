@@ -584,49 +584,28 @@ public class JiraXMLIssueRequester {
                 LocalDateTime createdTime;
                 jiraDateFormatterOnlyOneDayPattern = DateTimeFormatter.ofPattern("E- d MMM yyyy HH:mm:ss Z");
                 jiraDateFormatterTwoDaysPattern = DateTimeFormatter.ofPattern("E- dd MMM yyyy HH:mm:ss Z");
+
                 if (resolvedDate.length() == 30){
                     resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterOnlyOneDayPattern);
-                    if (updatedDate.length() == 30) {
-                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        if (createdDate.length() == 30){
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        }
-                        else{
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        }
-                    }
-                    else{
-                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        if (createdDate.length() == 30){
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        }
-                        else{
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        }
-                    }
                 }
                 else{
                     resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterTwoDaysPattern);
-                    if (updatedDate.length() == 30) {
-                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        if (createdDate.length() == 30){
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        }
-                        else{
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        }
-                    }
-                    else{
-                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        if (createdDate.length() == 30){
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
-                        }
-                        else{
-                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
-                        }
-                    }
-
                 }
+
+                if (updatedDate.length() == 30){
+                    updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                }
+                else{
+                    updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                }
+
+                if (createdDate.length() == 30){
+                    createdTime = LocalDateTime.parse(createdDate, jiraDateFormatterOnlyOneDayPattern);
+                }
+                else{
+                    createdTime = LocalDateTime.parse(createdDate, jiraDateFormatterTwoDaysPattern);
+                }
+
 
                 if (resolvedTime.isAfter(updatedTime)){
                     latestDateBetweenUpdatedAndResolved = resolvedDate;
