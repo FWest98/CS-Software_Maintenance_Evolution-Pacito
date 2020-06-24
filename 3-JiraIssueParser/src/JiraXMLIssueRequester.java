@@ -161,9 +161,8 @@ public class JiraXMLIssueRequester {
 
                     int patternDifferences = numberBefore - numberAfter;
 
-                    patternDifferences *= -1;
-
                     if (patternDifferences > 0) {
+                        patternDifferences *= -1;
                         switch(detectedPattern) {
                             case "Abstract Factory":
                                 patternChangesArray.add(0, patternDifferences + "");
@@ -432,9 +431,8 @@ public class JiraXMLIssueRequester {
 
                             int patternDifferences = numberBefore - numberAfter;
 
-                            patternDifferences *= -1;
-
                             if (patternDifferences > 0) {
+                                patternDifferences = patternDifferences * -1;
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
                                         patternChangesArray.add(0, patternDifferences + "");
