@@ -583,7 +583,7 @@ public class JiraXMLIssueRequester {
                 /////////////////////////////
 
                 String latestDateBetweenUpdatedAndResolved;
-                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E, d MMM yyyy HH:mm:ss x");
+                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E- dd MMM yyyy HH:mm:ss x");
                 LocalDateTime resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatter);
                 LocalDateTime updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatter);
 
