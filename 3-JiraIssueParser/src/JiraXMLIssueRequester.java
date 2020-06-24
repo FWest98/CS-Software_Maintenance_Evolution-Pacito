@@ -18,6 +18,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 /*
@@ -73,7 +74,7 @@ public class JiraXMLIssueRequester {
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
                 + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
-                + "," + "TimeToResolve" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
+                + "," + "TimeToResolve(Hours)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
                 + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy"
                 + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + ","
                 + "Strategy"  + "," + "Template Method" + "," + "Visitor");
@@ -580,24 +581,49 @@ public class JiraXMLIssueRequester {
                 DateTimeFormatter jiraDateFormatterTwoDaysPattern;
                 LocalDateTime resolvedTime;
                 LocalDateTime updatedTime;
+                LocalDateTime createdTime;
                 jiraDateFormatterOnlyOneDayPattern = DateTimeFormatter.ofPattern("E- d MMM yyyy HH:mm:ss Z");
                 jiraDateFormatterTwoDaysPattern = DateTimeFormatter.ofPattern("E- dd MMM yyyy HH:mm:ss Z");
                 if (resolvedDate.length() == 30){
                     resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterOnlyOneDayPattern);
                     if (updatedDate.length() == 30) {
                         updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        if (createdDate.length() == 30){
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        }
+                        else{
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        }
                     }
                     else{
                         updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        if (createdDate.length() == 30){
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        }
+                        else{
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        }
                     }
                 }
                 else{
                     resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterTwoDaysPattern);
                     if (updatedDate.length() == 30) {
                         updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        if (createdDate.length() == 30){
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        }
+                        else{
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        }
                     }
                     else{
                         updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        if (createdDate.length() == 30){
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                        }
+                        else{
+                            createdTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                        }
                     }
 
                 }
@@ -609,7 +635,7 @@ public class JiraXMLIssueRequester {
                     latestDateBetweenUpdatedAndResolved = updatedDate;
                 }
 
-                String timeToResolve = Long.toString(updatedTime.until(resolvedTime,HOURS));
+                String timeToResolve = Long.toString(createdTime.until(resolvedTime,DAYS));
 
                 /////////////////////////////
                 ///// WRITE TO CSV FILE /////
