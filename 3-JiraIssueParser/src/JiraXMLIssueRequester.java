@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
 /*
 Function that fetches information from JIRA's issue tracking
 system, to obtain information regarding several issue tags
@@ -71,7 +73,7 @@ public class JiraXMLIssueRequester {
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
                 + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
-                + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
+                + "," + "TimeToResolve" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
                 + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy"
                 + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + ","
                 + "Strategy"  + "," + "Template Method" + "," + "Visitor");
@@ -283,19 +285,11 @@ public class JiraXMLIssueRequester {
 
         String patternChanges = String.join(",", patternChangesArray);
 
-        // In this portion of the code we need to extract the commit message to compare to the issues description from
-        // JIRA
-
-
-
-
-
-
         /////////////////////////////
         ///// WRITE TO CSV FILE /////
         /////////////////////////////
 
-        csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "" + "," + "" + ","
+        csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "," + "" + "," + "" + ","
                 + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges);
         csvPrintWriter.flush();
         csvPrintWriter.close();
@@ -437,7 +431,6 @@ public class JiraXMLIssueRequester {
 
                             int patternDifferences = numberBefore - numberAfter;
 
-
                             if (patternDifferences > 0) {
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
@@ -578,14 +571,36 @@ public class JiraXMLIssueRequester {
                 //String patternChanges = detectedPatterns.toString();
                 String patternChanges = String.join(",", patternChangesArray);
 
-                /////////////////////////////
-                ///// WRITE TO CSV FILE /////
-                /////////////////////////////
 
+
+                // This portion of the code is responsible for understanding what is latest date between
+                // the resolved and updated date on the issues description
                 String latestDateBetweenUpdatedAndResolved;
-                DateTimeFormatter jiraDateFormatter = DateTimeFormatter.ofPattern("E- dd MMM yyyy HH:mm:ss Z");
-                LocalDateTime resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatter);
-                LocalDateTime updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatter);
+                DateTimeFormatter jiraDateFormatterOnlyOneDayPattern;
+                DateTimeFormatter jiraDateFormatterTwoDaysPattern;
+                LocalDateTime resolvedTime;
+                LocalDateTime updatedTime;
+                jiraDateFormatterOnlyOneDayPattern = DateTimeFormatter.ofPattern("E- d MMM yyyy HH:mm:ss Z");
+                jiraDateFormatterTwoDaysPattern = DateTimeFormatter.ofPattern("E- dd MMM yyyy HH:mm:ss Z");
+                if (resolvedDate.length() == 30){
+                    resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterOnlyOneDayPattern);
+                    if (updatedDate.length() == 30) {
+                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                    }
+                    else{
+                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                    }
+                }
+                else{
+                    resolvedTime = LocalDateTime.parse(resolvedDate, jiraDateFormatterTwoDaysPattern);
+                    if (updatedDate.length() == 30) {
+                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterOnlyOneDayPattern);
+                    }
+                    else{
+                        updatedTime = LocalDateTime.parse(updatedDate, jiraDateFormatterTwoDaysPattern);
+                    }
+
+                }
 
                 if (resolvedTime.isAfter(updatedTime)){
                     latestDateBetweenUpdatedAndResolved = resolvedDate;
@@ -594,9 +609,15 @@ public class JiraXMLIssueRequester {
                     latestDateBetweenUpdatedAndResolved = updatedDate;
                 }
 
+                String timeToResolve = Long.toString(updatedTime.until(resolvedTime,HOURS));
+
+                /////////////////////////////
+                ///// WRITE TO CSV FILE /////
+                /////////////////////////////
+
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
-                        + latestDateBetweenUpdatedAndResolved + "," + patternChanges);
+                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
