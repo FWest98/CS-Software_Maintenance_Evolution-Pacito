@@ -223,7 +223,7 @@ public class JiraXMLIssueRequester {
                         //detectedPatterns.append(patternDifferences + " instances of the "
                         //+ detectedPattern + " Pattern were REMOVED,");
                     } else {
-                        numberOfAddedPatterns += patternDifferences;
+                        numberOfAddedPatterns += Math.abs(patternDifferences);
                         switch(detectedPattern) {
                             case "Abstract Factory":
                                 patternChangesArray.add(0, Math.abs(patternDifferences) + "");
@@ -498,7 +498,7 @@ public class JiraXMLIssueRequester {
                                 //detectedPatterns.append(patternDifferences + " instances of the "
                                         //+ detectedPattern + " Pattern were REMOVED,");
                             } else {
-                                numberOfAddedPatterns += patternDifferences;
+                                numberOfAddedPatterns += Math.abs(patternDifferences);
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
                                         patternChangesArray.add(0, Math.abs(patternDifferences) + "");
