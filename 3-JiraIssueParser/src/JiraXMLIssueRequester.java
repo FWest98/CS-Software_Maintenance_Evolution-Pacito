@@ -295,8 +295,8 @@ public class JiraXMLIssueRequester {
         /////////////////////////////
 
         csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "," + "" + "," + "" + ","
-                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges + "," + numberOfAddedPatterns + ","
-                + numberOfRemovedPatters);
+                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges + "," + numberOfAddedPatterns+"" + ","
+                + numberOfRemovedPatters+"");
         csvPrintWriter.flush();
         csvPrintWriter.close();
     }
@@ -633,7 +633,7 @@ public class JiraXMLIssueRequester {
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
                         + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges + ","
-                        + numberOfAddedPatterns + "," + numberOfRemovedPatters);
+                        + numberOfAddedPatterns+"" + "," + numberOfRemovedPatters+"");
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
