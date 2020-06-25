@@ -73,11 +73,11 @@ public class JiraXMLIssueRequester {
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
                 + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
-                + "," + "TimeToResolve(Days)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton"
-                + "," + "Adapter" + "," + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + ","
-                + "Flyweight" + "," + "Proxy" + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer"
-                + "," + "State"  + "," + "Strategy"  + "," + "Template Method" + "," + "Visitor" + "," + "NumberOfAddedPatterns"
-                + "," + "NumberOfRemovedPatterns");
+                + "," + "TimeToResolve(Days)" + "," + "NumberOfAddedPatterns" + "," + "NumberOfRemovedPatterns" + ","
+                + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + "," + "Bridge"
+                + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy" + ","
+                + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + "," + "Strategy"
+                + "," + "Template Method" + "," + "Visitor");
         pw.flush();
         pw.close();
 
@@ -295,7 +295,8 @@ public class JiraXMLIssueRequester {
         /////////////////////////////
 
         csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "," + "" + "," + "" + ","
-                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges);
+                + "" + "," + "" + "," + "" + "," + "" + "," + numberOfAddedPatterns + "," + numberOfRemovedPatterns +
+                "," + patternChanges);
         csvPrintWriter.flush();
         csvPrintWriter.close();
     }
@@ -633,7 +634,8 @@ public class JiraXMLIssueRequester {
 
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
-                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges);
+                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + numberOfAddedPatterns + ","
+                        + numberOfRemovedPatterns + "," + patternChanges);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
