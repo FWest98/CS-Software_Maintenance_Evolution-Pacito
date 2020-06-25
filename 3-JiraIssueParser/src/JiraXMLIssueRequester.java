@@ -143,7 +143,7 @@ public class JiraXMLIssueRequester {
 
         List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
         int numberOfAddedPatterns = 0;
-        int numberOfRemovedPatters = 0;
+        int numberOfRemovedPatterns = 0;
 
         while (bufferedLine != null && reached == false) {
 
@@ -166,7 +166,7 @@ public class JiraXMLIssueRequester {
 
                     if (patternDifferences > 0) {
                         patternDifferences *= -1;
-                        numberOfRemovedPatters += patternDifferences;
+                        numberOfRemovedPatterns += patternDifferences;
                         switch(detectedPattern) {
                             case "Abstract Factory":
                                 patternChangesArray.add(0, patternDifferences + "");
@@ -295,8 +295,7 @@ public class JiraXMLIssueRequester {
         /////////////////////////////
 
         csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "," + "" + "," + "" + ","
-                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges + "," + numberOfAddedPatterns+"" + ","
-                + numberOfRemovedPatters+"");
+                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges);
         csvPrintWriter.flush();
         csvPrintWriter.close();
     }
@@ -632,8 +631,7 @@ public class JiraXMLIssueRequester {
 
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
-                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges + ","
-                        + numberOfAddedPatterns+"" + "," + numberOfRemovedPatters+"");
+                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
