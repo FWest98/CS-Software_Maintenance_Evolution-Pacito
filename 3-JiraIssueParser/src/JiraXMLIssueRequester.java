@@ -417,7 +417,7 @@ public class JiraXMLIssueRequester {
 
                 List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
                 int numberOfAddedPatterns = 0;
-                int numberOfRemovedPatters = 0;
+                int numberOfRemovedPatterns = 0;
 
                 while (bufferedLine != null && reached == false) {
 
@@ -440,7 +440,7 @@ public class JiraXMLIssueRequester {
 
                             if (patternDifferences > 0) {
                                 patternDifferences = patternDifferences * -1;
-                                numberOfRemovedPatters += patternDifferences;
+                                numberOfRemovedPatterns += patternDifferences;
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
                                         patternChangesArray.add(0, patternDifferences + "");
@@ -628,6 +628,8 @@ public class JiraXMLIssueRequester {
                 /////////////////////////////
                 ///// WRITE TO CSV FILE /////
                 /////////////////////////////
+
+                System.out.println(numberOfAddedPatterns + " " + numberOfRemovedPatterns);
 
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
