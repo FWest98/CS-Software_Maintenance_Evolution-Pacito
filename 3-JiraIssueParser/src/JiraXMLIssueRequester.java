@@ -73,10 +73,11 @@ public class JiraXMLIssueRequester {
         PrintWriter pw = new PrintWriter(bw);
         pw.println("Project" + "," + "CommitID" + "," + "Developer" + "," + "Title" + "," + "Summary" + ","
                 + "IssueKey" + "," + "IssueType" + "," + "CreatedDate" + "," + "latestDateBetweenUpdatedAndResolved"
-                + "," + "TimeToResolve(Days)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton" + "," + "Adapter" + ","
-                + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + "," + "Flyweight" + "," + "Proxy"
-                + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer" + "," + "State"  + ","
-                + "Strategy"  + "," + "Template Method" + "," + "Visitor");
+                + "," + "TimeToResolve(Days)" + "," + "Abstract Factory" + "," + "Factory Method" + "," + "Singleton"
+                + "," + "Adapter" + "," + "Bridge" + "," + "Composite" + "," + "Decorator" + "," + "Facade" + ","
+                + "Flyweight" + "," + "Proxy" + "," + "Chain of Responsibility" + "," + "Mediator" + "," + "Observer"
+                + "," + "State"  + "," + "Strategy"  + "," + "Template Method" + "," + "Visitor" + "," + "NumberOfAddedPatterns"
+                + "," + "NumberOfRemovedPatterns");
         pw.flush();
         pw.close();
 
@@ -141,6 +142,8 @@ public class JiraXMLIssueRequester {
         boolean reached = false;
 
         List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
+        int numberOfAddedPatterns = 0;
+        int numberOfRemovedPatters = 0;
 
         while (bufferedLine != null && reached == false) {
 
@@ -163,6 +166,7 @@ public class JiraXMLIssueRequester {
 
                     if (patternDifferences > 0) {
                         patternDifferences *= -1;
+                        numberOfRemovedPatters += patternDifferences;
                         switch(detectedPattern) {
                             case "Abstract Factory":
                                 patternChangesArray.add(0, patternDifferences + "");
@@ -219,6 +223,7 @@ public class JiraXMLIssueRequester {
                         //detectedPatterns.append(patternDifferences + " instances of the "
                         //+ detectedPattern + " Pattern were REMOVED,");
                     } else {
+                        numberOfAddedPatterns += patternDifferences;
                         switch(detectedPattern) {
                             case "Abstract Factory":
                                 patternChangesArray.add(0, Math.abs(patternDifferences) + "");
@@ -290,7 +295,8 @@ public class JiraXMLIssueRequester {
         /////////////////////////////
 
         csvPrintWriter.println(project + "," + commitID + "," + "" + "," + "," + "" + "," + "" + ","
-                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges);
+                + "" + "," + "" + "," + "" + "," + "" + "," + patternChanges + "," + numberOfAddedPatterns + ","
+                + numberOfRemovedPatters);
         csvPrintWriter.flush();
         csvPrintWriter.close();
     }
@@ -411,6 +417,8 @@ public class JiraXMLIssueRequester {
                 boolean reached = false;
 
                 List<String> patternChangesArray = new ArrayList<String>(Collections.nCopies(17, ""));
+                int numberOfAddedPatterns = 0;
+                int numberOfRemovedPatters = 0;
 
                 while (bufferedLine != null && reached == false) {
 
@@ -433,6 +441,7 @@ public class JiraXMLIssueRequester {
 
                             if (patternDifferences > 0) {
                                 patternDifferences = patternDifferences * -1;
+                                numberOfRemovedPatters += patternDifferences;
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
                                         patternChangesArray.add(0, patternDifferences + "");
@@ -489,6 +498,7 @@ public class JiraXMLIssueRequester {
                                 //detectedPatterns.append(patternDifferences + " instances of the "
                                         //+ detectedPattern + " Pattern were REMOVED,");
                             } else {
+                                numberOfAddedPatterns += patternDifferences;
                                 switch(detectedPattern) {
                                     case "Abstract Factory":
                                         patternChangesArray.add(0, Math.abs(patternDifferences) + "");
@@ -622,7 +632,8 @@ public class JiraXMLIssueRequester {
 
                 csvPrintWriter.println(project + "," + commitID + "," + developer + "," + title + "," + summary + ","
                         + parsedIssueKey + "," + issueType + "," + createdDate + ","
-                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges);
+                        + latestDateBetweenUpdatedAndResolved + "," + timeToResolve + "," + patternChanges + ","
+                        + numberOfAddedPatterns + "," + numberOfRemovedPatters);
                 csvPrintWriter.flush();
                 csvPrintWriter.close();
 
