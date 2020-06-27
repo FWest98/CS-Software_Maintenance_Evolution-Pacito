@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 4244b19b21a7851c6f2d4cdad7b229ce1d855265
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4365.txt 
+
+commit 4244b19b21a7851c6f2d4cdad7b229ce1d855265
+Merge: bd8f804 57684e9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

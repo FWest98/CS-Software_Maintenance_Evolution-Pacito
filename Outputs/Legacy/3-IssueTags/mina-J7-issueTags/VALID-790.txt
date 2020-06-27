@@ -1,0 +1,23 @@
+Pattern changes caused by commit: dac3a8368265975d6c1d1c70171a1043a025283b
+
+From: Facade-4
+To:   Facade-7
+
+From: Flyweight-5
+To:   Flyweight-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-790.txt 
+
+commit dac3a8368265975d6c1d1c70171a1043a025283b
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added more support methods for IoEvent
+    ** Added IoFilter.NextFilter.filter(IoEvent)
+    ** Added IoFilterChain.fire(IoEvent)
+    * Renamed WrappingFilter.wrap() to filter() because what it does it actually filtering
+    * Rewrote WrappingFilter using IoEvent

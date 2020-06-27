@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 289e0382f16b06c43cf52a568adc2d3b16935b9e
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5311.txt 
+
+commit 289e0382f16b06c43cf52a568adc2d3b16935b9e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add debug logging to purgeIncompatibleHints
+    patch by jbellis

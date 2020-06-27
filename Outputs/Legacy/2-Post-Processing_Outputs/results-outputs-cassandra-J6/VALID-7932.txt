@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 08eebcdf44d4f260ffab230128e1b256c2b73e77
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+

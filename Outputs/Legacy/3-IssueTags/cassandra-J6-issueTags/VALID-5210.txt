@@ -1,0 +1,24 @@
+Pattern changes caused by commit: dcd94976b6c6f7db11f1dc03624b16c4d750e5a0
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5210.txt 
+
+commit dcd94976b6c6f7db11f1dc03624b16c4d750e5a0
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Skip empty rows when slicing the entire row.
+    Patch by Jeremy Hanna and brandonwilliams, reviewed by Jeremy Hanna for
+    CASSANDRA-2855

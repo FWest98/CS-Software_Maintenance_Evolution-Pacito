@@ -1,0 +1,164 @@
+Pattern changes caused by commit: 7457120730a374e73d506a2bc7400024abe4232e
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4732.txt 
+
+commit 7457120730a374e73d506a2bc7400024abe4232e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Expose gossip/FD info to JMX
+    patch by Patricio Echague; reviewed by brandonwilliams for CASSANDRA-2806
+
+
+
+==================================
+ Issue CASSANDRA-2806 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2806] Expose gossip/FD info to JMX
+-----------------
+
+-----------------
+Summary: Expose gossip/FD info to JMX
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 21 Jun 2011 20:50:34 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Aug 2011 13:22:42 +0000
+-----------------
+
+-----------------
+Assigned to: Patricio Echague
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+So for FD it is obvious what to expose, just a Map of up/down.What should we expose for
+gossip?  Map of ApplicationState? 
+
+
+New Comment: 
+What does everyone prefer ?1)<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">{  UP : Node1, Node2, Node3  DOWN
+: Node4}</pre></div></div>2)<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"> {  Node1 : UP  Node2 : UP  Node3
+: DOWN}</pre></div></div> 
+
+
+New Comment: 
+Also added -&gt; nodetool gossipinfo<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">patricioe:cassandra-0.8
+patricioe$ bin/nodetool -h 127.0.0.3 -p 7300 gossipinfo/127.0.0.2 
+STATUS:NORMAL,129522978513606330061876529562911371393  RPC_ADDRESS:/127.0.0.2 
+LOAD:1.10768421E8  RELEASE_VERSION:0.8.2-dev-SNAPSHOT 
+SCHEMA:46882900-bfb1-11e0-0000-7fd66bb03aff/127.0.0.3 
+STATUS:NORMAL,124888331406072459946803385462097037262  RPC_ADDRESS:/127.0.0.3 
+LOAD:4.0371818E7  RELEASE_VERSION:0.8.2-dev-SNAPSHOT 
+SCHEMA:46882900-bfb1-11e0-0000-7fd66bb03aff/127.0.0.4 
+STATUS:NORMAL,44629256491637497965682179905983472419  RPC_ADDRESS:/127.0.0.4  LOAD:31056.0
+ RELEASE_VERSION:0.8.2-dev-SNAPSHOT 
+SCHEMA:46882900-bfb1-11e0-0000-7fd66bb03aff</pre></div></div> 
+
+
+New Comment: 
+For Gossiper, although some info such as ApplicationState is exposed through FD, I
+propose:<ul class="alternate" type="square">	<li>getVersion(String
+nodeAddress)</li>	<li>getEndpointDowntime(String
+nodeAddress)</li>	<li>getCurrentGenerationNumber(String nodeAddress)</li></ul>Comments? 
+
+
+New Comment: 
+This patch addresses the info for FD only. 
+
+
+New Comment: 
+In the gossiper, we also need to expose the following op:<ul>	<li>Forced
+quarantine/eviction of an IP address, possibly taking a parameter to define how long to
+quarantine it for.</li></ul>This way in the rare event that someone does break <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1730" title="Fat clients are never
+removed" class="issue-link" data-issue-key="CASSANDRA-1730"><del>CASSANDRA-1730</del></a>,
+they can fix it without full ring restarts, avoid other full ring restart situations. 
+This shouldn't be exposed in nodetool though because it can easily be dangerous. 
+
+
+New Comment: 
+v2 replaces v1<ul class="alternate" type="square">	<li>Add GossiperMBean with its
+implementation.</li></ul> 
+
+
+New Comment: 
+Add description and ticket number in CHANGES.txt 
+
+
+New Comment: 
+I don't see a way to force eviction with this patch. 
+
+
+New Comment: 
+Doesn't evictEndpoint(String address) work as expected?I used the same logic that
+doStatusCheck() uses to evict an endpoint.If that is not right, please advice. 
+
+
+New Comment: 
+We need the custom quarantine time, otherwise it's going to be difficult to make it useful
+(invoke it on all machines in under the standard quarantine time is doable, but not easy) 
+
+
+New Comment: 
+After thinking this through a bit more, I think for this ticket, we should just remove the
+ability to evict a host and make a new ticket for that.  The reason being is that evicting
+a member of the ring is more complicated, since the StorageService needs to be notified to
+update the TokenMetadata in case the host is a member of the ring. 
+
+
+New Comment: 
+Here you go.-Removed evictEndpoint<ul class="alternate" type="square">	<li>Also organize
+imports in Gossiper that originally were not respecting the Code Style.</li></ul> 
+
+
+New Comment: 
+Argh, it applied when I tested but failed a hunk when I went to commit after pulling, can
+you rebase please?  Otherwise looks good. 
+
+
+New Comment: 
+This patches replaces all previous including the one for CHANGES.txt. 
+
+
+New Comment: 
+rebased + committed 
+
+

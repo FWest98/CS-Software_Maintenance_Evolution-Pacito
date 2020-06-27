@@ -1,0 +1,197 @@
+Pattern changes caused by commit: b1d7405fd1263a04d8cc4bbfcba3ec1928b75738
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9583.txt 
+
+commit b1d7405fd1263a04d8cc4bbfcba3ec1928b75738
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix cross-DC mutation forwarding
+    patch by jbellis; reviewed by dbrosius for CASSANDRA-5632
+
+
+
+==================================
+ Issue CASSANDRA-5632 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5632] Cross-DC bandwidth-saving broken
+-----------------
+
+-----------------
+Summary: Cross-DC bandwidth-saving broken
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 12 Jun 2013 23:37:11 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 20 Jun 2013 20:54:58 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+We group messages by destination as follows to avoid sending multiple messages to a
+remote datacenter:
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        <span
+class="code-comment">// Multimap that holds onto all the messages and addresses meant
+<span class="code-keyword">for</span> a specific datacenter</span>        Map&lt;<span
+class="code-object">String</span>, Multimap&lt;Message, InetAddress&gt;&gt;
+dcMessages</pre></div></div>
+When we cleaned out the MessageProducer stuff for 2.0, this
+code
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">                    Multimap&lt;Message,
+InetAddress&gt; messages = dcMessages.get(dc);...                   
+messages.put(producer.getMessage(Gossiper.instance.getVersion(destination)),
+destination);</pre></div></div>
+turned into
+<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">                   
+Multimap&lt;MessageOut, InetAddress&gt; messages = dcMessages.get(dc);...                 
+  messages.put(rm.createMessage(), destination);</pre></div></div>
+Thus, we weren't
+actually grouping anything anymore &#8211; each destination replica was stored under a
+separate Message key, unlike under the old CachingMessageProducer.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Backport of 62f429337caf0aa83b68720a5904e8527b840c80 from 2.0 to fix. 
+
+
+New Comment: 
+Tested and fixed the issue. 
+
+
+New Comment: 
+The patch fixes the issue of bandwidth-saving.However, there seems to be two regressive
+issues being introduced.1. DC2 coordinator selection by the DC1 coordinator is not equal
+across all available nodes in DC2. Some nodes in DC2 are unused as coordinators.<br/>2.
+When using cqlsh, with EACH_QUORUM/ALL, with tracing on, on a row insert, RPC timeout
+occurs from a node that is not verifiable in the trace output.Trace output has been
+attached for a 6 node cluster, DC1:3, DC2:3 replication factor configuration.
+network-topology configuration is also attached for clarity. 
+
+
+New Comment: 
+<blockquote>Secondary DC coordinator node is always the same node. This introduces a
+bottleneck in the secondary DC.</blockquote>It's the same node for a given token range. 
+When all token ranges are considered, it is evenly spread.<blockquote>RPC timeout occurs
+from a node that is not verifiable in the trace output.</blockquote>Well.  That's not a
+very useful error message, is it. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+.55 is the forwarding node in DC2.  It logs that it applies the mutation and acks it:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>    Enqueuing response to /192.168.56.50 | 05:57:33,825 | 192.168.56.55
+|          14785</pre></div></div>But there is no "Processing response from
+/192.168.56.55" line logged by .50.  Hmm. 
+
+
+New Comment: 
+You're not running with cross_node_timeout enabled, are you?  Because some of these clocks
+are minutes apart.<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre># Enable operation timeout information
+exchange between nodes to accurately# measure request timeouts, If disabled cassandra will
+assuming the request# was forwarded to the replica instantly by the coordinator## Warning:
+before enabling this property make sure to ntp is installed# and the times are
+synchronized between the nodes.cross_node_timeout: false</pre></div></div> 
+
+
+New Comment: 
+I note that .55 doesn't ever log "Sending message" to .50 either.  So the message is
+getting dropped somewhere inside .55's MessagingService.cross_node_timeout is my best
+guess.  Next-best guess is that there's a reconnect somehow dropping the message a la <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5393" title="Add retry mechanism to
+OTC for non-droppable_verbs" class="issue-link"
+data-issue-key="CASSANDRA-5393"><del>CASSANDRA-5393</del></a>. 
+
+
+New Comment: 
+v2 attached that rebases and does some further cleanup to improve trace messages. 
+
+
+New Comment: 
+other than simple FF, +LGTM-import org.apache.cassandra.tracing.Tracing;<br/>+import
+org.apache.cassandra.tracing.4Tracing; 
+
+
+New Comment: 
+Committed.  That should give Hayato an easier way to test at least. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+It seems that issue 1. in my earlier comment was fixed with 1.2.5 by Yuki (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-5424" title="nodetool repair -pr on
+all nodes won&#39;t repair the full range when a Keyspace isn&#39;t in all DC&#39;s"
+class="issue-link" data-issue-key="CASSANDRA-5424"><del>CASSANDRA-5424</del></a>), where
+in 1.2.4 NetworkTopologyStrategy.calculateNaturalEndpoints HashSet replicas was changed to
+LinkedHashSet, so please ignore. 
+
+
+New Comment: 
+I've <a href="https://github.com/riptano/cassandra-dtest/pull/13/files"
+class="external-link" rel="nofollow">written a dtest</a> that automates the testing of
+this issue.This test clearly shows that the coordinator was talking to more than one node
+in a different datacenter, and the patch resolves that issue. It also verifies that <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=hayato.shimizu"
+class="user-hover" rel="hayato.shimizu">Hayato Shimizu</a>'s comment about using the same
+forwarder is not happening now.<a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a> - I noticed in your <a
+href="http://www.datastax.com/dev/blog/advanced-request-tracing-in-cassandra-1-2"
+class="external-link" rel="nofollow">blog post about tracing</a> you said not to rely on
+the activity field, well, that's exactly what I'm doing here. So, +1 to the idea of making
+those enums so this doesn't break in the future. 
+
+
+New Comment: 
+Thanks, Ryan.  Go ahead and create a ticket for that and I'll put my next junior hire on
+it. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Do you have an "affects" version for this issue? Description says it started when a
+re-write for 2.0 started, but it affects 1.2.x so I'm confused? <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/biggrin.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+

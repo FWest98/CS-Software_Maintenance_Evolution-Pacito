@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 64621c76a3b99a9655bb708f88f434b6f158795e
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3858.txt 
+
+commit 64621c76a3b99a9655bb708f88f434b6f158795e
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge CASSANDRA-2512 from 0.7

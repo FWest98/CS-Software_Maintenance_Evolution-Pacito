@@ -1,0 +1,17 @@
+Pattern changes caused by commit: a9bae999032d488d426daad8c3008e4ecc2fd58d
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-349.txt 
+
+commit a9bae999032d488d426daad8c3008e4ecc2fd58d
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-762. Balancer causes Null Pointer Exception.
+    (Cristian Ivascu via dhruba)

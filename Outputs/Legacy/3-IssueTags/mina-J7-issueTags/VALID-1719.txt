@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 9e8a792ba1f8d50b74af9e2bd7389f2671fa9f94
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1719.txt 
+
+commit 9e8a792ba1f8d50b74af9e2bd7389f2671fa9f94
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Increased timeout to avoid potential wrong failures of the test

@@ -1,0 +1,106 @@
+Pattern changes caused by commit: e08265eaa95f9158c007b5db5499c3a93be3d28e
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1323.txt 
+
+commit e08265eaa95f9158c007b5db5499c3a93be3d28e
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-529 - use isPrimitive() instead of comparing the string to a list of primitives
+    * Replaced hashmap lookup for primitive type names with Class.isPrimitive()
+
+
+
+==================================
+ Issue DIRMINA-529 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-529] use isPrimitive() instead of comparing the string to a list of primitives
+-----------------
+
+-----------------
+Summary: use isPrimitive() instead of comparing the string to a list of primitives
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 7 Feb 2008 10:55:20 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 12 Mar 2008 03:00:53 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+isPrimitive is a native function and should be used to determine whether a class is
+primitive instead of comparing to a list of known primitive class names
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Hi,I am not sure I am allowed to paste code into this comment field so I will try to
+describe another approach in words. Looking at the patch, it seems you can get the actual
+Class object for free, so why not just identify-compare that to the Class objects for the
+primitive types? You avoid the overhead of a native call, and being pure java, I think
+(pure speculation) that the JIT would have an easier time compiling it. This is obviously
+just an extreme mini optimization (compared to the patch) but I thought I would chime in
+regardless <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Thanks for the patch.  It has been applied to the trunk. 
+
+
+New Comment: 
+I'm not sure that isPrimitive() is slower than if - else if - ... block.  Any benchmark
+report is appreciated. 
+
+
+New Comment: 
+Here's a simple benchmark between the two methods. Ran under jdk1.6.0_3, output is
+:Elapsed method 1 = 531<br/>Elapsed method 2 = 1297 
+
+
+New Comment: 
+I find it quite surprising that the existing method is actually better! and just to serve
+my own ego I extended the benchmark with my method. The results are:Elapsed method 1 =
+178816721<br/>Elapsed method 2 = 571406491<br/>Elapsed method 3 =
+136158715<br/>java.vm.version=1.6.0_02-b05<br/>java.vm.name=Java HotSpot(TM) 64-Bit Server
+VM<br/>os.name=Windows Vista<br/>trueAnd given that it is a mini benchmark I tried to move
+them around a little and got this also:Elapsed method 3 = 76254315<br/>Elapsed method 1 =
+190396475<br/>Elapsed method 2 =
+604831410<br/>java.vm.version=1.6.0_02-b05<br/>java.vm.name=Java HotSpot(TM) 64-Bit Server
+VM<br/>os.name=Windows Vista<br/>trueNot sure why this is the case. Any ideas?Will try to
+attach the extended and slightly altered benchmark. 
+
+

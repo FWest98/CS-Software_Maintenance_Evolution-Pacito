@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 4355aa877f29b653614cb801a2b57861f4cef428
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7651.txt 
+
+commit 4355aa877f29b653614cb801a2b57861f4cef428
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: fix widerow input with single column rows
+    Patch by Will Oberman, reviewed by brandonwilliams for CASSANDRA-4789

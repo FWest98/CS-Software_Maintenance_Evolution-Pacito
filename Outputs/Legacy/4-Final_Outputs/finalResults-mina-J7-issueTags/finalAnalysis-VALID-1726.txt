@@ -1,0 +1,138 @@
+Pattern changes caused by commit: 4e618741ff1ac4a76ce3d713d221dbb9e19532fa
+
+From: Facade-4
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1726.txt 
+
+commit 4e618741ff1ac4a76ce3d713d221dbb9e19532fa
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Fix for DIRMINA-718
+
+
+
+==================================
+ Issue DIRMINA-718 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-718] Sometimes AbstractIoSession.toString() invoked java.net.SocketException
+-----------------
+
+-----------------
+Summary: Sometimes AbstractIoSession.toString() invoked java.net.SocketException
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 16 Jun 2009 05:06:19 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Jun 2009 07:40:47 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+Sometimes AbstractIoSession.toString() method invoked java.net.SocketException.
+
+That was
+java.lang.Error. so my program was exited.
+
+I think this problem was continuing since
+2.0M2 or 3
+
+
+=======================================================================================================
+
+java.lang.Error:
+java.net.SocketException: Socket operation on nonsocket: getsockname<br/> at
+sun.nio.ch.Net.localAddress(Net.java:125)<br/> at
+sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:430)<br/> at
+sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)<br/> at
+java.net.Socket.getLocalSocketAddress(Socket.java:697)<br/> at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:158)<br/>
+at
+org.apache.mina.transport.socket.nio.NioSocketSession.getLocalAddress(NioSocketSession.java:1)<br/>
+at
+org.apache.mina.core.session.AbstractIoSession.toString(AbstractIoSession.java:1147)<br/>
+at java.lang.String.valueOf(String.java:2827)<br/> at
+java.lang.StringBuilder.append(StringBuilder.java:115)<br/> at
+com.rontab.bake.net.ClientEventAbstract.sendServer(ClientEventAbstract.java:256)<br/> at
+com.rontab.bake.net.ClientEventAbstract.send(ClientEventAbstract.java:241)<br/> at
+com.rontab.bake.net.protocols.room.PCreateRoom.sendMakeRoom(PCreateRoom.java:193)<br/> at
+com.rontab.bake.bui.comp.roomlist.createroom.CreateRoomEventProcessor.makeRoom(CreateRoomEventProcessor.java:53)<br/>
+at
+com.rontab.bake.bui.comp.roomlist.createroom.CreateRoomCont.roomSetting(CreateRoomCont.java:371)<br/>
+at
+com.rontab.bake.bui.comp.roomlist.createroom.CreateRoomCont.createRoom(CreateRoomCont.java:383)<br/>
+at
+com.rontab.bake.bui.comp.roomlist.createroom.CreateRoomCont$3.mouseReleased(CreateRoomCont.java:219)<br/>
+at com.jmex.bui.event.MouseEvent.dispatch(MouseEvent.java:209)<br/> at
+com.jmex.bui.BComponent.dispatchEvent(BComponent.java:789)<br/> at
+com.jmex.bui.BRootNode.dispatchEvent(BRootNode.java:469)<br/> at
+com.jmex.bui.PolledRootNode$2.dispatchEvent(PolledRootNode.java:268)<br/> at
+com.jmex.bui.PolledRootNode$2.onButton(PolledRootNode.java:237)<br/> at
+com.jme.input.lwjgl.LWJGLMouseInput.update(LWJGLMouseInput.java:233)<br/> at
+com.jme.input.InputSystem.update(InputSystem.java:67)<br/> at
+com.rontab.bim.app.RontabGame.start(RontabGame.java:78)<br/> at
+com.rontab.bake.Bake.main(Bake.java:177)<br/>Caused by: java.net.SocketException: Socket
+operation on nonsocket: getsockname<br/> at sun.nio.ch.Net.localInetAddress(Native
+Method)<br/> at sun.nio.ch.Net.localAddress(Net.java:122)<br/> ... 24 more
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Seems this issue has already been addressed in <a
+href="https://issues.apache.org/jira/browse/DIRMINA-677" title="AbstractIoSession
+sometimes throws java.lang.Error in toString()" class="issue-link"
+data-issue-key="DIRMINA-677"><del>DIRMINA-677</del></a><a
+href="https://issues.apache.org/jira/browse/DIRMINA-677" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-677</a> 
+
+
+New Comment: 
+Yes. I saw thatBut, this problem invoked on MINA-M6. 
+
+
+New Comment: 
+does it happens all the time ?Otherwise it might be a side effect : the session is in
+closing state, and is closed when we try to print data. 
+
+
+New Comment: 
+Applied a patch : <a href="http://svn.apache.org/viewvc?rev=785102&amp;view=rev"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=785102&amp;view=rev</a>to fix the issue.
+If the session is disconnecting, we might have had some exception while trying to
+accessdata from a  closed socket, which are now trapped. 
+
+

@@ -1,0 +1,175 @@
+Pattern changes caused by commit: cb71747c88efc7ad3e7dda67316855d6571aadfc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3425.txt 
+
+commit cb71747c88efc7ad3e7dda67316855d6571aadfc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add incremental_backups option
+    patch by Yang Yang and jbellis for CASSANDRA-1872
+
+
+
+==================================
+ Issue CASSANDRA-1872 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1872] Provide ability send notifications via JMX when an SSTable is written
+-----------------
+
+-----------------
+Summary: Provide ability send notifications via JMX when an SSTable is written
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 16 Dec 2010 23:58:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Mar 2011 18:05:57 +0000
+-----------------
+
+-----------------
+Assigned to: Yang Yang
+-----------------
+
+-----------------
+Description: 
+
+One application of interest is the immediate backup of new SSTables. Relying on JMX's
+MBeanNotificationInfo would be a minimally intrusive to add "listeners" to CFS to
+facilitate this. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+we add a hook onto addSSTable() so that we send all meta info about  the files related to
+that SSTable through JMX  notification.this code is not concerned with how to receive or
+make use of such notifications. the user is free to utilize them at whatever ways they
+want. though currently in house we have custom code to back them up onto Amazon S3. 
+
+
+New Comment: 
+patch against 0.7.0note that the test needs jmockit-0.999.5.jaryou can download it from <a
+href="http://code.google.com/p/jmockit/downloads/list" class="external-link"
+rel="nofollow">http://code.google.com/p/jmockit/downloads/list</a>I'll also attach a copy
+here 
+
+
+New Comment: 
+same file as from <a
+href="http://code.google.com/p/jmockit/downloads/detail?name=jmockit-0.999.5.zip&amp;can=2&amp;q="
+class="external-link"
+rel="nofollow">http://code.google.com/p/jmockit/downloads/detail?name=jmockit-0.999.5.zip&amp;can=2&amp;q=</a> 
+
+
+New Comment: 
+Out of curiosity provably stemming from lack of JMX knowledge, how do you ensure that you
+don't miss events (under the assumption that one cannot guarantee to be connected to the
+JVM at all times); does one not need to have some kind of periodic fallback to iterating
+the file system anyway? 
+
+
+New Comment: 
+I have the same question &#8211; relying on this seems like a great way to get
+<b>almost</b> all the data backed up, which could be Bad.Seems to me like crawling the FS
+(w/ snapshot?) would be more robust. 
+
+
+New Comment: 
+sorry guys I didn't get any email triggers for comments here, so have been late in
+reply.the notification missing is indeed possible. but it's practically impossible if you
+setup the listener on the same host as cassandra/JMX server.in the rare event that data is
+lost, we do use this in conjunction with complete snapshot backup, so we could just cut a
+new, clean snapshot, and add the incrementals from there on. to automatically verify the
+validity of the incrementals, something more needs to be worked out, for example, keeping
+a persistent, monotonically increasing sequence number for all the SSTables. but that's
+probably an overkill for the slight danger of missing one. crawling the FS was indeed one
+of our original thoughts, but here you face the issue that you could lose the fresh
+level-0 SStables after they are compacted, before the crawling operation is executed
+periodically. also you could face a change in the physical dir layout.  Thanks <br/>Yang 
+
+
+New Comment: 
+<blockquote>the notification missing is indeed possible. but it's practically impossible
+if you setup the listener on the same host as cassandra/JMX server.  in the rare event
+that data is lost, we do use this in conjunction with complete snapshot
+backup</blockquote>The problem is that you can miss things without <em>knowing</em> you
+missed them.  That's why it's so dangerous.<blockquote>crawling the FS was indeed one of
+our original thoughts, but here you face the issue that you could lose the fresh level-0
+SStables after they are compacted</blockquote>It sounds like in this case you still have a
+window of a race where you tell the listener "new SSTable X is available" and by the time
+the listener goes to back it up it's been compacted.  Granted, this is unlikely, but it is
+technically possible.As an alternative, what if we added an option to "snapshot" (that is,
+hard link &#8211; not a full snapshot of the entire CF) newly-flushed sstables somewhere
+so a backup script can get an easy guarantee of seeing them without any interference? 
+
+
+New Comment: 
+Thanks Jonathan.here is the patch to do hardlink before the minor compaction is submitted
+, in addSStable().    then we have the hard links in
+data_file_location/backup/KS/cf-file-name-same-as-originalwe will scrape the dir later to
+find these files. so the notification mechanism is not used anymore.(in fact we were using
+the hardlink approach before with the JMX notification , kind of similar)Yang 
+
+
+New Comment: 
+immediately hardlink the fresh level-0 sstables to a separate dir, to be used for backup
+later. 
+
+
+New Comment: 
+Thanks for the patch!  I made a few changes:<ul class="alternate"
+type="square">	<li>changed config directive to "incremental_backups" and documented in
+conf/cassandra.yaml</li>	<li>converted unix paths to cross-platform File
+apis</li>	<li>moved backups dir into data/ so it is located next to
+snapshots</li>	<li>simplified linking in addSSTable</li></ul>How does that look? 
+
+
+New Comment: 
+Thanks Jonathan.<br/>with your change in the dir layout, it is indeed cleaner.but your
+latest patch does not loop over all the components. so SStable.getFilename() only gives
+you the -Data.db file, and not the Index.db, statistics.db etc.<br/>I have seen the system
+complain in tests, if such files are not restored together.so you may want to add the loop
+over componentsYang 
+
+
+New Comment: 
+sstable.createLinks is responsible for looping over the components 
+
+
+New Comment: 
+I see, the patch looks all good. thanks! 
+
+
+New Comment: 
+committed 
+
+

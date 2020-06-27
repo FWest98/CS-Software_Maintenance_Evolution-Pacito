@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 751e58d1e7ae4094d31d7b0122c2800066f36399
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7457.txt 
+
+commit 751e58d1e7ae4094d31d7b0122c2800066f36399
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: flush capture output after every command.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4073
+
+
+
+==================================
+ Issue CASSANDRA-4073 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4073] cqlsh: flush CAPTURE output after each command
+-----------------
+
+-----------------
+Summary: cqlsh: flush CAPTURE output after each command
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 22 Mar 2012 17:40:43 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 13 Sep 2012 19:23:21 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+In cqlsh A user might want to enable capturing, run a command, and then go look at the
+file to see the output. This workflow could be useful, for instance, where the output is
+large. Internal buffering forces the user to turn capture off each time he or she wants to
+see the output.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Changes made in the 4073 branch in my github clone:<a
+href="http://github.com/thepaul/cassandra/tree/4073" class="external-link"
+rel="nofollow">http://github.com/thepaul/cassandra/tree/4073</a>Current version tagged
+pending/4073. 
+
+

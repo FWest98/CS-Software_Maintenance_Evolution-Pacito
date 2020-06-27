@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 99ad7d60012c05e98754ca8c5730d865ffe024e8
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6880.txt 
+
+commit 99ad7d60012c05e98754ca8c5730d865ffe024e8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    debug logging

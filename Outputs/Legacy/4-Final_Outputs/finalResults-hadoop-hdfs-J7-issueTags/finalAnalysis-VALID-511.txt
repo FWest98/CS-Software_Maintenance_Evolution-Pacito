@@ -1,0 +1,435 @@
+Pattern changes caused by commit: 8e4290091bbf9d4dfb01406d08987b5bffc15ad7
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-511.txt 
+
+commit 8e4290091bbf9d4dfb01406d08987b5bffc15ad7
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-1114. Implement LightWeightGSet for BlocksMap in order to reduce NameNode memory footprint.
+
+
+
+==================================
+ Issue HDFS-1114 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1114] Reducing NameNode memory usage by an alternate hash table
+-----------------
+
+-----------------
+Summary: Reducing NameNode memory usage by an alternate hash table
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 28 Apr 2010 08:13:35 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Jun 2010 21:58:25 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+NameNode uses a java.util.HashMap to store BlockInfo objects.  When there are many blocks
+in HDFS, this map uses a lot of memory in the NameNode.  We may optimize the memory usage
+by a light weight hash table implementation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+In Java 1.6, java.util.HashMap has an array of HashMap.Entry<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-comment">//HashMap</span>    <span
+class="code-keyword">transient</span> Entry[] table;</pre></div></div>where HashMap.Entry
+has the following members<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-comment">//HashMap.Entry</span>        <span class="code-keyword">final</span>
+K key;        V value;        Entry&lt;K,V&gt; next;        <span
+class="code-keyword">final</span> <span class="code-object">int</span>
+hash;</pre></div></div>In the BlocksMap, we have the following invariants<ul
+class="alternate" type="square">	<li>K == V == BlockInfo</li>	<li>key == value, i.e. they
+point to the same BlockInfo object.</li></ul>Therefore, we may reduce the memory footprint
+by<ol>	<li>eliminating HashMap.Entry class</li>	<li>keeping only one object
+reference</li>	<li>possibly eliminating next and hash</li></ol>Will provide more design
+details. 
+
+
+New Comment: 
+The data structure we need in BlocksMap is a GettableSet.<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">/** * A set which supports the get operation. * @param &lt;E&gt; The
+type of the elements. */<span class="code-keyword">public</span> <span
+class="code-keyword">interface</span> GettableSet&lt;E&gt; <span
+class="code-keyword">extends</span> Iterable&lt;E&gt; {  /**   * @<span
+class="code-keyword">return</span> the size of <span class="code-keyword">this</span> set.
+  */  <span class="code-object">int</span> size();  /**   * @<span
+class="code-keyword">return</span> <span class="code-keyword">true</span> <span
+class="code-keyword">if</span> the given element equals to a stored element.   *        
+Otherwise, <span class="code-keyword">return</span> <span
+class="code-keyword">false</span>.   */  <span class="code-object">boolean</span>
+contains(<span class="code-object">Object</span> element);  /**   * @<span
+class="code-keyword">return</span> the stored element <span class="code-keyword">if</span>
+there is any.  Otherwise, <span class="code-keyword">return</span> <span
+class="code-keyword">null</span>.   */  E get(<span class="code-object">Object</span>
+element);  /**   * Add the given element to <span class="code-keyword">this</span> set.  
+* @<span class="code-keyword">return</span> the previous stored element <span
+class="code-keyword">if</span> there is any.   *         Otherwise, <span
+class="code-keyword">return</span> <span class="code-keyword">null</span>.   */  E add(E
+element);  /**   * Remove the element from the set.   * @<span
+class="code-keyword">return</span> the stored element <span class="code-keyword">if</span>
+there is any.  Otherwise, <span class="code-keyword">return</span> <span
+class="code-keyword">null</span>.   */  E remove(<span class="code-object">Object</span>
+element);}</pre></div></div> 
+
+
+New Comment: 
+Do you have an estimate on how much space this will save in NN's memory footprint? 
+
+
+New Comment: 
+I believe we can save from 24 to 40 bytes per entry. It depends on the chosen
+implementation (will give more details later).In a large clusters, there are ~60m blocks.
+Then, we may save from 1.5GB to 2.5GB NN memory. 
+
+
+New Comment: 
+GSet20100525.pdf: a design doc. 
+
+
+New Comment: 
+Thanks Suresh that he found out an interesting post explaining <a
+href="http://www.roseindia.net/javatutorials/javahashmap.shtml" class="external-link"
+rel="nofollow">why java.util.HashMap uses power of two table length</a>. 
+
+
+New Comment: 
+<ol>	<li>Not using supplemental hash function will result in severe clustering when we
+move to sequential block IDs (as only higher bits are used for hash).</li>	<li>Why do we
+need configurability of either using java HashMap or this new
+implementation?	<ul>		<li>With new impl, BlockInfo implements LinkedElement interface. On
+switching to java HashMap would it continue to implement this interface and incur the cost
+of <tt>next</tt> member in BlockInfo?</li>	</ul>	</li>	<li>In "Arrays" section the GC
+behavior description was not clear. Not sure how the GC behavior is better with
+arrays?</li>	<li>Static array size for the map simplifies the code, but pushes complexity
+to the cluster admin by adding one more configuration. This configuration is an internal
+implementation detail which a cluster admin may not understand and get it right. If it
+configured wrong and the cluster continues to work, cluster admin may not be aware of
+performance degradation.</li>	<li>I feel we should implement resizing to avoid introducing
+config param. It is a rare event on a stable cluster.  NN has enough heap head room to
+account for floating garage and YG guarantee. Hence availability of memory should not be
+an issue. Worst case scenario, resize may trigger a full GC.</li>	<li>If we implement
+resizing we should also think about 2^N table size as it has potential to waste a lot of
+memory during doubling, especially considering millions of entries in the table.</li></ol> 
+
+
+New Comment: 
+Suresh, thanks for your comment.  I will update the design doc soon.h1114_20100607.patch:
+LightWeightGSet<ul class="alternate" type="square">	<li>Not yet changed
+BlocksMap</li>	<li>Need more tests and decrease the test running time (currently is ~15
+minutes).</li></ul> 
+
+
+New Comment: 
+&gt; 1.  Not using supplemental hash function will result in severe clustering when we
+move to sequential block IDs (as only higher bits are used for hash).It is not a problem
+in our case because the hashCode() implematation in Block uses both higher and lower bits
+of the block ID.&gt; 3. In "Arrays" section the GC behavior description was not clear. Not
+sure how the GC behavior is better with arrays?The GC algorithm traverses the objects to
+determine which objects can be garbage collected.  The GC behavior is better in arrays in
+the sense that there are fewer references in arrays.&gt; 2, 4, 5 &amp; 6All this items are
+related to configuration and the hash table length.  See the new design
+doc.gset20100608.pdf: rewrote Section 7 
+
+
+New Comment: 
+if you are using a power of two hash table, you can avoid problems caused by hash value
+clustering by using a Fibonacci Hash.   Essentially, use the multiplicative hash with a
+special value g:(h * g) &amp; maskwhere h is the hash value and g is the 'golden ratio'
+number for the size of the table used.  Since multiplication on today's processors is far
+faster than division or remainders, this can be used to 'uncluster' hash values.  A single
+consecutive run of values gets maximally distributed into the space, and high and low bits
+are redistributed evenly so that the mask does not increase collisions.  Whether this is a
+desired property or not will depend on the properties of the hash values and whether or
+not an open addressing solution is used.Open addressing can further reduce the memory
+footprint by allowing the raw object to be placed in the map instead of a container object
+or list.some links found from a few searches:<br/><a
+href="http://www.brpreiss.com/books/opus4/html/page214.html" class="external-link"
+rel="nofollow">http://www.brpreiss.com/books/opus4/html/page214.html</a><br/><a
+href="http://staff.newport.ac.uk/ctubb01/ct/advp/hashtables.pdf" class="external-link"
+rel="nofollow">http://staff.newport.ac.uk/ctubb01/ct/advp/hashtables.pdf</a> 
+
+
+New Comment: 
+Scott, thanks for your comments and the useful links.Since Block IDs are random, we don't
+need the extra computation in our case.  For general hash table implementation, it is
+definitely a good idea. 
+
+
+New Comment: 
+h1114_20100614b.patch:<ul class="alternate" type="square">	<li>changed BlocksMap and
+BlockInfo in order to use LightWeightGSet.</li>	<li>changed TestGSet for faster execution
+time.  It took 3.141 seconds in my machine.</li>	<li>added new tests for the exception
+cases.</li></ul>Have run a large set of tests (see TestGSet.runMultipleTestGSet()) with
+various parameters.  It took 5.5 hours and passed all tests. 
+
+
+New Comment: 
+h1114_20100615.patch: added close().  Otherwise, some tests will fail with OutOfMemory. 
+
+
+New Comment: 
+<ol>	<li>BlocksMap.java	<ul>		<li>typo exponient. Should be exponent?</li>		<li>Capacity
+should be divided by a reference size 8 or 4 depending on the 64bit or 32bit java
+version</li>		<li>Current capacity calculation seems quite complex. Add more explanation
+on why it is implemented that
+way.</li>	</ul>	</li>	<li>LightWeightGSet.java	<ul>		<li>"which uses a hash table for
+storing the elements" should this say "uses array"?</li>		<li>Add a comment that the size
+of entries is power of two</li>		<li>Throw HadoopIllegalArgumentException instead of
+IllegalArgumentException (for 20 version of the patch it could remain
+IllegalArugmentException)</li>		<li>remove() - for better readability no need for else if
+and else since the previous block returns</li>		<li>toString() - prints the all the
+entries. This is a bad idea if some one passes this object to Log unknowingly. If all the
+details of the HashMap is needed, we should have some other method such as dump() or
+printDetails() to do the same.</li>	</ul>	</li>	<li>TestGSet.java	<ul>		<li>In exception
+tests, instead of printing log when expected exception happened, print a log in
+Assert.fail(), like Assert.fail("Excepected exception was not thrown"). Check for
+exceptions should be more specific, instead Exception. It is also good idea to document
+these exceptions in javadoc for methods in GSet.</li>		<li>println should use Log.info
+instead of System.out.println?</li>		<li>add some comments to classes on what they do/how
+they are used</li>		<li>add some comments to GSetTestCase members denominator etc. and
+constructor</li>		<li>add comments to testGSet() on what each of the case is
+accomplishing</li>	</ul>	</li></ol> 
+
+
+New Comment: 
+Thanks for the detail review, Suresh.   1.  BlocksMap.javadone.   2.
+LightWeightGSet.javadone all except the follwoing.<ul>	<li>remove() - for better
+readability ...</li></ul>Implicit else is better the explicit else?   3.
+TestGSet.java<ul>	<li>In exception tests, ...</li></ul>Catching specific exceptions but I
+did not change the messages.<ul>	<li>println should use Log.info instead of
+System.out.println?</li></ul>No, print(..) and println(..) work together.<ul>	<li>add some
+comments to ...</li>	<li>add some comments to ...</li>	<li>add comments to
+...</li></ul>Added more some comments. 
+
+
+New Comment: 
+h1114_20100616b:<ul class="alternate" type="square">	<li>Rewrote codes on capacity
+computation</li>	<li>By following Java, throwing NPE instead of IllegalArugmentException
+when the parameter is null.</li>	<li>Split toString() to two methods.</li>	<li>Catching
+specific exception and added more comments on the test.</li></ul> 
+
+
+New Comment: 
+Hudson does not seem working.  It did not pick up my previous for a long time.  Re-submit. 
+
+
+New Comment: 
+<blockquote># Capacity should be divided by a reference size 8 or 4 depending on the 64bit
+or 32bit java version</blockquote>What about -XX:+UseCompressedOops ? All users should be
+using this flag on a 64 bit JVM to save a lot of space. It only works up to -Xmx32G
+though, beyond that its large pointers again. 
+
+
+New Comment: 
+&gt; What about -XX:+UseCompressedOops ? This is a good point.  Is there a way to
+determine if UseCompressedOops is set in runtime? 
+
+
+New Comment: 
+h1114_20100617.patch: the UnsupportedOperationException thrown in put(..) should be
+NullPointerException. 
+
+
+New Comment: 
+<ol>	<li>For figuring out 64 bit, should we consider the max heap size. If max heap size
+&gt; 2G consider it as 64 bit machine. Since max heap size on 32 bit machines vary, 1.4G
+to 2G, such machines in that range could be wrongly classified as 32 bit. Is this an
+alternative worth considering?</li>	<li>Minor: "print detail" to "print
+detailed"</li>	<li>Minor: For end of line comments should there be space after //. Java
+coding conventions explicitly do not talk about this though. Currently there 3043 comments
+with space after // and 384 without that <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/></li>	<li>Minor: In exceptions tests, in
+my previous comment, what I meant was you are better of printing to log in Assert.fail().
+Printing log when expected thing happens is not that useful. That said, this is minor, you
+can leave it as it is.</li>	<li>I am not sure what the point of commenting out 5 hours
+test is. When do we expect it to be uncommented and run? Should it be moved to some other
+test that is run as smoke test for release qualification?</li></ol> 
+
+
+New Comment: 
+h1114_20100617b.patch: slightly changed the comments and removed unnecessary spaces.I did
+not change the capacity calculation because the current computation is conservative on the
+special cases. 
+
+
+New Comment: 
+Try resubmitting. 
+
+
+New Comment: 
++1 for the patch. 
+
+
+New Comment: 
+Thanks Suresh.Hudson is not responding.  Ran tests locally<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>     [exec]
++1 overall.       [exec]      [exec]     +1 @author.  The patch does not contain any
+@author tags.     [exec]      [exec]     +1 tests included.  The patch appears to include
+17 new or modified tests.     [exec]      [exec]     +1 javadoc.  The javadoc tool did not
+generate any warning messages.     [exec]      [exec]     +1 javac.  The applied patch
+does not increase the total number of javac compiler warnings.     [exec]      [exec]    
++1 findbugs.  The patch does not introduce any new Findbugs warnings.     [exec]     
+[exec]     +1 release audit.  The applied patch does not increase the total number of
+release audit warnings.</pre></div></div>Passed all tests except TestFiHFlush sometimes
+fails; see <a href="https://issues.apache.org/jira/browse/HDFS-1206" title="TestFiHFlush
+fails intermittently" class="issue-link"
+data-issue-key="HDFS-1206"><del>HDFS-1206</del></a>. 
+
+
+New Comment: 
+I have committed this. 
+
+
+New Comment: 
+Ran some benchmarks.  When the modulus is large, which means that number of collisions is
+small, LightWeightGSet is much better than GSetByHashMap.<div class='table-wrap'><table
+class='confluenceTable'><tbody><tr><th class='confluenceTh'> datasize </th><th
+class='confluenceTh'> modulus </th><th class='confluenceTh'> GSetByHashMap</th><th
+class='confluenceTh'> LightWeightGSet</th></tr><tr><td class='confluenceTd'> 65536
+</td><td class='confluenceTd'> 1025 </td><td class='confluenceTd'> 219 </td><td
+class='confluenceTd'> 234</td></tr><tr><td class='confluenceTd'> 65536 </td><td
+class='confluenceTd'> 1048577 </td><td class='confluenceTd'> 516 </td><td
+class='confluenceTd'> 296</td></tr><tr><td class='confluenceTd'> 65536 </td><td
+class='confluenceTd'> 1073741825 </td><td class='confluenceTd'> 500 </td><td
+class='confluenceTd'> 281</td></tr><tr><td class='confluenceTd'> 262144 </td><td
+class='confluenceTd'> 1025 </td><td class='confluenceTd'> 1422 </td><td
+class='confluenceTd'> 1531</td></tr><tr><td class='confluenceTd'> 262144 </td><td
+class='confluenceTd'> 1048577 </td><td class='confluenceTd'> 3078 </td><td
+class='confluenceTd'> 2156</td></tr><tr><td class='confluenceTd'> 262144 </td><td
+class='confluenceTd'> 1073741825 </td><td class='confluenceTd'> 3094 </td><td
+class='confluenceTd'> 2281</td></tr><tr><td class='confluenceTd'> 1048576 </td><td
+class='confluenceTd'> 1025 </td><td class='confluenceTd'> 7172 </td><td
+class='confluenceTd'> 7313</td></tr><tr><td class='confluenceTd'> 1048576 </td><td
+class='confluenceTd'> 1048577 </td><td class='confluenceTd'> 13531 </td><td
+class='confluenceTd'> 9844</td></tr><tr><td class='confluenceTd'> 1048576 </td><td
+class='confluenceTd'> 1073741825 </td><td class='confluenceTd'> 14485 </td><td
+class='confluenceTd'> 10718</td></tr></tbody></table></div> 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #311 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/311/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/311/</a>)<br/>
+   <a href="https://issues.apache.org/jira/browse/HDFS-1114" title="Reducing NameNode
+memory usage by an alternate hash table" class="issue-link"
+data-issue-key="HDFS-1114"><del>HDFS-1114</del></a>. Implement LightWeightGSet for
+BlocksMap in order to reduce NameNode memory footprint. 
+
+
+New Comment: 
+Comparing memory footprint on a 32-bit VM over 1,000,000 elements<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> num 
+   #instances         #bytes  class name----------------------------------------------  
+1:       1000040       24000960  java.util.HashMap$Entry   2:       1000000       24000000
+ org.apache.hadoop.hdfs.util.TestGSet$IntElement   3:            23        8390960 
+[Ljava.util.HashMap$Entry;HashMap: 53.78 MB num     #instances         #bytes  class
+name----------------------------------------------   1:       1000000       24000000 
+org.apache.hadoop.hdfs.util.TestGSet$IntElement   2:             1        4194320 
+[Lorg.apache.hadoop.hdfs.util.LightWeightGSet$LinkedElement;LightWeightGSet: 26.89
+MB</pre></div></div> 
+
+
+New Comment: 
+Note that we should minus 4*1000000 ~= 4MB for HashMap since it does not require the
+reference for LightWeightGSet.LinkedElement. 
+
+
+New Comment: 
+benchmark20100618.patch: additional codes for benchmark and memory footprint measurement. 
+
+
+New Comment: 
+<blockquote>This is a good point. Is there a way to determine if UseCompressedOops is set
+in runtime?</blockquote>Well, there is
+ManagementFactory.getRuntimeMXBean().getInputArguments(), but later versions of Java are
+going to be making +UseCompressedOops the default.There is also a way to check if the VM
+is 64 bit or 32 bit, either its out of ManagementFactory or one of the system properties. 
+Digging around I don't see it, but I have used it before.  I think it is vendor specific
+though. 
+
+
+New Comment: 
+&gt; There is also a way to check if the VM is 64 bit or 32 bit, either its out of
+ManagementFactory or one of the system properties. Digging around I don't see it, but I
+have used it before. I think it is vendor specific though.I used
+System.getProperty("sun.arch.data.model") in the patch.  See <a
+href="http://java.sun.com/docs/hotspot/HotSpotFAQ.html#64bit_detection"
+class="external-link"
+rel="nofollow">http://java.sun.com/docs/hotspot/HotSpotFAQ.html#64bit_detection</a> 
+
+
+New Comment: 
+h1114_20100617b_y0.20.1xx.patch: for y0.20.1xx 
+
+
+New Comment: 
+Minor comment: TestGSet in Y20 version can be a junit4 test. You do not need to extend
+TestCase.+1 for the patch. 
+
+
+New Comment: 
+Thanks Suresh.h1114_20100617b2_y0.20.1xx.patch: used the original junit 4 TestGSet 
+
+
+New Comment: 
++1 for the new patch. 
+
+
+New Comment: 
+Ravi has done some performance analysis on Yahoo! production cluster fs image.46400490
+files &amp; directories , 70074790 blocks = 116475280<br/>FsImage Disk size - 7.5GB. <div
+class='table-wrap'><table class='confluenceTable'><tbody><tr><td
+class='confluenceTd'>&nbsp;</td><th class='confluenceTh'> heap size at NN startup </th><th
+class='confluenceTh'> fsimage loading time </th></tr><tr><td class='confluenceTd'> Without
+the patch </td><td class='confluenceTd'> 19.64 GB </td><td class='confluenceTd'> 603 s
+</td></tr><tr><td class='confluenceTd'> With the patch </td><td class='confluenceTd'>
+17.03 GB </td><td class='confluenceTd'> 577 s</td></tr><tr><td class='confluenceTd'> %
+improvement </td><td class='confluenceTd'> 13.2% </td><td class='confluenceTd'>
+4.3%</td></tr></tbody></table></div>Thanks Ravi! 
+
+
+New Comment: 
+gset20100702.pdf: added a result section. 
+
+

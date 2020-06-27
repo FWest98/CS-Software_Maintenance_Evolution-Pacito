@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 5bcfcbc3ed1bbaadcd0f6e373d0d207db38ec6c2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7070.txt 
+
+commit 5bcfcbc3ed1bbaadcd0f6e373d0d207db38ec6c2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow dropping columns shadowed by not-yet-expired supercolumn or row tombstones in PrecompactedRow
+    patch by jbellis; reviewed by slebresne for CASSANDRA-4396

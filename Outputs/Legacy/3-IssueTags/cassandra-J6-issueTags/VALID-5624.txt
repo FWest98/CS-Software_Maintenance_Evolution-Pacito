@@ -1,0 +1,16 @@
+Pattern changes caused by commit: cc63c8d1626668dec0a4c409669f18a8f79cf84c
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5624.txt 
+
+commit cc63c8d1626668dec0a4c409669f18a8f79cf84c
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add missing file for CASSANDRA-3563

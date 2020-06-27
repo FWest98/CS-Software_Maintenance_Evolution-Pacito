@@ -1,0 +1,29 @@
+Pattern changes caused by commit: d62f8c1e5f4a901652cd9dd7ef7f8ecb4b779450
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7187.txt 
+
+commit d62f8c1e5f4a901652cd9dd7ef7f8ecb4b779450
+Merge: e73b2a6 6f384c5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.1' into trunk

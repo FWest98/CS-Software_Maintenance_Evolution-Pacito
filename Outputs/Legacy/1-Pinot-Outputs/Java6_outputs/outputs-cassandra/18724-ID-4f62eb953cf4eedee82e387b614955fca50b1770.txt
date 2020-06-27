@@ -1,0 +1,79 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+DistributionInverted is a Decorator class
+setSeed is a decorate operation
+wrapped of type Distribution is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/tools/stress/src/org/apache/cassandra/stress/generate/DistributionInverted.java
+
+
+ Distribution
+Strategy Pattern.
+IndexEntry is the Context class.
+DecoratedKey is the Strategy interface.
+Concrete Strategy classes:  BufferDecoratedKey NativeDecoratedKey
+Delegation through indexValue of type DecoratedKey
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/index/internal/IndexEntry.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/db/DecoratedKey.java
+
+Strategy Pattern.
+RatioDistribution is the Context class.
+Distribution is the Strategy interface.
+Concrete Strategy classes:  DistributionFixed DistributionInverted DistributionBoundApache DistributionOffsetApache DistributionQuantized
+Delegation through distribution of type Distribution
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/tools/stress/src/org/apache/cassandra/stress/generate/RatioDistribution.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/tools/stress/src/org/apache/cassandra/stress/generate/Distribution.java
+
+Flyweight Pattern.
+DefaultNameFactory is a flyweight factory.
+GROUP_NAME is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/metrics/DefaultNameFactory.java
+
+Flyweight Pattern.
+ScheduledExecutors is a flyweight factory.
+scheduledFastTasks is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/concurrent/ScheduledExecutors.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      0
+Flyweight                   2
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    2
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 76
+Number of files processed: 1769
+Size of DelegationTable: 248
+Size of concrete class nodes: 37
+Size of undirected invocation edges: 10
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/2
+nFlyweightGoFVersion = 0

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: e90dcd51d010fbe4fa2e2de6b91a7b93cb3ac9ec
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8453.txt 
+
+commit e90dcd51d010fbe4fa2e2de6b91a7b93cb3ac9ec
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Make Ec2Region's datacenter name configurable
+    patch by Jason Brown; reviewed by Vijay for CASSANDRA-5155

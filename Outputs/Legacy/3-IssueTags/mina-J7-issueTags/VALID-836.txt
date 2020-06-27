@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 86d61335e5872c6639976ad5f60fd14c9e6205d7
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-836.txt 
+
+commit 86d61335e5872c6639976ad5f60fd14c9e6205d7
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-354 (Software grant for a KeepAlive functionality)
+    * Imported KeepAliveFilters.zip (with some FIXME comments)

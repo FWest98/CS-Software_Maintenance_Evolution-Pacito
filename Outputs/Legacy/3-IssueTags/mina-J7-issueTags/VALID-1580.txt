@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 734ba72b7b306894b5569a49e52dfb4f9f5a67e7
+
+From: Facade-4
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1580.txt 
+
+commit 734ba72b7b306894b5569a49e52dfb4f9f5a67e7
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Simplified a method by suppressing some useless test and branch.
+    o Using IoSession as an argument instead of AbstractIoSession for two methods
+    o Removed some method chaining to facilitate the debugging

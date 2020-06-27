@@ -1,0 +1,349 @@
+Pattern changes caused by commit: 53286d56f084270a457d8698785a189b8b410cc3
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3347.txt 
+
+commit 53286d56f084270a457d8698785a189b8b410cc3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix supercolumn de/serialization when subcolumn comparator is different from supercolumn's
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2104
+
+
+
+==================================
+ Issue CASSANDRA-2104 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2104] IndexOutOfBoundsException during lazy row compaction of supercolumns
+-----------------
+
+-----------------
+Summary: IndexOutOfBoundsException during lazy row compaction of supercolumns
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 3 Feb 2011 10:08:28 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 24 Feb 2011 19:09:55 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+I ran into an exception when lazily compacting wide rows of TimeUUID columns.<br/>It
+seems to trigger when a row is larger than
+<tt>in_memory_compaction_limit_in_mb</tt>.
+
+Traceback:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> INFO
+[CompactionExecutor:1] 2011-02-03 10:59:59,262 CompactionIterator.java (line 135)
+Compacting large row XXXXXXXXXXXXX (76999384 bytes) incrementally ERROR
+[CompactionExecutor:1] 2011-02-03 10:59:59,266 AbstractCassandraDaemon.java (line 114)
+Fatal exception in thread T hread[CompactionExecutor:1,1,main]
+java.lang.IndexOutOfBoundsException         at java.nio.Buffer.checkIndex(Buffer.java:514)
+        at java.nio.HeapByteBuffer.get(HeapByteBuffer.java:121)         at
+org.apache.cassandra.db.marshal.TimeUUIDType.compareTimestampBytes(TimeUUIDType.java:56)  
+      at org.apache.cassandra.db.marshal.TimeUUIDType.compare(TimeUUIDType.java:45)       
+ at org.apache.cassandra.db.marshal.TimeUUIDType.compare(TimeUUIDType.java:29)         at
+java.util.concurrent.ConcurrentSkipListMap$ComparableUsingComparator.compareTo(ConcurrentSkipListMap.java:606
+)         at
+java.util.concurrent.ConcurrentSkipListMap.findPredecessor(ConcurrentSkipListMap.java:685)
+        at
+java.util.concurrent.ConcurrentSkipListMap.doPut(ConcurrentSkipListMap.java:864)        
+at java.util.concurrent.ConcurrentSkipListMap.putIfAbsent(ConcurrentSkipListMap.java:1893)
+        at org.apache.cassandra.db.SuperColumn.addColumn(SuperColumn.java:170)         at
+org.apache.cassandra.db.SuperColumn.putColumn(SuperColumn.java:195)         at
+org.apache.cassandra.db.ColumnFamily.addColumn(ColumnFamily.java:221)         at
+org.apache.cassandra.io.LazilyCompactedRow$LazyColumnIterator.reduce(LazilyCompactedRow.java:204)
+        at
+org.apache.cassandra.io.LazilyCompactedRow$LazyColumnIterator.reduce(LazilyCompactedRow.java:185)
+        at
+org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:62)        
+at com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136) 
+       at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)   
+     at com.google.common.collect.Iterators$7.computeNext(Iterators.java:604)         at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136)    
+    at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)      
+  at org.apache.cassandra.db.ColumnIndexer.serializeInternal(ColumnIndexer.java:76)       
+ at org.apache.cassandra.db.ColumnIndexer.serialize(ColumnIndexer.java:50)         at
+org.apache.cassandra.io.LazilyCompactedRow.&lt;init&gt;(LazilyCompactedRow.java:88)       
+ at
+org.apache.cassandra.io.CompactionIterator.getCompactedRow(CompactionIterator.java:137)   
+     at org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:108)
+        at
+org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:43)        
+at org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:73)      
+  at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136)    
+    at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)      
+  at
+org.apache.commons.collections.iterators.FilterIterator.setNextObject(FilterIterator.java:183)
+        at
+org.apache.commons.collections.iterators.FilterIterator.hasNext(FilterIterator.java:94)   
+     at org.apache.cassandra.db.CompactionManager.doCompaction(CompactionManager.java:426)
+        at org.apache.cassandra.db.CompactionManager$1.call(CompactionManager.java:122)   
+     at org.apache.cassandra.db.CompactionManager$1.call(CompactionManager.java:92)       
+ at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)         at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)         at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+ at java.lang.Thread.run(Thread.java:662)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I believe you mentioned on the ML that you have data that compacts fine if you increase
+the in_memory limit, but not with lazy mode?If so, can you get me a copy of that sstable
+to test with?  I can set up a place for you to upload it privately if you can't make it
+public. 
+
+
+New Comment: 
+Unfortunately, I'm not at liberty to share that data, sorry. But I'm working on seeing if
+I can reproduce it with non-sensitive data...These are timeuuid cols, wide rows (100k or
+so cols, with a few multi-mb columns but mostly &lt;1k sizes). No validators.The instance
+in question had small memtable thresholds (32MB), a pretty low heap (6GB) but nothing out
+of the ordinary. 
+
+
+New Comment: 
+Any luck reproducing? 
+
+
+New Comment: 
+Nope, never managed to trigger it again.<br/>Closing this issue for now. 
+
+
+New Comment: 
+Hi Jonathan,I now have a python script that seems to be able to reproduce this after a few
+runs (it does not seem to always happen)<a
+href="http://jonas.borgstrom.se/cassandra/CASSANDRA-2104.txt" class="external-link"
+rel="nofollow">http://jonas.borgstrom.se/cassandra/CASSANDRA-2104.txt</a>I've tested this
+on an empty single node 0.7.2 cluster and default cassandra.yaml, except for
+in_memory_compaction_limit_in_mb=32 hoping that would make it easier to reproduce.A
+complete copy of the data directory (and config) after running the script a couple of
+times can be downloaded here:<br/><a
+href="http://jonas.borgstrom.se/cassandra/CASSANDRA-2104.tar.gz" class="external-link"
+rel="nofollow">http://jonas.borgstrom.se/cassandra/CASSANDRA-2104.tar.gz</a>And a copy of
+system.log from booting cassandra using this data directory:<br/><a
+href="http://jonas.borgstrom.se/cassandra/CASSANDRA-2104-system.log" class="external-link"
+rel="nofollow">http://jonas.borgstrom.se/cassandra/CASSANDRA-2104-system.log</a>Let me
+know if you need any more details. 
+
+
+New Comment: 
+Jonas, are you also seeing the error only on rows larger than in_memory_compaction_limit
+then? 
+
+
+New Comment: 
+Jonathan, yes that seems to be the case. For me key 3139 (19) seems to be the one
+triggering this. So increasing in_memory_compaction_limit enough to cover that key seems
+to do the trick. Even if some other keys are compacted incrementally. 
+
+
+New Comment: 
+I've done some more testing now and I'm ONLY able to reproduce this when using both super
+columns and the TimeUUIDType column comparator.After looking at the code TimeUUIDType
+seems to be the only marshaller that would actually notice (throw an exception) if its
+compare() method was called with a partial value (1-15 bytes in the case of UUIDs).So to
+me it looks like the incremental compactor sometimes sends corrupted/partial data to the
+marshaller, at least for super column families. This corrupted/partial data is silently
+ignored unless the TimeUUIDType marshaller is used. 
+
+
+New Comment: 
+I have a hard time reproducing (using your script). Do you use TimeUUIDType for the column
+or the super column names ? (I've tried both though).I'll continue trying. However, if you
+happen to have some SSTables that directly triggers it and that is smaller that the ones
+you added above, that would be awesome (I'm struggling making enough room on my laptop for
+the ones you attached above <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>).Anyway, thanks for taking time on this,
+I'll continue to try. 
+
+
+New Comment: 
+Hi Sylvain,The last time I reproduce it I used "create column family bar with
+column_type=Super and comparator=TimeUUIDType and subcomparator=UTF8Type;" and had to run
+the test case twice.Anyway here's a new data directory with only a subset of the sstables
+from the last dump. I get an exception in the log within seconds after issuing a "compact"
+command.<a href="http://jonas.borgstrom.se/cassandra/CASSANDRA-2104-v2.tar.gz"
+class="external-link"
+rel="nofollow">http://jonas.borgstrom.se/cassandra/CASSANDRA-2104-v2.tar.gz</a> (153kB
+compressed and 127MB uncompressed) 
+
+
+New Comment: 
+Thanks a lot Jonas, those new sstables were most useful.Turns out the problem was that we
+were using the wrong comparator when deserializing, so we were comparing the column using
+TimeUUIDType (instead of UTF8Type).Sadly, it could be that we were generating wrongly
+sorted on-disk superColumns. However any compaction with the attached patch should fix
+that anyway. 
+
+
+New Comment: 
+Attaching a unit test that exposes the bug (and confirm the fix) 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #321 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/321/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/321/</a>) 
+
+
+New Comment: 
+Hi,I'm also getting an IndexOutOfBounds exception when compacting.Here's the detailed
+error I get on screen when running "nodetool -h 10.3.133.10 compact":Error occured while
+compacting keyspace test<br/>java.util.concurrent.ExecutionException:
+java.lang.IndexOutOfBoundsException<br/>    at
+java.util.concurrent.FutureTask$Sync.innerGet(Unknown Source)<br/>    at
+java.util.concurrent.FutureTask.get(Unknown Source)<br/>    at
+org.apache.cassandra.db.CompactionManager.performMajor(CompactionManager.java:186)<br/>   
+at
+org.apache.cassandra.db.ColumnFamilyStore.forceMajorCompaction(ColumnFamilyStore.java:1678)<br/>
+   at
+org.apache.cassandra.service.StorageService.forceTableCompaction(StorageService.java:1248)<br/>
+   at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>    at
+sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)<br/>    at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)<br/>    at
+java.lang.reflect.Method.invoke(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.MBeanIntrospector.invokeM(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.PerInterface.invoke(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.MBeanSupport.invoke(Unknown Source)<br/>    at
+com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.invoke(Unknown Source)<br/>    at
+com.sun.jmx.mbeanserver.JmxMBeanServer.invoke(Unknown Source)<br/>    at
+javax.management.remote.rmi.RMIConnectionImpl.doOperation(Unknown Source)<br/>    at
+javax.management.remote.rmi.RMIConnectionImpl.access$200(Unknown Source)<br/>    at
+javax.management.remote.rmi.RMIConnectionImpl$PrivilegedOperation.run(Unknown Source)<br/>
+   at javax.management.remote.rmi.RMIConnectionImpl.doPrivilegedOperation(Unknown
+Source)<br/>    at javax.management.remote.rmi.RMIConnectionImpl.invoke(Unknown
+Source)<br/>    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>    at
+sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)<br/>    at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)<br/>    at
+java.lang.reflect.Method.invoke(Unknown Source)<br/>    at
+sun.rmi.server.UnicastServerRef.dispatch(Unknown Source)<br/>    at
+sun.rmi.transport.Transport$1.run(Unknown Source)<br/>    at
+java.security.AccessController.doPrivileged(Native Method)<br/>    at
+sun.rmi.transport.Transport.serviceCall(Unknown Source)<br/>    at
+sun.rmi.transport.tcp.TCPTransport.handleMessages(Unknown Source)<br/>    at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(Unknown Source)<br/>    at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(Unknown Source)<br/>    at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>    at
+java.lang.Thread.run(Unknown Source)<br/>Caused by:
+java.lang.IndexOutOfBoundsException<br/>    at java.nio.Buffer.checkIndex(Unknown
+Source)<br/>    at java.nio.HeapByteBuffer.getInt(Unknown Source)<br/>    at
+org.apache.cassandra.db.DeletedColumn.getLocalDeletionTime(DeletedColumn.java:57)<br/>   
+at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedStandard(ColumnFamilyStore.java:822)<br/>
+   at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedColumnsOnly(ColumnFamilyStore.java:809)<br/>
+   at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeleted(ColumnFamilyStore.java:800)<br/>  
+ at org.apache.cassandra.io.PrecompactedRow.&lt;init&gt;(PrecompactedRow.java:94)<br/>   
+at
+org.apache.cassandra.io.CompactionIterator.getCompactedRow(CompactionIterator.java:139)<br/>
+   at
+org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:108)<br/>   
+at org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:43)<br/> 
+  at
+org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:73)<br/>   
+at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136)<br/>
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)<br/>  
+ at
+org.apache.commons.collections.iterators.FilterIterator.setNextObject(FilterIterator.java:183)<br/>
+   at
+org.apache.commons.collections.iterators.FilterIterator.hasNext(FilterIterator.java:94)<br/>
+   at
+org.apache.cassandra.db.CompactionManager.doCompaction(CompactionManager.java:427)<br/>   
+at org.apache.cassandra.db.CompactionManager$3.call(CompactionManager.java:217)<br/>    at
+java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)<br/>    at
+java.util.concurrent.FutureTask.run(Unknown Source)<br/>    ... 3 moreAnd here's the error
+I'm getting in my log file:ERROR <span class="error">&#91;CompactionExecutor:1&#93;</span>
+2011-03-09 19:16:52,299 AbstractCassandraDaemon.java (line 114) Fatal exception in thread
+Thread<span
+class="error">&#91;CompactionExecutor:1,1,main&#93;</span><br/>java.lang.IndexOutOfBoundsException<br/>
+   at java.nio.Buffer.checkIndex(Unknown Source)<br/>    at
+java.nio.HeapByteBuffer.getInt(Unknown Source)<br/>    at
+org.apache.cassandra.db.DeletedColumn.getLocalDeletionTime(DeletedColumn.java:57)<br/>   
+at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedStandard(ColumnFamilyStore.java:822)<br/>
+   at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeletedColumnsOnly(ColumnFamilyStore.java:809)<br/>
+   at
+org.apache.cassandra.db.ColumnFamilyStore.removeDeleted(ColumnFamilyStore.java:800)<br/>  
+ at org.apache.cassandra.io.PrecompactedRow.&lt;init&gt;(PrecompactedRow.java:94)<br/>   
+at
+org.apache.cassandra.io.CompactionIterator.getCompactedRow(CompactionIterator.java:139)<br/>
+   at
+org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:108)<br/>   
+at org.apache.cassandra.io.CompactionIterator.getReduced(CompactionIterator.java:43)<br/> 
+  at
+org.apache.cassandra.utils.ReducingIterator.computeNext(ReducingIterator.java:73)<br/>   
+at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:136)<br/>
+   at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:131)<br/>  
+ at
+org.apache.commons.collections.iterators.FilterIterator.setNextObject(FilterIterator.java:183)<br/>
+   at
+org.apache.commons.collections.iterators.FilterIterator.hasNext(FilterIterator.java:94)<br/>
+   at
+org.apache.cassandra.db.CompactionManager.doCompaction(CompactionManager.java:427)<br/>   
+at org.apache.cassandra.db.CompactionManager$3.call(CompactionManager.java:217)<br/>    at
+java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)<br/>    at
+java.util.concurrent.FutureTask.run(Unknown Source)<br/>    at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)<br/>    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)<br/>    at
+java.lang.Thread.run(Unknown Source)I run Cassandra 0.7.2. We have 8 machines in the
+cluster, the error happens only on one machine. I'm not sure it's the same issue than this
+ticket but it's the only reference I found about compacting and IndexOutOfBounds. We're
+not inserting any SuperColumn in that database.Thanks for the help. 
+
+
+New Comment: 
+We upgraded to 0.7.3 and we still have the same error, so I guess it's a different problem
+<img class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/sad.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+

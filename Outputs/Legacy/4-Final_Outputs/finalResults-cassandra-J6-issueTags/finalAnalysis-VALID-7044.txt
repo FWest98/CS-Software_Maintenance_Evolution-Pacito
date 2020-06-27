@@ -1,0 +1,156 @@
+Pattern changes caused by commit: bc2dea8b67e783514f42d148541043c3d9fed1f3
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7044.txt 
+
+commit bc2dea8b67e783514f42d148541043c3d9fed1f3
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (cql3) allow updating column_alias types
+    patch by Pavel Yaskevich; reviewed by Sylvain Lebresne for CASSANDRA-4041
+
+
+
+==================================
+ Issue CASSANDRA-4041 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4041] Allow updating column_alias types
+-----------------
+
+-----------------
+Summary: Allow updating column_alias types
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Mar 2012 17:08:30 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 28 Jun 2012 13:10:20 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-3657" title="Allow extending
+CompositeType comparator" class="issue-link"
+data-issue-key="CASSANDRA-3657"><del>CASSANDRA-3657</del></a> has added the ability to
+change comparators (including parts of a compositeType) when compatible. The code of CQL3
+forbids it currently however so we should lift that limitation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+In the case of 'COMPACT STORAGE' we could also allow to add new part to the keys (i.e, to
+'extend' the composite type). Though given the current implementation, it wouldn't work
+when there is only one 'clustered' key since we don't use a comparator in that case (to
+save 2 bytes per-key basically). 
+
+
+New Comment: 
+<blockquote>to save 2 bytes per-key basically</blockquote>And because we don't have a way
+to differentiate between the two &#8211; the non-composite is reasonably common in
+"legacy" Thrift schemas. 
+
+
+New Comment: 
+Thinking about the syntax, good way probably would be to do "alter table &lt;cf&gt; add
+primary_key '&lt;new-column-name&gt;'", which would add the column definition to the end
+of composite comparator, what do you think? The easiest tho is to support "alter table
+&lt;cf&gt; with comparator = '&lt;col_1, col_2, col_3, ...&gt;'" which would require from
+users to specify all of the column names to be used in comparator or alternatively "alter
+table &lt;cf&gt; set primary_key '&lt;col_1, col_2, ...&gt;". 
+
+
+New Comment: 
+There is 2 things we can support here:<ol>	<li>Allow to modify the type of a given
+component of the comparator (say change UTF8Type to BytesType). For that, we'll probably
+just want to reuse the 'ALTER TABLE foo ALTER x TYPE blob' syntax.</li>	<li>Allow adding
+more components to the composite comparator. Not sure what is the best syntax for that but
+I would suggest something like 'ALTER TABLE foo EXTEND PRIMARY KEY WITH x int' to express
+we are really modifying the existing definition rather than setting a new one. That being
+said, given that this part will work only for compact composite table definition, which
+are supposed to be here for backward compatibility mostly, I wouldn't shed a tear if we
+don't support that at all.</li></ol> 
+
+
+New Comment: 
++1 for just supporting changing a component type 
+
+
+New Comment: 
+<ul>	<li>In<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>List&lt;AbstractType&lt;?&gt;&gt; newTypes =
+new ArrayList&lt;AbstractType&lt;?&gt;&gt;(((CompositeType) cfm.comparator).types){{   
+add(name.position, CFPropDefs.parseType(validator));}};</pre></div></div>it's set() that
+should be used, not add(). Nit: I'm not a fan of using the collection literal syntax in
+that case, especially when not using it takes half the number of
+lines.</li>	<li>CFMetadata.apply() already check whether the new comparator is compatible
+with the old one. So we should probably rely on that rather than duplicating the
+check.</li>	<li>Nit: CFMetadata.comparator is not final so we don't really need the new
+clone with comparator method.</li></ul>I've pushed a test for this in the dtests (test
+that doesn't pass with this patch because of the add instead of set). It would really be
+awesome though if everyone took the habit of adding one with every patch for a CQL fix/new
+feature. 
+
+
+New Comment: 
+changed "add" to "set" and removed clone and validation, there is no reason to use manual
+iteration where construction already gives that to us saving space. 
+
+
+New Comment: 
+I a bit misunderstood what you meant original so I removed {{ }} notation now and made set
+independent. 
+
+
+New Comment: 
+and removed "final" from the name definition <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1 
+
+

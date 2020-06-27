@@ -1,0 +1,19 @@
+Pattern changes caused by commit: b14ef62a12d72bc936947346de9baae5e4aed533
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4618.txt 
+
+commit b14ef62a12d72bc936947346de9baae5e4aed533
+Author: Eric Evans <eevans@apache.org>
+
+    add missing CQL counter documentation

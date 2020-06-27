@@ -1,0 +1,252 @@
+Pattern changes caused by commit: 95a086f0af38c8a3dafef630ea1eabcd37eb1c02
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5412.txt 
+
+commit 95a086f0af38c8a3dafef630ea1eabcd37eb1c02
+Merge: 143f1de 6adc7b7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add message expiration logic to OutboundTcpConnection
+    patch by Melvin Wang and jbellis for CASSANDRA-3005
+
+
+
+==================================
+ Issue CASSANDRA-3005 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3005] OutboundTcpConnection's sending queue grows unboundedly without any backpressure logic
+-----------------
+
+-----------------
+Summary: OutboundTcpConnection's sending queue grows unboundedly without any backpressure logic
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 8 Aug 2011 23:41:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 7 Nov 2011 23:35:21 +0000
+-----------------
+
+-----------------
+Assigned to: Michael Wu
+-----------------
+
+-----------------
+Description: 
+
+OutboundTcpConnection's sending queue unconditionally queues up the request and process
+them in sequence. Thinking about tagging the message coming in with timestamp and drop
+them before actually sending it if the message stays in the queue for too long, which is
+defined by the message's own time out value.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The goal here is to remove the expired messages as many as we can to avoid the queue going
+unbounded.Two places to do this.<br/>1) when we try to send the message, we drop it if it
+is already expired. This doesn't work if the connection is somehow slow because the queue
+may be piled up already. Thus we have<br/>2) when we enqueue a message we try to remove
+some expired messages as well. This is tricky because we now have two threads trying to
+remove from one queue. Although the operation on the queue is protected, w/o
+synchronization, we have enqueue() trying to remove a message which is not he peeked a
+moment ago (since it may already be removed from the queue by run()).To solve this w/o
+using lock, I use two queues. Whenever run() finishes one queue, it (and only it) will
+swap the pointers of queues to process the other one. ConcurrentLinkedQueue is implemented
+using a non-block algorithm, so we don't suffer much here. 
+
+
+New Comment: 
+The previous patch was not up-to-date. sorry for the confusion. 
+
+
+New Comment: 
+Rather than nesting the Pair objects, you should probably create <div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">class </span>Entry { Message message; <span
+class="code-object">String</span> id; <span class="code-object">long</span> timestamp
+}</pre></div></div> which will allow you to avoid boxing the long and the extra Pair. 
+
+
+New Comment: 
+Melvin, are you working on a patch incorporating Stu's feedback? 
+
+
+New Comment: 
+Sorry for the slackness. I got my hands really full these days. Incorporated Stu's
+feedback. 
+
+
+New Comment: 
+We experienced a bit of cascading on a high-write-throughput cluster that likely would
+have been alleviated by this, so one of us will be getting back on it soon. 
+
+
+New Comment: 
+The v2 version of the patch is ready for review now. 
+
+
+New Comment: 
+v2 still has a race if the sending thread swaps the queues between the peek and the poll
+in expire.v3 attached that attempts to fix this by using deques instead of queues, and
+simply putting the polled entry "back" at the front of the queue if a swap happened.v3
+also cleans out the condition (unnecessary if using a BlockingQueue/Deque) and the pending
+count (just uses sum of the two queues' size()). 
+
+
+New Comment: 
+<blockquote>v2 still has a race if the sending thread swaps the queues between the peek
+and the poll in expire.</blockquote>I don't think it is a race per se. If the sending
+thread swaps the two queues, we then stop expiring messages and break. If it doesn't, then
+'producer' is still pointing to the instance from which we peek. If the message we peek is
+meant be expired, and the sending thread swaps the queues, it will be dropped in run()
+anyway. The queues will only be swapped once 'consumer' is empty, i.e. nothing to send to
+the network.The point of this design is that we don't need to lock the queues whereas
+BlockingQueue/Deque locks it). The goal is to be lock-free. 
+
+
+New Comment: 
+<blockquote>I don't think it is a race per se. If the sending thread swaps the two queues,
+we then stop expiring messages and break.</blockquote>Here's the problem:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>+            Entry entry = producer.peek();+            if (entry ==
+null)+                break;+            if (entry.timestamp +
+DatabaseDescriptor.getRpcTimeout() &lt; System.currentTimeMillis()) {+                if
+(producer.poll() == null)+                    break;   // consumer swaps the pointers so
+we end up having an empty queue here.+            }</pre></div></div>poll() may be an
+unexpired entry, not the one peeked, if the sending thread switched queues and also took
+the front entry off in between the peek and the poll.  In other words: you still have the
+same problem you had to start with, just more subtle.<blockquote>The point of this design
+is that we don't need to lock the queues whereas BlockingQueue/Deque locks
+it</blockquote>Producer/consumer is what the concurrent.Blocking classes are designed for.
+ The "Blocking" means you can call take() and it will block until an entry is ready, not
+that it generates a lot of contention. 
+
+
+New Comment: 
+<blockquote>poll() may be an unexpired entry, not the one peeked, if the sending thread
+switched queues and also took the front entry off in between the peek and the poll. In
+other words: you still have the same problem you had to start with, just more
+subtle.</blockquote>The logic in run() guarantees that if the sending thread swaps, the
+queue pointed by 'producer' will be an empty one from which producer.poll() will yield
+'null' and we will break from there w/o any operation. 
+
+
+New Comment: 
+That may be safe if there is only ever a single producer, although it feels sketchy to me.
+ It's clearly broken though with multiple producers, which is what we need to support.  If
+a second producer adds a new Entry to the "empty" swapped producer queue, the first
+producer in the expire loop will happily discard it in poll(). 
+
+
+New Comment: 
+Agreed on the arguments in the case of multiple producers ( I believe it is right when
+there is a single producer). I'd like to give it another try. I will put the polled
+element back to the consumer queue. This may result an earlier message being put to the
+end of the queue if the sending thread swaps, however, all the messages in the consumer
+queue will be processed before we swap again. Since it is OK for us to drop messages,
+processing an earlier message later may not be that bad. 
+
+
+New Comment: 
+True, but why risk dropping something you don't have to when you can just use a deque? 
+
+
+New Comment: 
+by dropping you mean 'putting an earlier message to the end of the queue', right?  deque
+uses a lock when multiple threads trying to add messages to the end of the queue, while
+concurrentLinkedQueue is a lock-free implementation. Another point is that we want to drop
+messages (because they are timed out) at two places:<br/>1) where we send the message out
+to network<br/>2) where we add messages.<br/>The reason for this has been discussed some
+time ago, which is simply to prevent a backed-up queue hurting the system by having the
+system process already timed out messages.<br/>For deque, there will be contention when we
+sending messages out to network while we are trying to examine and remove timed out
+messages( when adding messages)Based on this consideration, I tried to use a lock-free
+implementation. I'll be boarding now. Will talk more after couple of hours. 
+
+
+New Comment: 
+I suspect you're committing premature optimization.  I've never seen LB<span
+class="error">&#91;Q|D&#93;</span> be a significant source of contention. 
+
+
+New Comment: 
+(sidenote: we should consider counting dropped messages on the sending side the same way
+we count them on the receiving side: in the dropped message counts in MessagingService.
+Alternatively, it might be good to count in both locations) 
+
+
+New Comment: 
+ok, i cannot say for sure that ConcurrentLinkedQueue performs better than
+LinkedBlockingQueue. v4 and v3 differs mainly in the underlying queue implementation which
+is not hard to change if it is a bottleneck. And I agree that in run()
+ConcurrentLinkedQueue + condition variable does look like a blocking queue, so we can
+settle this. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>  There is only one thing. Can we just
+append the element to 'active' rather than push back to 'backlog' in expireMessage? The
+reason (as I understand) is to save one round of racing to gain the lock to the beginning
+of 'backlog' because you need to race to get the lock to push at the beginning of queue
+then multiple threads will race to remove elements from the beginning of the queue as well
+(to expire messages), whereas you just race once to get the element to the end of 'active'
+which will remove elements in a single thread. 
+
+
+New Comment: 
+The reason I want to put it at the head is that minimizes the chance that this message
+would be timed out when it wouldn't have otherwise, by having to "wait in line" twice. 
+
+
+New Comment: 
+It's enough of a corner case that I don't think the lock contention matters much, compared
+to losing messages entirely (from being expired). 
+
+
+New Comment: 
+<blockquote>The reason I want to put it at the head is that minimizes the chance that this
+message would be timed out when it wouldn't have otherwise, by having to "wait in line"
+twice.</blockquote>Well, the way the code is structured is that all the messages in
+'active' comes before the ones in 'backlog' so putting it at the end of 'active' queue
+doesn't mean to have it wait since it has to be after those messages anyway. I agree it is
+not a major issue here though. 
+
+
+New Comment: 
+<blockquote>all the messages in 'active' comes before the ones in 'backlog'
+</blockquote>True enough.  v4 attached. 
+
+
+New Comment: 
++1// Thanks for the intelligent review comments. 
+
+
+New Comment: 
+Committed, thanks Melvin! 
+
+

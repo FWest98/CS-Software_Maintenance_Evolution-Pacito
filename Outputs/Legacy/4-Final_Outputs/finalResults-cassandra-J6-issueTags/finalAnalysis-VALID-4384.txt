@@ -1,0 +1,99 @@
+Pattern changes caused by commit: 36638db022ee422c344630f44ce2f7e2096e05c4
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4384.txt 
+
+commit 36638db022ee422c344630f44ce2f7e2096e05c4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Always use even distribution for merkle tree with RandomPartitionner
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2841
+
+
+
+==================================
+ Issue CASSANDRA-2841 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2841] Always use even distribution for merkle tree with RandomPartitionner
+-----------------
+
+-----------------
+Summary: Always use even distribution for merkle tree with RandomPartitionner
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 29 Jun 2011 19:03:27 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 30 Jun 2011 07:50:48 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+When creating the initial merkle tree, repair tries to be (too) smart and use the key
+samples to "guide" the tree splitting. While this is a good idea for OPP where there is a
+good change the data distribution is uneven, you can't beat an even distribution for the
+RandomPartitionner. And a quick experiment even shows that the method used is
+significantly less efficient than an even distribution for the ranges of the merkle tree
+(that is, an even distribution gives a much better of distribution of the number of keys
+by range of the tree).
+
+Thus let's switch to an even distribution for RandomPartitionner.
+That 3 lines change alone amounts for a significant improvement of repair's precision.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch is against 0.7. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #518 (See <a
+href="https://builds.apache.org/job/Cassandra-0.7/518/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.7/518/</a>)<br/>    Always use
+even distribution for merkle tree with RandomPartitionner<br/>patch by slebresne; reviewed
+by jbellis for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2841"
+title="Always use even distribution for merkle tree with RandomPartitionner"
+class="issue-link" data-issue-key="CASSANDRA-2841"><del>CASSANDRA-2841</del></a>slebresne
+: <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1141217"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1141217</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/service/AntiEntropyService.java</li>	<li>/cassandra/branches/cassandra-0.7/CHANGES.txt</li></ul> 
+
+

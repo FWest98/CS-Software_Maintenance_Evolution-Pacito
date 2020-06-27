@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 8ad7840b336f47cf4d6c33da3459121c98db2d48
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6122.txt 
+
+commit 8ad7840b336f47cf4d6c33da3459121c98db2d48
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Remove dead code

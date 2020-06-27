@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 34c1fc0b7cbdf568ec7869a564fe614f96dcbe9b
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6538.txt 
+
+commit 34c1fc0b7cbdf568ec7869a564fe614f96dcbe9b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add failure callbacks for outgoing streams.
+    Patch by Yuki Morishita, reviewed by brandonwilliams for CASSANDRA-4051

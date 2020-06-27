@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2e7ecdb6819d5e6f087097680ef4f60de41c8067
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3711.txt 
+
+commit 2e7ecdb6819d5e6f087097680ef4f60de41c8067
+Author: Chris Goffinet <goffinet@apache.org>
+
+    Support a byte[] key for getNaturalEndpoints so clustertool get_endpoints does not throw exception
+    patch by goffinet; reviewed by stuhood for CASSANDRA-2437

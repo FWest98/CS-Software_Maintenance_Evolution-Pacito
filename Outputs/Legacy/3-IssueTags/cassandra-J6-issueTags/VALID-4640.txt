@@ -1,0 +1,20 @@
+Pattern changes caused by commit: a9f031b1a579956eba1f04c15cd98777a7eee86f
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4640.txt 
+
+commit a9f031b1a579956eba1f04c15cd98777a7eee86f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix string formatting bug, and provide human-readable keys where possible
+    patch by jbellis; tested by Cathy Daw for CASSANDRA-3022

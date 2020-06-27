@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 73f7104cd356485332298f0a2fdddf9aecfbbca6
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5879.txt 
+
+commit 73f7104cd356485332298f0a2fdddf9aecfbbca6
+Merge: a5b3abb 2a1ec27
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.0' into trunk

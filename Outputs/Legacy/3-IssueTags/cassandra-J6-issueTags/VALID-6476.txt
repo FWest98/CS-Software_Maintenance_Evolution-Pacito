@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 030d4718e5596884c766b6e3e5b1c54fe23f6dd8
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6476.txt 
+
+commit 030d4718e5596884c766b6e3e5b1c54fe23f6dd8
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    avoid seg faults during compaction
+    patch by Vijay; reviewed by jbellis for CASSANDRA-4111

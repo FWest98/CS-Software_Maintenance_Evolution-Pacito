@@ -1,0 +1,591 @@
+Pattern changes caused by commit: 909f555eb1d2aea34ae2c100517da43443aab9cb
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-514.txt 
+
+commit 909f555eb1d2aea34ae2c100517da43443aab9cb
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-599. Allow NameNode to have a separate port for service requests from client request. Contributed by Dmytro Molkov.
+
+
+
+==================================
+ Issue HDFS-599 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-599] Improve Namenode robustness by prioritizing datanode heartbeats over client requests
+-----------------
+
+-----------------
+Summary: Improve Namenode robustness by prioritizing datanode heartbeats over client requests
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 5 Sep 2009 07:46:53 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 18 Jun 2010 22:50:22 +0000
+-----------------
+
+-----------------
+Assigned to: Dmytro Molkov
+-----------------
+
+-----------------
+Description: 
+
+The namenode processes RPC requests from clients that are reading/writing to files as
+well as heartbeats/block reports from datanodes.
+
+Sometime, because of various reasons
+(Java GC runs, inconsistent performance of NFS filer that stores HDFS transacttion logs,
+etc), the namenode encounters transient slowness. For example, if the device that stores
+the HDFS transaction logs becomes sluggish, the Namenode's ability to process RPCs slows
+down to a certain extent. During this time, the RPCs from clients as well as the RPCs from
+datanodes suffer in similar fashion. If the underlying problem becomes worse, the NN's
+ability to process a heartbeat from a DN is severly impacted, thus causing the NN to
+declare that the DN is dead. Then the NN starts replicating blocks that used to reside on
+the now-declared-dead datanode. This adds extra load to the NN. Then the
+now-declared-datanode finally re-establishes contact with the NN, and sends a block
+report. The block report processing on the NN is another heavyweight activity, thus casing
+more load to the already overloaded namenode. 
+
+My proposal is tha the NN should try its
+best to continue processing RPCs from datanodes and give lesser priority to serving client
+requests. The Datanode RPCs are integral to the consistency and performance of the Hadoop
+file system, and it is better to protect it at all costs. This will ensure that NN 
+recovers from the hiccup much faster than what it does now.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+One proposal is to make the DatanodeProtocol have higher  priority that ClientProtocol.
+How do folks feel about this one? 
+
+
+New Comment: 
+&gt; One proposal is to make the DatanodeProtocol have higher priority that
+ClientProtocol.This sounds reasonable in principle.  How would we implement RPC
+priorities?  Would we use separate RPC request queues?  Would the client queue only be
+used when the datanode queue is empty? 
+
+
+New Comment: 
+Maybe we can have two different ports that the Namenode listens on. The first port is same
+as the current one on which clients'c contact the namenode. The second port (the new one)
+will be used for Namenode protocol and DatanodeProtocol (between NN, DN and Secondary NN).
+This approach does not need any enhancement to RPC layer. (It also allows the cluster
+adminstrator to not open the second port to machines outside the cluster). In future, we
+can also associate higher java-Thread priorities to the Handler threads that serve the
+second port. 
+
+
+New Comment: 
+I think separation of the two ports is a good idea.  This has a number of advantages:<ul
+class="alternate" type="square">	<li>it makes it easier to segregate pure clients from the
+rest of the name node via firewall</li>	<li>it means that client requests could
+potentially be encrypted, leaving pure DN ops unencrypted</li>	<li>allows for easier
+implementation of Quality of Service (QoS) configurations at the network layer <span
+class="error">&#91;in particular, MR client requests are second class traffic compared to
+data node requests from the same IP addr.&#93;</span></li></ul>I'm sure there are more. 
+
+
+New Comment: 
+To take this one step further &#8211; why does the failure detection code need to be
+implemented as part of the DN and NN daemons? Alternatively, each host could run a single
+failure detection service. Potential benefits:<ul class="alternate" type="square">	<li>You
+could plug in different types of detectors (or re-use an existing one like heartbeat from
+linux ha)</li>	<li>The detector would not have to be in java (an be susceptible to gc
+issues etc)</li>	<li>You could use host scheduling priorities to prioritize heartbeats
+over the daemon rather than implementing it as part of RPC processing (even when
+prioritizing RPCs the priority of processing heart beats will never be higher priority
+than the priority of the process running the daemon)</li>	<li>Multiple DN daemons running
+on the same host could share a single detector</li></ul>There's still the issue of the
+priority of a message from the failure detection service to the daemons indicating a
+failure occurred, but this message is only sent when a failure has been detected, each
+heart beat would not be susceptible to issues running the DN or NN daemons. 
+
+
+New Comment: 
+One issue I see with adding an extra port is that it increases the potential attack
+surface and generally would be considered as less secure. 
+
+
+New Comment: 
+&gt; One issue I see with adding an extra port is that it increases the potential attack
+surface and generally would be considered as less secure.Why would that be? The extra port
+is visible only to machines only from all cluster nodes and not from outside. It is still
+behind any firewall that you might have.  Moreover, the default setting would still be to
+use one single port for DatanodeProtocol and ClientProtocol, so it should not affect
+(security) for preliminary users. Also, no new RPCs would be introduced by this patch,
+just splitting existing RPCs so that a few of them get served by one port while the other
+RPCs are served by another port. 
+
+
+New Comment: 
+<blockquote>Why would that be? ...the default setting would still be to use one single
+port for DatanodeProtocol and ClientProtocol, so it should not affect (security) for
+preliminary users</blockquote>Can the default configuration be changed by advanced users
+opening the second port? Perhaps. And because the single port is considered as the default
+configuration I can see how only the default one gets tested and the non-default one
+won't. <blockquote>The extra port is visible only to machines only from all cluster nodes
+and not from outside.  It is still behind any firewall that you might
+have</blockquote>Will it be always like that? Would it be possible in a future to have
+some cluster nodes outside of one's firewall?<br/>As soon as that happens a second port
+would have to be opened on a firewall consequently widening an attack vector.Again, it
+isn't about what current patch does or does not introduce. It is about an increment in
+number of gates from an attack can't be mounted. That's why I've referred to the 'surface'
+- it provides more chances for something to be forgotten, insufficiently tested, etc. 
+
+
+New Comment: 
+&gt; It is about an increment in number of gates from an attack can't be mounted. That's
+why I've referred to the 'surface' Agreed. An administrator who switches on non-default
+semantics (i.e. using additional server port) without evaluating the corresponding
+security impact would suffer <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>&gt; Would it be possible in a future to
+have some cluster nodes outside of one's firewall?Good point. almost anything and
+everything is possible in the fuure. Maybe we can address it via proper documentation and
+warning messages. 
+
+
+New Comment: 
+A different port may be a good way to implement this.  But it's worth noting that Hadoop
+already probably uses too many ports, and, long-term, we should probably aim to use fewer
+and rely instead more on authentication and authorization of requests.For example, we
+might use HTTP for all interactions, including RPC, shuffle, and datanode access.  The
+primary weakness of HTTP for this is that it requires that responses over a reused
+connection arrive in-order, while Hadoop's RPC permits out-of-order responses over a
+reused connection.  Even this might be worked around if we used a chunked encoding where
+requests and responses are sent as chunks whose chunk headers include the request ID. 
+
+
+New Comment: 
+&gt; A different port may be a good way to implement this.I will go ahead and implement 
+this one. I will make the javadocs and  messages very explicit in warning the advanced
+adminstrator about the possible pitfalls of opening a new port. Does that sound reasonable
+to you Konstantin? 
+
+
+New Comment: 
+In my experience, using different ports for QoS turns out to be compelling because you can
+tell fancy-pants switches to prioritize traffic at port X over traffic at port Y, but it's
+harder (or impossible) to get a switch to prioritize based on what's in the packet
+itself.Perhaps Hadoop could be largely agnostic over which of a handful of open ports data
+is coming in, relying on the authorization layer to kick out client requests on a port
+that's supposed to be only for elevated-priority requests. 
+
+
+New Comment: 
+Using different ports for QoS also has its limitations. The request dispatching logic must
+be baked in the client side. Inside the server, multiple threads or multiple thread pools
+that handle different classes are oblivious to each other and may not enforce fine grain
+resource control.This OSDI paper (which I co-authored), <a
+href="http://www.usenix.org/events/osdi02/tech/shen.html" class="external-link"
+rel="nofollow">http://www.usenix.org/events/osdi02/tech/shen.html</a>, describes a
+complicated case of QoS policy and the solution is based on queues.Switches may be useful
+for network QoS (e.g. preventing DoS attacks and prioritize traffic). But for application
+level QoS (where the system is not constrained by the amount of network traffic, but the
+work needs to be performed in the server), then I'd think queue-based solution is better. 
+
+
+New Comment: 
+Hong, you can still implement queue based regardless of whether multiple ports are used. 
+The reverse is not true. 
+
+
+New Comment: 
+For this particular problem, the root cause is that NN can not distinguish between own
+slow down from DN's. Priorities help with the situation, but what if NN slept for 12 min
+instead of 8 min?One simpler solution could be to consider average heart beat time across
+all the datanodes before marking one 'dead':<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">   delay = now -
+dn.lastHeartBeatTime;<span class="code-comment">//instead of  </span>   <span
+class="code-keyword">if</span> (delay &gt; someLimit) markDNDead(dn);<span
+class="code-comment">// we could <span class="code-keyword">do</span> something like
+</span>   <span class="code-keyword">if</span> (delay &gt; someLimit &amp;&amp; (numDNs
+&lt; 5 || delay &gt; 20*avgHeartBeatTime || delay &gt; reallyLargeLimit))       
+markDNDead(dn);</pre></div></div><tt>avgHeartBeatTime</tt> is updated at each heartBeat.
+If NN actively contacted DNs, it won't be affected by its own slowness. But that is much
+bigger change. <blockquote>To take this one step further - why does the failure detection
+code need to be implemented as part of the DN and NN daemons? </blockquote>Unfortunately
+heartBeat is lot more than a heart beat check. In Hadoop, servers like NN, JobTracker,
+depend on response to heartBeat (and other) RPCs from client to communicate to them.
+Ideally these servers should be able to actively contact its slaves. 
+
+
+New Comment: 
+<blockquote>One simpler solution could be to consider average heart beat time across all
+the datanodes before marking one 'dead':</blockquote>Average is not robust for this - if
+you have a couple of dead datanodes they'll skew the mean up. What you really want is to
+detect high outliers. The traditional method to find high outliers is to find the
+interquartile range (75th percentile - 25th percentile), and then any which is 1.5*IQR
+greater than the 75th percentile point is considered a high outlier. The datapoints for
+this calculation should probably be set to "lateness" (defined as max(0,
+msSinceLastHeartbeat - expectedHeartbeatInterval))A more complicated but very effective
+failure detection mechanism which is used by Cassandra is the Phi Accrual Failure
+Detector: <a
+href="http://www2.computer.org/portal/web/csdl/doi/10.1109/RELDIS.2004.1353004"
+class="external-link"
+rel="nofollow">http://www2.computer.org/portal/web/csdl/doi/10.1109/RELDIS.2004.1353004</a> 
+
+
+New Comment: 
+true, essentially we need a simple way to find outliers. &gt; Average is not robust for
+this - if you have a couple of dead datanodes they'll skew the mean up.Dead nodes don't
+contribute to avg. Avg is updated only when there is a heartBeat. Also avg need not be
+just the last heartBeat. Some weight could be given to previous heartBeat intervals.
+something like :<br/> new_contribution = current_delay/2 + prev_contribution/2;<br/>
+prev_contribution = new_contribution; 
+
+
+New Comment: 
+Attaching a patch.<br/>This is a port of something we are running on hadoop-0.20 in
+production now. If there is a special address specified in the conf then the namenode
+starts 2 RPC servers and all the datanodes will get connected to it. Secondary and Backup
+nodes also use the special port to connect to namenode.Please have a look at this patch
+and let me know if you feel something should be modified. 
+
+
+New Comment: 
+Just to clarify, this is a patch for trunk, but we are running something really similar in
+our environment. 
+
+
+New Comment: 
+Submitting to Hudson 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12443022/HDFS-599.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12443022/HDFS-599.patch</a><br/>
+ against trunk revision 938791.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 9 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/164/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The TestHDFSServerPorts that failed in Hudson runs OK for me locally.<br/>Can someone take
+a loot at the patch and comment on it? 
+
+
+New Comment: 
+Seems good, I have two questions:<ol>	<li>Does independent RPC queue with or without
+priority could do the same thing?</li>	<li>Although we use different port and RPC server
+for DatanodeProtocol and ClientProtocol, but datanode RPC call could also be block by
+client RPC call because of synchronize?</li></ol>Thanks! 
+
+
+New Comment: 
+yes, potentially the calls on both ports are still getting serialized within synchronized
+sections they share. However this patch helps a different usecases<br/>One example is
+firewalling client port when starting the namenode, this way the clients are not hammering
+the namenode until it is ready and processed all block reports. This helps speed up the
+startup of the dfs cluster.I am not really sure about your first question. But as I said
+above the main usecase is having two separate ports so you could firewall one of them for
+example. 
+
+
+New Comment: 
+Hey guys, the patch was sitting here for a while now. Can someone review it to get it in?
+Thanks 
+
+
+New Comment: 
+OK, I will review it. 
+
+
+New Comment: 
+Seems like a reasonable change. I think we'll still need a jira for addressing the core
+issue of the NN going out to lunch (eg due to GC) which will cause the NNs to think the
+DNs are dead even with this change. 
+
+
+New Comment: 
+Yes, the GC itself is not addressed by this issue, but I must say we haven't seen that. At
+least recently, What you get with this patch is communication with the datanodes is not
+being affected by clients hammering the namenode during slow times (or at least the effect
+is way less harmful). 
+
+
+New Comment: 
+Major comments:<br/>1. Balancer is a service in HDFS.<br/>2. When there are two ports,
+your patch allows both clients and services like datanodes to connect to either of the
+ports.<br/>3. Each RPC server has a few configurations: #readers, #handlers, and
+#queuesizes etc. #handlers could be configured per server (port). It would be nice that
+the rest (especially #readers) could be configured per server (port) too. 
+
+
+New Comment: 
+For comment 2, I meant that both servers (ports) implement NameNodeProtocols in your
+patch. I think that you should create ServiceProtocols. If  the service port is set, the
+service server should implement only ServiceProtocols and the other implements only
+ClientProtocol. 
+
+
+New Comment: 
+@Dmytro That makes sense, it takes over ten minutes for the NN to think a DN is dead so it
+seems like you'd need more than a GC pause to cause this. Does this change address the
+other causes of this issue (NN thinking DNs have died) you've seen in your cluster?
+Besides gc Dhruba also mentioned in the opening comment "inconsistent performance of NFS
+filer". 
+
+
+New Comment: 
+@Hairong<br/>1. With the Balancer we were treating it more like a client as far as this
+patch is concerned since it doesn't keep the cluster alive. The problem we were trying to
+solve is communication of crucial parts of the cluster. DataNodes, NameNode and the
+BackupNode. However if you feel strongly that Balancer has to have the same kind of
+priority in the system I can modify that part.<br/>2. The reason all Protocols are
+available on all the ports is to serve the usecase when for administrative reasons you
+want to run clients commands on the service port, while the client port is closed
+(firewalled). The modification here that would make sense is to limit the datanodes to use
+the service port only, so that you do not have "misconfigured" datanodes in your
+cluster.<br/>3. This is a RPC server change that can be done as a different set of JIRAs
+(Common + HDFS) since currently the only way to do it is to modify the configuration on
+the fly before passing it to creation of Server and I do not want to go down that
+path.@Eli the way we address the original problem with this patch is creating a different
+queue for the DataNode heartbeats. This way if you have thousands of clients hammering the
+NameNode while it is being slow your heartbeat RPC will not get lost in the heap of client
+requests which is what was happening before: if the namenode is slow, there is a huge
+backlog and it starts dropping DN requests, which will not happen now, and having a
+completely separate set of handlers the datanode request will get process soon after
+arrival even if there was a thousand of client request on the client port already. 
+
+
+New Comment: 
+&gt; The reason all Protocols are available...<br/>I prefer that we have a clean
+separation of what requests each port can receive. Especially for client requests, they
+should not be allowed to be sent to the service port. This is because the HDFS admin has
+no control of which port a client uses to send its requests. If we ever allow the service
+port to receive a client's request, it will defeat the purpose of this jira.BTW, besides
+balancer, I think HDFS admin requests should also be sent to the service port. But I am OK
+that you do it in a different jira. Please also open a jira for my comment 3 (providing
+different configuration for different RPC servers). Something down the road we could
+consider is that do not start client rpc server until NN exits safemode, hence speed up NN
+startup. 
+
+
+New Comment: 
+Thanks Dmytro! I saw that you created <a
+href="https://issues.apache.org/jira/browse/HADOOP-6764" title="Add number of reader
+threads and queue length as configuration parameters in RPC.getServer" class="issue-link"
+data-issue-key="HADOOP-6764"><del>HADOOP-6764</del></a> for RPC server configurations. 
+
+
+New Comment: 
+Hairong, thanks for your comments.Not starting RPC client server until we are out of
+safemode is the second patch that we have been running internally for a while now and I
+will port it to trunk as soon as this jira makes it in. I felt like adding both parts in
+one jira will be too huge.DFSAdmin in that case does have to run on the service port.The
+clean separation makes sense, but I do not think we can fully make that separation
+available in the case of this JIRA.<br/>The way to effectively administratively solve the
+problem of two ports is to firewall service ports from external clients + do not include
+information about this port in the mapreduce configuration. This way only HDFS cluster
+will have the information in the configuration and only the datanodes will be accessing
+it. This is the way we were operating internally at FB.This of course doesn't help solve
+the problem of malicious clients still accessing the service port by hacking the values in
+the code (since it should not be available in the configuration). <br/>However removing
+the ClientProtocol from the service port will effectively make it impossible for
+administrator to perform any client operations like LS, or even getting out of safemode
+(which is still in ClientProtocol) if we postpone the start of the client port until we
+are out of safemode.So essentially I feel like this problem can partly be solved by
+administrative measures and the value that we get from keeping the Client protocol and
+others available on the service port still outweigh the problem of malicious clients that
+might get in on that port. 
+
+
+New Comment: 
+In fact, the configuration deployed to clients do not need to contain the service port #
+at all. Then, no well-behaved client will  access the service port. 
+
+
+New Comment: 
+&gt; This of course doesn't help solve the problem of malicious clients still accessing
+the service port by hacking the values in the code.<br/>I am not talking about a malicious
+client. What if there is a mis-configured client happens to choose the service port as its
+client port?&gt; removing the ClientProtocol from the service port will effectively make
+it impossible for administrator to perform any client operations like LS, or even getting
+out of safemode<br/>You should break the current ClientProtocol into AdminProtocol and the
+real ClientProtocol. 
+
+
+New Comment: 
+&gt; You should break the current ClientProtocol into AdminProtocol and the real
+ClientProtocolWe can certainly do this.  The ClientProtocol essentially consists methods
+that fall into two categories:1. Calls that modify file system metadata in the
+namenode<br/>2. Calls that retrieve portions of file system metadata from the
+namenode.Let's consider the case when the NN is restarting and is in safemode.  Only the
+servicePort is open at this time. The calls in category 1 will anyway fail because
+namenode is in safemode. That leaves us with only the calls in category 2. When the
+namenode is in safemode, the admin would still want the ability to be able to list files
+(dfs -lsr) , get status on files (dfs -ls), see the amount of space used by a portion of
+the namespace (dfs -count), validate block size of an existing file(s), look at target of
+a symlink. That means that admin would want to invoke most of the calls in category 2,
+isn't it? If you agree with the above, then it is not very beneficial to break up
+ClientProtocol into two parts, because both the parts would have to be available on the
+service port?There are quite a few things that we can do to handle "a mis-configured
+client happens to choose the service port as its client port". if we do not even list the
+service port in the client's config, that would be a good thing.... can we start there? 
+
+
+New Comment: 
+Having all protocols serve  on all ports is strange and not very standard practice.
+<br/>However I do agree with the use cases that during startup or during a period of high
+load on the NN, an Admin may want to issues a  standard  NN operation and ensure that it
+gets served promptly and perhaps with priority.I agree with Dhruba that breaking the
+client protocol in 2 parts is questionable and IMHO  architecturally not clean (imagine
+explaining to someone why we split the client protocol into 2 parts).There are two
+solution here. One is to give priority to certain users (this is very complex and I don't
+recommend doing it). The other is to extend Hadoop's existing Service ACL: The service ACL
+specifies the protocols and the list of users and groups that are allowed to access the
+protocol. I suggest a separate  jira to extend the Service ACL to optionally specify a
+port in addition to the protocol name. Dmytro, I request that you also complete this other
+Jira independently in the spirit of providing a clean comprehensive solution to the
+problem of multiple protocols on multiple ports. 
+
+
+New Comment: 
+I agree with Sanjay and Dhruba that breaking the client protocol in 2 parts is not
+architecturally clean. I assume that we will take the ACL solution to restrict the access
+to a port.Here are more code review comments:<br/>1. Please remove all the unnecessary
+indention/blank changes;<br/>2. Please rename DFS_NAMENODE-DN_RPC_ADDRESS_KEY to be
+DFS_NAMENODE_SERViCE_KEY;<br/>3. Rename NameNode#dnServer to be serviceRpcServer. Provide
+comments explaining what are server/dnServer;<br/>4. Provide javadoc for
+get/setServiceRpcServerAddress;For the tests:<br/>1. TestRestartFS: could you reorganize
+your code to reduce duplicate code in two tests?<br/>2. TestHDFSServerPorts: Do the test
+always start service port in NN? It might be nice if we also test both.<br/>3.
+TestDistributedFileSystem: could you please explain what are the changes you made to
+testFileChecksum? 
+
+
+New Comment: 
+Sounds reasonable to implement Sanjay's proposal. 
+
+
+New Comment: 
+<blockquote>I suggest a separate jira to extend the Service ACL to optionally specify a
+port in addition to the protocol name.</blockquote>Sounds good to me as well.  Since there
+are only user and service ports perhaps they should be specified via name rather than by
+port (which you probably don't want to hard-code in multiple places)  eg 
+security.client.protocol.<span class="error">&#91;user|service&#93;</span>.acl. 
+
+
+New Comment: 
+Please have a look. I addressed Hairong's comments for the previous patch.<br/>I will
+create additional Jiras for the rest of the comments in the conversation.@Hairong as far
+as TestDistributedFileSystem is concerned it was more of a problem of svn diff command.
+The actual change is really small. I added one more test case which reruns other testcases
+with service port on. A little is done to make it work, like each testcase instead of
+constructing new HdfsConfiguration calls a method that based on the dualPortTesting
+boolean flag creates a conf with service port configuration turned on. 
+
+
+New Comment: 
++1. The patch looks good to me. Thank Dmytro for working on this! 
+
+
+New Comment: 
+dmytro: can you pl run the Hudson tests manually and post the results here? Thanks. 
+
+
+New Comment: 
+Again, running tests by hand:     <span class="error">&#91;exec&#93;</span> +1
+overall.<br/>     <span class="error">&#91;exec&#93;</span><br/>     <span
+class="error">&#91;exec&#93;</span>     +1 @author.  The patch does not contain any
+@author tags.<br/>     <span class="error">&#91;exec&#93;</span><br/>     <span
+class="error">&#91;exec&#93;</span>     +1 tests included.  The patch appears to include
+10 new or modified tests.<br/>     <span class="error">&#91;exec&#93;</span><br/>    
+<span class="error">&#91;exec&#93;</span>     +1 javadoc.  The javadoc tool did not
+generate any warning messages.<br/>     <span class="error">&#91;exec&#93;</span><br/>    
+<span class="error">&#91;exec&#93;</span>     +1 javac.  The applied patch does not
+increase the total number of javac compiler warnings.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 findbugs.  The patch does not introduce any new Findbugs warnings.<br/>     <span
+class="error">&#91;exec&#93;</span><br/>     <span class="error">&#91;exec&#93;</span>    
++1 release audit.  The applied patch does not increase the total number of release audit
+warnings.Running the ant test now 
+
+
+New Comment: 
+All tests passed for me 
+
+
+New Comment: 
+I just committed this. Thanks Dmytro! 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #314 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/314/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/314/</a>) 
+
+
+New Comment: 
+<blockquote>Not starting RPC client server until we are out of safemode is the second
+patch that we have been running internally for a while now and I will port it to trunk as
+soon as this jira makes it in. I felt like adding both parts in one jira will be too
+huge.</blockquote>Dmytro, when are planning to commit the above change? 
+
+
+New Comment: 
+I will try to do it as soon as possible. Hopefully over the weekend. It should not require
+too much change.<br/>I created <a href="https://issues.apache.org/jira/browse/HDFS-1291"
+title="Delay start of client RPC server until out of safemode" class="issue-link"
+data-issue-key="HDFS-1291">HDFS-1291</a> for it 
+
+
+New Comment: 
+y20 version of the patch 
+
+

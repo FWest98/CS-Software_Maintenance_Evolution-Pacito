@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 7db46ef80acc567a6ac3e4edcfcf39a6b22b73fa
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7303.txt 
+
+commit 7db46ef80acc567a6ac3e4edcfcf39a6b22b73fa
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Configurable transport for CFRR/CFRW.
+    Patch by Piotr Kołaczkowski, reviewed by brandonwilliams for
+    CASSANDRA-4558
+
+
+
+==================================
+ Issue CASSANDRA-4558 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4558] Configurable transport in CF RecordReader / RecordWriter
+-----------------
+
+-----------------
+Summary: Configurable transport in CF RecordReader / RecordWriter
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 20 Aug 2012 09:04:35 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 20 Aug 2012 20:33:07 +0000
+-----------------
+
+-----------------
+Assigned to: Piotr Kolaczkowski
+-----------------
+
+-----------------
+Description: 
+
+Currently RecordReaders and RecordWriters use hardcoded TFramedTransport. In order to use
+other transports, e.g. SSL transport, allow for setting custom transport class.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I attach a patch enabling to set transport factory class in hadoop job configuration.
+Added new properties "cassandra.input.transport.factory.class" and
+"cassandra.output.transport.factory.class". TFramedTransportFactory is used by default if
+properties are not set, so old behaviour is preserved. The modified code has been tested
+using PIG demo in DSE.Patch generated against 1.1 branch (1.1.4). 
+
+

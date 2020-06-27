@@ -1,0 +1,126 @@
+Pattern changes caused by commit: 3104648f9e75a288d11733add0ca20c192ca8a95
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5056.txt 
+
+commit 3104648f9e75a288d11733add0ca20c192ca8a95
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Log a miningfull warning when a node receive a message for a repair session that don't exist anymore
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3256
+
+
+
+==================================
+ Issue CASSANDRA-3256 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3256] AssertionError when repairing a node
+-----------------
+
+-----------------
+Summary: AssertionError when repairing a node
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 24 Sep 2011 06:10:36 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 26 Sep 2011 14:32:28 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+When repairing a node, the following exception was thrown two times:
+<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">ERROR [AntiEntropyStage:2] 2011-09-23 23:00:24,016
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread <span
+class="code-object">Thread</span>[AntiEntropyStage:2,5,main]java.lang.AssertionError      
+ at
+org.apache.cassandra.service.AntiEntropyService.rendezvous(AntiEntropyService.java:170)   
+    at
+org.apache.cassandra.service.AntiEntropyService.access$100(AntiEntropyService.java:90)    
+   at
+org.apache.cassandra.service.AntiEntropyService$TreeResponseVerbHandler.doVerb(AntiEntropyService.java:518)
+       at org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:59)   
+    at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+       at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908) 
+      at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>
+No other errors occurred on
+the node. From peeking at the code, this assertion appears to simply check if an existing
+repair session could be found. Interestingly, the repair did continue to run after this as
+evidenced by several other AntiEntropyService entires in the log.
+
+8 node ring with an RF
+of 3, if that matters at all. No other nodes in the ring threw exceptions.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I should note, this same node has been repaired several times in the past with no issues. 
+
+
+New Comment: 
+The repair which triggered this assertion error did eventually return with no further
+errors. 
+
+
+New Comment: 
+My guess is that this is probably harmless. Basically the node received a merkle tree for
+a session that it doesn't know about. This means that the said repair session has been
+interrupted. <em>A priori</em>, I see only two things that can cause this:<ul>	<li>The
+repair thread on the host has been interrupted. But 1) in that case you should have found
+a exception earlier on saying "Interrupted while waiting for repair: repair will continue
+in the background." and 2) I don't see what could interrupt that thread.</li>	<li>The node
+restarted and only now receives a response for request made before the restart. This is
+imho the more likely scenario. And if so, the previous repair (the one started before the
+restart) won't succeed, but there is no more consequence than that.</li></ul>That being
+throwing an assertion error is probably such a great idea given that it's a scenario that
+can happen. Attaching a patch that simply log an hopefully more explicit message. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. Thanks. 
+
+

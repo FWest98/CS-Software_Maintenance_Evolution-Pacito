@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 4df8fdcdeed627885608dd43f397d40f2e1074c3
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8510.txt 
+
+commit 4df8fdcdeed627885608dd43f397d40f2e1074c3
+Merge: e6b6eaa f930eb7
+Author: Yuki Morishita <yukim@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2

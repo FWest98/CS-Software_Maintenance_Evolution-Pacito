@@ -1,0 +1,20 @@
+Pattern changes caused by commit: d96b41aee801b75956adc7e78e38513d047e8695
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3418.txt 
+
+commit d96b41aee801b75956adc7e78e38513d047e8695
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Generate column values of average rather than specific size.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2266

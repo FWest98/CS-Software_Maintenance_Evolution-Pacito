@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 7c9e7111449296dc2346e254f6ed07312a0b5a9e
+
+From: Facade-4
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1633.txt 
+
+commit 7c9e7111449296dc2346e254f6ed07312a0b5a9e
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Renamed the bind0 method to bindInternal, which is slightly more meaningfull
+    o Added some comments, plus minor refactoring
+    o Removed the void bind(SocketAddress localAddress) and bind(SocketAddress firstLocalAddress, SocketAddress... otherLocalAddresses) methods, and replaced them with a void bind(SocketAddress... addresses) (both cases are covered with this single method, and it has no impact on the existing code using those removed methods.
+    o Added a toString() method to AbstractIoAcceptor

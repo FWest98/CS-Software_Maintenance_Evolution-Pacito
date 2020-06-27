@@ -1,0 +1,118 @@
+Pattern changes caused by commit: c7fd9280ba197722f9e2d1fb7175c65633121733
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-503.txt 
+
+commit c7fd9280ba197722f9e2d1fb7175c65633121733
+Author: Jakob Glen Homan <jghoman@apache.org>
+
+    HDFS-1183.  Remove some duplicate code in NamenodeJspHelper.java. Contributed by Jeff Ames.
+
+
+
+==================================
+ Issue HDFS-1183 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1183] Remove some duplicate code in NamenodeJspHelper.java
+-----------------
+
+-----------------
+Summary: Remove some duplicate code in NamenodeJspHelper.java
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 3 Jun 2010 05:21:04 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 4 Jun 2010 20:20:53 +0000
+-----------------
+
+-----------------
+Assigned to: Jeff Ames
+-----------------
+
+-----------------
+Description: 
+
+This patch refactors out some duplicate code in generateNodeData and
+generateDecommissioningNodeData in NamenodeJspHelper.java.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1.  Looks good.  Will commit in the morning, pending Hudson. 
+
+
+New Comment: 
+Hudson's back. Re-triggering. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12446225/HDFS-1183.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12446225/HDFS-1183.patch</a><br/>
+ against trunk revision 951178.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/188/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1.  Core failed test is known bad (<a
+href="https://issues.apache.org/jira/browse/HDFS-615" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/HDFS-615</a>), contrib test failure
+is unrelated, and existing tests cover this refactor. 
+
+
+New Comment: 
+I've committed this.  Thanks, Jeff! Resolving as fixed. 
+
+

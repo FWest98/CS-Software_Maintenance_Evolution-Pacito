@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 200ea445e3af18dd83d2f1b63c3fb69ed75f25bf
+
+From: Strategy-7
+To:   Strategy-8
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-935.txt 
+
+commit 200ea445e3af18dd83d2f1b63c3fb69ed75f25bf
+Author: Trustin Lee <trustin@apache.org>
+
+    Imported common statemachine codec classes into org.apache.mina.filter.codec.statemachine from AsyncWeb

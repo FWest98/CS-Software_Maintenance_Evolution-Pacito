@@ -1,0 +1,29 @@
+Pattern changes caused by commit: de5575790920364561ac476b3dabf534cdb36227
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7026.txt 
+
+commit de5575790920364561ac476b3dabf534cdb36227
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    add strategy_options to the KSMetaData.toString() output
+    patch by Vladimir Sverzhinsky; reviewed by Pavel Yaskevich for CASSANDRA-4248

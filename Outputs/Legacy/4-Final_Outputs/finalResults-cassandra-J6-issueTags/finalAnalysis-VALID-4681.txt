@@ -1,0 +1,95 @@
+Pattern changes caused by commit: fcf01805be385964e4a2eaaba95f27262c126b03
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4681.txt 
+
+commit fcf01805be385964e4a2eaaba95f27262c126b03
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Handle snapshot arguments correctly.
+    Patch by Nate McCall, reviewed by brandonwilliams for CASSANDRA-3038
+
+
+
+==================================
+ Issue CASSANDRA-3038 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3038] nodetool snapshot does not handle keyspace arguments correctly
+-----------------
+
+-----------------
+Summary: nodetool snapshot does not handle keyspace arguments correctly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 15 Aug 2011 17:40:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 22 Aug 2011 15:43:26 +0000
+-----------------
+
+-----------------
+Assigned to: Nate McCall
+-----------------
+
+-----------------
+Description: 
+
+Given the following invocation:<br/>./bin/nodetool snapshot Keyspace1 -t
+keyspace1_snapshot -h localhost
+
+Snapshots are made for all keyspaces
+
+Given a
+multi-keyspace invocation:<br/>./bin/nodetool snapshot Keyspace1 Keyspace2 Keyspac3 -t
+keyspace1_snapshot -h localhost
+
+Snapshots will be made for Keyspace2 and Keyspace3 but
+not Keyspace1. 
+
+It appears there is just some antiquated command argument noodling in
+NodeCmd#handleSnapshots
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Change to just make a copy of the cmdArgs array without modifying position. 
+
+
+New Comment: 
+Works with single, multi or no keyspace arguments. Added additional print statements to
+reflect what keyspaces were requested. 
+
+
+New Comment: 
+Committed. 
+
+

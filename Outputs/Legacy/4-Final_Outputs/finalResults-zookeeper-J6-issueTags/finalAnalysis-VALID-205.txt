@@ -1,0 +1,200 @@
+Pattern changes caused by commit: ed70d2edcb78a7e30ae60170ea986fb85e862b4b
+
+From: Facade-7
+To:   Facade-8
+
+From: Mediator-5
+To:   Mediator-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-205.txt 
+
+commit ed70d2edcb78a7e30ae60170ea986fb85e862b4b
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-82. Make the ZooKeeperServer more DI friendly. (Hiram Chirino via mahadev)
+
+
+
+==================================
+ Issue ZOOKEEPER-82 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-82] Make the ZooKeeperServer more DI friendly
+-----------------
+
+-----------------
+Summary: Make the ZooKeeperServer more DI friendly
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 21 Jul 2008 19:14:33 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 15 Aug 2008 17:25:41 +0000
+-----------------
+
+-----------------
+Assigned to: Hiram R. Chirino
+-----------------
+
+-----------------
+Description: 
+
+Proposed changes were discussed in <a
+href="http://mail-archives.apache.org/mod_mbox/hadoop-zookeeper-dev/200807.mbox/%3Caf2843cd0807180907v44b310bg232be99ac0b47a27@mail.gmail.com%3E"
+class="external-link" rel="nofollow">this mailing list thread</a>:
+
+Basic goals are:
+
+<ul>	<li>Decouple the current configuration system from the public API.  I<br/>see stuff
+like ZooKeeperServer being coupled to ServerConfig a bit.</li>	<li>Allow the use of setter
+injection in addition to constructor<br/>injection. This is the most important thing
+needed to let spring more<br/>easily configure the objects.</li>	<li>Move the main()
+methods out of the ZooKeeperServer class.</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching patch that implements most of what was proposed. 
+
+
+New Comment: 
+While implementing this.. some smelly issues kinda poped out at me.  The jmx stuff wants
+to be able to access the client port, to avoid tight coupling the jmx stuff to the
+ServerConfig stuff, I added a clientPort field to the ZKServer.  Now that seems a little
+smelly cause I can imagine that the ZKServer could in theory one day be extended to
+operate on multiple ports.In QuorumPeer, the constructor used to initialize sockets and
+other usefull bits.  To support setter based injection, I moved this initialization to the
+start() method, so that users can:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">QuorumPeer qp = <span
+class="code-keyword">new</span> QuorumPeer();qp.setDataLogDir( dir );.... <span
+class="code-comment">// more setter injection</span>qp.start();</pre></div></div>The big
+difference is that QuorumPeer used to throw an IOException if the initialization failed,
+now that exception occurs on qp.start() instead and it is wrapped up as a RuntimeException
+since it's extending the Thread.start() method which does not allow IOExceptions to be
+thrown.Perhaps QuorumPeer should implement Runnable instead of extending Thread so that a
+start() method can be defined which does have the right signature. 
+
+
+New Comment: 
+Assigned to Hiram. 
+
+
+New Comment: 
+Anybody have a chance to review the patch? 
+
+
+New Comment: 
+select "submit patch" so that it will be more visible in jira as needing to be
+reviewed/voted.btw, I documented the zk "howtocontribute" process last night:<br/><a
+href="http://wiki.apache.org/hadoop/ZooKeeper/HowToContribute" class="external-link"
+rel="nofollow">http://wiki.apache.org/hadoop/ZooKeeper/HowToContribute</a> 
+
+
+New Comment: 
+After applying this patch the zkServer.sh (trunk/bin) script fails due to main method
+being removed from quorum peer. Also the javadoc in QuorumPeer is referencing "main"
+method which no longer exists - was main removed accidentally? main was also removed from
+zookeeperserver which is the standalone server.I think we should document the public api
+methods which were added to zookeeperserver &amp; quorumpeer classes.I like your idea of
+moving from extending thread to implementing runnable if it can be done with minimal
+impact on existing (user) code... esp since it means we don't hide the previously checked
+exceptions as unchecked.Note: I'm not familiar with jmx, Andrew should review the updated
+patch, might be issues there I'm not aware of, I'll add him to the watch list. 
+
+
+New Comment: 
+Weird the patch did not change QuorumPeer at all.  QuorumPeer did not currently have a
+main method. Seem someone else moved it to ManagedQuorumPeer.  But in my next patch I'll
+move those java docs and update the scripts.Yes main was moved from ZooKeeperServer to new
+class which my patch failed to include.  Sorry I'll to a attach a new patch asap. Will
+also add some doco for the getters/setters. 
+
+
+New Comment: 
+Attaching updated patch. 
+
+
+New Comment: 
+Attaching updated patch. 
+
+
+New Comment: 
+created issue <a href="https://issues.apache.org/jira/browse/ZOOKEEPER-100" title="Avoid
+extending Thread in the public ZooKeeper API" class="issue-link"
+data-issue-key="ZOOKEEPER-100">ZOOKEEPER-100</a> to track that Thread change idea. 
+
+
+New Comment: 
+I'm still unable to apply this patch, cancelling:1) I get the following error during the
+patchpatch -p0 &lt; /home/phunt/Desktop/<a
+href="https://issues.apache.org/jira/browse/ZOOKEEPER-82" title="Make the ZooKeeperServer
+more DI friendly" class="issue-link"
+data-issue-key="ZOOKEEPER-82"><del>ZOOKEEPER-82</del></a>-b.patch <br/>patching file
+src/java/main/org/apache/zookeeper/ZooKeeper.java<br/>Reversed (or previously applied)
+patch detected!  Assume -R? <span class="error">&#91;n&#93;</span> I forced the patch,
+then fixed up the rejected patch issue by hand but there are still problems, 2) the build
+is still failing (seems that the main QuroumPeerMain is referencing code in jmx module
+which is not included in the ant build of main (jmx code that is)):    <span
+class="error">&#91;javac&#93;</span>
+/src/java/main/org/apache/zookeeper/server/quorum/QuorumPeerMain.java:27: cannot find
+symbol<br/>    <span class="error">&#91;javac&#93;</span> symbol  : class
+ObservableNIOServerCnxn<br/>    <span class="error">&#91;javac&#93;</span> location:
+package org.apache.zookeeper.server<br/>    <span class="error">&#91;javac&#93;</span>
+import org.apache.zookeeper.server.ObservableNIOServerCnxn;<br/>    <span
+class="error">&#91;javac&#93;</span>                                   ^<br/>    <span
+class="error">&#91;javac&#93;</span>
+/src/java/main/org/apache/zookeeper/server/quorum/QuorumPeerMain.java:92: package
+ObservableNIOServerCnxn does not exist<br/>    <span class="error">&#91;javac&#93;</span> 
+                   return new ObservableNIOServerCnxn.Factory(getClientPort());<br/>   
+<span class="error">&#91;javac&#93;</span>                                                
+      ^<br/>    <span class="error">&#91;javac&#93;</span> 2 errors 
+
+
+New Comment: 
+I took the liberty of updating the patch for the following:1) fixed the use of
+ObservableNIOServerCnxn in favor of NIOServerCnxn factory.<br/>2) recreated the patch -
+applies cleanly (on my system at least).If the changes are acceptable please submit for
+review. 
+
+
+New Comment: 
+I'm +1 on this patch btw, looks like a good change. 
+
+
+New Comment: 
++1 patch looks good ... we will need to update our wiki documentation to reflect the
+changes in this patch... 
+
+
+New Comment: 
+I just committed this. Thanks Hiram. 
+
+
+New Comment: 
+Integrated in ZooKeeper-trunk #58 (See <a
+href="http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/58/" class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/ZooKeeper-trunk/58/</a>) 
+
+

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 98dc41393fc6cc2b2b8756f6d8b33f86c45c0726
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7033.txt 
+
+commit 98dc41393fc6cc2b2b8756f6d8b33f86c45c0726
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Check schema before trying to export sstable
+    patch by Jason Brown; reviewed by jbellis for CASSANDRA-2760

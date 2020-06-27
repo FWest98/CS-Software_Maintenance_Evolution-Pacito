@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 264ffbe9b3e5996ccc05d3a5d9a93cb11a26cc7e
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3747.txt 
+
+commit 264ffbe9b3e5996ccc05d3a5d9a93cb11a26cc7e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make text (utf8) the default comparator again (regression from type renames)
+    patch by jbellis

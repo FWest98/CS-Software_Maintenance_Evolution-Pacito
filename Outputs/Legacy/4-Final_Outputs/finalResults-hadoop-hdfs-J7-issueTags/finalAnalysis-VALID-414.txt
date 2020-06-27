@@ -1,0 +1,395 @@
+Pattern changes caused by commit: 5fb77826be015b6bfeda8edfcdae39964c9e02c6
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-414.txt 
+
+commit 5fb77826be015b6bfeda8edfcdae39964c9e02c6
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-985. HDFS should issue multiple RPCs for listing a large directory. Contributed by Hairong Kuang.
+
+
+
+==================================
+ Issue HDFS-985 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-985] HDFS should issue multiple RPCs for listing a large directory
+-----------------
+
+-----------------
+Summary: HDFS should issue multiple RPCs for listing a large directory
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 18 Feb 2010 01:37:06 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 19 Mar 2010 21:16:16 +0000
+-----------------
+
+-----------------
+Assigned to: Hairong Kuang
+-----------------
+
+-----------------
+Description: 
+
+Currently HDFS issues one RPC from the client to the NameNode for listing a directory.
+However some directories are large that contain thousands or millions of items. Listing
+such large directories in one RPC has a few shortcomings:<br/>1. The list operation holds
+the global fsnamesystem lock for a long time thus blocking other requests. If a large
+number (like thousands) of such list requests hit NameNode in a short period of time,
+NameNode will be significantly slowed down. Users end up noticing longer response time or
+lost connections to NameNode.<br/>2. The response message is uncontrollable big. We
+observed a response as big as 50M bytes when listing a directory of 300 thousand items.
+Even with the optimization introduced at <a
+href="https://issues.apache.org/jira/browse/HDFS-946" title="NameNode should not return
+full path name when lisitng a diretory or getting the status of a file" class="issue-link"
+data-issue-key="HDFS-946"><del>HDFS-946</del></a> that may be able to cut the response by
+20-50%, the response size will still in the magnitude of 10 mega bytes.
+
+I propose to
+implement a directory listing using multiple RPCs. Here is the plan:<br/>1. Each
+getListing RPC has an upper limit on the number of items returned.  This limit could be
+configurable, but I am thinking to set it to be a fixed number like 500.<br/>2. Each RPC
+additionally specifies a start position for this listing request. I am thinking to use the
+last item of the previous listing RPC as an indicator. Since NameNode stores all items in
+a directory as a sorted array, NameNode uses the last item to locate the start item of
+this listing even if the last item is deleted in between these two consecutive calls. This
+has the advantage of avoid duplicate entries at the client side.<br/>3. The return value
+additionally specifies if the whole directory is done listing. If the client sees a false
+flag, it will continue to issue another RPC.
+
+This proposal will change the semantics of
+large directory listing in a sense that listing is no longer an atomic operation if a
+directory's content is changing while the listing operation is in progress.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1. sounds like an awesome idea. 
+
+
+New Comment: 
++1. In general, we should bound the work (and thus the waiting on the client side) of
+every RPC call. 
+
+
+New Comment: 
+A patch for review. I am sorry that this patch is generated against the 0.20 Yahoo! branch
+because I do not have time to work on the trunk first. But I will work on a patch against
+the trunk for sure before resolving this issue. This patch has a few minor changes to the
+proposal in the jira description.1. The upper limit of each getListing RPC is made
+configurable with a default value of 1000. This configuration property is undocumented for
+now. One reason to have this is for easy writing unit tests.  AlsoI still need to conduct
+more experiments at a large scale to decide what's the right default number.<br/>2. A
+getListing RPC returns the number of remaining entries to be listed instead of a flag to
+indicate if there are more to be listed. The number of remaining entries could provide a
+heuristic to decide the initial size of the status array at the client size, thus reducing
+unnecessary allocation/deallocation in most cases.Unit tests are added to TestFileStatus
+to check if multiple RPCs work fine or not. 
+
+
+New Comment: 
+Initial review from going through half the patch:<ol>	<li>DFSClient.java - instead of
+lastReturnedName we could use a generic name startFrom and update the param doc
+appropriately.</li>	<li>Is the name PartialFileStatus better than
+PathPartialListing?</li>	<li>DFSClient.listStatus() - result should be null in case the
+directory is deleted midway, isntead of returning what is accumulated until then. Number
+of lines in the code can be reduced by folding all the code into
+do-while.</li>	<li>DFSClient.listStatus() - document calling with name=EMPTY_NAME the
+first time.</li>	<li>FsDirectory.getListing - avoid startChild+1 in the
+loop.</li>	<li>INodeDirectory.nextChild() - instead of checking for name.length == 0, we
+should compare it with EMPTY_NAME.</li>	<li>Why is older variant of getListing in
+FsNameSystem, NameNode (did not check if there are others) not removed? It seems to be
+removed in ClientProtocol.java</li></ol>I will post the comments for the rest of the code
+soon. 
+
+
+New Comment: 
+&gt; DFSClient.listStatus() - result should be null in case the directory is deleted
+midway, isntead of returning what is accumulated until then. <br/>This is a controversial
+semantics. I think either way is fine. But my implementation is consistent with what we do
+with the WebUI.&gt; Number of lines in the code can be reduced by folding all the code
+into do-while.<br/>The reason that I did not fold into one do-while is to optimize the
+case when one RPC is enough for listing a directory, which I think is the common case. 
+
+
+New Comment: 
+This patch addressed Suresh's comments except for comments 3, 5, and 6.<br/>1. rename
+lastReturnedName to be startAfter;<br/>2. rename PathPartialListing to be
+DirectoryListing;in additon, I defined the config property dfs.ls.limit and its default
+value to constants and add comments to DistributedFileSystem#listStatus that explains the
+operation is no longer atomic. 
+
+
+New Comment: 
+Patch looks good. Few comments:<ol>	<li>DFSClient.listPaths() - comment could be more
+precies. "Use HdfsFileStatus.EMPTY_NAME as startAfter to get a list starting from the
+first file in the directory"</li>	<li>FSDirectory - lslimit should be set to default value
+if the <tt>configuredLimit &lt;= 0</tt></li></ol> 
+
+
+New Comment: 
+I do see that you are already doing the 2. in my previous comment. +1 for the patch. This
+is a very good change for the stability of the system. Thanks Hairong. 
+
+
+New Comment: 
+This patch fixed a bug in TestFileStatus.java. 
+
+
+New Comment: 
+One Minor issue, in browseDirectory.jsp it looks like you are deleting a line without
+deleting an associated comment? <blockquote><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> diff --git
+src/webapps/datanode/browseDirectory.jsp src/webapps/datanode/browseDirectory.jspindex
+ee1defd..4585b0e 100644--- src/webapps/datanode/browseDirectory.jsp+++
+src/webapps/datanode/browseDirectory.jsp@@ -76,7 +76,6 @@         return;       }       //
+directory-      HdfsFileStatus[] files = dfs.listPaths(target);       //generate a table
+and dump the info       String [] headings = { "Name", "Type", "Size", "Replication",     
+                          "Block Size", "Modification Time",</pre></div></div>
+</blockquote> 
+
+
+New Comment: 
+I assume that you were talking about the comment line "// directory". I think this comment
+means that "now we are handling the case target is a directory." It has nothing to do with
+the statement "dfs.listPaths(target)" that I removed. 
+
+
+New Comment: 
+Here is the patch for the trunk. 
+
+
+New Comment: 
+This patch is for trunk and fixed a web UI bug when display a directory structure. 
+
+
+New Comment: 
+This patch fixes the UI bug when browse directory from web in yahoo 0.20  branch. 
+
+
+New Comment: 
+iterativeLS_trunk2.patch fixed a bug in TestFileStatus.java. 
+
+
+New Comment: 
+Comments for trunk version of the patch:<ol>	<li>I feel throwing an exception instead of
+returning the accumulated list is a better behavior. This will avoid applications using
+the partial list to query further and handle file not found exception. If we continue to
+return partial list, add comments to relevant methods in FileSystem that if a directory is
+deleted, the accumulated list will be returned.</li>	<li>Add test cases to test deletion
+of directory while list status is still iterating.</li>	<li>There are some mapred changes
+in 20 version of the file that needs to be made in mapred branch?</li></ol> 
+
+
+New Comment: 
+20 version of the patch looks good except a minor comment: there are some tabs that cause
+improper indentation. 
+
+
+New Comment: 
+This patch fixes the indention problem and returns null if the target directory is deleted
+before the full listing has been fetched. 
+
+
+New Comment: 
+This patch incorporated Suresh's review comments. It throws FileNotFoundException when the
+listing directory is deleted and it adds an aspectJ test to test this case. Comment 3
+needs to be fixed in Mapreduce which I will do it later. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12438987/iterativeLS_trunk3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12438987/iterativeLS_trunk3.patch</a><br/>
+ against trunk revision 923467.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 19 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/129/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 for the 20 version of the patch.For trunk patch, do you need to change the log4j log
+level of DFSClient and DataNode to DEBUG or was this done for testing alone? 
+
+
+New Comment: 
+Log4j change was not intended. This patch removes it. 
+
+
+New Comment: 
+This patch synced with yahoo 0.20 security branch. 
+
+
+New Comment: 
+This fixes a bug in TestFileStatus unit test. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12439098/iterativeLS_trunk4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12439098/iterativeLS_trunk4.patch</a><br/>
+ against trunk revision 923467.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 19 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/272/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Failed contrib tests seem irrelevant to my
+patch:<br/>/grid/0/hudson/hudson-slave/workspace/Hdfs-Patch-h5.grid.sp2.yahoo.net/trunk/build.xml:569:
+The following error occurred while executing this line:<br/>     <span
+class="error">&#91;exec&#93;</span>
+/grid/0/hudson/hudson-slave/workspace/Hdfs-Patch-h5.grid.sp2.yahoo.net/trunk/src/contrib/build.xml:48:
+The following error occurred while executing this line:<br/>     <span
+class="error">&#91;exec&#93;</span>
+/grid/0/hudson/hudson-slave/workspace/Hdfs-Patch-h5.grid.sp2.yahoo.net/trunk/src/contrib/hdfsproxy/build.xml:292:
+org.codehaus.cargo.container.ContainerException: Failed to download <a
+href="http://apache.osuosl.org/tomcat/tomcat-6/v6.0.18/bin/apache-tomcat-6.0.18.zip"
+class="external-link"
+rel="nofollow">http://apache.osuosl.org/tomcat/tomcat-6/v6.0.18/bin/apache-tomcat-6.0.18.zip</a> 
+
+
+New Comment: 
++1 for the trunk version of the patch as well. 
+
+
+New Comment: 
+I've just committed this. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #218 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/218/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/218/</a>) 
+
+
+New Comment: 
+&gt; There are some mapred changes in 20 version of the file that needs to be made in
+mapred branch?<br/>It turns out there is no need to change mapred in the trunk. 
+
+
+New Comment: 
+<blockquote>It turns out there is no need to change mapred in the trunk. </blockquote>This
+is already done. (<a href="https://issues.apache.org/jira/browse/MAPREDUCE-1615"
+title="ant test on trunk does not compile." class="issue-link"
+data-issue-key="MAPREDUCE-1615"><del>MAPREDUCE-1615</del></a>) 
+
+
+New Comment: 
+Thanks Chris! 
+
+
+New Comment: 
+I performed some experiments to test the overhead of iterative listing. The experiments
+were performed on a NameNode with no traffic with security disabled. The client listed the
+directory for 200 times sequentially and the table below shows the average time for
+listing all entries of a directory. When the max # of returned entries per call is 1,000,
+this means that each directory listing requires multiple RPC calls to NameNode. In the
+case that max # of returned entries is 10,000, each directory listing requires only one
+RPC call.<div class='table-wrap'><table class='confluenceTable'><tbody><tr><th
+class='confluenceTh'>Max # of returned entries per getListing RPC</th><th
+class='confluenceTh'>Directory of 2,000 entries</th><th class='confluenceTh'>Directory of
+4,000 entries</th><th class='confluenceTh'>Directory of 10,000 entries</th></tr><tr><td
+class='confluenceTd'>1,000</td><td class='confluenceTd'>71.86ms</td><td
+class='confluenceTd'>145.88ms</td><td class='confluenceTd'>343.04ms</td></tr><tr><td
+class='confluenceTd'>10,000</td><td class='confluenceTd'>70.22ms</td><td
+class='confluenceTd'>165.66ms</td><td class='confluenceTd'>
+332.1ms</td></tr></tbody></table></div> 
+
+
+New Comment: 
+wow, these numbers are cool. Does this mea that directory listing (especially for large
+directories) are bottlenecked by the memory-allocation-and-processing at the NN and not by
+the number of round-trip calls made to the NN? 
+
+
+New Comment: 
+Hi Dhruba! Yes the data are good! I was very concerned that the feature would cause a lot
+of performance degradation. Directory listing is indeed very CPU intensive at NN. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #302 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/</a>) 
+
+

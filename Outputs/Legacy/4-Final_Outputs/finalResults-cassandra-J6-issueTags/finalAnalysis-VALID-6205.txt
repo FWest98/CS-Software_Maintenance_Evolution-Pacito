@@ -1,0 +1,141 @@
+Pattern changes caused by commit: b61f1d43e74134b1c4fc27b68d27b59f9d3739d5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6205.txt 
+
+commit b61f1d43e74134b1c4fc27b68d27b59f9d3739d5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: support for composite columns
+    Patch by Janne Jalkanen, reviewed by brandonwilliams for CASSANDRA-3684
+
+
+
+==================================
+ Issue CASSANDRA-3684 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3684] Composite Column Support for PIG
+-----------------
+
+-----------------
+Summary: Composite Column Support for PIG
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 29 Dec 2011 18:26:01 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 Feb 2012 20:36:36 +0000
+-----------------
+
+-----------------
+Assigned to: Janne Jalkanen
+-----------------
+
+-----------------
+Description: 
+
+It appears that some changes need to be made to support CompositeColumns. Right now if
+you try to load and use a column family that utilizes composite columns you get the
+following exception<span class="error">&#91;1&#93;</span>.
+
+It appears to me that we need
+to modify the storage handler for Pig to support this scenario.
+
+<span
+class="error">&#91;1&#93;</span>
+
+================================================================================<br/>Backend
+error message<br/>---------------------<br/>java.lang.RuntimeException: Unexpected data
+type -1 found in stream.<br/>	at
+org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:478)<br/>	at
+org.apache.pig.data.BinInterSedes.writeTuple(BinInterSedes.java:541)<br/>	at
+org.apache.pig.data.BinInterSedes.writeBag(BinInterSedes.java:522)<br/>	at
+org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:361)<br/>	at
+org.apache.pig.data.BinInterSedes.writeTuple(BinInterSedes.java:541)<br/>	at
+org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:357)<br/>	at
+org.apache.pig.data.BinSedesTuple.write(BinSedesTuple.java:57)<br/>	at
+org.apache.pig.impl.io.PigNullableWritable.write(PigNullableWritable.java:123)<br/>	at
+org.apache.hadoop.io.serializer.WritableSerialization$WritableSerializer.serialize(WritableSerialization.java:90)<br/>	at
+org.apache.hadoop.io.serializer.WritableSerialization$WritableSerializer.serialize(WritableSerialization.java:77)<br/>	at
+org.apache.hadoop.mapred.MapTask$MapOutputBuffer.collect(MapTask.java:1061)<br/>	at
+org.apache.hadoop.mapred.MapTask$NewOutputCollector.write(MapTask.java:691)<br/>	at
+org.apache.hadoop.mapreduce.TaskInputOutputContext.write(TaskInputOutputContext.java:80)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.collect(PigMapReduce.java:116)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:239)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:232)<br/>	at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)<br/>	at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)<br/>	at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)<br/>	at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)<br/>	at
+org.apache.hadoop.mapred.Child$4.run(Child.java:272)<br/>	at
+java.security.AccessController.doPrivileged(Native Method)<br/>	at
+javax.security.auth.Subject.doAs(Subject.java:396)<br/>	at
+org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059)<br/>	at
+org.apache.hadoop.mapred.Child.main(Child.java:266)
+
+Backend error
+message<br/>---------------------<br/>java.lang.Throwable: Child Error<br/>	at
+org.apache.hadoop.mapred.TaskRunner.run(TaskRunner.java:271)<br/>Caused by:
+java.io.IOException: Task process exit with nonzero status of 65.<br/>	at
+org.apache.hadoop.mapred.TaskRunner.run(TaskRunner.java:258)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch (against cassandra-1.0) brings in basic support for Composite Columns.I needed
+a simple way to deconstruct an AbstractCompositeType, so I had to enhance that. Dunno if
+that's desireable, but it's certainly easy :-PAlso the column name is an untyped tuple;
+not sure what would be the best way to extract the schema for it. 
+
+
+New Comment: 
+Also, apologies for extra crap; my OCD demands that my git is configured to remove extra
+space at the end of the lines <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>. If this approach looks feasible, I'll
+make a cleaner patch. 
+
+
+New Comment: 
+Patch to provide tests against the Composite Columns. 
+
+
+New Comment: 
+Improved test patch against the tests; this time with also Long:Long composite type. 
+
+

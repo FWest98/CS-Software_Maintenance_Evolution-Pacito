@@ -1,0 +1,157 @@
+Pattern changes caused by commit: 9b7c93bb3eb47b316903dcadc7c6b81dadc1197c
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-471.txt 
+
+commit 9b7c93bb3eb47b316903dcadc7c6b81dadc1197c
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-853. The HDFS webUI displays the balanced-ness of the cluster.
+    (Dmytro Molkov via dhruba)
+
+
+
+==================================
+ Issue HDFS-853 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-853] The HDFS webUI should show a metric that summarizes whether the cluster is balanced regarding disk space usage
+-----------------
+
+-----------------
+Summary: The HDFS webUI should show a metric that summarizes whether the cluster is balanced regarding disk space usage
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 24 Dec 2009 18:22:16 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 10 May 2010 19:25:26 +0000
+-----------------
+
+-----------------
+Assigned to: Dmytro Molkov
+-----------------
+
+-----------------
+Description: 
+
+It is desirable to know how much the datanodes vary form one another in terms of space
+utilization to get a sense of how well a HDFS cluster is balanced.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+ We can calculate the variance of space-usage  by parsing "dfsadmin -report"  but it will
+be good to have it in the webUI. It will also be good to expose it via a Hadoop Metric. 
+
+
+New Comment: 
+How do you propose to measure the variance? Calculate the average utilization and then
+print in a separate column the difference in %% from that average for each node? 
+
+
+New Comment: 
+I would like a cluster-wide measure that describes how much the cluster is balanced. The
+Cluster Summary prints total capacity, used disk space, etc. and it would be good to
+include another line that reflects how-balanced the cluster is. 
+
+
+New Comment: 
+OK, so you want one line that reflects the cluster-wide balance rather than a deviation
+from the average for each data-node.<br/>How do you measure the balance? Do you have any
+particular measurement in mind? 
+
+
+New Comment: 
+We're currently graphing both mean and standard deviation of datanodes from that mean,
+using a script that parses the output of 'dfsadmin -report'. Our DFS cluster nodes all
+have the same amount of disk space, so you'd expect mean of individual datanodes to be the
+same as % DFS full, but it's not quite the same. Haven't yet looked into why this is so.To
+directly answer Konstantin's question, the one line we're using is standard deviation. 
+
+
+New Comment: 
+May be we should use the mean and standard deviation of <em>utilization</em> rather than
+directly disk space. This would work for heterogeneous clusters as well. By utilization I
+mean the percentage of disk space used for blocks on a data-node. We should also make sure
+this is consistent with the Balancer: balancing should improve the metrics. 
+
+
+New Comment: 
+Attaching a patch and a screenshot of what it looks like. Please have a look at it.<br/>No
+unittest included since it is a UI change rather than anything else, but if you can think
+of a way to test it - let me know. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12443028/HDFS-853.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12443028/HDFS-853.patch</a><br/>
+ against trunk revision 937914.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    -1 contrib tests.  The
+patch failed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/330/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Konstantin: does this patch address your concern of whether it will handle heterogeneous
+clusters? 
+
+
+New Comment: 
+This patch should address any clusters nicely since what we are operating with is the load
+percentage, not absolute values. 
+
+
+New Comment: 
++1 code looks good. 
+
+

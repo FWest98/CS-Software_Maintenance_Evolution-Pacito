@@ -1,0 +1,87 @@
+Pattern changes caused by commit: a154497e76ee2f394bd858bf9cc28745d4c17cee
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1706.txt 
+
+commit a154497e76ee2f394bd858bf9cc28745d4c17cee
+Author: Maarten Bosteels <maarten@apache.org>
+
+    FIX for DIRMINA-711 : made test for MdcInjectionFilter more robust
+
+
+
+==================================
+ Issue DIRMINA-711 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-711] Adding some logs in the chain make the MDCFilter tests to fail
+-----------------
+
+-----------------
+Summary: Adding some logs in the chain make the MDCFilter tests to fail
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 18 May 2009 08:24:39 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Jan 2010 00:03:03 +0000
+-----------------
+
+-----------------
+Assigned to: Maarten Bosteels
+-----------------
+
+-----------------
+Description: 
+
+For some unkown reason, adding some logs in the chain makes MDCFilter tests to complain.
+*
+
+Here are the added logs (commented) :<br/><a
+href="http://svn.apache.org/viewvc?rev=774589&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=774589&amp;view=rev</a><br/><a
+href="http://svn.apache.org/viewvc?rev=774591&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=774591&amp;view=rev</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Wanted to add some log on the DefaultIoFilterChain#clear() method and got the same issue 
+
+
+New Comment: 
+see my previous comment 
+
+
+New Comment: 
+I think it has been fixed by Maarten last year :<a
+href="http://svn.apache.org/viewvc?view=revision&amp;revision=778025"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?view=revision&amp;revision=778025</a> 
+
+

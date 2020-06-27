@@ -1,0 +1,19 @@
+Pattern changes caused by commit: dbbca5e296d969550caca3519125dfe9f3f9a657
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8196.txt 
+
+commit dbbca5e296d969550caca3519125dfe9f3f9a657
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Catch and log UAE in Auth#setup instead of propagating

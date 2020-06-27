@@ -1,0 +1,17 @@
+Pattern changes caused by commit: e5dd390b96fb2ff6126b6d60de235fe0fb18af51
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9457.txt 
+
+commit e5dd390b96fb2ff6126b6d60de235fe0fb18af51
+Merge: bef5209 843dc79
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

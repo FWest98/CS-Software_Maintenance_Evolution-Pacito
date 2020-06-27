@@ -1,0 +1,19 @@
+Pattern changes caused by commit: dfe3ef9a3b7a9c81585e1a6c22f74d4026155b28
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8231.txt 
+
+commit dfe3ef9a3b7a9c81585e1a6c22f74d4026155b28
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m unused field

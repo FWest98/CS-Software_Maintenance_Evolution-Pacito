@@ -1,0 +1,378 @@
+Pattern changes caused by commit: fc42891a3a174545658c1b20b09006d824e990ee
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5604.txt 
+
+commit fc42891a3a174545658c1b20b09006d824e990ee
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix missing response during range slice repair
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3551
+
+
+
+==================================
+ Issue CASSANDRA-3551 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3551] Timeout exception for quorum reads after upgrade from 1.0.2 to 1.0.5
+-----------------
+
+-----------------
+Summary: Timeout exception for quorum reads after upgrade from 1.0.2 to 1.0.5
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 1 Dec 2011 22:58:16 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 7 Dec 2011 17:35:33 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+I upgraded from 1.0.2 to 1.0.5. For some column families always got TimeoutException. I
+turned on debug and increase rpc_timeout to 1 minute, but still got timeout. I believe it
+is bug on 1.0.5.
+
+ConsistencyLevel is QUORUM, replicate factor is 3. 
+
+Here are partial
+logs. 
+
+DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,717
+StorageProxy.java (line 813) RangeSliceCommand
+{keyspace='keyspaceLBSDATAPRODUS',
+column_family='dataProvider', super_column=null,
+predicate=SlicePredicate(slice_range:SliceRange(start:80 01 00 01 00 00 00 10 67 65 74 5F
+72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00 00 00 0C 64 61 74 61
+50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00, finish:80 01 00 01 00
+00 00 10 67 65 74 5F 72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00
+00 00 0C 64 61 74 61 50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00 0B
+00 02 00 00 00 00, reversed:false, count:1024)), range=[PROD/US/000/0,PROD/US/999/99999],
+max_keys=1024}
+DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01
+22:25:39,718 StorageProxy.java (line 1012) restricted ranges for query <span
+class="error">&#91;PROD/US/000/0,PROD/US/999/99999&#93;</span> are [<span
+class="error">&#91;PROD/US/000/0,PROD/US/300/~&#93;</span>,
+(PROD/US/300/~,PROD/<br/>US/600/<sub>], (PROD/US/600/</sub>,PROD/US/999/99999]]<br/>DEBUG
+<span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,720
+VoxeoStrategy.java (line 157) ReplicationFactor 3<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,720 VoxeoStrategy.java
+(line 33) PROD/US/300/~<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span>
+2011-12-01 22:25:39,721 VoxeoStrategy.java (line 96) End region for token PROD/US/300/~
+PROD/US/300/~ 10.92.208.103<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span>
+2011-12-01 22:25:39,721 VoxeoStrategy.java (line 96) End region for token PROD/US/300/~
+PROD/US/600/~ 10.72.208.103<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span>
+2011-12-01 22:25:39,721 VoxeoStrategy.java (line 96) End region for token PROD/US/300/~
+PROD/US/999/~ 10.8.208.103<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span>
+2011-12-01 22:25:39,723 VoxeoStrategy.java (line 157) ReplicationFactor 3<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,724 ReadCallback.java
+(line 77) Blockfor/repair is 2/false; setting up requests to
+/10.92.208.103,/10.72.208.103<br/>DEBUG <span
+class="error">&#91;WRITE-/10.92.208.103&#93;</span> 2011-12-01 22:25:39,725
+OutboundTcpConnection.java (line 206) attempting to connect to /10.92.208.103<br/>DEBUG
+<span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,726
+StorageProxy.java (line 859) reading RangeSliceCommand
+{keyspace='keyspaceLBSDATAPRODUS',
+column_family='dataProvider', super_column=null,
+predicate=SlicePredicate(slice_range:SliceRange(start:80 01 00 01 00 00 00 10 67 65 74 5F
+72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00 00 00 0C 64 61 74 61
+50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00, finish:80 01 00 01 00
+00 00 10 67 65 74 5F 72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00
+00 00 0C 64 61 74 61 50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00 0B
+00 02 00 00 00 00, reversed:false, count:1024)), range=[PROD/US/000/0,PROD/US/300/~],
+max_keys=1024}
+ from /10.92.208.103<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,726 StorageProxy.java
+(line 859) reading RangeSliceCommand
+{keyspace='keyspaceLBSDATAPRODUS',
+column_family='dataProvider', super_column=null,
+predicate=SlicePredicate(slice_range:SliceRange(start:80 01 00 01 00 00 00 10 67 65 74 5F
+72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00 00 00 0C 64 61 74 61
+50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00, finish:80 01 00 01 00
+00 00 10 67 65 74 5F 72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00
+00 00 0C 64 61 74 61 50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00 0B
+00 02 00 00 00 00, reversed:false, count:1024)), range=[PROD/US/000/0,PROD/US/300/~],
+max_keys=1024}
+ from /10.72.208.103<br/>DEBUG <span
+class="error">&#91;WRITE-/10.8.208.103&#93;</span> 2011-12-01 22:25:39,727
+OutboundTcpConnection.java (line 206) attempting to connect to /10.8.208.103<br/>DEBUG
+<span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,727
+StorageProxy.java (line 859) reading RangeSliceCommand
+{keyspace='keyspaceLBSDATAPRODUS',
+column_family='dataProvider', super_column=null,
+predicate=SlicePredicate(slice_range:SliceRange(start:80 01 00 01 00 00 00 10 67 65 74 5F
+72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00 00 00 0C 64 61 74 61
+50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00, finish:80 01 00 01 00
+00 00 10 67 65 74 5F 72 61 6E 67 65 5F 73 6C 69 63 65 73 00 00 00 03 0C 00 01 0B 00 03 00
+00 00 0C 64 61 74 61 50 72 6F 76 69 64 65 72 00 0C 00 02 0C 00 02 0B 00 01 00 00 00 00 0B
+00 02 00 00 00 00, reversed:false, count:1024)), range=[PROD/US/000/0,PROD/US/300/~],
+max_keys=1024}
+ from /10.8.208.103<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,731 SliceQueryFilter.java
+(line 123) collecting 0 of 1024: active:false:1@1322777621601000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,731 SliceQueryFilter.java
+(line 123) collecting 1 of 1024: name:false:4@1322777621601000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,731 SliceQueryFilter.java
+(line 123) collecting 2 of 1024: providerData:false:2283@1321549067179000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,731 SliceQueryFilter.java
+(line 123) collecting 3 of 1024: providerID:false:1@1322777621601000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,732 SliceQueryFilter.java
+(line 123) collecting 4 of 1024: timestamp:false:13@1322777621601000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,732 SliceQueryFilter.java
+(line 123) collecting 5 of 1024: vendorData:false:2364@1322777621601000<br/>DEBUG <span
+class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,733 ColumnFamilyStore.java
+(line 1331) scanned DecoratedKey(PROD/US/001/1, 50524f442f55532f3030312f31)<br/>DEBUG
+<span class="error">&#91;ReadStage:1&#93;</span> 2011-12-01 22:25:39,733
+RangeSliceVerbHandler.java (line 55) Sending
+RangeSliceReply
+{rows=Row(key=DecoratedKey(PROD/US/001/1, 50524f442f55532f3030312f31),
+cf=ColumnFamily(dataProvider
+[active:false:1@1322777621601000,name:false:4@1322777621601000,providerData:false:2283@1321549067179000,providerID:false:1@1322777621601000,timestamp:false:13@1322777621601000,vendorData:false:2364@1322777621601000,]))}
+
+to 72@/10.72.208.103<br/>DEBUG <span class="error">&#91;RequestResponseStage:1&#93;</span>
+2011-12-01 22:25:39,734 ResponseVerbHandler.java (line 44) Processing response on a
+callback from 72@/10.72.208.103<br/>DEBUG <span
+class="error">&#91;RequestResponseStage:2&#93;</span> 2011-12-01 22:25:39,887
+ResponseVerbHandler.java (line 44) Processing response on a callback from
+71@/10.92.208.103<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span>
+2011-12-01 22:25:39,889 SliceQueryFilter.java (line 123) collecting 0 of 2147483647:
+active:false:1@1322777621601000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,890
+SliceQueryFilter.java (line 123) collecting 1 of 2147483647:
+name:false:4@1322777621601000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,890
+SliceQueryFilter.java (line 123) collecting 2 of 2147483647:
+providerData:false:2283@1321549067179000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,890
+SliceQueryFilter.java (line 123) collecting 3 of 2147483647:
+providerID:false:1@1322777621601000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,890
+SliceQueryFilter.java (line 123) collecting 4 of 2147483647:
+timestamp:false:13@1322777621601000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,891
+SliceQueryFilter.java (line 123) collecting 5 of 2147483647:
+vendorData:false:2364@1322777621601000<br/>DEBUG <span
+class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:25:39,892 StorageProxy.java
+(line 867) range slices read DecoratedKey(PROD/US/001/1,
+50524f442f55532f3030312f31)<br/>DEBUG <span
+class="error">&#91;RequestResponseStage:3&#93;</span> 2011-12-01 22:25:39,936
+ResponseVerbHandler.java (line 44) Processing response on a callback from
+73@/10.8.208.103<br/>DEBUG <span class="error">&#91;ScheduledTasks:1&#93;</span>
+2011-12-01 22:26:19,788 LoadBroadcaster.java (line 86) Disseminating load info
+...<br/>DEBUG <span class="error">&#91;pool-2-thread-1&#93;</span> 2011-12-01 22:26:39,904
+StorageProxy.java (line 874) Range slice timeout: java.util.concurrent.TimeoutException:
+Operation timed out.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+any exceptions on the other nodes? 
+
+
+New Comment: 
+I am seeing this too; switching to ConsistencyLevel.ONE helps, but does not solve the
+problem completely, i.e. queries fail less often. 
+
+
+New Comment: 
+More infos on you respective setups could help. For instance:<ul>	<li>you said, 'For some
+column families'. Is there something specific to those column families ? Are they using
+compression? leveled compaction?</li>	<li>Janne: you're seeing it too, but on which
+version exactly did you definitively not see this problem and on which are you
+definitively seeing it? Is it 1.0.2 and 1.0.5 respectively as for Zhong?</li>	<li>As
+Jonathan said, are you seeing any error in any node logs?</li></ul> 
+
+
+New Comment: 
+1.0.5, RF 3, 3 node cluster on EC2.  I upgraded just recently directly from 0.6.13, so I
+have not been on any earlier 1.0.x version.  No compression, just a straightforward
+upgrade with minimal tuning to the cassandra.yaml file.  2GB heap, maybe ~1GB in use. 
+Happens with column families which have 20 rows, CFs which have 10000 rows and more. 
+Happens when trying to read 100 rows at a time, happens when trying to read 10k rows at a
+time.  The only factor that I've noticed while trying to tune that has any effect is
+changing the CL.No errors in node logs, no anomalies in system monitoring (like suddenly
+increased disk latency).  Only cassandra's storageproxy latency goes way up (hundreds of
+milliseconds), before failure.Here is the exception from hector:Caused by:
+me.prettyprint.hector.api.exceptions.HTimedOutException: TimedOutException()<br/>	at
+me.prettyprint.cassandra.service.ExceptionsTranslatorImpl.translate(ExceptionsTranslatorImpl.java:42)<br/>	at
+me.prettyprint.cassandra.service.KeyspaceServiceImpl$3.execute(KeyspaceServiceImpl.java:163)<br/>	at
+me.prettyprint.cassandra.service.KeyspaceServiceImpl$3.execute(KeyspaceServiceImpl.java:145)<br/>	at
+me.prettyprint.cassandra.service.Operation.executeAndSetResult(Operation.java:101)<br/>	at
+me.prettyprint.cassandra.connection.HConnectionManager.operateWithFailover(HConnectionManager.java:233)<br/>	at
+me.prettyprint.cassandra.service.KeyspaceServiceImpl.operateWithFailover(KeyspaceServiceImpl.java:131)<br/>	at
+me.prettyprint.cassandra.service.KeyspaceServiceImpl.getRangeSlices(KeyspaceServiceImpl.java:167)<br/>	at
+me.prettyprint.cassandra.model.thrift.ThriftRangeSlicesQuery$1.doInKeyspace(ThriftRangeSlicesQuery.java:67)<br/>	at
+me.prettyprint.cassandra.model.thrift.ThriftRangeSlicesQuery$1.doInKeyspace(ThriftRangeSlicesQuery.java:63)<br/>	at
+me.prettyprint.cassandra.model.KeyspaceOperationCallback.doInKeyspaceAndMeasure(KeyspaceOperationCallback.java:20)<br/>	at
+me.prettyprint.cassandra.model.ExecutingKeyspace.doExecute(ExecutingKeyspace.java:85)<br/>	at
+me.prettyprint.cassandra.model.thrift.ThriftRangeSlicesQuery.execute(ThriftRangeSlicesQuery.java:62)Here's
+the CF definition:    ColumnFamily: XXXX<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.BytesType<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.UTF8Type<br/>      Row cache size / save period in seconds
+/ keys to save : 0.0/0/all<br/>      Row Cache Provider:
+org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider<br/>      Key cache size /
+save period in seconds: 200000.0/14400<br/>      GC grace seconds: 864000<br/>     
+Compaction min/max thresholds: 4/32<br/>      Read repair chance: 1.0<br/>      Replicate
+on write: true<br/>      Built indexes: []<br/>      Compaction Strategy:
+org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy 
+
+
+New Comment: 
+There is no exceptions on other nodes. I might be wrong about 'For some column families'.
+I saw another column family failed with Range Slice too. It works for insert. It might
+work for others retrieve command. I need test more when I have time. There is no
+compression, one row data only. ColumnFamily: dataProvider<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.UTF8Type<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.UTF8Type<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.UTF8Type<br/>      Row cache size / save period in seconds
+/ keys to save : 1024.0/0/all<br/>      Row Cache Provider:
+org.apache.cassandra.cache.SerializingCacheProvider<br/>      Key cache size / save period
+in seconds: 1024.0/14400<br/>      GC grace seconds: 432000<br/>      Compaction min/max
+thresholds: 4/32<br/>      Read repair chance: 1.0<br/>      Replicate on write: true<br/>
+     Column Metadata:<br/>        Column Name: active<br/>          Validation Class:
+org.apache.cassandra.db.marshal.UTF8Type<br/>          Index Name:
+dataProvider_active_idx<br/>          Index Type: KEYS<br/>        Column Name:
+object<br/>          Validation Class: org.apache.cassandra.db.marshal.BytesType<br/>     
+  Column Name: providerData<br/>          Validation Class:
+org.apache.cassandra.db.marshal.UTF8Type<br/>          Index Name:
+dataProvider_providerData_idx<br/>          Index Type: KEYS<br/>        Column Name:
+providerID<br/>          Validation Class: org.apache.cassandra.db.marshal.UTF8Type<br/>  
+       Index Name: dataProvider_providerID_idx<br/>          Index Type: KEYS<br/>     
+Compaction Strategy: org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy 
+
+
+New Comment: 
+I hit a version of this problem...I upgraded a production cluster from 1.0.3 (from a
+non-official version patched for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3510" title="Incorrect query results
+due to invalid SSTable.maxTimestamp" class="issue-link"
+data-issue-key="CASSANDRA-3510"><del>CASSANDRA-3510</del></a>) to 1.0.5. The aim was to
+pass <a href="https://issues.apache.org/jira/browse/CASSANDRA-3440" title="local writes
+timing out cause attempt to hint to self" class="issue-link"
+data-issue-key="CASSANDRA-3440"><del>CASSANDRA-3440</del></a>.This generated a timeout
+storm on range slices and I have reverted. Notes:1/ The 1.0.5 node CPUs all showed tiny
+load - in fact, they seemed to be substantially less loaded than the 1.0.3 nodes were/are
+again2/ The system.log files on the 1.0.5 nodes didn't record any errors3/ range_slice
+timeout storm experienced in application layer. Example log trace
+beloworg.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException:
+Read timed out<br/>        at
+org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:129) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.transport.TTransport.readAll(TTransport.java:84) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.transport.TFramedTransport.readFrame(TFramedTransport.java:129) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.transport.TFramedTransport.read(TFramedTransport.java:101) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.transport.TTransport.readAll(TTransport.java:84) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.protocol.TBinaryProtocol.readAll(TBinaryProtocol.java:378) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.protocol.TBinaryProtocol.readI32(TBinaryProtocol.java:297) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.thrift.protocol.TBinaryProtocol.readMessageBegin(TBinaryProtocol.java:204)
+~<span class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        at
+org.apache.cassandra.thrift.Cassandra$Client.recv_get_slice(Cassandra.java:560) ~<span
+class="error">&#91;cassandra-thrift-1.0.1.jar:1.0.1&#93;</span><br/>        at
+org.apache.cassandra.thrift.Cassandra$Client.get_slice(Cassandra.java:542) ~<span
+class="error">&#91;cassandra-thrift-1.0.1.jar:1.0.1&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Selector$3.execute(Selector.java:683) ~<span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Selector$3.execute(Selector.java:680) ~<span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Operand.tryOperation(Operand.java:86) <span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Operand.tryOperation(Operand.java:66) <span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Selector.getColumnOrSuperColumnsFromRow(Selector.java:680)
+<span class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>       
+at org.scale7.cassandra.pelops.Selector.getColumnsFromRow(Selector.java:689) <span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Selector.getColumnsFromRow(Selector.java:676) <span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+org.scale7.cassandra.pelops.Selector.getColumnsFromRow(Selector.java:562) <span
+class="error">&#91;scale7-pelops-1.3-1.0.x-SNAPSHOT.jar:na&#93;</span><br/>        at
+com.fightmymonster.game.Monsters.getMonster(Monsters.java:92) <span
+class="error">&#91;fmmServer.jar:na&#93;</span><br/>        at
+com.fightmymonster.rmi.monsters.GetMonster.doWork(GetMonster.java:25) <span
+class="error">&#91;fmmServer.jar:na&#93;</span><br/>        at
+org.wyki.networking.starburst.SyncRmiOperation.run(SyncRmiOperation.java:50) <span
+class="error">&#91;fmmServer.jar:na&#93;</span><br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886) <span
+class="error">&#91;na:1.6.0_22&#93;</span><br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908) <span
+class="error">&#91;na:1.6.0_22&#93;</span><br/>        at
+java.lang.Thread.run(Thread.java:662) <span
+class="error">&#91;na:1.6.0_22&#93;</span><br/>Caused by: java.net.SocketTimeoutException:
+Read timed out<br/>        at java.net.SocketInputStream.socketRead0(Native Method) ~<span
+class="error">&#91;na:1.6.0_22&#93;</span><br/>        at
+java.net.SocketInputStream.read(SocketInputStream.java:129) ~<span
+class="error">&#91;na:1.6.0_22&#93;</span><br/>        at
+org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:127) ~<span
+class="error">&#91;libthrift-0.6.1.jar:0.6.1&#93;</span><br/>        ... 23 common frames
+omitted 
+
+
+New Comment: 
+This is due to <a href="https://issues.apache.org/jira/browse/CASSANDRA-3440" title="local
+writes timing out cause attempt to hint to self" class="issue-link"
+data-issue-key="CASSANDRA-3440"><del>CASSANDRA-3440</del></a>. More precisely, the fact
+that in RowRepairResolver it has changed the message from the mutation verb to the
+read_repair one. The problem is that ReadRepairVerbHandler does not respond anything, but
+the RowRepairResolver is waiting for a response.After looking, I haven't found any part of
+the code using the read_repair verb handler except for the RowRepairResolver (which would
+mean that before <a href="https://issues.apache.org/jira/browse/CASSANDRA-3440"
+title="local writes timing out cause attempt to hint to self" class="issue-link"
+data-issue-key="CASSANDRA-3440"><del>CASSANDRA-3440</del></a> it wasn't used at all, so
+it's worth having someone else double checking I didn't missed anything), so a simple fix
+is to make the ReadRepairVerbHandler return an acknowledgment. Attaching a patch for that. 
+
+
+New Comment: 
+To be explicit: this only affects queries at CL &gt; ONE.<blockquote>I haven't found any
+part of the code using the read_repair verb handler except for the RowRepairResolver,
+which would mean that before <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3440" title="local writes timing out
+cause attempt to hint to self" class="issue-link"
+data-issue-key="CASSANDRA-3440"><del>CASSANDRA-3440</del></a> it wasn't used at
+all</blockquote>Right, it was used for a while, then we switched to MUTATION Verb to get
+the reply for "free" when we changed StorageProxy to wait for repair acks, but we never
+cleared out the Verb or RRVH.+1 on the fix. 
+
+
+New Comment: 
+Committed, thanks 
+
+

@@ -1,0 +1,160 @@
+Pattern changes caused by commit: b5f99a3364a6b0a8531d8bb1c240a8f0603b4f56
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6850.txt 
+
+commit b5f99a3364a6b0a8531d8bb1c240a8f0603b4f56
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Don't convict dead states.
+    Patch by brandonwilliams, reviewed by Vijay for CASSANDRA-4115.
+
+
+
+==================================
+ Issue CASSANDRA-4115 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4115] UNREACHABLE schema after decommissioning a non-seed node
+-----------------
+
+-----------------
+Summary: UNREACHABLE schema after decommissioning a non-seed node
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 4 Apr 2012 17:43:12 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 22 May 2012 16:29:31 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+decommission a non-seed node, sleep 30 seconds, then use thrift to check the schema.
+UNREACHABLE is listed:
+{'75dc4c07-3c1a-3013-ad7d-11fb34208465': ['127.0.0.1'],
+'UNREACHABLE': ['127.0.0.2']} 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Tyler, what version(s) did you observer this against? 
+
+
+New Comment: 
+Also, did you mean to attach unavailable_schema_test.py somewhere? 
+
+
+New Comment: 
+I tested and got it on branch 1.0.9-tentative and release 1.0.8.I added
+unavailable_schema_test.py to the master branch of dtest. 
+
+
+New Comment: 
+The only way I can see this happening on 1.0 is if ring delay is set to something lower
+than the gossip interval *2, otherwise it might not actually send the 'left' message. 
+That would result in the node being stuck in a 'leaving' and down state keeping it in the
+unreachable map.For 1.1 and trunk, this is caused by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3936" title="Gossip should have a
+&#39;goodbye&#39; command to indicate shutdown" class="issue-link"
+data-issue-key="CASSANDRA-3936"><del>CASSANDRA-3936</del></a>, forcing a conviction when
+the decom node shuts the gossiper down, after the others have already removed it. 
+Instead, markAlive and markDead should have a dead state check and thus ignore it, since
+it's never valid to do either with a dead state. 
+
+
+New Comment: 
+<blockquote>The only way I can see this happening on 1.0 is if ring delay is set to
+something lower than the gossip interval *2</blockquote>Pretty sure Tyler didn't mess with
+ring delay. 
+
+
+New Comment: 
+After testing a little more I found the following:On 1.0.9 I get the following schema when
+sleeping 30 seconds after the decommission:{'00000000-0000-1000-0000-000000000000':
+['127.0.0.1'], 'UNREACHABLE': ['127.0.0.2']}On 1.1, this is the schema 30 seconds after
+the decommission:{'59adb24e-f3cd-3e02-97f0-5b395827453f': ['127.0.0.1'], 'UNREACHABLE':
+['127.0.0.2']}If I increase the sleep after decommissioning from 30 to 90 seconds, then
+1.0.9 now returns only one schema, while 1.1 still fails with the UNREACHABLE schema. None
+of these tests were done with the recent patch. 
+
+
+New Comment: 
+This must be something with the environment, on 1.0 I see the node removed as soon as the
+decom node begins to announce it has left (before it has completed announcing, and thus
+before nodetool would even return) and it never reappears. 
+
+
+New Comment: 
+What does strike me as odd though is that your 1.0 test has no schema at all, hence the
+00000000-0000-1000-0000-000000000000 uuid. 
+
+
+New Comment: 
+Setting this as blocker for 1.1.1 so it doesn't slip by, we definitely need this patch in
+1.1. 
+
+
+New Comment: 
+I think we will have a problem in handleMajorStateChange<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+     <span class="code-keyword">if</span> (!isDeadState(epState))            markAlive(ep,
+epState);        <span class="code-keyword">else</span>        {           
+logger.debug(<span class="code-quote">"Not marking "</span> + ep + <span
+class="code-quote">" alive due to dead state"</span>);            markDead(ep, epState);  
+     }</pre></div></div>but in markDead we have the following so it will never be marked
+dead.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">        <span class="code-keyword">if</span>
+(isDeadState(localState))            <span
+class="code-keyword">return</span>;</pre></div></div> 
+
+
+New Comment: 
+Hmm, you're right.  v2 instead filters dead states out of convict() 
+
+
+New Comment: 
++1 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7b4639ab26d6c1f174bab07a32eb7838c1c51c09
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8059.txt 
+
+commit 7b4639ab26d6c1f174bab07a32eb7838c1c51c09
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    improve error message on partitioner mismatch
+    patch by jbellis; reviewed by slebresne for CASSANDRA-4843

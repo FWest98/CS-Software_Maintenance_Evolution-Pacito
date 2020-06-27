@@ -1,0 +1,97 @@
+Pattern changes caused by commit: f05d1881ae392b0f18cac927d7e7202dc0728dc8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3895.txt 
+
+commit f05d1881ae392b0f18cac927d7e7202dc0728dc8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    movegossip heartbeat back to its own thread
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2554
+
+
+
+==================================
+ Issue CASSANDRA-2554 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2554] Move gossip heartbeats [back] to its own thread
+-----------------
+
+-----------------
+Summary: Move gossip heartbeats [back] to its own thread
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 25 Apr 2011 17:20:20 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 26 Apr 2011 17:11:56 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Gossip heartbeat <b>really</b> needs to run every 1s or other nodes may mark us down. But
+gossip currently shares an executor thread with other tasks.
+
+I see at least two of these
+could cause blocking: hint cleanup post-delivery and flush-expired-memtables, both of
+which call forceFlush which will block if the flush queue + threads are full.
+
+We've run
+into this before (<a href="https://issues.apache.org/jira/browse/CASSANDRA-2253"
+title="Gossiper Starvation" class="issue-link"
+data-issue-key="CASSANDRA-2253"><del>CASSANDRA-2253</del></a>); we should move Gossip back
+to its own dedicated executor or it will keep happening whenever someone accidentally puts
+something on the "shared" executor that can block.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patches against 0.7 and 0.8 to move Gossip to its own executor, and move hint deletion +
+flush expired memtables + cache saving to the long-execution-time executor. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

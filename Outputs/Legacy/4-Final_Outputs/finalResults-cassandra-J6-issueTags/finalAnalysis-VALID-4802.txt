@@ -1,0 +1,292 @@
+Pattern changes caused by commit: 62cc775015c5da79b6bc94ef40ad78d7b504571c
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4802.txt 
+
+commit 62cc775015c5da79b6bc94ef40ad78d7b504571c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    convenience workflow for replacing dead node
+    patch by Vijay; reviewed by Nick Bailey for CASSANDRA-957
+
+
+
+==================================
+ Issue CASSANDRA-957 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-957] convenience workflow for replacing dead node
+-----------------
+
+-----------------
+Summary: convenience workflow for replacing dead node
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 5 Apr 2010 22:38:43 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 6 Sep 2011 01:14:08 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+Replacing a dead node with a new one is a common operation, but "nodetool removetoken"
+followed by bootstrap is inefficient (re-replicating data first to the remaining nodes,
+then to the new one) and manually bootstrapping to a token "just less than" the old one's,
+followed by "nodetool removetoken" is slightly painful and prone to manual errors.
+
+First
+question: how would you expose this in our tool ecosystem?  It needs to be a startup-time
+option to the new node, so it can't be nodetool, and messing with the config xml
+definitely takes the "convenience" out.  A one-off -DreplaceToken=XXY argument?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It would be easier if a node could start without joining the ring: <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-526" title="Operations: Allow the
+ability to start a node without joining the ring" class="issue-link"
+data-issue-key="CASSANDRA-526"><del>CASSANDRA-526</del></a>. 
+
+
+New Comment: 
+Found when testing using RF=2 that there is a chance that the local node could be included
+in the workMap, and be the first node ordered by proximity. workMap uses the first node
+from the list as a source. This would cause sending Bootstrap stream sessions to itself. 
+
+
+New Comment: 
+What happens if I bring up a node with the same ip and bootstrap on but forget the replace
+option? It looks like it will try to bootstrap to an auto picked token. Am I reading that
+right?What happens if I accidentally give the wrong token with the replace option? If I
+accidentally give the token for a live node will it try to bootstrap to the same position? 
+
+
+New Comment: 
+Good observation. I'll work on covering both use cases. 
+
+
+New Comment: 
+Chris, are you still working on this? 
+
+
+New Comment: 
+yes. ill post an update next week with an updated patchset. 
+
+
+New Comment: 
+I am going to defer this to anyone else who would like to pick up this ticket. I just do
+not have the spare time to focus on this. 
+
+
+New Comment: 
+Thanks Chris, I will give it a try... 
+
+
+New Comment: 
+Adding support for replacing token.... This also supports replacement with the same IP.
+Reworked Hints to be based on Token instead of IP's.... The 3rd part of the patch also
+makes the hints be delivered to the host (currently seems like it is not delivered at
+all... Let me know if you want to move this to a different ticket). 
+
+
+New Comment: 
+Reported to 2496, Testing it took longer than expected time... 
+
+
+New Comment: 
+Seems like <a href="https://issues.apache.org/jira/browse/CASSANDRA-2928" title="Fix
+Hinted Handoff replay" class="issue-link"
+data-issue-key="CASSANDRA-2928"><del>CASSANDRA-2928</del></a> fixes the hints issue... so
+we can ignore 0003 in this ticket. 
+
+
+New Comment: 
+Rebased.... with a better way to look for operator error. 
+
+
+New Comment: 
+So a few questions:<ul>	<li>In Gossiper.doStatusCheck() you made it ignore any state that
+is for the local endpoint and is not a dead state. Shouldn't it just always ignore any
+state about the local endpoint though? Basically what it was doing
+previously?</li>	<li>Basically the same question about Gossiper.applyStateLocally() the
+loop continues if the state is for the local node and the state is dead. Why would we want
+to apply a live local state?</li>	<li>Does the hibernate state need the true/false value?
+Seems like all we care about is that it is set at all. Looks like we we are starting up
+right now we automatically go into a hibernate state, then we go into a bootstrap state
+afterwards if the specified a replace token. Seems like we shouldn't set a state at all
+until we know we are doing one of replace/bootstrap/just joining.</li>	<li>It looks like
+right now you could specify a replace token that isn't part of the cluster. If that
+happens we should throw an exception and tell the user to do the normal bootstrap
+process.</li>	<li>Why use the last gossip time to determine if the node we are replacing
+is alive? Why not just check gossip to see if the ring thinks it is alive?</li>	<li>We
+should update the the message for the exception that is thrown when you try to bootstrap
+to an existing token. It should indicate either remove the dead node or follow this
+replacement process.</li>	<li>I'm not sure why we are calling updateNormalToken() in the
+StorageService.bootstrap() method when it's a token replacement.</li>	<li>A little bit of
+doc on this would be good, maybe in cassandra.yaml? Just on how to pass the argument to
+the startup process.</li></ul>I also need to dive into the hint stuff a little bit more,
+I'm less familiar with that code. 
+
+
+New Comment: 
+The hint rework looks good. The only comment I have there is that it would be nice if the
+logging statements for sending hints creating hints indicated the ip as well as the token.
+Even though it's stored by token it would be nice to immediately see the ip in the log
+without having to look it up.I'm also unsure about the reasoning behind the last patch.
+Why increase the initial sleep in joinTokenRing? 
+
+
+New Comment: 
+<ul>	<li>In Gossiper.doStatusCheck() you made it ignore any state that is for the local
+endpoint and is not a dead state. Shouldn't it just always ignore any state about the
+local endpoint though? Basically what it was doing previously?</li>	<li>Basically the same
+question about Gossiper.applyStateLocally() the loop continues if the state is for the
+local node and the state is dead. Why would we want to apply a live local state?<br/>-&gt;
+Fixed, initial intention was to find the old state of the node, Seems like it is not
+possible now…</li></ul><ul>	<li>Does the hibernate state need the true/false value? Seems
+like all we care about is that it is set at all. Looks like we we are starting up right
+now we automatically go into a hibernate state, then we go into a bootstrap state
+afterwards if the specified a replace token. Seems like we shouldn't set a state at all
+until we know we are doing one of replace/bootstrap/just joining.<br/>-&gt; it will be
+either true or false (If not a replace, or overwrite with the state normal)… if you don't
+then Gossiper.applyStateLocally will mark it alive on all the other
+nodes.</li></ul><ul>	<li>It looks like right now you could specify a replace token that
+isn't part of the cluster. If that happens we should throw an exception and tell the user
+to do the normal bootstrap process.<br/>-&gt; As we are ignoring the local states… this
+information is hard to gather when we are trying to replace the same node…. The check is
+to see no other live node owns this token….<br/>-&gt; We can document in the wiki about
+the effects if they replace a token which is not part of the ring….
+(repair/decommission)</li></ul><ul>	<li>Why use the last gossip time to determine if the
+node we are replacing is alive? Why not just check gossip to see if the ring thinks it is
+alive?<br/>-&gt; because by default when we hear about someone we consider them to be
+alive…. the idea is to check and see if we heard from them back or not (After the ring
+delay) if not then there is more probability that the dead node is dead (Thats why we have
+to wait for 90 + delay </li></ul><ul>	<li>We should update the the message for the
+exception that is thrown when you try to bootstrap to an existing token. It should
+indicate either remove the dead node or follow this replacement process.<br/>-&gt; I am
+not sure if i parse that, i have added more to it plz check.</li></ul><ul>	<li>I'm not
+sure why we are calling updateNormalToken() in the StorageService.bootstrap() method when
+it's a token replacement.<br/>-&gt; Thats because you don't want the range request sent to
+the node which is not existing.</li></ul><ul>	<li>A little bit of doc on this would be
+good, maybe in cassandra.yaml? Just on how to pass the argument to the startup
+process.<br/>-&gt; Yaml is bad because this is a one time thing…. Wiki page? like the
+don't join ring property</li></ul> 
+
+
+New Comment: 
+Attaching newer version with fix and rebase. 
+
+
+New Comment: 
+I'm also unsure about the reasoning behind the last patch. Why increase the initial sleep
+in joinTokenRing?<br/> &#8211; Ring delay + extra time so we can check if there is any
+live server before actually replacing the node. 
+
+
+New Comment: 
+Added more logging.... for RMV i am not sure if we have to parse the string to token and
+then to ip. 
+
+
+New Comment: 
+Just a couple more things<ul>	<li>Looks like some tests are failing with these patches
+applied. Want to look into that?</li>	<li>Can you revert the logging change in gossiper
+for when a node restarts? You changed it to, 'logger.info("Node {} has been restarted...",
+ep);' which isn't particularly more informative. The old logging statement allowed you to
+easily grep for 'UP' in the logs.</li>	<li>Can we only sleep for BROADCAST_INTERVAL if we
+are actually replacing a token? No reason to add extra sleeping to the normal bootstrap
+case.</li>	<li>Nitpick: you added some random whitespace throughout those 2 patches at the
+ends of lines. Can we remove that when you fix the above.</li></ul>Another thing, when we
+document this let's be sure to mention that clients should not connect to a node that is
+replacing another node until the process is complete. They will see inconsistent results
+if they do since gossiper always assumes the local node is alive. 
+
+
+New Comment: 
+	•	Looks like some tests are failing with these patches applied. Want to look into
+that?<br/>Fixed somehow this got missed from v1 to v4...<br/>	•	Can you revert the logging
+change in gossiper for when a node restarts? You changed it to, 'logger.info("Node {} has
+been restarted...", ep);' which isn't particularly more informative. The old logging
+statement allowed you <br/>to easily grep for 'UP' in the logs.<br/>Done!<br/>	•	Can we
+only sleep for BROADCAST_INTERVAL if we are actually replacing a token? No reason to add
+extra sleeping to the normal bootstrap case.<br/>If we do that we will not be able to
+check the update interval because all the messages will be within the delay interval….
+sleeping little more will make allow us to identify the node isAlive or not (if in case
+the replacing node with a different IP is alive) - Plz check EndpointState(HeartBeatState
+initialHbState)	•	Nitpick: you added some random whitespace throughout those 2 patches at
+the ends of lines. Can we remove that when you fix the above.<br/>Not sure where you see
+it. 
+
+
+New Comment: 
+Rebased with the new hints. 
+
+
+New Comment: 
+Looks like an onRestart() method was added for the state subscribers. I think it was
+accidental but looks like your change removes that call and replaces it with markDead().
+Was that accidental? 
+
+
+New Comment: 
+Yeah sorry for the oversight on onRestart() but markAsDead() is intentional otherwise the
+if the node is coming with the same IP even though we dont markAsAlive we will see the
+traffic flowing though it as it is because of the gossip hence we make sure we dont do
+that until it is marked alive.... 
+
+
+New Comment: 
++1 on 0001 v7 and 0002 v6 
+
+
+New Comment: 
+Can you add a short how-to to NEWS.txt describing this feature? 
+
+
+New Comment: 
+Done! + added some documentation @ <a href="http://wiki.apache.org/cassandra/Operations"
+class="external-link" rel="nofollow">http://wiki.apache.org/cassandra/Operations</a> letme
+know if you want to move it to somewhere else. Thanks... 
+
+
+New Comment: 
+committed, thanks Vijay and Nick! 
+
+

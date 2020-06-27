@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 05a5ede91ac558998f93024439185fdd1e04345e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7528.txt 
+
+commit 05a5ede91ac558998f93024439185fdd1e04345e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    amend error messages to include possibility of invalid characters
+    patch by jbellis for CASSANDRA-4721

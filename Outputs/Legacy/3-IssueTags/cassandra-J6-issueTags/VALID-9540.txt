@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 01d4f07dac3ac9ae4af2638391c5191f5166502b
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9540.txt 
+
+commit 01d4f07dac3ac9ae4af2638391c5191f5166502b
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Correct blob literal + ReversedType parsing

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: effb653450a11abd5e0fdc221f9b2c7a046e829a
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4921.txt 
+
+commit effb653450a11abd5e0fdc221f9b2c7a046e829a
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Return both listen_address and rpc_address through describe_ring.
+    Patch by Nick Bailey, reviewed by brandonwilliams for CASSANDRA-3187

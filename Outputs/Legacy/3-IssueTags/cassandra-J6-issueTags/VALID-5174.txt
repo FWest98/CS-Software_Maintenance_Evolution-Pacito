@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 173d0d846953b4205f375d73ff1833dedeea2807
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5174.txt 
+
+commit 173d0d846953b4205f375d73ff1833dedeea2807
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix estimated leveled compaction tasks
+    patch by jbellis

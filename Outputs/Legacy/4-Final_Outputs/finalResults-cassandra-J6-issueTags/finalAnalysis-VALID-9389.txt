@@ -1,0 +1,75 @@
+Pattern changes caused by commit: dac69926613f96fdbacd49ada869bded21d0e3ab
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9389.txt 
+
+commit dac69926613f96fdbacd49ada869bded21d0e3ab
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix overflow possibility
+    patch by Mikhail Mazursky; reviewed by jbellis for CASSANDRA-5584
+
+
+
+==================================
+ Issue CASSANDRA-5584 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5584] Incorrect use of System.nanoTime()
+-----------------
+
+-----------------
+Summary: Incorrect use of System.nanoTime()
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 21 May 2013 18:04:30 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 21 May 2013 19:19:18 +0000
+-----------------
+
+-----------------
+Assigned to: Mikhail Mazursky
+-----------------
+
+-----------------
+Description: 
+
+From System.nanoTime() JavaDoc:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>For example, to measure how long
+some code takes to execute: long startTime = System.nanoTime(); // ... the code being
+measured ... long estimatedTime = System.nanoTime() - startTime; To compare two nanoTime
+values long t0 = System.nanoTime(); ... long t1 = System.nanoTime();one should use t1 - t0
+&lt; 0, not t1 &lt; t0, because of the possibility of numerical
+overflow.</pre></div></div>
+I found one place with such incorrect use that can result in
+overflow and in incorrect timeout handling. See attached patch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

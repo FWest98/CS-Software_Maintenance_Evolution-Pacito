@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 620186cbbc6a8e5cd020d2ea9bed71bfb626c480
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-498.txt 
+
+commit 620186cbbc6a8e5cd020d2ea9bed71bfb626c480
+Author: Boris Shkolnik <boryas@apache.org>
+
+    HDFS-1146. Javadoc for getDelegationTokenSecretManager in FSNamesystem (jnp via boryas)

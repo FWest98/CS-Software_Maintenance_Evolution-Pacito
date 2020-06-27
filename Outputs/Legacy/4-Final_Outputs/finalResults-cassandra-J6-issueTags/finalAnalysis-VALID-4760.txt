@@ -1,0 +1,767 @@
+Pattern changes caused by commit: 3893f24098c3d82dc31571f0b6841e2d5821ea74
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4760.txt 
+
+commit 3893f24098c3d82dc31571f0b6841e2d5821ea74
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    generate hints for replicas that timeout
+    patch by Patricio Echague and jbellis for CASSANDRA-2034
+
+
+
+==================================
+ Issue CASSANDRA-2034 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2034] Make Read Repair unnecessary when Hinted Handoff is enabled
+-----------------
+
+-----------------
+Summary: Make Read Repair unnecessary when Hinted Handoff is enabled
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 22 Jan 2011 06:11:47 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 31 Aug 2011 19:37:16 +0000
+-----------------
+
+-----------------
+Assigned to: Patricio Echague
+-----------------
+
+-----------------
+Description: 
+
+Currently, HH is purely an optimization &#8211; if a machine goes down, enabling HH means
+RR/AES will have less work to do, but you can't disable RR entirely in most situations
+since HH doesn't kick in until the FailureDetector does.
+
+Let's add a scheduled task to
+the mutate path, such that we return to the client normally after ConsistencyLevel is
+achieved, but after RpcTimeout we check the responseHandler write acks and write local
+hints for any missing targets.
+
+This would making disabling RR when HH is enabled a much
+more reasonable option, which has a huge impact on read throughput.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This would need a separate executor for local writes that doesn't drop writes when it's
+behind (and blocks when it's full) to avoid problems in overcapacity situations.I'm about
+halfway convinced that while blocking clients for writes to {any node in the cluster} is
+bad to control overload situations, blocking clients when the coordinator itself is
+overloaded is ok. 
+
+
+New Comment: 
+<blockquote>add a scheduled task</blockquote>this is the wrong approach, as we found out
+when we tried something similar for read repair, which we fixed in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2069" title="Read repair causes
+tremendous GC pressure" class="issue-link"
+data-issue-key="CASSANDRA-2069"><del>CASSANDRA-2069</del></a>.Better would be to add a
+hook to messagingservice callback expiration, and fire hint recording from there if MS
+expires the callback before all acks are received.  (We could refactor the dynamic snitch
+latency update into a similar hook for reads.)<blockquote>This would need a separate
+executor for local writes that doesn't drop writes when it's behind</blockquote>I'm more
+worried about this; there is the potential to take us back to the Bad Old Days when HH
+could cause cascading failure. (Of course the right answer is, "Don't run your cluster so
+close to the edge of capacity," but we still want to degrade gracefully when this is
+ignored.) 
+
+
+New Comment: 
+<blockquote>there is the potential to take us back to the Bad Old Days when HH could cause
+cascading failure</blockquote>To elaborate, the scenario here is, we did a write that
+succeeded on some nodes, but not others. So we need to write a local hint to replay to the
+down-or-slow nodes later. But, those nodes being down-or-slow mean load has increased on
+the rest of the cluster, and writing the extra hint will increase that further, possibly
+enough that other nodes will see this coordinator as down-or-slow, too, and so on.So I
+think what we want to do, with this option on, is to attempt the hint write but if we
+can't do it in a reasonable time, throw back a TimedOutException which is already our
+signal that "your cluster may be overloaded, you need to back off."Specifically, we could
+add a separate executor here, with a blocking, capped queue. When we go to do a
+hint-after-failure we enqueue the write but if it is rejected because queue is full we
+throw the TOE. Otherwise, we wait for the write and then return success to the client.The
+tricky part is the queue needs to be large enough to handle load spikes but small enough
+that wait-for-success-post-enqueue is negligible compared to RpcTimeout. If we had
+different timeouts for writes than reads (which we don't &#8211; <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-959" title="Allow different timeouts
+for different classes of operation" class="issue-link"
+data-issue-key="CASSANDRA-959"><del>CASSANDRA-959</del></a>) then it might be nice to use
+say 80% of the timeout for the normal write, and reserve 20% for the hint phase. 
+
+
+New Comment: 
+Don't hints timeout?  would there be a chance of never resolving the discrepancy with this
+approach? 
+
+
+New Comment: 
+<blockquote>Better would be to add a hook to messagingservice callback expiration, and
+fire hint recording from there</blockquote><blockquote>So I think what we want to do, with
+this option on, is to attempt the hint write but if we can't do it in a reasonable
+time...</blockquote>+1. An expiration handler on the messaging service queue, and
+throttled local hint writing should work very well. 
+
+
+New Comment: 
+<blockquote>Don't hints timeout? </blockquote>No (but cleanup can purge hinted rows, so
+don't do that unless all hints have been replayed).<blockquote>would there be a chance of
+never resolving the discrepancy with this approach?</blockquote>Definitely in the case of
+"a node went down, so I wrote some hints, but then the hinted node lost its hdd too." In
+that case you'd need to run AE repair.So the idea is not to make AE repair (completely)
+obsolete, only RR. 
+
+
+New Comment: 
+IMO, disabling RR entirely is never a good idea unless we are going to <em>guarantee</em>
+hint delivery. But I agree that this ticket is a good idea because increasing the
+probability of hint delivery is healthy. 
+
+
+New Comment: 
+We should probably make this "aggressive HH" optional to start with, in case of bugs if
+nothing else.Or maybe change hinted_handoff_enabled from a bool to a string &#8211; "off",
+"old", "aggressive". 
+
+
+New Comment: 
+Note that hint writes MUST be synchronous w/ the writes-as-percieved-by-client (which the
+design above accomplishes) or else you lose hints silently if a coordinator crashes (or is
+shut down/killed normally). 
+
+
+New Comment: 
+<blockquote>If we had different timeouts for writes than reads then it might be nice to
+use say 80% of the timeout for the normal write, and reserve 20% for the hint
+phase</blockquote>Different r/w timeouts is being added in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2819" title="Split rpc timeout for
+read and write ops" class="issue-link"
+data-issue-key="CASSANDRA-2819"><del>CASSANDRA-2819</del></a>. 
+
+
+New Comment: 
+Depends on <a href="https://issues.apache.org/jira/browse/CASSANDRA-2045" title="Simplify
+HH to decrease read load when nodes come back" class="issue-link"
+data-issue-key="CASSANDRA-2045"><del>CASSANDRA-2045</del></a>. 
+
+
+New Comment: 
+<blockquote>Don't hints timeout?</blockquote>Yes, the timeout is set to the GCGraceSeconds
+of the CF the hint is for. This is to prevent deletes from being undone by an old hint
+being replayed.Post-#2045 hints contain the RM for multiple CFs; as such, the TTL for a
+hint is the minimum GCGraceSeconds from all of the CFs it references. This could cause
+hints to expire before delivery if one of the CFs for a mutation has a particularly short
+GCGraceSeconds. 
+
+
+New Comment: 
+<blockquote>the timeout is set to the GCGraceSeconds of the CF the hint is
+for</blockquote>That's right.So the guidance we can give is, "you need to run repair if a
+node is down for longer than GCGraceSeconds, or if you lose data because of a hardware
+problem." 
+
+
+New Comment: 
+<blockquote>after RpcTimeout we check the responseHandler write acks and write local hints
+for any missing targets.</blockquote><a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2914" title="Simplify HH to always
+store hints on the coordinator" class="issue-link"
+data-issue-key="CASSANDRA-2914"><del>CASSANDRA-2914</del></a> handles the local storage of
+hints. 
+
+
+New Comment: 
+Attaching a preliminary patch.I still need to handle hints on failure.Please have a look
+at how the timeouts are handled and if that part needs to be improved. 
+
+
+New Comment: 
+Looks reasonable.  I'd move the wait method into FBUtilities as an overload of
+waitOnFutures.Does the timeout on get start when the future is created, or when get is
+called?  I think it is the latter but I am not sure.  If so, we should track the total
+time waited and reduce after each get() so we do not allow total of up to timeout * hints. 
+
+
+New Comment: 
+<blockquote> Does the timeout on get start when the future is created, or when get is
+called? I think it is the latter but I am not sure. If so, we should track the total time
+waited and reduce after each get() so we do not allow total of up to timeout * hints.
+</blockquote>Yeah, I need to add a creation time and so something similar to what
+IAsynResult does.I noticed I missed to skip the hints creation when HH is disabled.
+<br/>Some thoughts on this I would like some feedback:Note: remember that hints are
+written locally on the coordinator node now.<div class='table-wrap'><table
+class='confluenceTable'><tbody><tr><td class='confluenceTd'> Hinted Handoff </td><td
+class='confluenceTd'> Consist. Level </td></tr><tr><td class='confluenceTd'> on           
+ </td><td class='confluenceTd'>       &gt;=1      </td><td class='confluenceTd'> --&gt;
+wait for hints. We DO NOT notify the handler with handler.response() for
+hints;</td></tr><tr><td class='confluenceTd'> on             </td><td
+class='confluenceTd'>       ANY      </td><td class='confluenceTd'> --&gt; wait for hints.
+Responses count towards consistency.</td></tr><tr><td class='confluenceTd'> off           
+</td><td class='confluenceTd'>       &gt;=1      </td><td class='confluenceTd'> --&gt; DO
+NOT fire hints. And DO NOT wait for them to complete.</td></tr><tr><td
+class='confluenceTd'> off            </td><td class='confluenceTd'>       ANY     
+</td><td class='confluenceTd'> --&gt; Fire hints but don't wait for them. They count
+towards consistency.</td></tr></tbody></table></div> 
+
+
+New Comment: 
+Looks good to me for the first 3.I think ANY should be equal to ONE for hints=off.  I.e.,
+when it's off we <b>never</b> create hints. 
+
+
+New Comment: 
+v2 patch replaces v1.Changes in v2:<ul class="alternate" type="square">	<li>It fixes the
+add-up timeouts by adding a CreationAwareFuture</li>	<li>moves wait method into
+FBUtilities</li>	<li>Implements the matrix previously discussed</li></ul><div
+class='table-wrap'><table class='confluenceTable'><tbody><tr><td class='confluenceTd'>
+Hinted Handoff </td><td class='confluenceTd'> Consist. Level </td></tr><tr><td
+class='confluenceTd'> on             </td><td class='confluenceTd'>       &gt;=1     
+</td><td class='confluenceTd'> --&gt; wait for hints. We DO NOT notify the handler with
+handler.response() for hints;</td></tr><tr><td class='confluenceTd'> on            
+</td><td class='confluenceTd'>       ANY      </td><td class='confluenceTd'> --&gt; wait
+for hints. Responses count towards consistency.</td></tr><tr><td class='confluenceTd'> off
+           </td><td class='confluenceTd'>       &gt;=1      </td><td class='confluenceTd'>
+--&gt; DO NOT fire hints. And DO NOT wait for them to complete.</td></tr><tr><td
+class='confluenceTd'> off            </td><td class='confluenceTd'>       ANY     
+</td><td class='confluenceTd'> --&gt; DO NOT fire hints. And DO NOT wait for them to
+complete.</td></tr></tbody></table></div> 
+
+
+New Comment: 
+v3 replaces all previous patches.Add missing local writes for when a node is a
+coordinator, is a replica and also holds a hint.Wire up a bit the nodereplied logic in the
+WriteHandler.Still need to write hints on failure. (next patch) 
+
+
+New Comment: 
+v4 replaces previous ones.Fire hints when a replica does not reply 
+
+
+New Comment: 
+This ticket assumes that counter mutations will not be written with CL == ANY (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2990" title="We should refuse query
+for counters at CL.ANY" class="issue-link"
+data-issue-key="CASSANDRA-2990"><del>CASSANDRA-2990</del></a>) 
+
+
+New Comment: 
+I think CreationTimeAwareFuture is missing? 
+
+
+New Comment: 
+v5 replaces v4.add src/java/org/apache/cassandra/concurrent/CreationTimeAwareFuture.java 
+
+
+New Comment: 
+Attaching formatting patch that applies on top of v5. (Easier than explaining in English.)
+ Looking at the actual hints next. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+v6 replaces (v5 + 2034-formatting)<ul class="alternate" type="square">	<li>applies
+Jonathan formatting patch</li>	<li>add assertion in
+AbstractWriteResponseHandler#markTargetAsReplied</li>	<li>log warning when the hint queue
+is full and  there is a RejectionException when trying to queue up a new task</li></ul> 
+
+
+New Comment: 
+New v7 patch.<ul class="alternate" type="square">	<li>When HH is enabled it waits for the
+min(RPC Timeout , all replicas's ACK)</li></ul>The down side is that even for CL.ONE we
+wait for all the replicas to reply to decide if we need to write a hint or not.<br/>So if
+a node is slow, request/mutation with CL.ONE will perform slightly slower when HH is
+enabled. 
+
+
+New Comment: 
+So I proposed two mutually exclusive approaches here:<ul class="alternate"
+type="square">	<li>return to the client normally after ConsistencyLevel is achieved, but
+after RpcTimeout we check the responseHandler write acks and write local hints for any
+missing targets</li>	<li>add a separate executor here, with a blocking, capped queue. When
+we go to do a hint-after-failure we enqueue <span class="error">&#91;and&#93;</span> wait
+for the write and then return success to the client</li></ul>The difference can be
+summarized as: do we wait for all hints to be written before returning to the client?  If
+you do, then CL.ONE write latency becomes worst-of-N instead of best-of-N.  But, you are
+guaranteed that successful writes have been hinted (if necessary) so you do not have to
+repair unless there is hardware permadeath.  (Otherwise you would have to repair after
+power failure or crashes, too.)I'm inclined to think that the first option is better,
+partly because writes are <b>fast</b> so worst-of-N really isn't that different from
+best-of-N.  Also, we could use <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2819" title="Split rpc timeout for
+read and write ops" class="issue-link"
+data-issue-key="CASSANDRA-2819"><del>CASSANDRA-2819</del></a> to reduce the default write
+timeout while still being conservative for reads (which might hit disk). 
+
+
+New Comment: 
+Writes are fast, but you also have network latency for communicating with all the nodes.
+What would happen in the worst-of-N case for multi-datacenter deployments? 
+
+
+New Comment: 
+Ugh.  Yeah, that pretty much rules out the always-wait idea, doesn't it? 
+
+
+New Comment: 
+<blockquote> return to the client normally after ConsistencyLevel is achieved, but after
+RpcTimeout we check the responseHandler write acks and write local hints for any missing
+targets </blockquote>The way I'm planning on implementing this last part is by adding a
+maybeWriteHint in the hook that already exist for the ExpiringMap in
+MessagingService.<br/>The only problem is that I don't have the mutation as to generate a
+hint in MessageService.<br/>I might catch what nodes hasn't replied in the StorageProxy
+and store one mutation per node that hasn't replied into an ExpiringMap in
+MessagingService.The down side is that for CL.ONE I will end up storing basically one
+mutation per replica minus the one that responded, and it may lead to memory
+issues.Thoughts? 
+
+
+New Comment: 
+I think you can reuse the same RowMutation object across messages so shouldn't cause
+duplicates in memory.  The only issue is if too many mutations queue up you might OOM but
+this is the same problem we currently we have with the write  stage.  So if you use a
+Expiring map you should add a onExpiration hook to write the hint locally for the replicas
+that never responded to the Mutation.  This covers the case that mutations expire before a
+response is received.  Then all the MessageTask needs todo is clear the messageId from the
+expiring map before the expiration time. 
+
+
+New Comment: 
+<blockquote>The only issue is if too many mutations queue up you might OOM but this is the
+same problem we currently we have with the write stage</blockquote>Right.  Either way
+worst case is already "you need to be able to buffer up to rpc_timeout's worth of writes
+in memory."<blockquote>if you use a Expiring map you should add a onExpiration hook to
+write the hint locally for the replicas that never responded to the
+Mutation</blockquote>I'm not sure you want a separate ExpiringMap from the one you already
+have in MS.  Might make for weird corner cases.  But that's an implementation detail; the
+approach is sound. 
+
+
+New Comment: 
+The reason I need the extra map is to store the mutation. Otherwise I cannot generate a
+hint. 
+
+
+New Comment: 
+<blockquote>But, you are guaranteed that successful writes have been hinted (if necessary)
+so you do not have to repair unless there is hardware permadeath. (Otherwise you would
+have to repair after power failure or crashes, too.) </blockquote>Since we are queuing up
+a hint on failure/RPC timeout after acknowledging to the client, it looks like we need to
+rapair everytime a node is shutdown given the crash-only way to shutting down Cassandra.
+Since we can have task in the queue yet to be executed. Right? I don't think repair is
+need only on hardware permadeath. 
+
+
+New Comment: 
+There is a shutdownHook we added for these kinds of things. see StorageService 
+
+
+New Comment: 
+<blockquote>I don't think repair is need only on hardware permadeath.</blockquote>It's
+right there in what you quoted: "Otherwise <span class="error">&#91;if you&#39;re not
+waiting for all replica acks before returning to client&#93;</span> you would have to
+repair after power failure or crashes, too."<blockquote>it looks like we need to rapair
+everytime a node is shutdown given the crash-only way to shutting down
+Cassandra</blockquote>As discussed on chat, you need to add a shutdown hook to let the
+executor finish for non-crash shutdowns.  Look for Runtime.getRuntime().addShutdownHook in
+StorageService. 
+
+
+New Comment: 
+Thanks.As per the TimeoutException trying to queue up a hint while writing hints after ACK
+timeout. Would it be ok to have a second executor with a non-capped queue? I'm currently
+using a capped queue for writing hints to replicas that are down before starting the
+mutation.Downside of this is that the queue can grow big (by default we don't schedule
+hints after one hour that a replica has been down) 
+
+
+New Comment: 
+Remember our algorithm looks something like this:<ul class="alternate"
+type="square">	<li>if we know a replica is down, hint it on the capped executor.  if this
+is full, throw timeout.</li>	<li>perform writes to believed-to-be-healthy
+replicas</li>	<li>return ok to client once CL is achieved</li>	<li>wait for remaining
+replicas in bg and hint on uncapped executor if necessary</li></ul>The last part is what
+Jake and I were talking about when I said "worst case is already "you need to be able to
+buffer up to rpc_timeout's worth of writes in memory."  (Referring to how the write stage
+on a replica buffers up mutations.)This only comes into play during the delay between a
+replica becoming unreachable, and the coordinator detecting that.  Otherwise it goes to
+the first, capped-write stage.  So scheduling hints after 1h or w/e doesn't really matter. 
+
+
+New Comment: 
+Replaces v7.<ul class="alternate" type="square">	<li>Add an new executor in SP with an
+uncapped queue.</li>	<li>Add proper shutdown to MessagingService and SP.</li>	<li>Add
+scheduling hints on RPC timeout through MessagingService</li></ul> 
+
+
+New Comment: 
+Comments on v8:<ul class="alternate" type="square">	<li>You are still waiting on hints in
+the client, I don't think we need CreationTimeAwareFuture anymore.</li>	<li>I don't think
+local hints need to be put on their own queue / thread-pool. Just write the hint to the
+local mutation queue and increment the hint counters.</li>	<li>The shutdown process should
+not wait for the mutation map to expire, it should simply write any outstanding hints from
+the map and shutdown.</li></ul>Nitpik:<ul class="alternate" type="square">	<li>The new
+expiring map logic is backwards in my opinion. I would rather see the expiration callback
+handle the hint write, then see the MessageService call storageproxy.</li></ul> 
+
+
+New Comment: 
+v9 replaces v8.added:<ul class="alternate" type="square">	<li>one more shutdown for
+hintsWriter (that was missing in StorageProxy.</li>	<li>write all the pending hints in
+MessageService instead of waiting for them to time out.</li></ul> 
+
+
+New Comment: 
+<blockquote>I don't think local hints need to be put on their own queue / thread-pool.
+Just write the hint to the local mutation queue and increment the hint
+counters</blockquote>Agreed, that is a better solution than complicating things with extra
+queues / executors.  Since the message dropping is done by the Task, not the executor,
+there's no problem in that respect.  And we can use a simple counter to avoid clogging the
+queue with hints. 
+
+
+New Comment: 
+v10 patch.<ul class="alternate" type="square">	<li>Remove the hint executor and use
+MutationStage instead.</li>	<li>Add a queueSize counter to reject hints when the queue is
+full. It only applies for hints we know before hand that the node is down. I don't check
+for it for the hints written from MessagingService during write timeout.</li>	<li>Add More
+JMX info in StorageProxyMBean</li></ul> 
+
+
+New Comment: 
+I looked at the last patch to see if we don't mess up with counters here, and it looks ok
+on that side.A few comments on the patch while I'm at it:<ul>	<li>There is a few
+formatting that don't respect the codeStyle: some in MessageService, some imports moved
+further from what the codeStyle dictate in AbstractWriteResponseHandler and StorageProxy
+(that imports quicktime.std.movies.ExecutingWiredAction!!)</li>	<li>It seems we use the
+exact same timeout for hints and callback. However, given that ExpiringMap is only so much
+precise, it seems to me we have like 50% chance that the hint will expire before the
+callback, which means no hint will be recorded (we could bump the timeout for hint to
+twice the one of callback, and remove from mutationMessages once the hint is written;
+though I would rather go for the next proposition if possible).</li>	<li>Can't we reuse
+the callback expiring map for hints instead of creation a new one. It's not like
+ExpiringMap is the cheapest thing around, and it seems like each mutation message always
+have an attached callback with the exact same lifetime. We could replace the
+Pair&lt;InetAddress, IMessageCallback&gt; by a CallbackInfo (or some better name) class
+with a InetAddress and IMessageCallback, and subclass it to CallbackInfoWithMessage when
+we need to store the message too. I'm pretty sure it would much more
+efficient.</li>	<li>In SP.sendToHintedEndpoints, there is no need to test if hintedHandoff
+is enabled, because the hintedEndpoints map will only contain non-hinted target if it is
+disabled (see AbstractReplicationStragegy.getHintedEndpoints).</li></ul> 
+
+
+New Comment: 
+v11 replaces v10.<ul class="alternate" type="square">	<li>add more volatile to variable
+that can be changed through JMX</li>	<li>Add CallbackInfo and CallbackInfoWithMassage and
+store the message in the same ExpiringMap.</li>	<li>Clean up some code style
+violations</li>	<li>Simplify a bit the logic in SP.sendToHintedEndPoints.</li></ul> 
+
+
+New Comment: 
+I think v11 is missing the new Callback classes.  Can you rebase to trunk when you add
+those? 
+
+
+New Comment: 
+rebase and add missing classes. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>there's an unused overload of
+MS.addCallback</li>	<li>shouldHint should probably be a CallbackInfo method</li>	<li>the
+.warn in scheduleMH should be .error</li>	<li>any reason scheduleMH is protected instead
+of private?</li>	<li>technically MS.shutdown should probably collect the Futures of the
+hints being written and wait on them</li></ul>in<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">if</span> (consistencyLevel != <span
+class="code-keyword">null</span> &amp;&amp; consistencyLevel ==
+ConsistencyLevel.ANY)</pre></div></div>did you mean this?<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">if</span> (responseHandler != <span
+class="code-keyword">null</span> &amp;&amp; consistencyLevel ==
+ConsistencyLevel.ANY)</pre></div></div><ul class="alternate" type="square">	<li>not a big
+fan of the "subclass just exposes a different constructor than its parent" idiom.  I think
+the normal expectation is that a subclass encapsulates some kind of different behavior
+than its parent.  I'd get rid of CIWM and just expose a with-Message constructor in
+CallbackInfo.</li>	<li>Would also make CI message and isMutation final</li>	<li>avoid
+declaring @Override on abstract methods (looking at writeLocalHint Runnable, also CTAF,
+may be others)</li>	<li>avoid comments that repeat what the code says, like "// One more
+task in the hints queue."</li>	<li>would name hintCounter -&gt; totalHints (I had to look
+at usages to figure out what it does)</li>	<li>there's no actual hint queue anymore so
+would name currentHintsQueueSize -&gt; hintsInProgress (similarly,
+maxHintsQueueSize)</li>	<li>prefer camelCase variable names (CTAF
+overall_timeout)</li>	<li>unit.toMillis(timeout) would be more idiomatic than
+TimeUnit.MILLISECONDS.convert(timeout, unit)</li>	<li>otherwise CTAF is a good clean
+encapsulation, nice job</li>	<li>generics is upset about "hintsFutures.add(new
+CreationTimeAwareFuture(hintfuture))" &#8211; can you fix the unchecked warning
+there?</li>	<li>unnecessary whitespace added to the method below "// wait for writes. 
+throws TimeoutException if necessary"</li>	<li>would prefer to avoid allocating the
+hintFutures list unless we actually need to write hints, since this is on the write inner
+loop</li>	<li>still think we can simplify sendToHinted by getting rid of
+getHintedEndpoints and operating directly on the raw writeEndpoints (and consulting FD to
+decide whether to write a hint)</li>	<li>currentHintsQueueSize increment needs to be done
+OUTSIDE the runnable or it will never get above the number of task executors</li>	<li>it
+would be nice if we could tell the CallbackInfo whether the original write reached
+ConsistencyLevel.  Maybe we could do this by changing isMutation to volatile
+isHintRequired, something like that.  (And just set it to false if CL is not reached.)  If
+not, we don't have to write hints for timed out replicas &#8211; this will help avoiding
+OOM if nodes in the cluster start getting overloaded and dropping writes.  Otherwise, the
+coordinator could run out of memory queuing up hints for writes that timed out and the
+client will retry.</li></ul> 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>the timeout-based waitOnFutures overload should
+only accept CTAF objects since it will NOT behave as expected with others, e.g.,
+FutureTask objects</li></ul> 
+
+
+New Comment: 
+v12 replaces v11.<ul class="alternate" type="square">	<li>All comments were addressed
+expect for the following two.	<ul class="alternate" type="square">		<li>I took a slightly
+different path for when CL is not achieved which I believe it works out just as
+good.</li>		<li>Still putting more thoughts on how to get rid of getHintedEndPoints since
+it affects the 3 types of WriteHandlers. Once I tackle this point I will also improve the
+HintFuture premature instantiation for when hints are not needed.</li>	</ul>	</li></ul> 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>remove that extra @Override and refactor SPMBean
+names.</li></ul> 
+
+
+New Comment: 
+V13 replaces v12.<ul class="alternate" type="square">	<li>SImplify the logic
+sendToHintedEndpoint in SP.</li></ul> 
+
+
+New Comment: 
+I don't think keeping passing a list of unavailableEndpoints everywhere is actually
+necessary.  I may be missing a use case, but what I see is<ul class="alternate"
+type="square">	<li>in sendToHintedEndpoints</li>	<li>in assureSufficientLiveNodes
+implementation</li></ul>Both of which can be replaced in a straightforward manner with
+FailureDetector calls.  (Note that it is not necessary for FD state to remain unchanged
+between assureSufficient and sending.)In fact using the same list in both places is a bug:
+assureSufficient only cares about what FD thinks, so mixing hinted-handoff-enabledness in
+as getUnavailableEndpoints does will cause assureSufficient to return false positives w/
+HH off.So I'd make assureSufficient use FD directly, and sendTHE use FD + HH state. 
+Bonus: no List allocation in the common case of "everything is healthy." 
+
+
+New Comment: 
+I can do that.Also, I'm not quite happy with waiting for local hints to complete per
+mutation. I'm thinking of adding them to the handler so that we can wait for the hints
+after scheduling all the mutations.It has pros and cons:Pros: If the coordinator node is
+overwhelmed, we can tell the client right away.<br/>Cons: Por large mutations, we are
+actually blocking for local hints (if any) per mutation which is not ideal. 
+
+
+New Comment: 
+Yes, that should be in mutate() or the handler so the waiting is parallelized. 
+
+
+New Comment: 
+v14 replaces v13.<ul class="alternate" type="square">	<li>Wait for the hint at
+SP.mutate()</li>	<li>Avoid passing a list of down host and handle them with
+FD.</li>	<li>Simplifies even more the logic in SP.sendToHintedEndpoints</li></ul> 
+
+
+New Comment: 
+Hmm. I think you're right: it would work better to do the hints in the handler instead of
+passing these lists around.  Sorry; let's change it to do it that way.Other
+notes:SP.shouldHint is broken (will always return true when hints are disabled).  I would
+write it like this:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-keyword">static</span> <span
+class="code-object">boolean</span> shouldHint(InetAddress ep)    {        <span
+class="code-keyword">if</span> (!isHintedHandoffEnabled())            <span
+class="code-keyword">return</span> <span class="code-keyword">false</span>;               
+<span class="code-object">boolean</span> hintWindowExpired =
+Gossiper.instance.getEndpointDowntime(ep) &gt; maxHintWindow;        <span
+class="code-keyword">if</span> (hintWindowExpired)            logger.debug(<span
+class="code-quote">"not hinting {} which has been down {}ms"</span>, ep,
+Gossiper.instance.getEndpointDowntime(ep));        <span
+class="code-keyword">return</span> !hintWindowExpired;   
+}</pre></div></div>CallbackInfo.shouldHint is broken a different way.  It should be
+returning true if and only if the write to the target failed.  (Calling this variable
+"from" is odd &#8211; "from" is used to refer to localhost in a MessageService context.) 
+Currently, it returns true if the overall CL is achieved, which in the general case tells
+us nothing about the individual replica in question. 
+
+
+New Comment: 
+Thanks Jonathan for the snippet of code. I didn't notice it was broken.I don't see where
+CallbackInfo.shouldHint is broken. <div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">   <span
+class="code-keyword">public</span> <span class="code-object">boolean</span> shouldHint()  
+ {        <span class="code-keyword">if</span> (StorageProxy.shouldHint(target) &amp;&amp;
+isMutation)        {            <span class="code-keyword">try</span>            {1)      
+       ((IWriteResponseHandler) callback).get();                <span
+class="code-keyword">return</span> <span class="code-keyword">true</span>;            }   
+        <span class="code-keyword">catch</span> (TimeoutException e)             {        
+       <span class="code-comment">// CL was not achieved. We should not hint.</span>      
+     }        }        <span class="code-keyword">return</span> <span
+class="code-keyword">false</span>;    }</pre></div></div>I process the callback after the
+message expired. If the CL was achieved (and the requirement for a hint are gathered) I
+return true for this target meaning that a hint needs to be written. <br/>On the other
+hand, if the message expire and the CL was not achieved, then I return FALSE (for this
+target).Perhaps it needs a special treatment during the shutdown ? 
+
+
+New Comment: 
+v15 replaces v14.<ul class="alternate" type="square">	<li>Wait for hints are handled in
+the IWriteResponseHandler</li>	<li>Fix broken SP.shoudHint</li></ul>Note: I think the
+Callback.shoudHint needs an enhancement for when we are during shut down in
+MessagingService. 
+
+
+New Comment: 
+<blockquote>I process the callback after the message expired</blockquote>That makes
+sense.<blockquote>I think the Callback.shoudHint needs an enhancement for when we are
+during shut down in MessagingService</blockquote>Yes.  We should probably either wait for
+the messages to time out (which is mildly annoying to the user) or just write hints for
+everything (which may be confusing: "why are there hints being sent after I restart, when
+no node was ever down?)  I don't see a perfect solution.Also, still need to address
+this:<blockquote>currentHintsQueueSize <span class="error">&#91;now totalHints&#93;</span>
+increment needs to be done OUTSIDE the runnable or it will never get above the number of
+task executors</blockquote>v16 attached: rebased to current head, fixed import ordering,
+and added some comments. 
+
+
+New Comment: 
+<blockquote>currentHintsQueueSize <span class="error">&#91;now totalHints&#93;</span>
+increment needs to be done OUTSIDE the runnable or it will never get above the number of
+task executors</blockquote>Interesting. I must have forgotten it after one of the patches.
+I remember fixing it before.<blockquote>Yes. We should probably either wait for the
+messages to time out (which is mildly annoying to the user) or just write hints for
+everything (which may be confusing: "why are there hints being sent after I restart, when
+no node was ever down?) I don't see a perfect solution.</blockquote>I think I prefer make
+the user wait for RPCTimeout since it is not that much and perhaps puts a bit more clarity
+than just saving the hints just in case. 
+
+
+New Comment: 
+<blockquote>Also, still need to address this:currentHintsQueueSize <span
+class="error">&#91;now totalHints&#93;</span> increment needs to be done OUTSIDE the
+runnable or it will never get above the number of task
+executors</blockquote>hintsInProgress.incrementAndGet(); happens outside of the executor
+and actually before scheduling it.<br/>totalHints.incrementAndGet(); on the other hand,
+the totalHint is incremented right after the hint was written and within the task.Is that
+not right ? 
+
+
+New Comment: 
+Fix defective v1 patch.CallbackInfo and CreatiomTimeAware were missing. 
+
+
+New Comment: 
+<blockquote>hintsInProgress.incrementAndGet(); happens outside of the executor and
+actually before scheduling it</blockquote>You're right, I mis-read that.<blockquote>I
+process the callback after the message expired. If the CL was achieved (and the
+requirement for a hint are gathered) I return true for this target meaning that a hint
+needs to be written. </blockquote>Actually I think this does not achieve our goal of
+making read-repair unnecessary.  For that, we need to always hint when an attempted write
+fails.<blockquote>I think I prefer make the user wait for RPCTimeout </blockquote>That's
+reasonable.v18 attached (applies on top of 17).  I've added waiting for hints to finish to
+MS.shutdown, added a call to MS.shutdown from the shutdown hook, and added a call to
+stopRPCServer from the shutdown hook and from drain.  (This is important, because there is
+nothing else to prevent new messages from being added to MS's callback map.) 
+
+
+New Comment: 
+Rebase and consolidates patch files 17 and 18 
+
+
+New Comment: 
+Jonathan, I noticed you modified a bit CallbackInfo.shoudHint()<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+ <span class="code-keyword">public</span> <span class="code-object">boolean</span>
+shouldHint()    {        <span class="code-keyword">return</span> message != <span
+class="code-keyword">null</span> &amp;&amp; StorageProxy.shouldHint(target);   
+}</pre></div></div>Not sure if you meant to say that your changes addresses the issue of
+not hinting when CL is not reached.<br/>The new "shoudHint" method you added should be ok
+as it is processed upon RPCTimeout disregard if the CL was achieved or not. 
+
+
+New Comment: 
+Right, that's what I was referring to when I said "<span class="error">&#91;the old
+shouldHint&#93;</span> does not achieve our goal of making read-repair unnecessary. For
+that, we need to always hint when an attempted write fails." 
+
+
+New Comment: 
+rebased v19.  no other changes made. 
+
+
+New Comment: 
+Rebased and fix ConsistencyLevelTestRemoveTest is timing out. Not sure if it is
+related.Update soon. 
+
+
+New Comment: 
+Rebase and Fix test.RemoveTest is timing out after the last test and cannot find the
+reason.<br/>The ExpiringMap (callbacks) is not freeing up. 
+
+
+New Comment: 
+This new patch fixes the unit tests.Added a way to force a ExpiringMap.shutdown() without
+waiting for it to empty up. 
+
+
+New Comment: 
+what messages is RemoveTest waiting for that are causing the problem? 
+
+
+New Comment: 
+I fixed the test.If I'm not wrong,<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        <span
+class="code-keyword">for</span> (InetAddress host : hosts)        {            Message msg
+= <span class="code-keyword">new</span> Message(host,
+StorageService.Verb.REPLICATION_FINISHED, <span class="code-keyword">new</span> <span
+class="code-object">byte</span>[0], MessagingService.version_);           
+MessagingService.instance().sendRR(msg, FBUtilities.getBroadcastAddress());       
+}</pre></div></div>sends 5 messages but some of them (4) are caught by a local SinkManager
+implementation(for testing purposes) and not processed.<br/>And since you added a wait for
+the callbacks to be processed before exiting, I had to add a force shutdown (for testing
+purposes) in order to make the test complete successfully. 
+
+
+New Comment: 
+That makes sense.  I modified it slightly by keeping shutdown the same and adding
+MessagingService.clearCallbacksUnsafe instead.  This makes it harder to "force" shutdown
+the wrong way by accident.Also removed calls to stopRPCServer from drain/shutdownhook. 
+there's no code in the Thrift socket server to time out a read preemptively so this does
+not complete in a timely fashion; this was causing timeouts in CliTest.committed with
+these changes.  Thanks Patricio! 
+
+

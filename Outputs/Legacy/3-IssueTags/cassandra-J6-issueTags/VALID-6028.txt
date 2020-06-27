@@ -1,0 +1,26 @@
+Pattern changes caused by commit: e48b29a6b0b15f9e1c8d8e462a573daa04d1ec5e
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6028.txt 
+
+commit e48b29a6b0b15f9e1c8d8e462a573daa04d1ec5e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: inferred and actual schema match, smoke tests.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-3371

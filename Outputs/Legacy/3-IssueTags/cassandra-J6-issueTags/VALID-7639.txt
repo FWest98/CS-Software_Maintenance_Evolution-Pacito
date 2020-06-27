@@ -1,0 +1,27 @@
+Pattern changes caused by commit: ed6d24e592b3d84cac520295a5ae9f1161e2d829
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7639.txt 
+
+commit ed6d24e592b3d84cac520295a5ae9f1161e2d829
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: enable tracing
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4584

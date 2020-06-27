@@ -1,0 +1,17 @@
+Pattern changes caused by commit: a795eb936deea623d7d521da6ed2fc371c0d925a
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5560.txt 
+
+commit a795eb936deea623d7d521da6ed2fc371c0d925a
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix race between cf flush and its 2ndary indexes flush
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3547

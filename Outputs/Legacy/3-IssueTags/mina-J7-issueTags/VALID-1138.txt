@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 1a0598a6e15377c78295c78b7bb450797406f034
+
+From: Strategy-5
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1138.txt 
+
+commit 1a0598a6e15377c78295c78b7bb450797406f034
+Author: Trustin Lee <trustin@apache.org>
+
+    * Renamed DefaultModelMBean to ObjectMBean
+    * Added IoServiceMBean, IoSessionMBean and IoFilterMBean

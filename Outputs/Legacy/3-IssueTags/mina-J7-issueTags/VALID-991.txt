@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ade5f51eb3986a924815d2677981847f51771d31
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-991.txt 
+
+commit ade5f51eb3986a924815d2677981847f51771d31
+Author: Mike Heath <mheath@apache.org>
+
+    Minor changes to setCorePoolSize and setMaximumPoolSize.

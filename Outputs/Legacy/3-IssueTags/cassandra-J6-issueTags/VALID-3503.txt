@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 402e1edeb7302112e6ea532bf77f1d6a3eb81c78
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3503.txt 
+
+commit 402e1edeb7302112e6ea532bf77f1d6a3eb81c78
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow zero replicas in a NTSdatacenter
+    patch by slebresne; reviewed by jbellis for CASSANDRA-1924

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 15e72182975a6a571b2b1920f442a371d3714aac
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5373.txt 
+
+commit 15e72182975a6a571b2b1920f442a371d3714aac
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    update to last snappy-java

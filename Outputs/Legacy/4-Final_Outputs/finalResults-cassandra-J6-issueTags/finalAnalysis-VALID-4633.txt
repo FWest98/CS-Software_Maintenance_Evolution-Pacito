@@ -1,0 +1,125 @@
+Pattern changes caused by commit: 2c2419ea1fac39602f1728b1d94103d13bcca7eb
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4633.txt 
+
+commit 2c2419ea1fac39602f1728b1d94103d13bcca7eb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    change auto_bootstrap default to true and remove from example config file
+    patch by jbellis as suggested by Peter Schullerfor CASSANDRA-2447
+
+
+
+==================================
+ Issue CASSANDRA-2447 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2447] Remove auto-bootstrap option
+-----------------
+
+-----------------
+Summary: Remove auto-bootstrap option
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 11 Apr 2011 14:52:05 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 15 Aug 2011 20:45:36 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+We already optimize auto-bootstrap to be no-op if there are no non-system tables.
+
+Given
+that, the only penalty imposed by autobootstrap is a 30s sleep waiting for gossip.  Feels
+worth it to avoid the confusion this option causes, and the problems if you don't turn it
+on when it should be.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+While I think the auto_bootstrap token is probably very confusing to users, and simply not
+exposing it by default is a good idea, I don't think the ability to join the cluster
+without bootstrapping should be removed entirely.An example use case of joining the ring
+without bootstrap is: You have a multi-DC cluster and need to bootstrap new nodes into a
+DC, but you want to avoid streaming from other DC:s. Provided you know what you're doing
+and are willing to accept the consequences in terms of consistency, you can do stuff like
+copy sstables from local nodes manually and bring the node into the ring and trigger AES.
+Similarly for adding a completely new DC to an existing cluster.I have a vague feeling
+that it's generally useful in various "panicy" types of situations where you want to
+bypass the normal procedures.Maybe just make the default true always and remove it form
+the default configuration; or maybe even rename it and revert it's meaning, to something
+like force_join_without_bootstrap? 
+
+
+New Comment: 
+<blockquote>maybe just make the default true always and remove it form the default
+configuration</blockquote>Good idea.  Done in r1156837 
+
+
+New Comment: 
+Integrated in Cassandra #1019 (See <a href="https://builds.apache.org/job/Cassandra/1019/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/1019/</a>)<br/>    change
+auto_bootstrap default to true and remove from example config file<br/>patch by jbellis as
+suggested by Peter Schullerfor <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2447" title="Remove auto-bootstrap
+option" class="issue-link"
+data-issue-key="CASSANDRA-2447"><del>CASSANDRA-2447</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1156837"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1156837</a><br/>Files
+:
+<ul>	<li>/cassandra/trunk/CHANGES.txt</li>	<li>/cassandra/trunk/conf/cassandra.yaml</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/config/Config.java</li></ul> 
+
+
+New Comment: 
+I forgot that we ammended bootstrap to wait for SLB.BROADCAST_INTERVAL as well as
+RING_DELAY.  This is silly; it won't matter if we bootstrap based on current load (as
+propagated by gossip from last "broadcast") or wait another minute for another broadcast. 
+And if you are bootstrapping before any load has been gossipped? It will pick a random
+token, but I'm okay with that because (1) you shouldn't be letting autobootstrap pick the
+token in the first place and (2) the workaround is simple: wait until your cluster has
+been up 60s before bootstrapping more nodes.<br/>v2 attached that fixes this and also
+amends tests to not wait the full ring_delay. 
+
+
+New Comment: 
++1 
+
+

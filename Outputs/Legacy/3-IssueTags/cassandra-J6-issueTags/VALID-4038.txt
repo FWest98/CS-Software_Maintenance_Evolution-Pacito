@@ -1,0 +1,23 @@
+Pattern changes caused by commit: d2c98b024d85bf72a6ce3e03d0b8d2994199c254
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4038.txt 
+
+commit d2c98b024d85bf72a6ce3e03d0b8d2994199c254
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid using cached position of a keywhen GTis requested
+    patch by Richard Low and slebresne; reviewed by jbellis for CASSANDRA-2633

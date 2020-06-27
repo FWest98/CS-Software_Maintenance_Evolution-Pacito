@@ -1,0 +1,109 @@
+Pattern changes caused by commit: c75b0c1d2b91d6101d6527b8c24fee2d0234b4ab
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3414.txt 
+
+commit c75b0c1d2b91d6101d6527b8c24fee2d0234b4ab
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix NPE in nodetool when gossip isn't initialized.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-2270
+
+
+
+==================================
+ Issue CASSANDRA-2270 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2270] nodetool info NPE when node isn't fully booted
+-----------------
+
+-----------------
+Summary: nodetool info NPE when node isn't fully booted
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 4 Mar 2011 01:16:33 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 4 Mar 2011 20:43:07 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Running "nodetool -h 127.0.0.1 info" when the node is not yet ready throw a
+NPE.
+
+Exception in thread "main" java.lang.NullPointerException<br/>        at
+org.apache.cassandra.gms.Gossiper.getCurrentGenerationNumber(Gossiper.java:313)<br/>      
+ at
+org.apache.cassandra.service.StorageService.getCurrentGenerationNumber(StorageService.java:1239)<br/>
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>        at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br/>       
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)<br/>
+       at java.lang.reflect.Method.invoke(Method.java:616)<br/>        at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:111)<br/>
+       at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:45)<br/>
+       at
+com.sun.jmx.mbeanserver.MBeanIntrospector.invokeM(MBeanIntrospector.java:226)<br/>       
+at com.sun.jmx.mbeanserver.PerInterface.getAttribute(PerInterface.java:83)<br/>        at
+com.sun.jmx.mbeanserver.MBeanSupport.getAttribute(MBeanSupport.java:205)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+By "not yet ready" do you mean early in normal startup, or started up with explicitly not
+joining ring? 
+
+
+New Comment: 
+Early in normal startup, just run "nodetool -h localhost info" when the node its still
+opening index. 
+
+
+New Comment: 
+Patch to not check the generation when gossip is not initialized. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

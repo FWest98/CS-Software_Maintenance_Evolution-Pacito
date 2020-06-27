@@ -1,0 +1,131 @@
+Pattern changes caused by commit: 0627c8aaec966d01500f2bb957aaefb9873fff38
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7035.txt 
+
+commit 0627c8aaec966d01500f2bb957aaefb9873fff38
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Use correct partitioner when saving + loading caches
+    patch by jbellis; reviewed by xedin for CASSANDRA-4331
+
+
+
+==================================
+ Issue CASSANDRA-4331 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4331] sstable2json error
+-----------------
+
+-----------------
+Summary: sstable2json error
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 12 Jun 2012 06:30:23 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 27 Jun 2012 07:20:30 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+/apache-cassandra-1.1.1/bin&gt; ./sstable2json 
+/home/cassandra/data/pimda/CF_bookmark/pimda-CF_bookmark-hd-48-Data.db &gt;
+test.json
+
+ERROR 22:27:14,215 Error in
+ThreadPoolExecutor<br/>java.lang.ClassCastException: java.math.BigInteger cannot be cast
+to java.nio.ByteBuffer<br/>	at
+org.apache.cassandra.db.marshal.UTF8Type.compare(UTF8Type.java:27)<br/>	at
+org.apache.cassandra.dht.LocalToken.compareTo(LocalToken.java:45)<br/>	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:89)<br/>	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:38)<br/>	at
+java.util.TreeMap.getEntry(TreeMap.java:328)<br/>	at
+java.util.TreeMap.containsKey(TreeMap.java:209)<br/>	at
+java.util.TreeSet.contains(TreeSet.java:217)<br/>	at
+org.apache.cassandra.io.sstable.SSTableReader.load(SSTableReader.java:396)<br/>	at
+org.apache.cassandra.io.sstable.SSTableReader.open(SSTableReader.java:187)<br/>	at
+org.apache.cassandra.io.sstable.SSTableReader$1.run(SSTableReader.java:225)<br/>	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:662)<br/>ERROR 22:27:14,219 Error in
+ThreadPoolExecutor<br/>java.lang.ClassCastException: java.math.BigInteger cannot be cast
+to java.nio.ByteBuffer<br/>	at
+org.apache.cassandra.db.marshal.UTF8Type.compare(UTF8Type.java:27)<br/>	at
+org.apache.cassandra.dht.LocalToken.compareTo(LocalToken.java:45)<br/>	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:89)<br/>	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:38)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Same patch I attached to <a href="https://issues.apache.org/jira/browse/CASSANDRA-4289"
+title="Secondary Indexes fail following a system restart" class="issue-link"
+data-issue-key="CASSANDRA-4289"><del>CASSANDRA-4289</del></a>. 
+
+
+New Comment: 
+Note that as a workaround, deleting the key cache files for your index CFs should fix
+this. 
+
+
+New Comment: 
+Duplicates <a href="https://issues.apache.org/jira/browse/CASSANDRA-4289" title="Secondary
+Indexes fail following a system restart" class="issue-link"
+data-issue-key="CASSANDRA-4289"><del>CASSANDRA-4289</del></a> 
+
+
+New Comment: 
+Not a duplicate, 4289 was for a 1.2-only issue; this is against 1.1 
+
+
+New Comment: 
+Oh, I'm sorry, +1 then. 
+
+

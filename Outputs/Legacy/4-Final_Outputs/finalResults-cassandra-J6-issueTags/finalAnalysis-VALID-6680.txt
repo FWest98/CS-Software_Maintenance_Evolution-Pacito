@@ -1,0 +1,113 @@
+Pattern changes caused by commit: 6ba063387f3088e4e21aab20509c6d9237809ce9
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6680.txt 
+
+commit 6ba063387f3088e4e21aab20509c6d9237809ce9
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: support for DateType.
+    Patch by brandonwilliams, reviewed by Rick Branson for CASSANDRA-4204
+
+
+
+==================================
+ Issue CASSANDRA-4204 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4204] Pig does not work on DateType
+-----------------
+
+-----------------
+Summary: Pig does not work on DateType
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 1 May 2012 00:20:13 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 1 May 2012 17:07:48 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+cqlsh:PigDemo&gt; describe columnfamily test1897;
+
+CREATE COLUMNFAMILY test1897 (<br/>KEY
+text PRIMARY KEY,<br/>testcol timestamp<br/>) WITH<br/>comment='' AND<br/>comparator=text
+AND<br/>row_cache_provider='SerializingCacheProvider' AND<br/>key_cache_size=200000.000000
+AND<br/>row_cache_size=0.000000 AND<br/>read_repair_chance=1.000000
+AND<br/>gc_grace_seconds=864000 AND<br/>default_validation=blob
+AND<br/>min_compaction_threshold=4 AND<br/>max_compaction_threshold=32
+AND<br/>row_cache_save_period_in_seconds=0 AND<br/>key_cache_save_period_in_seconds=14400
+AND<br/>replicate_on_write=True;
+
+cqlsh:PigDemo&gt; select * from test1897;<br/>KEY |
+testcol<br/>----<del>+</del>------------------------<br/>akey | 2012-01-21
+00:14:12+0000
+
+$ cat test1897.pig<br/>cassandra_data = LOAD 'cassandra://PigDemo/test1897'
+USING CassandraStorage() AS (name, columns: bag 
+{T: tuple()}
+);<br/>dump
+cassandra_data;
+
+there seems problem with the DateType. the above simple pig script fail
+with the attached err
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Sad patch w/test to cast DateType to a long, since pig has no native date type, and
+DateType is just a long under the hood anyway. 
+
+
+New Comment: 
+Reviewed, looks good. 
+
+
+New Comment: 
+Committed. 
+
+

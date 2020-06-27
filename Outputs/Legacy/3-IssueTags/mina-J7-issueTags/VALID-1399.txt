@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4faeb83d27552fd70f5b83827bc5df6d712b1a01
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1399.txt 
+
+commit 4faeb83d27552fd70f5b83827bc5df6d712b1a01
+Author: Trustin Lee <trustin@apache.org>
+
+    Changed IoEventQueueHandler to accept any event source other than ThreadPoolExecutor - will solve writer-side OOM issue with this interface

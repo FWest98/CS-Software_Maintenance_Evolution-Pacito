@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c176ca29db487cdd22a8ca7cca39445050455f2c
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1650.txt 
+
+commit c176ca29db487cdd22a8ca7cca39445050455f2c
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the commented sessionCreated() method, as it's now useless

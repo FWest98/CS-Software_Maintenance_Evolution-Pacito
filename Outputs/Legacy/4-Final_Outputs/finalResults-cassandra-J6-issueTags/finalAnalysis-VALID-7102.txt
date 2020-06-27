@@ -1,0 +1,138 @@
+Pattern changes caused by commit: 4fd6fe3fa6a1371f5f9c16a7199fbf81320d98c7
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7102.txt 
+
+commit 4fd6fe3fa6a1371f5f9c16a7199fbf81320d98c7
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (cql3) Support ORDER BY when IN condition is given in WHERE clause
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4327
+
+
+
+==================================
+ Issue CASSANDRA-4327 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4327] Sorting results when using IN()
+-----------------
+
+-----------------
+Summary: Sorting results when using IN()
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 11 Jun 2012 06:01:42 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 6 Jul 2012 23:20:22 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Using the following test schema:
+
+CREATE TABLE test (<br/>  my_id varchar, <br/>  time_id
+uuid,<br/>  value int,<br/>  PRIMARY KEY (my_id, time_id)<br/>);
+
+When you issue a CQL3
+query like: <br/>select * from test where my_id in('key1', 'key2') order by time_id; 
+
+You
+receive the error:<br/>"Ordering is only supported if the first part of the PRIMARY KEY is
+restricted by an Equal"
+
+I'm including a patch I put together after spending an hour or
+two poking thru the code base that sorts the results for these types of queries.  I'm
+hoping someone with a deeper understanding of Cassandra's code base can take a look at it,
+clean it up or use it as a starting place, and include it in an upcoming release.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+&#8211; edit &#8211; <br/>whoops 
+
+
+New Comment: 
+Please attach the patch as a separate file attached to the ticket, rather than inlined in
+a comment (As this kills indentation and interpret a number of characters). 
+
+
+New Comment: 
+Attached the patch as a file. 
+
+
+New Comment: 
+To clarify, the error is because we want to provide ordering based on the clustering
+provided by the column name (www.datastax.com/dev/blog/schema-in-cassandra-1-1).  However,
+it does seem reasonable that we could provide a "merge" step for the IN case as well. 
+
+
+New Comment: 
+Pavel, go ahead and see if this would be a quick fix but if not let's table it for now. 
+
+
+New Comment: 
+I think we should still disallow ordering w/ no key restriction, instead of allowing but
+ignoring.buildCompositeValue looks expensive, can we compare w/o that copy?Nit: prefer
+isEmpty to size == 0. 
+
+
+New Comment: 
+add a restriction that ORDER BY could be only used in combination with WHERE
+clause.Changed CompositeComparator to use one-by-one comparisons instead of using
+CompositeType comparator.Fixed nit. 
+
+
+New Comment: 
+nit: would be cleanest to put the where check in the existing <tt>if
+(!stmt.parameters.orderings.isEmpty()))</tt> block, where the old where check used to
+be.+1 otherwise 
+
+
+New Comment: 
+Nit fixed and committed. 
+
+

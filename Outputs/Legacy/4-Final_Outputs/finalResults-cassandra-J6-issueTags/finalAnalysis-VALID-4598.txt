@@ -1,0 +1,152 @@
+Pattern changes caused by commit: 1e36fb1e44bff96005dd75a25648ff25eea6a95f
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4598.txt 
+
+commit 1e36fb1e44bff96005dd75a25648ff25eea6a95f
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix OutOfBounds with compression
+    patch by slebresne; reviewed by stuhood for CASSANDRA-2994
+
+
+
+==================================
+ Issue CASSANDRA-2994 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2994] OutOfBounds in CompressedSequentialWriter.flushData
+-----------------
+
+-----------------
+Summary: OutOfBounds in CompressedSequentialWriter.flushData
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 4 Aug 2011 22:07:40 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 8 Aug 2011 14:16:42 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Near the beginning of a wide row test with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-47" title="SSTable compression"
+class="issue-link" data-issue-key="CASSANDRA-47"><del>CASSANDRA-47</del></a> compression
+enabled on a counter column family, I see the following exception:
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">
+WARN [CompactionExecutor:5] 2011-08-04 21:50:14,558 FileUtils.java (line 95) Failed
+closing
+org.apache.cassandra.io.compress.CompressedSequentialWriter@28f01347java.lang.IndexOutOfBoundsException	at
+java.io.RandomAccessFile.writeBytes(Native Method)	at
+java.io.RandomAccessFile.write(RandomAccessFile.java:466)	at
+org.apache.cassandra.io.compress.CompressedSequentialWriter.flushData(CompressedSequentialWriter.java:88)	at
+org.apache.cassandra.io.util.SequentialWriter.flushInternal(SequentialWriter.java:174)	at
+org.apache.cassandra.io.util.SequentialWriter.syncInternal(SequentialWriter.java:150)	at
+org.apache.cassandra.io.util.SequentialWriter.close(SequentialWriter.java:283)	at
+org.apache.cassandra.io.compress.CompressedSequentialWriter.close(CompressedSequentialWriter.java:159)	at
+org.apache.cassandra.io.util.FileUtils.closeQuietly(FileUtils.java:91)	at
+org.apache.cassandra.io.sstable.SSTableWriter.cleanupIfNecessary(SSTableWriter.java:201)	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:176)	at
+org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:120)	at
+org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:103)	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)ERROR [CompactionExecutor:5] 2011-08-04
+21:50:14,561 AbstractCassandraDaemon.java (line 146) Fatal exception in thread <span
+class="code-object">Thread</span>[CompactionExecutor:5,1,main]java.lang.IndexOutOfBoundsException	at
+java.io.RandomAccessFile.writeBytes(Native Method)	at
+java.io.RandomAccessFile.write(RandomAccessFile.java:466)	at
+org.apache.cassandra.io.compress.CompressedSequentialWriter.flushData(CompressedSequentialWriter.java:88)	at
+org.apache.cassandra.io.util.SequentialWriter.flushInternal(SequentialWriter.java:174)	at
+org.apache.cassandra.io.util.SequentialWriter.reBuffer(SequentialWriter.java:226)	at
+org.apache.cassandra.io.util.SequentialWriter.writeAtMost(SequentialWriter.java:117)	at
+org.apache.cassandra.io.util.SequentialWriter.write(SequentialWriter.java:101)	at
+java.io.DataOutputStream.write(DataOutputStream.java:90)	at
+org.apache.cassandra.db.compaction.PrecompactedRow.write(PrecompactedRow.java:105)	at
+org.apache.cassandra.io.sstable.SSTableWriter.append(SSTableWriter.java:150)	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:153)	at
+org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:120)	at
+org.apache.cassandra.db.compaction.CompactionManager$1.call(CompactionManager.java:103)	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Before anyone pursues this, lemme confirm that it isn't due to a bad merge... sorry,
+should have done that before.EDIT: Confirmed in trunk. 
+
+
+New Comment: 
+The workload was a wide row usecase, but based on the stack trace, the row hadn't reached
+a width to trigger LazilyCompactedRow. 
+
+
+New Comment: 
+A probable cause is that snappy doesn't seem to guarantee that the compressed output will
+shorter or equal to the input (indeed, Snappy.maxCompressedLength(65536) ==
+76490).Attaching fix for that. I don't see what else it can be actually, but I don't know
+how to reproduce, so Stu, if you can reproduce and can check if this fixes it, that'd be
+cool. 
+
+
+New Comment: 
+I guess you will also need to replace compressed = new byte<span
+class="error">&#91;metadata.chunkLength&#93;</span>; with compressed = new byte<span
+class="error">&#91;Snappy.maxCompressedLength(metadata.chunkLength)&#93;</span>;in the
+CompressedRandomAccessReader constructor. 
+
+
+New Comment: 
+Oups, you're right, patch updated. 
+
+
+New Comment: 
++1<br/>Looks like that was it: thanks! 
+
+
+New Comment: 
+Committed, thanks 
+
+

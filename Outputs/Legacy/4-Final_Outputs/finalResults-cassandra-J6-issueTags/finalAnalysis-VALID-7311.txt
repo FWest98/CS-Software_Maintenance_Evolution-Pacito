@@ -1,0 +1,283 @@
+Pattern changes caused by commit: e1fef724889a498e0297de897592276b9f86c5cd
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7311.txt 
+
+commit e1fef724889a498e0297de897592276b9f86c5cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Make compaction, flush JBOD-aware
+    patch by yukim; reviewed by jbellis for CASSANDRA-4292
+
+
+
+==================================
+ Issue CASSANDRA-4292 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4292] Improve JBOD loadbalancing and reduce contention
+-----------------
+
+-----------------
+Summary: Improve JBOD loadbalancing and reduce contention
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 28 May 2012 20:21:32 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 30 Aug 2012 12:49:08 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+As noted in <a href="https://issues.apache.org/jira/browse/CASSANDRA-809" title="Full
+disk can result in being marked down" class="issue-link"
+data-issue-key="CASSANDRA-809"><del>CASSANDRA-809</del></a>, we have a certain amount of
+flush (and compaction) threads, which mix and match disk volumes indiscriminately.  It may
+be worth creating a tight thread -&gt; disk affinity, to prevent unnecessary conflict at
+that level.
+
+OTOH as SSDs become more prevalent this becomes a non-issue.  Unclear how
+much pain this actually causes in practice in the meantime.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+We'll also want to "reserve" space for in-progress writes; currently we just use the raw
+free space as reported by the OS, which means that when disks are close to evenly matched
+we're highly likely to stack multiple new sstables on the same one instead of spreading
+them out. 
+
+
+New Comment: 
+Attaching patch to get initial feedback.The basic idea is to create ThreadPoolExecutor per
+disk, and when submitting flush task, it is bound to one of executor based on disk
+space.<br/>In this version, I set thread pool size to 1. This is fine when your data
+directories are all on spinning disks, but for SSD, you might want to increase this value.
+In order to set pool size per disk, we need to create new config option. Current global
+<em>memtable_flush_writers</em> option is no longer used in this patch. 
+
+
+New Comment: 
+Looks reasonable to me so far.A couple points:<ul class="alternate"
+type="square">	<li>we'll want to prefer (1) disks that have no current writes, then (2)
+disks with the least projected data (including the estimated size of currently active
+writes)</li>	<li>compaction should use this executor as well</li></ul>Nit: probably
+cleaner to use a Map for the new getLocationForDisk method 
+
+
+New Comment: 
+v2 attached.<br/>This version introduces new way of specifying # of threads per disk. In
+cassandra.yaml, <tt>data_file_directory</tt> now takes additional parameter in the
+following format(num threads follows after ':').<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">data_file_directories:  - /mnt/d1/data:1  -
+/mnt/d1/data:3</pre></div></div>If ':#' is omitted, it defaults to 1, so we can preserve
+backward compatibility. <tt>memtable_flush_writers</tt> is removed from yaml.In this
+version, compaction also uses disk bound task executor to write sstables. Directory is
+chosen based on available space in both queue and disk.<blockquote>probably cleaner to use
+a Map for the new getLocationForDisk method</blockquote>I did not modify to Map, since I
+think it is redundant and looping through few directories does not make difference. 
+
+
+New Comment: 
+<blockquote>Directory is chosen based on available space in both queue and
+disk.</blockquote>We still want to prioritize disks that have no tasks yet, since ipos are
+a bigger bottleneck than space, in general.So specifically, we want to prioritize in order
+of:<ol>	<li>enough space for the new sstable (boolean)</li>	<li>zero tasks
+(boolean)</li>	<li>total free space (long)</li></ol>We may want to test changing #2 to
+ordering by task count...  both have pros and cons. 
+
+
+New Comment: 
+Here's the code for choosing disk from attached patch.<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-comment">// DiskWriter.java</span><span
+class="code-keyword">private</span> ExecutorService selectExecutor(DiskBoundTask task){   
+<span class="code-comment">// sort by available disk space</span>   
+SortedSet&lt;DiskBoundTaskExecutor&gt; executors;    <span
+class="code-keyword">synchronized</span> (perDiskTaskExecutors)    {        executors =
+ImmutableSortedSet.copyOf(perDiskTaskExecutors);    }    <span class="code-comment">//
+<span class="code-keyword">if</span> there is disk with sufficient space and no activity
+running on it, then use it</span>    <span class="code-keyword">for</span>
+(DiskBoundTaskExecutor executor : executors)    {        <span
+class="code-object">long</span> spaceAvailable = executor.getEstimatedAvailableSpace();   
+    <span class="code-keyword">if</span> (task.getExpectedWriteSize() &lt; spaceAvailable
+&amp;&amp; executor.getActiveCount() == 0)            <span
+class="code-keyword">return</span> executor;    }    <span class="code-comment">// <span
+class="code-keyword">if</span> not, use the one that has largest free space</span>   
+<span class="code-keyword">if</span> (task.getExpectedWriteSize() &lt;
+executors.first().getEstimatedAvailableSpace())        <span
+class="code-keyword">return</span> executors.first();    <span
+class="code-keyword">else</span>       <span class="code-keyword">return</span>
+task.recalculateWriteSize() ? selectExecutor(task) : <span
+class="code-keyword">null</span>; <span class="code-comment">// retry <span
+class="code-keyword">if</span> needed</span>}</pre></div></div>Before choosing disk, we
+sort by available disk space, but then choose the one that 1) fits for new sstable and 2)
+has zero task.<br/>If we cannot find, then 3) we choose the one with largest free
+space.<br/>So I think above code works as you described. 
+
+
+New Comment: 
+Hmm, may have been looking at the wrong patch.  Will reinspect. 
+
+
+New Comment: 
+Can you rebase post-<a href="https://issues.apache.org/jira/browse/CASSANDRA-2116"
+title="Separate out filesystem errors from generic IOErrors" class="issue-link"
+data-issue-key="CASSANDRA-2116"><del>CASSANDRA-2116</del></a>? 
+
+
+New Comment: 
+Attaching rebased patch. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>need to use a single DiskWriter for both
+compaction and flushing or we lose on most of the benefits here.  One solution: rename
+CompactionManager to IOManager, and use that.  Another could be to move the DiskWriter
+into StorageService.</li>	<li>compactionexecutor needs to be cleaned up since it's no
+longer serving the executor role.  again, cleanup could be straightforward if we morph CM
+into IOManager (and merge CompactionExecutor + DiskWriter).  Could be nice to get the kind
+of progress reporting on flushes that we now have on compaction.</li>	<li>DiskWriter: Can
+we use CopyOnWriteArrayList instead of synchronized block?</li></ul> 
+
+
+New Comment: 
+Attaching v3.<br/>Major changes:<ul class="alternate" type="square">	<li>rename DiskWriter
+to IOManager and make it singleton.</li>	<li>IOManager uses PriorityBlockingQueue in order
+to execute tasks based on priority. Memtable flushing task has higher priority than
+compaction task.</li></ul><blockquote>need to use a single DiskWriter for both compaction
+and flushing or we lose on most of the benefits here. One solution: rename
+CompactionManager to IOManager, and use that. Another could be to move the DiskWriter into
+StorageService.</blockquote>I'd rather keep CompactionManager as interface(API) to all
+compaction operations. So instead of renaming it to IOManager, I renamed DiskWriter to
+IOManager and use it from CompactionManager.<blockquote>compactionexecutor needs to be
+cleaned up since it's no longer serving the executor role. again, cleanup could be
+straightforward if we morph CM into IOManager (and merge CompactionExecutor + DiskWriter).
+Could be nice to get the kind of progress reporting on flushes that we now have on
+compaction.</blockquote>Refactoring CompactionManager/CompactionExecutor is hard because
+of compaction lock. If it's possible, I'd like to do it later in separate
+ticket.<blockquote>DiskWriter: Can we use CopyOnWriteArrayList instead of synchronized
+block?</blockquote>Done. 
+
+
+New Comment: 
+v3 looks good enough to do some performance testing to see if it's worth polishing more.
+<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><blockquote>Can we use
+CopyOnWriteArrayList </blockquote>Nit: Looking at this again it should probably actually
+be an ImmutableList. 
+
+
+New Comment: 
+I ran tests against patched and trunk with modified stress tool to write to 3 CFs with
+leveled compaction.<br/>Node consists of 6 spinning disks and C* uses those as data
+directories.<br/>Although I see difference in disk usage(patched version distributes load
+evenly among disks), there is still no difference in performance in both write and
+compaction.<br/>It seems that sometimes memtable flushing is blocked when long running
+compaction is already started, and causing GC pressure on patched node.<br/>Looks like I
+need to find the way to avoid queuing up memtable flush tasks. 
+
+
+New Comment: 
+Your instincts were better than mine: combining compaction and flush i/o into a single
+executor was a mistake.  We could band-aid it by adding some kind of semaphore mechanism
+to make sure we always leave at least one thread free for flushing but this still won't
+let us max out on flushing temporarily at the expense of compaction, without introducing
+extremely complicated preemption logic.So, color me convinced that we need to keep
+separate executors for flush and compaction.Additionally, the more I think about it the
+less I think the DBT abstraction is what we want here.  Or at a higher level: I don't
+think we want to be that strict about one thread per disk.  Which was my fault in the
+first place, sorry!If we instead just follow the above disk prioritization logic, we'll
+still get effectively thread-per-disk until disks start to run out of space.  But having a
+(standard) flexible pool of threads means that we generalize much better to SSDs, where
+having substantially more threads than disks makes sense (since compaction becomes CPU
+bound).So I think we can simplify our approach a lot, perhaps by having a global Directory
+state that tracks space remaining and how many i/o tasks are running on each, that we can
+use when handing out flush and compaction targets.  The executor architecture won't need
+to change.  (May want to introduce a DirectoryBoundRunnable abstraction, whose run method
+encapsulates updating i/o task count and space free after running the flush/compaction,
+but without trying it I'm not sure if that actually works as imagined.) 
+
+
+New Comment: 
+Attaching v4.<br/>This version is based on v2 but without Executors. DBT is still used to
+track task count and load for data directories.Benchmark result will follow... 
+
+
+New Comment: 
+Tests set up:<br/>Server - 1 node, uses 4292-v4 patch and  current trunk<br/>Client - 3
+nodes, each runs stress insert (modified to write to different CF) for 5,000,000 keys with
+Leveled Compaction StrategyI take 'iostat -x 1' from beginning of stress load to end of
+all compactions. Result is uploaded here:<br/><a
+href="https://docs.google.com/spreadsheet/ccc?key=0AsVe14L_ijtkdC1tMXJ2d3RVLWxKVGxvWkgyVGFCWlE"
+class="external-link"
+rel="nofollow">https://docs.google.com/spreadsheet/ccc?key=0AsVe14L_ijtkdC1tMXJ2d3RVLWxKVGxvWkgyVGFCWlE</a>From
+above charts, you can see slight improvement in compaction speed(patched version ended
+fast). Also, patched version uses all disks evenly compared to trunk. 
+
+
+New Comment: 
+Fixed a bug with the expectedWriteSize not being updated between calls to
+getLocationCapableOfSize, and renamed DBT to DiskAwareRunnable.  Otherwise LGTM,
+committed.Thanks for going the extra mile with the test results graphs! 
+
+
+New Comment: 
+Perhaps i am confused, but this commit seems to have screwed up the directory for
+sstables. Start with the default configuration (yaml, etc)<ul class="alternate"
+type="square">	<li>create KS/CF</li>	<li>add data to CF</li>	<li>nodetool flush KS - note
+sstables are in the CF directory</li>	<li>add more data to same CF</li>	<li>nodetool flush
+KS - (a compaction) note sstables are in the top level 'data' directory</li></ul> 
+
+
+New Comment: 
+Dave,You are right, attaching fix to chose right directory to write sstable when
+compacting. 
+
+
+New Comment: 
++1 patch LGTM 
+
+

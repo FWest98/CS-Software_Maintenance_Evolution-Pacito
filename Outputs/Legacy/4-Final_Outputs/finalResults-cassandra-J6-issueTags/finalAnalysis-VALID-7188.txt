@@ -1,0 +1,106 @@
+Pattern changes caused by commit: 06bdd3ea8e6ec8ebf47b7bd813041550f99fa48b
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7188.txt 
+
+commit 06bdd3ea8e6ec8ebf47b7bd813041550f99fa48b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    rename getRangeKeySample to sampleKeyRange
+    patch by Jan Prach; reviewed by jbellis for CASSANDRA-4452
+
+
+
+==================================
+ Issue CASSANDRA-4452 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4452] remove RangeKeySample from attributes in jmx
+-----------------
+
+-----------------
+Summary: remove RangeKeySample from attributes in jmx
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 19 Jul 2012 20:15:37 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 25 Jul 2012 18:13:26 +0000
+-----------------
+
+-----------------
+Assigned to: Jan Prach
+-----------------
+
+-----------------
+Description: 
+
+RangeKeySample in org.apache.cassandra.db:type=StorageService MBean can be really huge
+(over 200MB in our case). That's a problem for monitoring tools as they're not build for
+that. Recommended and often used mx4j may be killer in this situation.
+
+It would be good
+enough to make RangeKeySample "operation" instead of "attribute" in jmx. Looking at how
+MBeanServer.registerMBean() works we can do one of the following:<br/>a) add some dummy
+parameter to getRangeKeySample<br/>b) name it differently - not like getter (next time
+somebody will rename it back)<br/>c) implement MXBean instead of MBean (a lot of
+work)
+
+Any of those work. All of them are "hacks". Any better idea?
+
+BTW: It's blocker for
+some installations. Our update to 1.1.2 caused downtime, downgrade back to 1.0.x, repairs,
+etc.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I would be fine with simply renaming it. 
+
+
+New Comment: 
+Same here. Renaming it to be an operation with a comment to explain why it shouldn't be
+renamed back to an attribute. 
+
+
+New Comment: 
+"Sample" is also verb. We can rename it from getRangeKeySample() to sampleKeyRange(). Ok? 
+
+

@@ -1,0 +1,95 @@
+Pattern changes caused by commit: c573c46e34b952e3147e36e8a7b097f701f2b0e4
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6333.txt 
+
+commit c573c46e34b952e3147e36e8a7b097f701f2b0e4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Expose secondary indexes to cfhistograms.
+    Patch by brandonwilliams, reviewed by Nick Bailey for CASSANDRA-4063
+
+
+
+==================================
+ Issue CASSANDRA-4063 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4063] Expose nodetool cfhistograms for secondary index CFs
+-----------------
+
+-----------------
+Summary: Expose nodetool cfhistograms for secondary index CFs
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 19 Mar 2012 16:58:45 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 20 Mar 2012 02:39:47 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+With the ObjectName that NodeProbe uses, the JMX query can only match mbeans with type
+"ColumnFamilies".  Secondary index CFs have a type of "IndexColumnFamilies", so the query
+won't match them.
+
+The <a
+href="http://docs.oracle.com/javase/6/docs/api/javax/management/ObjectName.html"
+class="external-link" rel="nofollow">ObjectName documentation</a> indicates that you can
+use wildcards, which would be the perfect solution if it actually worked.  I'm not sure if
+it's some quoted vs non-quoted pattern issue, or if it's particular to the
+<tt>newMBeanProxy()</tt> method, but I could not get wildcards to match the secondary
+index CFs.  Explicitly setting the "type" field to "IndexColumnFamilies" did work.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+At worst we should be able to use our schema knowledge to know if we should query with ICF
+or CF type. 
+
+
+New Comment: 
+The reason wildcarding didn't work is because when you use them you have to pass that to
+queryNames first, and then use the returned set of ObjectNames.  However, it's very nasty
+of JMX to allow you to pass wilcards in the ObjectName and then do the wrong thing with
+it. 
+
+
+New Comment: 
++1 
+
+

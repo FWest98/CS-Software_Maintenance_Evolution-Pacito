@@ -1,0 +1,17 @@
+Pattern changes caused by commit: afb8f53052224e0dc4e2aa867253831a0d9c03e7
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5406.txt 
+
+commit afb8f53052224e0dc4e2aa867253831a0d9c03e7
+Merge: 514fe05 222d414
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

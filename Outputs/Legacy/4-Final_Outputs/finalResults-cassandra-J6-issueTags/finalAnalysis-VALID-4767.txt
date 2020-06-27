@@ -1,0 +1,224 @@
+Pattern changes caused by commit: c8afd769e5baec91f20508d0a37bf1bba93f09ff
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4767.txt 
+
+commit c8afd769e5baec91f20508d0a37bf1bba93f09ff
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Make the compression algorithm and chunk length configurable
+    patch by Sylvain Lebresne; reviewed by Pavel Yaskevich for CASSANDRA-3001
+
+
+
+==================================
+ Issue CASSANDRA-3001 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3001] Make the compression algorithm and chunk length configurable
+-----------------
+
+-----------------
+Summary: Make the compression algorithm and chunk length configurable
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 8 Aug 2011 14:29:34 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 31 Aug 2011 20:36:21 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching patch to make the compression algorithm configurable, as well as the chunk
+length. It implements the idea of having compression be "similar" to the compaction
+strategies as far as thrift is concerned.Talking of the chunk length, its default value is
+65535, which is 64k-1, not 64k. I think this is problem because of the following line in
+CRAR.decompressChunk:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>        // buffer offset is always aligned  
+     bufferOffset = current &amp; ~(buffer.length - 1);</pre></div></div>which I believe
+only works if buffer.length is a power of 2 (which 64k-1 is not). We should either change
+this line or enforce that the chunk length is a power of two. The attached patch choose
+the second solution, enforcing a power of 2 length (and thus set the default chunk to
+65536).The second attached patch adds a compressor based on Java deflate default
+implementation. Sadly, I haven't found a way to compute in advance what is the max size a
+piece of compressed data can take (that is, an equivalent to
+Snappy.maxCompressedLength()), so the patch does slightly modify the ICompressor interface
+to allow the compression function to resize the buffer if need be. This is arguably not
+very elegant, though it works. Besides, I haven't really made any true benchmarks, but
+given the time it takes to compact the result of a default stress session, this sound
+sloooooow (but it does result in non-negligibly smaller files than Snappy). Don't know if
+we want to commit that part: felt reasonable to try it at the very least. 
+
+
+New Comment: 
+<blockquote>Talking of the chunk length, its default value is 65535, which is 64k-1, not
+64k. I think this is problem because of the following line in
+CRAR.decompressChunk:</blockquote>if you take a look at CSW there is a constant
+CHUNK_LENGTH which is 64k (65536), where did you find 65535? 
+
+
+New Comment: 
+Yes, I don't why I said that. My brain has fucked up. Nervermind. 
+
+
+New Comment: 
+Both patches need rebase.But from I can see everything is fine expect few minor things:
+<ul class="alternate" type="square">	<li>Is there a reason why code to copy compression
+parameters is duplicated all over the CFMetaData class even tho CompressionParameters have
+a static copyOptions method? Would be nice to make it public and reuse in
+CFMetaData.</li>	<li>Documentation for CLI and stress wasn't updated to list
+DeflateCompressor.</li></ul> 
+
+
+New Comment: 
+Patch rebased. I've included the change to the thrift generated files as a second patch
+for completeness.<blockquote>Is there a reason why code to copy compression parameters is
+duplicated all over the CFMetaData</blockquote>Yes, the places where the code is
+"duplicated" are where a Map&lt;CharSequence, CharSequence&gt; is expected, while
+copyOptions returns a Map&lt;String, String&gt;. Still, we could have create a specific
+static method to avoid code duplication <b>but</b>, after rebasing, there remains only one
+occurrence of this.<blockquote>Documentation for CLI and stress wasn't updated to list
+DeflateCompressor</blockquote>Updated documentation in the rebased patch. Stress was
+already updated: it requires specifying the compressor class after the -I option. 
+
+
+New Comment: 
+Sounds good, I will take a look soon. 
+
+
+New Comment: 
+Applied 0001 and 0003 and used `ant gen-thrift-java &amp;&amp; ant avro-generate
+&amp;&amp; ant clean`.CompressedRandomAccessReaderTest weren't to compile at first
+becauseLine 108 should be changed to<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>SequentialWriter writer = new
+CompressedSequentialWriter(file, metadata.getPath(), false, new
+CompressionParameters(SnappyCompressor.instance));</pre></div></div>After that
+modifications `ant test` succeeded.Tried to run `ant test-compression` and various tests
+are failing exception similar to this:<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>    [junit] Testcase:
+testIndexCreate(org.apache.cassandra.db.ColumnFamilyStoreTest):	Caused an ERROR    [junit]
+error reading 1 of 1    [junit] java.lang.RuntimeException: error reading 1 of 1   
+[junit] 	at
+org.apache.cassandra.db.columniterator.SimpleSliceReader.computeNext(SimpleSliceReader.java:83)
+   [junit] 	at
+org.apache.cassandra.db.columniterator.SimpleSliceReader.computeNext(SimpleSliceReader.java:40)
+   [junit] 	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)   
+[junit] 	at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135) 
+  [junit] 	at
+org.apache.cassandra.db.columniterator.SSTableSliceIterator.hasNext(SSTableSliceIterator.java:107)
+   [junit] 	at
+org.apache.cassandra.utils.MergeIterator$Candidate.advance(MergeIterator.java:194)   
+[junit] 	at org.apache.cassandra.utils.MergeIterator.&lt;init&gt;(MergeIterator.java:47)  
+ [junit] 	at
+org.apache.cassandra.utils.MergeIterator$ManyToOne.&lt;init&gt;(MergeIterator.java:142)   
+[junit] 	at org.apache.cassandra.utils.MergeIterator.get(MergeIterator.java:66)    [junit]
+	at org.apache.cassandra.db.filter.QueryFilter.collateColumns(QueryFilter.java:96)   
+[junit] 	at
+org.apache.cassandra.db.CollationController.collectAllData(CollationController.java:226)  
+ [junit] 	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:61)
+   [junit] 	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1318) 
+  [junit] 	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1171)   
+[junit] 	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1122)   
+[junit] 	at org.apache.cassandra.db.index.keys.KeysSearcher.search(KeysSearcher.java:203) 
+  [junit] 	at
+org.apache.cassandra.db.index.SecondaryIndexManager.search(SecondaryIndexManager.java:428)
+   [junit] 	at
+org.apache.cassandra.db.ColumnFamilyStore.search(ColumnFamilyStore.java:1405)    [junit]
+	at
+org.apache.cassandra.db.ColumnFamilyStoreTest.queryBirthdate(ColumnFamilyStoreTest.java:485)
+   [junit] 	at
+org.apache.cassandra.db.ColumnFamilyStoreTest.testIndexCreate(ColumnFamilyStoreTest.java:465)
+   [junit] Caused by: java.nio.channels.ClosedChannelException    [junit] 	at
+org.apache.cassandra.io.util.RandomAccessReader.read(RandomAccessReader.java:268)   
+[junit] 	at java.io.RandomAccessFile.readByte(RandomAccessFile.java:623)    [junit] 	at
+org.apache.cassandra.utils.ByteBufferUtil.readShortLength(ByteBufferUtil.java:356)   
+[junit] 	at
+org.apache.cassandra.utils.ByteBufferUtil.readWithShortLength(ByteBufferUtil.java:367)   
+[junit] 	at org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:87)
+   [junit] 	at
+org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:82)    [junit]
+	at org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:72)   
+[junit] 	at org.apache.cassandra.db.ColumnSerializer.deserialize(ColumnSerializer.java:36)
+   [junit] 	at
+org.apache.cassandra.db.columniterator.SimpleSliceReader.computeNext(SimpleSliceReader.java:79)</pre></div></div>The
+same happened when I re-compiled and run `./tools/stress/bin/stress -n 10000 -I
+SnappyCompressor` and then tried to read the data.Have you tried to run the tests? 
+
+
+New Comment: 
+I just updated the first patch to fix the tests compilation (the 'line 108'
+change).However, the `ant test-compression` failures are not of this patch doing. Trunk
+already fails and a git bisect indicates that those failure where introduced by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2498" title="Improve read
+performance in update-intensive workload" class="issue-link"
+data-issue-key="CASSANDRA-2498"><del>CASSANDRA-2498</del></a> (we should probably wait for
+that to be fixed and check then that the tests do pass with this patch). 
+
+
+New Comment: 
+Let's wait. 
+
+
+New Comment: 
+All tests are passing now that <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3110" title="SSTables iterators are
+closed and before being used" class="issue-link"
+data-issue-key="CASSANDRA-3110"><del>CASSANDRA-3110</del></a> has been committed. 
+
+
+New Comment: 
+Great, I will test and commit in few hours. 
+
+
+New Comment: 
+Committed. 
+
+

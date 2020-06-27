@@ -1,0 +1,26 @@
+Pattern changes caused by commit: d0964715d4d5f6d71c1139bd247962d278aa167c
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6273.txt 
+
+commit d0964715d4d5f6d71c1139bd247962d278aa167c
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Make BoundedStatsDeque threadsafe.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-4019

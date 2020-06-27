@@ -1,0 +1,80 @@
+Pattern changes caused by commit: 5927193d397ddbc7bf94beda213aae8f804bf58b
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5040.txt 
+
+commit 5927193d397ddbc7bf94beda213aae8f804bf58b
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix sstableloader --ignores option
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3247
+
+
+
+==================================
+ Issue CASSANDRA-3247 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3247] sstableloader ignores option doesn't work correctly
+-----------------
+
+-----------------
+Summary: sstableloader ignores option doesn't work correctly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 23 Sep 2011 09:07:56 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 23 Sep 2011 12:35:03 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+The --ignores option is supposed to take an argument but it doesn't.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1(nit: "Unknow" should be "Unknown") 
+
+
+New Comment: 
+Committed (with spelling fix), thanks 
+
+

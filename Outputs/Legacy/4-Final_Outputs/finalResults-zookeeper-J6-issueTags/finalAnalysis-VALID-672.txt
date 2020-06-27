@@ -1,0 +1,447 @@
+Pattern changes caused by commit: 30cff66e5efe6b99b7e7a2293061f0eea0def02f
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-672.txt 
+
+commit 30cff66e5efe6b99b7e7a2293061f0eea0def02f
+Author: Patrick D. Hunt <phunt@apache.org>
+
+    ZOOKEEPER-733. use netty to handle client connections
+
+
+
+==================================
+ Issue ZOOKEEPER-733 Description 
+=======================================
+
+Project: ZooKeeper
+-----------------
+
+-----------------
+Title: [ZOOKEEPER-733] use netty to handle client connections
+-----------------
+
+-----------------
+Summary: use netty to handle client connections
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 5 Apr 2010 14:44:46 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 18 Aug 2010 06:25:43 +0000
+-----------------
+
+-----------------
+Assigned to: Patrick D. Hunt
+-----------------
+
+-----------------
+Description: 
+
+we currently have our own asynchronous NIO socket engine to be able to handle lots of
+clients with a single thread. over time the engine has become more complicated. we would
+also like the engine to use multiple threads on machines with lots of cores. plus, we
+would like to be able to support things like SSL. if we switch to netty, we can simplify
+our code and get the previously mentioned benefits.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+this is an initial cut at integrating netty. it is stale and still fails two tests, but i
+don't want to lose track of it.svn info gives the following:URL: <a
+href="https://svn.apache.org/repos/asf/hadoop/zookeeper/trunk/src/java"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/hadoop/zookeeper/trunk/src/java</a><br/>Repository
+Root: <a href="https://svn.apache.org/repos/asf" class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf</a><br/>Repository UUID:
+13f79535-47bb-0310-9956-ffa450edef68<br/>Revision: 823252<br/>Node Kind:
+directory<br/>Schedule: normal<br/>Last Changed Author: mahadev<br/>Last Changed Rev:
+817885<br/>Last Changed Date: 2009-09-22 15:59:34 -0700 (Tue, 22 Sep 2009) 
+
+
+New Comment: 
+Updated the patch to compile against trunk (started with 632 errors! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> ). This is a checkpoint and not a final
+patch.The tests almost all pass, however there are two issues in particular:1) ACLTest
+sometimes fails due to a timing issue (legacy looks like) where the server may send an
+auth response before sending the connect response (out of order from what the client
+sent)2) the session moved tests are failing - haven't dug into that yet but it looks like
+the tests themselves are broken - they don't account for the fact that the client will
+attempt to reconnect to the server when the server closes the connection (this is the
+"original" session, which was moved). Not sure how to solve this one yet and still have a
+valid test.Notes:1) the patch currently defaults to Netty as the server cnxn factory, this
+should not be the case in the final patch<br/>2) javadoc needs significant cleanup<br/>3)
+netty ignores max client connection (need to verify)<br/>4) server side request throttling
+may be broken (session)<br/>5) need to review all of the code moved out of
+nioservercnxn.java - may be missing some patches applied (the merge was crazy).<br/>6) I
+have not yet tested NIO to ensure that it still works<br/>7) need to add support for
+configuring the netty/factory knobs<br/>8) docs still need to be added<br/>9) need to
+review logging; correct levels on existing, what needs to be added etc (logging is rough
+right now, added a number of logs to track down bugs that I found while updating the
+patch)<br/>10) need to add ssl support (configurable) in nettyI added "accessive.jar" to
+enable testing of private vars (rather than exposing them in core code)<br/>committer
+note: accessive.jar needs to be put into src/java/libtest 
+
+
+New Comment: 
+i couldn't reproduce the move problem, but these two files should fix it. 
+
+
+New Comment: 
+i figured out the timing issue for ACLTest. if you look at how NIOServerCnxn handles the
+readConnectRequest, you will notice that it disables the receipt of packets until the
+connect request is processed successfully. if you do that with netty, the ACLTest should
+work. 
+
+
+New Comment: 
+Ben that fixes SessionTest for me, but not QuorumTest. I modified QT to use that same
+mechanism but it still fails.For some reason the new session (using existing
+sessionid/pass) gets a moved exception. Note that these clients are connecting to diff
+servers. Perhaps that's the issue (timing)?<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>2010-05-28
+11:10:25,419 - INFO  [main:JUnit4ZKTestRunner$LoggedInvokeMethod@49] - RUNNING TEST METHOD
+testSessionMoved2010-05-28 11:10:25,420 - INFO  [main:ZooKeeper@375] - Initiating client
+connection, connectString=127.0.0.1:11354 sessionTimeout=30000
+watcher=org.apache.zookeeper.test.QuorumTest$4@5c1d29c12010-05-28 11:10:25,421 - INFO 
+[main-SendThread():ClientCnxn$SendThread@1007] - Opening socket connection to server
+/127.0.0.1:113542010-05-28 11:10:25,442 - INFO 
+[main-SendThread(localhost:11354):ClientCnxn$SendThread@915] - Socket connection
+established to localhost/127.0.0.1:11354, initiating session2010-05-28 11:10:25,443 - INFO
+ [New I/O server worker #51-1:ZooKeeperServer@795] - Client attempting to establish new
+session at /127.0.0.1:417412010-05-28 11:10:25,463 - WARN 
+[QuorumPeer:0.0.0.0/0.0.0.0:11354:Follower@120] - Got zxid 0x100000001 expected
+0x12010-05-28 11:10:25,465 - WARN  [QuorumPeer:0.0.0.0/0.0.0.0:11357:Follower@120] - Got
+zxid 0x100000001 expected 0x12010-05-28 11:10:25,492 - WARN 
+[QuorumPeer:0.0.0.0/0.0.0.0:11355:Follower@120] - Got zxid 0x100000001 expected
+0x12010-05-28 11:10:25,493 - WARN  [QuorumPeer:0.0.0.0/0.0.0.0:11356:Follower@120] - Got
+zxid 0x100000001 expected 0x12010-05-28 11:10:25,625 - INFO 
+[CommitProcessor:1:ZooKeeperServer@571] - Established session 0x128e01b97ab0000 with
+negotiated timeout 30000 for client /127.0.0.1:417412010-05-28 11:10:25,625 - INFO 
+[main-SendThread(localhost:11354):ClientCnxn$SendThread@685] - readConnectRestult 36
+0x[0,0,0,0,0,0,75,30,1,28,ffffffe0,1b,ffffff97,ffffffab,0,0,0,0,0,10,ffffffd7,ffffffe2,ffffffd1,39,18,fffffff1,fffffff3,ffffff8c,d,3,ffffff9a,ffffffe8,21,43,ffffffef,13,]2010-05-28
+11:10:25,625 - INFO  [main-SendThread(localhost:11354):ClientCnxn$SendThread@708] -
+Session establishment complete on server localhost/127.0.0.1:11354, sessionid =
+0x128e01b97ab0000, negotiated timeout = 300002010-05-28 11:10:25,647 - INFO 
+[main:ZooKeeper@438] - Initiating client connection, connectString=127.0.0.1:11355
+sessionTimeout=30000 watcher=org.apache.zookeeper.test.QuorumTest$5@1cacd5d4
+sessionId=128e01b97ab0000 sessionPasswd=&lt;hidden&gt;2010-05-28 11:10:25,648 - INFO 
+[main-SendThread():ClientCnxn$SendThread@1007] - Opening socket connection to server
+/127.0.0.1:113552010-05-28 11:10:25,649 - INFO 
+[main-SendThread(localhost:11355):ClientCnxn$SendThread@915] - Socket connection
+established to localhost/127.0.0.1:11355, initiating session2010-05-28 11:10:25,650 - INFO
+ [New I/O server worker #52-2:ZooKeeperServer@788] - Client attempting to renew session
+0x128e01b97ab0000 at /127.0.0.1:455002010-05-28 11:10:25,654 - INFO 
+[ProcessThread:-1:PrepRequestProcessor@405] - Got user-level KeeperException when
+processing sessionid:0x128e01b97ab0000 type:setData cxid:0x1 zxid:0xfffffffffffffffe
+txntype:unknown reqpath:/ Error Path:null Error:KeeperErrorCode = Session moved2010-05-28
+11:10:25,691 - INFO  [main-SendThread(localhost:11355):ClientCnxn$SendThread@1125] -
+Unable to read additional data from server sessionid 0x128e01b97ab0000, likely server has
+closed socket, closing socket connection and attempting reconnect2010-05-28 11:10:25,692 -
+INFO  [CommitProcessor:2:NettyServerCnxn@73] - close 128e01b97ab00002010-05-28
+11:10:25,692 - INFO  [CommitProcessor:2:NettyServerCnxn@80] - close in progress
+128e01b97ab00002010-05-28 11:10:25,794 - INFO 
+[main:JUnit4ZKTestRunner$LoggedInvokeMethod@53] - TEST METHOD FAILED
+testSessionMovedorg.apache.zookeeper.KeeperException$ConnectionLossException:
+KeeperErrorCode = ConnectionLoss for /	at
+org.apache.zookeeper.KeeperException.create(KeeperException.java:90)	at
+org.apache.zookeeper.KeeperException.create(KeeperException.java:42)	at
+org.apache.zookeeper.ZooKeeper.setData(ZooKeeper.java:1127)	at
+org.apache.zookeeper.test.QuorumTest.testSessionMoved(QuorumTest.java:204)</pre></div></div>line
+204 for me is             zknew.setData("/", new byte<span
+class="error">&#91;1&#93;</span>, -1); 
+
+
+New Comment: 
+QuorumTestFailed shows the session moved failure with TRACE logging turned on. 
+
+
+New Comment: 
+Updated the patch to include sessiontest session moved fix, also applied to quorumtest
+session moved tests.<br/>Added more detail to some thread names to help debugging of QT
+failure.Based on further analysis it looks like QT is failing due to the flow control
+issue that's effecting ACLTest - the first client operation is fwd to the leader before
+the leader can update the session (owner) information for the (re)new client. Fixing the
+flow control should fix both acl and quorum tests. 
+
+
+New Comment: 
+here is my cut at flowctl with netty. flow control seems to be happening, but it doesn't
+seem to fix the problem. 
+
+
+New Comment: 
+Hi folks, I just wanted to note that we're really interested in the netty integration esp.
+to allow for secure communications. We don't have much by way of java developers, but we
+are available to help out with testing. We've successfully run our client test suite
+against the netty patch applied to trunk. 
+
+
+New Comment: 
+Great, thanks for the fb Kapil. There's still one serious issue that we know about with
+the patch, it's due to the way <br/>netty handles buffering. Our old server nio code does
+flow control by disabling read on the inbound sockets, but<br/>netty aggressively buffers
+which means that the data's already been read by the time we disable read. We're
+working<br/>on a solution for that. Subsequently we'll have some addl work re
+documentation and such. Also need to test out<br/>encryption (ssl) support on the
+channels. It's in progress but I've been distracted by other things (incl the
+upcoming<br/>summit). After that we also need to add netty support on the java client
+side, I'm not sure what we'll do on the c client<br/>(to add ssl encrypt/cert support) but
+if you have any ideas on that we'd appreciate the help. 
+
+
+New Comment: 
+Hi Patrick,Our most pressing need is actually on securing the client=&gt;server
+communication indeed.  The basic need is simply to require a specific certificate to
+connect and communicate securely with the server.  Any clients which don't hold the
+certificate should be denied access.We're certainly available for debating on any open
+issues you'd like to debate on around this. 
+
+
+New Comment: 
+This latest patch ports the prior patches to the latest trunk.I also incorporated Ben's
+flow control ideas, I had to fix a number of issues as part of this but in general it
+seems to be working.At this point all the tests seem to be working. Still alot of work to
+do (this patch is a WIP, esp have added a number of logging messages to help debug a
+number of flow control issues).One issue remains with the tests - I'm ignoring the
+sessionmoved tests for the time being. Still need to debug those.Looking pretty good at
+this point. Need to verify nio, docs, etc... but in general netty on the server side seems
+to be working. 
+
+
+New Comment: 
+This latest patch fixed throttling in netty and also addresses some pieces that "went
+missing" in the NIO code. All tests in netty &amp; nio now pass.Note: session moved tests
+are currently ignored since they fail in netty. this seems due to a timing issue (even
+with the latest changes to these tests) due to the zk client getting a disco watch event
+before they are able to run an operation (the operation which should be failing due to
+moved). 
+
+
+New Comment: 
+this latest patch cleans up the logging a bit more it also adds Nio client -&gt; Netty
+server based unit tests - these are a subset of the base tests but using the netty server
+cnxn factory. 
+
+
+New Comment: 
+let's have hudson give it a whack. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12449407/ZOOKEEPER-733.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12449407/ZOOKEEPER-733.patch</a><br/>
+ against trunk revision 963957.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 68 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    -1
+findbugs.  The patch appears to introduce 4 new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/144/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Updated patch to address issues findbugs found, also removed some duplicated code that I
+also found while tracking down the findbugs issues. Also addressed some issues that
+creeped in to the quorum code (fixes that went missing during the many patch porting
+efforts)core tests will never pass since this patch relies on a new jar file that's not
+available from maven - attached the jar eariler, be sure to use/commit that. (see my notes
+on that in comments) 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12449488/ZOOKEEPER-733.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12449488/ZOOKEEPER-733.patch</a><br/>
+ against trunk revision 963957.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 73 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/145/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/145/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+that previous diff was bad, this is the right latest diff - includes documentation as
+well. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12449497/ZOOKEEPER-733.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12449497/ZOOKEEPER-733.patch</a><br/>
+ against trunk revision 963957.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 68 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h1.grid.sp2.yahoo.net/146/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+while testing I did notice a problem - closed client connections are staying in
+"time_wait" state for a long period of time.this test was done by starting the server,
+then connecting a java NIO based client using the shell, then quitting the shell using
+"quit". Is this the shell or Netty?In netty factory we are setting the linger time to 2
+sec, however this doesn't seem to be used? According to netstat the socket is held in
+time_wait for much longer than 2 sec. 
+
+
+New Comment: 
+i ran this on 40 machines simulating 900 clients. the benchmark went well without
+problems. the results don't show any real significant performance improvements (or
+degradations). 
+
+
+New Comment: 
+Hey Ben,One motivation for the move to Netty was performance-related:<blockquote>we would
+also like the engine to use multiple threads on machines with lots of
+cores.</blockquote>Did your benchmarks run on a machine with multiple cores? Any evidence
+of utilization of multiple cores would be of interest to me.Thanks,<br/>Jeff 
+
+
+New Comment: 
+I'm surprised there was no change.Keep in mind that the default is to continue to use NIO,
+so if you want to test with Netty you need<br/>to set the correct factory:+       
+&lt;para&gt;Prior to version 3.4 ZooKeeper has always used NIO<br/>+            directly,
+however in versions 3.4 and later Netty is<br/>+            supported as an option to NIO
+(replaces). NIO continues to<br/>+            be the default, however Netty based
+communication can be<br/>+            used in place of NIO by setting the environment
+variable<br/>+            "zookeeper.serverCnxnFactory" to<br/>+           
+"org.apache.zookeeper.server.NettyServerCnxnFactory". Regardless - verify which is being
+used by checking the logs.One potential problem with netty is that we don't bound the
+worker thread pool size - it would be interesting to see how this<br/>effects the test.
+There are probably a few of these variables which we should provide configuration
+parameters for... 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12449497/ZOOKEEPER-733.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12449497/ZOOKEEPER-733.patch</a><br/>
+ against trunk revision 980576.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 68 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/100/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Zookeeper-Patch-h7.grid.sp2.yahoo.net/100/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I would like to update my read-only mode patch to apply correctly on top of this
+one.<br/>The problem is, I can't apply this patch to trunk. Could you re-generate it
+against current trunk? 
+
+
+New Comment: 
++1 if you would re-generate the patch, i'd like to get it committed. 
+
+
+New Comment: 
+This patch resolves conflicts with the latest trunk. That is all. 
+
+
+New Comment: 
+I noticed that NettyServerCnxn class contains big copy-paste of all 4-letter commands and
+checkFourLetterWord method is also almost identical to one in NIOServerCnxn. The only
+difference is: <br/>1) commands in NettyCnxn don't extendThread <br/>2)
+checkFourLetterWord methods differ in I/O a bit. But big "if (len==someCmd) { start
+someCmd }" part is the same.So, questions:<br/>1) is there any practical reason for
+commands in NIOCnxn being Threads? If no, they are identical with ones from NettyCnxn, so
+we could move all commands to ServerCnxn superclass <br/>2) big part of
+checkFourLetterWord (IO-unrelated one, described above) could also be moved to superclass 
+
+
+New Comment: 
++1 looks good to commit. Sergey raises a valid point, but i think it should be addressed
+in a separate jira given the size of this patch. 
+
+
+New Comment: 
+Def some refactorings that would be done. wrt issue 1) that sergey raised the issue is
+that when using nio we can "hand off" the socket to the thread, which uses blocking io to
+ensure that the client<br/>receives the results before we close the socket. With Netty we
+don't have this option, so we can't process the request as a subthread. Also notice that
+netty is spawning workers as necessary (up to some limit)<br/>so in that case we don't
+spawn a thread - although it's questionable whether this is a good idea as the total pool
+size is limited (in real production case). 
+
+
+New Comment: 
+Ben, did you make changes to allow the max worker limit to be configured? If so can you
+either update the patch or create a new jira with the changes? 
+
+
+New Comment: 
+we should commit the patch as is. trying to add features to it and maintain the patch
+fresh is too unwieldy! 
+
+
+New Comment: 
+That's fine, but in that case create a JIRA to track (if you have a patch all the better),
+so we don't lose the thought. thanks. 
+
+
+New Comment: 
+committed to 3.4.0 
+
+

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 5efc7455b2b30fa13a97621aea68133678d05810
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3973.txt 
+
+commit 5efc7455b2b30fa13a97621aea68133678d05810
+Merge: 5f09704 05187d5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 35880a92131f9bb51f5093bbec63d16ea9afe234
+
+From: Strategy-6
+To:   Strategy-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1139.txt 
+
+commit 35880a92131f9bb51f5093bbec63d16ea9afe234
+Author: Trustin Lee <trustin@apache.org>
+
+    Improved IoSessionFinder to deny modification of session attributes

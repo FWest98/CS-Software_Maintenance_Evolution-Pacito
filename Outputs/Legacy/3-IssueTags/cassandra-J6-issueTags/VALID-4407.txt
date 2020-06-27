@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 25ae75c45e0da5034b0c0f44b7b1ea0a5fcaf45c
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4407.txt 
+
+commit 25ae75c45e0da5034b0c0f44b7b1ea0a5fcaf45c
+Merge: dce71f7 9f6ad8a
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.7

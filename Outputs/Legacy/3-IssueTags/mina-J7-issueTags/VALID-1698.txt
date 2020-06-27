@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 2950cfb7632614d4ca4d5f450ffaf11d2d99bd5b
+
+From: Facade-3
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1698.txt 
+
+commit 2950cfb7632614d4ca4d5f450ffaf11d2d99bd5b
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Removed the @version tag in all the classes

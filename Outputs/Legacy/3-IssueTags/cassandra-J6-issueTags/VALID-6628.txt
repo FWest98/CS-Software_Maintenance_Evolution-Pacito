@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 43a472e13a38e4cd0420d7fb668a70464fa31ada
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6628.txt 
+
+commit 43a472e13a38e4cd0420d7fb668a70464fa31ada
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    average a reduced liveRatio estimate with the previous one
+    patch by Daniel Doubleday; reviewed by jbellis for CASSANDRA-4065

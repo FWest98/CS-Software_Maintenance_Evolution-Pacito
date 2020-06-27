@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 9b746daf7f2d0725b6ebe678dfbedb303b71bf57
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6517.txt 
+
+commit 9b746daf7f2d0725b6ebe678dfbedb303b71bf57
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Add stress tool to binaries
+    patch by Vijay; reviewed by driftx for CASSANDRA-4103

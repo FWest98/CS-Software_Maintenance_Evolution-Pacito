@@ -1,0 +1,93 @@
+Pattern changes caused by commit: 9d7ba39cbb6f93759f654c7df1771b52354dec36
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7693.txt 
+
+commit 9d7ba39cbb6f93759f654c7df1771b52354dec36
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow JdbcDate to compose null Date objects
+    patch by Sridharan Kuppa; reviewed by jbellis for CASSANDRA-4830
+
+
+
+==================================
+ Issue CASSANDRA-4830 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4830] JdbcDate.compose is not null safe
+-----------------
+
+-----------------
+Summary: JdbcDate.compose is not null safe
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 18 Oct 2012 05:03:12 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 6 Dec 2012 19:23:39 +0000
+-----------------
+
+-----------------
+Assigned to: Sridharan Kuppa
+-----------------
+
+-----------------
+Description: 
+
+I am using the cassandra-jdbc for CQL.  I have a table with timestamp column.  When
+timestamp column is null it throws, IndexOutOfBoundsException exception since
+JdbcDate.compose calls the new Date(ByteBufferUtil.toLong(value)).  The
+ByteBufferUtil.toLong(bytes) throws exception the exception since position and limit
+pointers are same (similar to null).  This has to be handled gracefully in the
+JdbcDate.compose method instead of throwing exception.  I would like to see implementation
+something like,
+
+    public Date compose(ByteBuffer bytes)<br/>    {<br/>       
+if(bytes.limit() - bytes.position() &gt; 0) 
+        {            return new
+Date(ByteBufferUtil.toLong(bytes));        } 
+        return  null;<br/>    }
+
+BTW, this
+matches exactly reverse with decompose method.  Logically it supposed to be implemented in
+the first place <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

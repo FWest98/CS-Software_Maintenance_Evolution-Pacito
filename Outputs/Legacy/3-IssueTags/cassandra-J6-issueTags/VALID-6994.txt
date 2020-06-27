@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 45c8f53a2c42f48317110908734119a7cb24baf1
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6994.txt 
+
+commit 45c8f53a2c42f48317110908734119a7cb24baf1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Raise a meaningful exception instead of NPE when PFS encounters an unconfigured node
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-4349

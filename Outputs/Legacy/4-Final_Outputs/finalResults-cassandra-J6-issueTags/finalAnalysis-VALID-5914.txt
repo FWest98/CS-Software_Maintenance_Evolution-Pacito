@@ -1,0 +1,156 @@
+Pattern changes caused by commit: 359391fa835bb4eeba662f8155159c18e919b40e
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5914.txt 
+
+commit 359391fa835bb4eeba662f8155159c18e919b40e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix thread safety of CommitLog.tablesRecovered
+    patch by jbellis; reviewed by rbranson for CASSANDRA-3751
+
+
+
+==================================
+ Issue CASSANDRA-3751 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3751] Possible livelock during commit log playback
+-----------------
+
+-----------------
+Summary: Possible livelock during commit log playback
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 18 Jan 2012 05:19:30 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 1 Feb 2012 19:43:04 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+In CommitLog.recover, there seems to be the possibility of concurrent inserts to
+tablesRecovered (a HashSet) in the Runnables instantiated a bit below (line 323 in 1.0.7).
+This apparently happened during a commit log playback during startup of a node that had
+not shut down cleanly (the cluster was under heavy load previously and there were several
+gigabytes of commit logs), resulting in two threads running in perpetuity (2 cores were at
+100% from running these threads), preventing the node from coming up. The relevant portion
+of the stack trace is:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>INFO   | jvm 1    | 2012/01/16 16:54:42 |
+"MutationStage:25" prio=10 tid=0x00002aaad01e0800 nid=0x6f62 runnable
+[0x0000000044d54000]INFO   | jvm 1    | 2012/01/16 16:54:42 |    java.lang.Thread.State:
+RUNNABLEINFO   | jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.HashMap.put(HashMap.java:374)INFO   | jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.HashSet.add(HashSet.java:200)INFO   | jvm 1    | 2012/01/16 16:54:42 | 	at
+org.apache.cassandra.db.commitlog.CommitLog$2.runMayThrow(CommitLog.java:338)INFO   | jvm
+1    | 2012/01/16 16:54:42 | 	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at java.util.concurrent.FutureTask.run(FutureTask.java:138)INFO   |
+jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)INFO  
+| jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)INFO   |
+jvm 1    | 2012/01/16 16:54:42 | 	at java.lang.Thread.run(Thread.java:662)INFO   | jvm 1  
+ | 2012/01/16 16:54:42 | INFO   | jvm 1    | 2012/01/16 16:54:42 | "MutationStage:21"
+prio=10 tid=0x00002aaad00a2800 nid=0x6f5e runnable [0x0000000044950000]INFO   | jvm 1    |
+2012/01/16 16:54:42 |    java.lang.Thread.State: RUNNABLEINFO   | jvm 1    | 2012/01/16
+16:54:42 | 	at java.util.HashMap.put(HashMap.java:374)INFO   | jvm 1    | 2012/01/16
+16:54:42 | 	at java.util.HashSet.add(HashSet.java:200)INFO   | jvm 1    | 2012/01/16
+16:54:42 | 	at
+org.apache.cassandra.db.commitlog.CommitLog$2.runMayThrow(CommitLog.java:338)INFO   | jvm
+1    | 2012/01/16 16:54:42 | 	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)INFO   | jvm 1    |
+2012/01/16 16:54:42 | 	at java.util.concurrent.FutureTask.run(FutureTask.java:138)INFO   |
+jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)INFO  
+| jvm 1    | 2012/01/16 16:54:42 | 	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)INFO   |
+jvm 1    | 2012/01/16 16:54:42 | 	at
+java.lang.Thread.run(Thread.java:662)</pre></div></div>
+The most recently modified file in
+the commit log directory was this entry:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>-rw-r----- 1
+&lt;redacted&gt; &lt;redacted&gt;    0 Jan 16 16:03
+CommitLog-1326758622599.log</pre></div></div>
+though I'm not sure if this was related or
+not. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Which commitlog_sync option do you have configured on this node? 
+
+
+New Comment: 
+periodic 
+
+
+New Comment: 
+You're absolutely right, tablesRecovered is not threadsafe but it's mutated by up to
+concurrent_writes threads during log replay.  Patch attached to switch to NBHS. 
+
+
+New Comment: 
+patch is against 1.0 but applies cleanly to 0.8 as well. 
+
+
+New Comment: 
+Reviewed, +1 
+
+

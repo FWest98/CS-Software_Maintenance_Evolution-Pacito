@@ -1,0 +1,78 @@
+Pattern changes caused by commit: 6b5e7a1564498f7646f4fd410a34d3f0a81eb977
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5252.txt 
+
+commit 6b5e7a1564498f7646f4fd410a34d3f0a81eb977
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    HHOM only sleeps for rounded intervals to prevent problems on windows.
+    Patch by Flavio Baronti, reviewed by brandonwilliams for CASSANDRA-3375
+
+
+
+==================================
+ Issue CASSANDRA-3375 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3375] Avoid clock drift on some Windows machines
+-----------------
+
+-----------------
+Summary: Avoid clock drift on some Windows machines
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 18 Oct 2011 16:21:14 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 18 Oct 2011 17:05:12 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+Performing Thread.sleep() with non-rounded values increases the frequency of interrupts
+on Windows machines; this can cause performance problems, and on some machines even clock
+drift problems for the duration of the sleep.<br/>Fixing the issue is trivial: lower the
+degree of randomness by allowing only "rounded" sleep periods.<br/><a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6464007" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6464007</a><br/><a
+href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6435126" class="external-link"
+rel="nofollow">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6435126</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Simple fix as proposed in description. I forgot to mention that the problem is in
+HintedHandOffManager. 
+
+

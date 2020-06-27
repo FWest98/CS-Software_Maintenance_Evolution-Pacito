@@ -1,0 +1,25 @@
+Pattern changes caused by commit: d79b207fbdbf9e5fd3c89dacca808e240ba4f585
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-5
+To:   Facade-4
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1010.txt 
+
+commit d79b207fbdbf9e5fd3c89dacca808e240ba4f585
+Author: Trustin Lee <trustin@apache.org>
+
+    * Added IoBuffer.minimumCapacity(...)
+    * Added IoBuffer.shrink()
+    * Fixed issue: DIRMINA-471 (Reduce SSL buffers overhead)
+    ** The change uses the new feature of 2.0 so it won't be backported to 1.x.

@@ -1,0 +1,81 @@
+Pattern changes caused by commit: 55624ad6044d4e5448c71f567623efa9bbea2977
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5516.txt 
+
+commit 55624ad6044d4e5448c71f567623efa9bbea2977
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    expose bloom filter sizes via JMX
+    patch by Vijay; reviewed by jbellis for CASSANDRA-3495
+
+
+
+==================================
+ Issue CASSANDRA-3495 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3495] capture BloomFilter memory size in Cassandra (JMX)
+-----------------
+
+-----------------
+Summary: capture BloomFilter memory size in Cassandra (JMX)
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 15 Nov 2011 18:12:05 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Nov 2011 21:14:05 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+Maybe this could be done in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3347" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-3347</a> also, but not sure
+what's the scope in that jira. It'd be great if the BF memory size can be captured in the
+JMX monitoring. 
+
+Though not sure how you would capture the "heap size" (easily that is)
+of the object. There is a BF.serializedSize() , can this be exposed to the
+BloomFilterTracker and DataTracker... and use this instead? Anyway, will let the
+implementor to decide/design 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Simple patch to add bf disk usage in the cfstats. I was thinking of using memory meter to
+measure the inmemory size but the over head in memory is almost constant and hence thought
+choose a simpler solution.Let me know if you guys think otherwise. 
+
+

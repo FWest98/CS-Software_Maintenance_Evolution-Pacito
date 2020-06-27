@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 0251a8f0f66055960c2dc5502b6496313bf074f3
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3915.txt 
+
+commit 0251a8f0f66055960c2dc5502b6496313bf074f3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    trigger read repair correctly forLOCAL_QUORUM reads
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2556
+
+
+
+==================================
+ Issue CASSANDRA-2556 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2556] DatacenterReadResolver not triggering repair
+-----------------
+
+-----------------
+Summary: DatacenterReadResolver not triggering repair
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 25 Apr 2011 21:39:14 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 28 Apr 2011 13:37:31 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+DatacenterReadResolver only calls maybeResolveForRepair for local reads.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch that extracts the "is this message one that should count towards blockfor" logic
+into the waitingFor method; DatacenterReadCallback now only overrides those instead of all
+of the response methods, which fixes the bug and reduces the surface for introducing
+similar bugs in the future.  (applies on top of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2552" title="ReadResponseResolver
+Race" class="issue-link" data-issue-key="CASSANDRA-2552"><del>CASSANDRA-2552</del></a>
+v2.) 
+
+
+New Comment: 
++1<br/>The patch applies on top of 0.8 (that is on top of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2552" title="ReadResponseResolver
+Race" class="issue-link" data-issue-key="CASSANDRA-2552"><del>CASSANDRA-2552</del></a> v2
+for 0.8). Should be backported to 0.7 first I think. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #460 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/460/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/460/</a>)<br/>   
+trigger read repair correctly forLOCAL_QUORUM reads<br/>patch by jbellis; reviewed by
+slebresne for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2556"
+title="DatacenterReadResolver not triggering repair" class="issue-link"
+data-issue-key="CASSANDRA-2556"><del>CASSANDRA-2556</del></a> 
+
+

@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 5bd78edcce19720d2664780323b35898abeacc1b
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6400.txt 
+
+commit 5bd78edcce19720d2664780323b35898abeacc1b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add max_streaming_retries instead of relying solely on the FD.
+    Patch by brandonwilliams and yukim, reviewed by brandonwilliams for
+    CASSANDRA-4051

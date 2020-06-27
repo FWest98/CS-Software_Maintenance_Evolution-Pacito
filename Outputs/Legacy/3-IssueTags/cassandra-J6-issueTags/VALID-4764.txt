@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 5f0aa7b6228acb76baccfba6e3a497a491792e97
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4764.txt 
+
+commit 5f0aa7b6228acb76baccfba6e3a497a491792e97
+Merge: 107d167 6e325c5
+Author: T Jake Luciani <jake@apache.org>
+
+    merge from 0.7

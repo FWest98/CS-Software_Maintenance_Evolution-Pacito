@@ -1,0 +1,104 @@
+Pattern changes caused by commit: 61109407ddacdf2031cde711d25f3a1cc8e78bbf
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5419.txt 
+
+commit 61109407ddacdf2031cde711d25f3a1cc8e78bbf
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix bug preventing the use of efficient cross-DC writes
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3472
+
+
+
+==================================
+ Issue CASSANDRA-3472 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3472] Actually uses efficient cross DC writes
+-----------------
+
+-----------------
+Summary: Actually uses efficient cross DC writes
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 8 Nov 2011 10:36:37 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Nov 2011 15:29:39 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-2138" title="add option to
+enable efficient cross-dc replication" class="issue-link"
+data-issue-key="CASSANDRA-2138"><del>CASSANDRA-2138</del></a> introduced the following
+code:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>if (dataCenter.equals(localDataCenter) ||
+StorageService.instance.useEfficientCrossDCWrites()){    // direct writes to local DC or
+old Cassadra versions    for (InetAddress destination : messages.getValue())       
+MessagingService.instance().sendRR(message, destination, handler);}else{    // Non-local
+DC. First endpoint in list is the destination for this group</pre></div></div>
+A 'not' is
+missing on that useEfficientCrossDCWrites call (which does return true for any version
+&gt;= 0.7.1).
+
+A simple fix would be to add the missing !, but as said a comment, all this
+code should have been removed in 0.8 since it was detecting nodes before 0.7.1, but direct
+upgrade from pre-0.7.1 to 0.8+ is not supported. So let's just completely remove that code
+now.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch is against 0.8 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed 
+
+

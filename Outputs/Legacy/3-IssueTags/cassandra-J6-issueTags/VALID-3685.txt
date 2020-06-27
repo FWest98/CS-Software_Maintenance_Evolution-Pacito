@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 5e8361bbcb142e06b46bd72263b0826acc5b390f
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3685.txt 
+
+commit 5e8361bbcb142e06b46bd72263b0826acc5b390f
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig uses schema information to cast to/from native types.
+    Patch by Jeremy Hanna and brandonwilliams, reviewed by brandonwilliams
+    for CASSANDRA-2387

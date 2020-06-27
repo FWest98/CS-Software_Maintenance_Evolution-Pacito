@@ -1,0 +1,17 @@
+Pattern changes caused by commit: dac69926613f96fdbacd49ada869bded21d0e3ab
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9389.txt 
+
+commit dac69926613f96fdbacd49ada869bded21d0e3ab
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix overflow possibility
+    patch by Mikhail Mazursky; reviewed by jbellis for CASSANDRA-5584

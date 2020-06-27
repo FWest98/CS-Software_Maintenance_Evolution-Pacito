@@ -1,0 +1,112 @@
+Pattern changes caused by commit: 2eb3067109a5661951862f9ebf199ccec8ed007c
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-5
+To:   Facade-2
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1380.txt 
+
+commit 2eb3067109a5661951862f9ebf199ccec8ed007c
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-567 - NPE in AbstractIoSession after getWaitingReadFutures
+    * Applied the same lazy initialization technique to getWaitingReadFutures as I did in getReadFutures
+
+
+
+==================================
+ Issue DIRMINA-567 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-567] NPE in AbstractIoSession after getWaitingReadFutures
+-----------------
+
+-----------------
+Summary: NPE in AbstractIoSession after getWaitingReadFutures
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 7 Apr 2008 12:55:48 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Apr 2008 08:51:19 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+There seems to be a race condition in AbstractIoSession. The following NPE appears
+sometimes:<br/>java.lang.NullPointerException<br/>	at
+org.apache.mina.common.AbstractIoSession.newReadFuture(AbstractIoSession.java:227)<br/>	at
+org.apache.mina.common.AbstractIoSession.offerFailedReadFuture(AbstractIoSession.java:212)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain$TailFilter.exceptionCaught(DefaultIoFilterChain.java:727)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.callNextExceptionCaught(DefaultIoFilterChain.java:446)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.access$1100(DefaultIoFilterChain.java:40)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain$EntryImpl$1.exceptionCaught(DefaultIoFilterChain.java:818)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain$HeadFilter.exceptionCaught(DefaultIoFilterChain.java:601)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.callNextExceptionCaught(DefaultIoFilterChain.java:446)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.fireExceptionCaught(DefaultIoFilterChain.java:437)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:408)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:40)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:823)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain$HeadFilter.messageReceived(DefaultIoFilterChain.java:607)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:405)<br/>	at
+org.apache.mina.common.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:399)<br/>	at
+org.apache.mina.common.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:425)<br/>	at
+org.apache.mina.common.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:387)<br/>	at
+org.apache.mina.common.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:379)<br/>	at
+org.apache.mina.common.AbstractPollingIoProcessor.access$400(AbstractPollingIoProcessor.java:43)<br/>	at
+org.apache.mina.common.AbstractPollingIoProcessor$Worker.run(AbstractPollingIoProcessor.java:678)<br/>	at
+org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:51)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:650)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:675)<br/>	at
+java.lang.Thread.run(Thread.java:595)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+A patch which seems to fix this issue for me. Hopefully it is fixed at the right point. 
+
+
+New Comment: 
+One further question: I'm planning to use M2 with this patch applied in a productive
+environment. The tests I made so far, don't show up any further bugs in my szenario
+(simple client-server connection). What is your opinion about using this early state in a
+productive environment? 
+
+
+New Comment: 
+Thanks for the patch!  I've just checked in the fix slightly modified from yours. 
+
+

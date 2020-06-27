@@ -1,0 +1,149 @@
+Pattern changes caused by commit: 1a7d83126f17b0ac369674aac93de925e59cdc82
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5234.txt 
+
+commit 1a7d83126f17b0ac369674aac93de925e59cdc82
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Make CFIF use rpc_endpoint prior to trying endpoint.
+    Patch by Eldon Stegall and Scott Fines, reviewed by brandonwilliams for
+    CASSANDRA-3214
+
+
+
+==================================
+ Issue CASSANDRA-3214 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3214] Make CFIF use rpc_endpoint prior to trying endpoint
+-----------------
+
+-----------------
+Summary: Make CFIF use rpc_endpoint prior to trying endpoint
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 15 Sep 2011 18:20:58 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 7 Dec 2011 17:38:01 +0000
+-----------------
+
+-----------------
+Assigned to: Eldon Stegall
+-----------------
+
+-----------------
+Description: 
+
+Following up on <a href="https://issues.apache.org/jira/browse/CASSANDRA-3187"
+title="Return both listen_address and rpc_address through describe_ring"
+class="issue-link" data-issue-key="CASSANDRA-3187"><del>CASSANDRA-3187</del></a> , we
+probably need to attempt to use the rpc_endpoint address first, and then fall back to the
+gossip endpoint if we don't get what we want.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Still needs testing, guess I need to spin up an 0.8.6 cluster to do so. Feel free to test
+if you want to get it in sooner. Feedback welcome! 
+
+
+New Comment: 
+How would fall-back-to-gossip-endpoint be useful?  If the two are different, then
+rpc_address is the only one thrift will be listening on. 
+
+
+New Comment: 
+It's (possibly) useful in the case that rpc_address is bound to all interfaces, because
+0.0.0.0 is not useable. 
+
+
+New Comment: 
+But it's totally valid to have rpc_ on 0.0.0.0 and listen on something that clients cannot
+connect to (separate interface, firewalled off, etc).  So fundamentally I think it comes
+down to "you shouldn't use 0.0.0.0 as rpc_address if you're going to use describe_ring." 
+
+
+New Comment: 
+That's true, and I agree, but we should still try our hardest and give listen_address a
+try. 
+
+
+New Comment: 
++0 from me then 
+
+
+New Comment: 
+The patch file isn't exactly correct. In getSubSplits, it still refers to range.endpoints
+instead of range.rpc_endpointsI'm attaching a patch which fixes the typ0; please let me
+know if it is improperly formatted.I tested this patch against a 0.8.7 cluster with a
+different listen_address than rpc_address, and it appears to work correctly. Not that that
+is exactly an automated test, but... 
+
+
+New Comment: 
+Committed with formatting fixes.  Thanks! 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #373 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/373/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/373/</a>)<br/>    Make CFIF use
+rpc_endpoint prior to trying endpoint.<br/>Patch by Eldon Stegall and Scott Fines,
+reviewed by brandonwilliams for<br/><a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3214" title="Make CFIF use
+rpc_endpoint prior to trying endpoint" class="issue-link"
+data-issue-key="CASSANDRA-3214"><del>CASSANDRA-3214</del></a>brandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1183489"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1183489</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/hadoop/ColumnFamilyInputFormat.java</li></ul> 
+
+
+New Comment: 
+the accepted patch contains a == bugif(endpoint_address == null || endpoint_address ==
+"0.0.0.0") 
+
+
+New Comment: 
+opened <a href="https://issues.apache.org/jira/browse/CASSANDRA-3584" title="Check for
+0.0.0.0 is incorrect" class="issue-link"
+data-issue-key="CASSANDRA-3584"><del>CASSANDRA-3584</del></a> for this 
+
+

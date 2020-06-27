@@ -1,0 +1,125 @@
+Pattern changes caused by commit: ab04470b27eba55c270280a5efc1d19a7edcd558
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4690.txt 
+
+commit ab04470b27eba55c270280a5efc1d19a7edcd558
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Remove gossip state when a new IP takes over a token.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3071
+
+
+
+==================================
+ Issue CASSANDRA-3071 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3071] Gossip state is not removed after a new IP takes over a token
+-----------------
+
+-----------------
+Summary: Gossip state is not removed after a new IP takes over a token
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 23 Aug 2011 16:59:35 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 23 Aug 2011 18:11:49 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+When a new node takes over a token, the endpoint state in the gossiper is never removed
+for the old node.  
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This was originally part of a patch in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-957" title="convenience workflow for
+replacing dead node" class="issue-link"
+data-issue-key="CASSANDRA-957"><del>CASSANDRA-957</del></a>, but looks worthy enough to
+break out and get committed in older versions. 
+
+
+New Comment: 
+Is it possible for this to remove an endpoint that it shouldn't?E.g., X has token TX moves
+to token U but node N was downN comes back up, thinks T and U are both owned by Xnode Y
+takes token Twe remove X from gossip 
+
+
+New Comment: 
+<blockquote>N comes back up, thinks T and U are both owned by X</blockquote>I don't think
+this can happen.  When N starts up, it will load the persisted tokens, BUT they won't be
+associated with IPs.  It can only learn that U is owned by X via gossip, and T will be
+down until it learns about Y. 
+
+
+New Comment: 
+what behavior does this fix?  just gossip trying to reach the old node? 
+
+
+New Comment: 
+I think it solves this: <a
+href="http://cassandra-user-incubator-apache-org.3065146.n2.nabble.com/Completely-removing-a-node-from-the-cluster-td6705079.html"
+class="external-link"
+rel="nofollow">http://cassandra-user-incubator-apache-org.3065146.n2.nabble.com/Completely-removing-a-node-from-the-cluster-td6705079.html</a>
+ Jeremy also reported a problem with a large amount of hints that I think this solves
+since SP.shouldHint is directly impacted by this. 
+
+
+New Comment: 
+v2 adds more protection around shouldHint by checking that the endpoint is a member. 
+
+
+New Comment: 
+If the node doesn't have a token, it doesn't matter if it's a gossip member, it won't be
+part of getWriteEndpoints and won't be hinted anyway. 
+
+
+New Comment: 
++1 on v1, -1 on conflating gossip membership w/ token ownership as in v2 
+
+
+New Comment: 
+<blockquote>If the node doesn't have a token, it doesn't matter if it's a gossip member,
+it won't be part of getWriteEndpoints and won't be hinted anyway.</blockquote>I can't see
+a way for that either, but I'm still suspicious of the link to shouldHint.<blockquote>+1
+on v1, -1 on conflating gossip membership w/ token ownership as in v2</blockquote>Fair
+enough, committed v1. 
+
+

@@ -1,0 +1,126 @@
+Pattern changes caused by commit: db68e03f7de49935b2f0e43a91a4a8d2ca134a08
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6888.txt 
+
+commit db68e03f7de49935b2f0e43a91a4a8d2ca134a08
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: enable secondary index usage via pushdown.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-4238
+
+
+
+==================================
+ Issue CASSANDRA-4238 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4238] Pig secondary index usage could be improved
+-----------------
+
+-----------------
+Summary: Pig secondary index usage could be improved
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 10 May 2012 20:47:11 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 26 May 2012 15:41:04 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+As Dmitriy suggested on <a href="https://issues.apache.org/jira/browse/CASSANDRA-2246"
+title="Enable Pig to use indexed data as described in CASSANDRA-2245" class="issue-link"
+data-issue-key="CASSANDRA-2246"><del>CASSANDRA-2246</del></a>, CassandraStorage could
+implement LoadMetadata.getPartitionKeys and LoadMetadata.setPartitionFilter to
+automatically apply secondary indexes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There's an HCatalog implementation at <a
+href="https://svn.apache.org/repos/asf/incubator/hcatalog/trunk/src/java/org/apache/hcatalog/pig/HCatLoader.java"
+class="external-link"
+rel="nofollow">https://svn.apache.org/repos/asf/incubator/hcatalog/trunk/src/java/org/apache/hcatalog/pig/HCatLoader.java</a> 
+
+
+New Comment: 
+Posting what I have here which seems to be complete, but I'm having a hard time testing
+it.  I would think given an index on column 'name' something like 'filter rows by
+name.value eq "foo"' would work, but while I see getPartitionKeys called
+setPartitionFilter never does. 
+
+
+New Comment: 
+Updated patch to fix minor problems.  What I've discovered is that pig wants to match on
+the <em>tuple</em> named 'name' and as far as I can tell, there's no way for
+getPartitionKeys to specify anything deeper, such as name.value.  This would almost be ok,
+at the cost of silly syntax like "filter rows by name eq ('name', 'foo')" except when
+setPartitionFilter is called, we unsurprisingly get get the string literal "(name, foo)"
+as the value to match against, which of course is not in the index.  I'm not sure what, if
+anything, can be done about this. 
+
+
+New Comment: 
+v2 implements a workaround.  If PIG_PARTITION_FILTER is enabled, then each index (actual
+index, not plain validation) is appended as a top-level field to the schema after the bag,
+and the name has '_index' appended.  Thus, if there is an index on a column called 'name',
+you can use it with a statement like "filter rows by name_index eq 'foo'".The caveat to
+this is that we have to relax the putNext function a bit to ignore these fields, so if you
+have this enabled and are storing a completely bad schema, it will just silently drop your
+bad fields as well.  However this is a small price to pay for the added functionality. 
+
+
+New Comment: 
+v3 makes one small tweak, and prepends "index_" instead of appending "_index", since pig
+identifiers need to always begin with an alphanumeric character and this can guarantee
+that. 
+
+
+New Comment: 
++1 
+
+

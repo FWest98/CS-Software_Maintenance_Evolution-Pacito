@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 351110c3c1ec5b43be06f9cd2a3f47abd4f969e9
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4826.txt 
+
+commit 351110c3c1ec5b43be06f9cd2a3f47abd4f969e9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow topology sort to work with non-unique rack names between datacenters
+    patch by Vijay; reviewed by jbellis for CASSANDRA-3152

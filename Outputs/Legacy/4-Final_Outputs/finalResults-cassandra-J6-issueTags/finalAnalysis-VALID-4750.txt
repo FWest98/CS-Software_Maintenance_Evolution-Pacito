@@ -1,0 +1,281 @@
+Pattern changes caused by commit: dec9eec41f7a1c060db8a6bc946aa012c81b73f0
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4750.txt 
+
+commit dec9eec41f7a1c060db8a6bc946aa012c81b73f0
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Make repair report failure when a participating node dies
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2433
+
+
+
+==================================
+ Issue CASSANDRA-2433 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2433] Failed Streams Break Repair
+-----------------
+
+-----------------
+Summary: Failed Streams Break Repair
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Apr 2011 15:40:10 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 31 Aug 2011 16:36:59 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Running repair in cases where a stream fails we are seeing multiple problems.
+
+1.
+Although retry is initiated and completes, the old stream doesn't seem to clean itself up
+and repair hangs.<br/>2. The temp files are left behind and multiple failures can end up
+filling up the data partition.
+
+These issues together are making repair very difficult for
+nearly everyone running repair on a non-trivial sized data set.
+
+This issue is also being
+worked on w.r.t <a href="https://issues.apache.org/jira/browse/CASSANDRA-2088"
+title="Clean up after failed (repair) streaming operation" class="issue-link"
+data-issue-key="CASSANDRA-2088"><del>CASSANDRA-2088</del></a>, however that was moved to
+0.8 for a few reasons. This ticket is to fix the immediate issues that we are seeing in
+0.7.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patches are against 0.8.This tries to catch what can go wrong with repair and
+reports it back to the user by making the full repair throw an exception. More
+precisely:<ul>	<li>patch 0001: add a method to repair for reporting failure and propagate
+that up to the repair session. This puts repair session on a specific stage (instead of
+having RepairSession be a Thread) and use a future to allow waiting on completion. This
+allows a cleaner API to deal with errors (the Future.get() simply throw an
+ExecutionException) and this add the advantage of stage management to repair
+sessions.</li>	<li>patch 0002: Make repair session register through gossip to be informed
+of node dying and failing the session when that happens.</li>	<li>patch 0003: Reports
+errors during streaming to the repair session. This actually introduces a generic way to
+handle streaming failures and after that we should probably update the other user of
+streaming to deal correctly with failure too.</li>	<li>patch 004: Catch errors during
+validation compaction and push them up to repair (whether those happens on the coordinator
+of the repair or not).</li></ul>Note that this includes streaming failures and thus
+includes stuffs from the patch of Aaron Morton attached on <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2088" title="Clean up after failed
+(repair) streaming operation" class="issue-link"
+data-issue-key="CASSANDRA-2088"><del>CASSANDRA-2088</del></a>, but contrarily to that
+patch, it takes the approach of failing fast. This means that if streaming fails on a
+file, it fails the streaming altogether (same for repair). I think this is simpler
+code-wise and more useful from the point of view of the user, since a failure means the
+use will have to retry anyway.Last but not least, this makes some modification to
+messages. So either this goes into 0.8.0 (which I think it should, because this really is
+a bug fix and fixes something that is a pain for users), or we should had a new messaging
+version for 0.8.0 and modify this to take it into account (we should probably add a 0.8.0
+version to the messaging service anyway). 
+
+
+New Comment: 
+Attaching rebased patch (against 0.8.1). It also change the behavior a little bit so as to
+not fail repair right away if a problem occur (it still throw an exception at the end if
+any problem had occured). It turns out to be slightly simpler that way. Especially for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1610" title="Pluggable Compaction"
+class="issue-link" data-issue-key="CASSANDRA-1610"><del>CASSANDRA-1610</del></a>. 
+
+
+New Comment: 
+0001<ul>	<li>Since we're not trying to control throughput or monitor sessions, could we
+just use Stage.MISC?</li></ul>0002<ul>	<li>I think RepairSession.exception needs to be
+volatile to ensure that the awoken thread sees it</li>	<li>Would it be better if
+RepairSession implemented IEndpointStateChangeSubscriber directly?</li>	<li>The endpoint
+set needs to be threadsafe, since it will be modified by the endpoint state change thread,
+and the AE_STAGE thread</li></ul>0003<ul>	<li>Should StreamInSession.retries be
+volatile/atomic? (likely they won't retry quickly enough for it to be a problem,
+but...)</li></ul>0004<ul>	<li>Playing devil's advocate: would sending a half-built tree in
+case of failure still be useful?</li>	<li>success might need to be volatile as
+well</li></ul>Thanks Sylvain! 
+
+
+New Comment: 
+Attaching v3 rebased (on 0.8).<blockquote>Since we're not trying to control throughput or
+monitor sessions, could we just use Stage.MISC?</blockquote>The thing is that repair
+session are very long lived. And MISC is single threaded. So that would block other task
+that are not supposed to block. We could make MISC multi-threaded but even then it's not a
+good idea to mix short lived and long lived task on the same stage.<blockquote>I think
+RepairSession.exception needs to be volatile to ensure that the awoken thread sees
+it</blockquote>Done in v3.<blockquote>Would it be better if RepairSession implemented
+IEndpointStateChangeSubscriber directly?</blockquote>Good idea, it's slightly simpler,
+done in v3.<blockquote>The endpoint set needs to be threadsafe, since it will be modified
+by the endpoint state change thread, and the AE_STAGE thread</blockquote>Done in v3. That
+will probably change with <a href="https://issues.apache.org/jira/browse/CASSANDRA-2610"
+title="Have the repair of a range repair *all* the replica for that range"
+class="issue-link" data-issue-key="CASSANDRA-2610"><del>CASSANDRA-2610</del></a> anyway
+(which I have to update)<blockquote>Should StreamInSession.retries be volatile/atomic?
+(likely they won't retry quickly enough for it to be a problem, but...)</blockquote>I did
+not change that, but if it's a problem for retries to not be volatile, I suspect having
+StreamInSession.current not volatile is also a problem. But really I'd be curious to see
+that be a problem.<blockquote>Playing devil's advocate: would sending a half-built tree in
+case of failure still be useful?</blockquote>I don't think it is. Or more precisely, if
+you do send half-built tree, you'll have to be careful that the other doesn't consider
+what's missing as ranges not being in sync (I don't think people will be happy with tons
+of data being stream just because we happen to have a bug that make compaction throw an
+exception during the validation). So I think you cannot do much with a half-built tree,
+and it will add complication. For a case where people will need to restart a repair anyway
+once whatever happened is fixed<blockquote>success might need to be volatile as
+well</blockquote>Done in v3. 
+
+
+New Comment: 
+Attaching v4 that is rebased and simply set the reties variable in StreamInSession
+volatile after all (I've removed old version because it was a mess). 
+
+
+New Comment: 
+Hey Sylvain: sorry it took me so long to get back to this one. Would you mind rebasing it? 
+
+
+New Comment: 
+Attaching a rebase of the two previous first patches as '2433.patch'. That is, this patch
+adds registering in gossip so that repair fails and report it to the user when a node
+participating to the repair dies. Compared to the previous version, it fails fast because
+it's the easier thing to do now and a better option imho.I should mention that while it is
+lame that repair get stuck when a node dies and we should fix it, this means that if a
+node is wrongly marked down, we will fail repair for no reason (but I suppose it's a
+failure detector problem).Attached patch is against 0.8. This has no upgrade consequence
+of any sort and is a reasonably simple patch, so I think it could be worth committing in
+0.8.<br/>The rest of what was in previous patch 0003 and 0004 cannot go into 0.8 because
+it changes the wire protocol, so I will rebase against trunk directly, and maybe in
+another ticket. Having this first patch committed would help with that though <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Yuki, can you review this patch? 
+
+
+New Comment: 
+Attached v2 is rebased and use a higher conviction threshold before deciding to fail the
+repair, as the goal here is to avoid having a repair getting stuck for hours, but we want
+to avoid stopping a repair just because a node got into a longer than usual GC pause.The
+threshold used is twice the configured phi_convict_threshold. This give 16 by default,
+which if I trust the original 'phi accrual failure detection' should give an order of
+magnitude less false positive than 8 (for about an order of magnitude in the detection
+time though). It feels reasonable to me but if a FD specialist want to voice his opinion,
+please do. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>Why do we need the new AE_SESSIONS
+stage?</li>	<li>I prefer using WrappedRunnable to a Callable when you want to allow
+exceptions but don't care about a return value</li>	<li>I think we can avoid a bunch of
+no-op onConvicts if RepairSession were to subscribe to FD directly instead of going
+through Gossip (i.e., leave IEndpointStateChangeSubscriber unchanged and expose convict in
+IFailureDetectionEventListener for when we need to go low-level).  Gossip is about
+high-level "events" which doesn't really fit here.</li></ul> 
+
+
+New Comment: 
+<blockquote>Why do we need the new AE_SESSIONS stage?</blockquote>If you mean "why
+AE_SESSIONS when we already have the AE stage?", then it is because repair push stuffs on
+the AE stage that it wait for, so we would deadlock. If you mean "why a stage?", it felt
+cleaner that just a Thread now that we want to check for exception at the end of the
+exception. If you mean "why a stage rather than a simple ThreadExecutor?", it is a good
+question. I guess it was just some reflex of mine to get a JMXEnabledThreadPool, but it's
+probably not worth a stage, not even the jmx enabledness maybe.<blockquote>I prefer using
+WrappedRunnable to a Callable when you want to allow exceptions but don't care about a
+return value</blockquote>Agreed. I'll update the patch.<blockquote>I think we can avoid a
+bunch of no-op onConvicts if RepairSession were to subscribe to FD directly instead of
+going through Gossip</blockquote>Yeah, I kind of started with that but the problem is that
+we must deal with the case of a node restarting before it has been convicted (especially
+if the conviction threshold is higher), which the FD won't see. We could deal of that last
+situation separately and have Gossip call some trigger into AntiEntropy on a gossip
+generation change to indicate to stop every started session involving the given endpoint,
+but creating a dependency of gossip to anti-entropy didn't felt like a good idea a priori. 
+
+
+New Comment: 
+<blockquote>it's probably not worth a stage, not even the jmx enabledness
+maybe</blockquote>Someone's probably going to want the JMX information but let's keep
+Stages for Verb-associated tasks.<blockquote>the problem is that we must deal with the
+case of a node restarting before it has been convicted (especially if the conviction
+threshold is higher), which the FD won't see</blockquote>How about splitting onDead and
+onRestart in EndpointStateChange, then?  Then RS could implement convict and onRestart
+(ignoring onDead); other ESCS listeners could implement onRestart == onDead.  That would
+maintain the "ESCS is about events, FDEL is low-level convict information" separation of
+roles. 
+
+
+New Comment: 
+<blockquote>Someone's probably going to want the JMX information but let's keep Stages for
+Verb-associated tasks</blockquote>Sounds good, updated patch add a new executor directly
+into AntiEntropy.<blockquote>How about splitting onDead and onRestart in
+EndpointStateChange, then?</blockquote>Done.<blockquote>I prefer using WrappedRunnable to
+a Callable</blockquote>I changed to use WrappedRunnable. However, we still need to have
+access to both the repair session and the future from the executor so the implementation
+returns a pair of those two objects. I'm only marginally convinced this is cleaner than
+the previous solution... 
+
+
+New Comment: 
+(Sorry, I had attached the wrong version of v3, corrected now) 
+
+
+New Comment: 
+<blockquote>we still need to have access to both the repair session and the future from
+the executor so the implementation returns a pair of those two objects</blockquote>You can
+still use the RepairFuture approach, just use the FutureTask(Runnable, V) constructor 
+
+
+New Comment: 
+You're right, don't know why I got carried away like that. v4 "fixes" this. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks.This probably solves most of the case where repair was hanging
+infinitely. I've created <a href="https://issues.apache.org/jira/browse/CASSANDRA-3112"
+title="Make repair fail when an unexpected error occurs" class="issue-link"
+data-issue-key="CASSANDRA-3112"><del>CASSANDRA-3112</del></a> to handle the remaining
+cases, but it is much less urgent imho. Marking that one as resolved 
+
+

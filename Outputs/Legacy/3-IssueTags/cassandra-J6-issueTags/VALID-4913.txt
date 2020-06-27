@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 44d0ac696a1855c37e866e251ba2e9c652573d07
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4913.txt 
+
+commit 44d0ac696a1855c37e866e251ba2e9c652573d07
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.8

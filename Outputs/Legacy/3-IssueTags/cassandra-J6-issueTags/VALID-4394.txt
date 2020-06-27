@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8e701e01cdb656b65f8efa9c8264baf9f4a373f2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4394.txt 
+
+commit 8e701e01cdb656b65f8efa9c8264baf9f4a373f2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    improve cli treatment of multiline comments
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-2852

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 03ad8cdf4da9df2b7982490bdd3fcea9b1000567
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6593.txt 
+
+commit 03ad8cdf4da9df2b7982490bdd3fcea9b1000567
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    make stress executable

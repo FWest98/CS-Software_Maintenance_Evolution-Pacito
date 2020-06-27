@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 8a69a33dd91a58360f76a483984360bb808fc4e4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5289.txt 
+
+commit 8a69a33dd91a58360f76a483984360bb808fc4e4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Don't expire counter tombstones after streaming
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3394

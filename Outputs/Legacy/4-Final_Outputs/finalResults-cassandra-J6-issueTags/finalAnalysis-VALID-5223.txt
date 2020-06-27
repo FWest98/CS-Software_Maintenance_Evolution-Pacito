@@ -1,0 +1,149 @@
+Pattern changes caused by commit: 9145df897307990a0d7f61f58b5268055c3b69ef
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5223.txt 
+
+commit 9145df897307990a0d7f61f58b5268055c3b69ef
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    limit nodetool to 32MB of heap
+    patch by Zenek Kraweznik; reviewed by jbellis for CASSANDRA-3124
+
+
+
+==================================
+ Issue CASSANDRA-3124 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3124] java heap limit for nodetool
+-----------------
+
+-----------------
+Summary: java heap limit for nodetool
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Sep 2011 12:17:38 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 13 Oct 2011 19:28:01 +0000
+-----------------
+
+-----------------
+Assigned to: Zenek Kraweznik
+-----------------
+
+-----------------
+Description: 
+
+by defaull (from debian package)
+<ol>	<li>nodetool<br/>Error occurred during
+initialization of VM<br/>Could not reserve enough space for object heap<br/>Could not
+create the Java virtual machine.<br/>#</li></ol>
+and:<br/>&#8212; /usr/bin/nodetool.old   
+   2011-09-02 14:15:14.228152799 +0200<br/>+++ /usr/bin/nodetool   2011-09-02
+14:14:28.745154552 +0200<br/>@@ -55,7 +55,7 @@<br/>     ;;<br/> esac
+
+-$JAVA -cp
+$CLASSPATH -Dstorage-config=$CASSANDRA_CONF \<br/>+$JAVA -Xmx32m -cp $CLASSPATH
+-Dstorage-config=$CASSANDRA_CONF \<br/>        
+-Dlog4j.configuration=log4j-tools.properties \<br/>        
+org.apache.cassandra.tools.NodeCmd $@
+
+after every upgrade i had to add limit manually. I
+think it's good idea to add it by default <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+What JVM/platform are you running on that this is a problem? 
+
+
+New Comment: 
+I'm using packages from debian repository, if it's possible I'm using stable
+version<ol>	<li>dpkg -l | grep java<br/>ii  java-common                      0.40         
+               Base of all Java packages<br/>ii  libcommons-daemon-java           1.0.2-2 
+                    library to launch Java applications as daemons<br/>ii  libjna-java    
+                 3.2.7-4                      Dynamic access of native libraries from Java
+without JNI<br/>ii  sun-java6-bin                    6.26-0squeeze1               Sun
+Java(TM) Runtime Environment (JRE) 6 (architecture dependent files)<br/>ii  sun-java6-jre 
+                  6.26-0squeeze1               Sun Java(TM) Runtime Environment (JRE) 6
+(architecture independent files)<br/>#</li></ol> 
+
+
+New Comment: 
+Oracle documentation says "The default heap size for all 32-bit J2SE implementations is
+64MB.  We have adjusted the defaults for 64-bit implementations to be 30% larger in order
+to make up for the increased size of Java objects due to larger native pointers." 
+
+
+New Comment: 
+I have over 4GB memory free. Nodetool requires max 32MB memory to run and it shoud be
+limited to that value, no matter of default limits. 
+
+
+New Comment: 
+Oh, and 1 important thing: I haven't change any default java limit in java config, I've
+modyfied only cassandra-env.sh 
+
+
+New Comment: 
+So you're saying that 64 / 96 MB is <em>too large</em> and you have to reduce it for
+nodetool to run?I'd say there's something wrong with your environment. 
+
+
+New Comment: 
+JVM memory is not limitted in debian by default I think. Nodetool will not run by defualt
+with 4GB memory free.So in debian packages it should be limitted in nodetool script. 
+
+
+New Comment: 
+<blockquote>I have over 4GB memory free. Nodetool requires max 32MB memory to run and it
+shoud be limited to that value, no matter of default limits.</blockquote>Something sounds
+very strange here, because I read this to mean that the JVM is allocating about 3.9GB more
+memory than I'm seeing here. 
+
+
+New Comment: 
+It seems that OpenVZ UBC is generating this error. If I use native kernel and run
+cassandra on host machine, not in virtual everything is fine.But I still think that
+limitting heap size in nodetool script is good idea <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+I don't think nodetool should ever need more than 32M, so that's reasonable.Committed in
+r1183046. 
+
+
+New Comment: 
+committed 
+
+

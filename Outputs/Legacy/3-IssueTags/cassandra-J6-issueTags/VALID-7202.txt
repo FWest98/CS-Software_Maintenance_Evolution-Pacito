@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 10372c20dfe5af0dc0ab7ed77370cd785c78e82e
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7202.txt 
+
+commit 10372c20dfe5af0dc0ab7ed77370cd785c78e82e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix problem describing pre-cql3 CFs that are case-sensitive
+    Patch by paul cannon reviewed by brandonwilliams for CASSANDRA-4385

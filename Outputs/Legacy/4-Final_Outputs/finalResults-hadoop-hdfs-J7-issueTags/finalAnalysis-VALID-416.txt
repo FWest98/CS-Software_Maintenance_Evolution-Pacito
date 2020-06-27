@@ -1,0 +1,212 @@
+Pattern changes caused by commit: 5a26766efe17df5189ff9d2bc92275e59abd51ff
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-416.txt 
+
+commit 5a26766efe17df5189ff9d2bc92275e59abd51ff
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-1043. NNThroughputBenchmark modifications to support benchmarking of server-side user group resolution. Contributed by Konstantin Shvachko.
+
+
+
+==================================
+ Issue HDFS-1043 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1043] Benchmark overhead of server-side group resolution of users
+-----------------
+
+-----------------
+Summary: Benchmark overhead of server-side group resolution of users
+-----------------
+
+-----------------
+Issue type: Test
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 17 Mar 2010 23:50:37 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 20 Mar 2010 01:01:15 +0000
+-----------------
+
+-----------------
+Assigned to: Konstantin Shvachko
+-----------------
+
+-----------------
+Description: 
+
+Server-side user group resolution was introduced in <a
+href="https://issues.apache.org/jira/browse/HADOOP-4656" title="Add a user to groups
+mapping service " class="issue-link"
+data-issue-key="HADOOP-4656"><del>HADOOP-4656</del></a>. <br/>The benchmark should
+repeatedly request the name-node for user group resolution, and reset NN's user group
+cache periodically.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I modified NNThroughputBenchmark. A new input argument -UGCacheRefreshCount specifies
+after how many operation the benchmark should reset the name-node's user group cache. When
+set to 1 it will refresh the cache for every operation. By default it never resets the
+cache. Using this option one can evaluate the overhead of UG resolution for any operation
+available in NNThroughputBenchmark.<br/>For the 0.20 branch comparison
+NNThroughputBenchmark can be run was is, since there was no server side UG resolution at
+the time. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12439103/UGCRefresh.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12439103/UGCRefresh.patch</a><br/>
+ against trunk revision 923467.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/131/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I ran the benchmark on three versions of hadoop <ol>	<li>0.20.1, which does not have any
+security code, and therefore kerberos and delegation token authentications are not
+applicable there.</li>	<li>0.20.100, which contains the latest state of security
+implementation</li>	<li>0.22.trunk, which does not have all the latest security patches
+applied at the time of benchmarking (just for the reference)</li></ol>The benchmark
+creates a connection to the RPC server 1000 times. Each time the RPC server authenticates
+the client using one of the three authentication methods (no authentication, kerberos,
+delegation token). The result if the average latency of the connection request.The table
+below shows that <ul class="alternate" type="square">	<li>when security is turned off the
+the new code still adds 14% overhead.</li>	<li>The overhead for kerberos authentication is
+predictably huge.</li>	<li>The delegation token authentication was intended as a fast
+alternative to kerberos. It is somewhat faster, but not as nearly as the non-secure
+version. This should definitely be the focus of future optimizations.</li>	<li>0.22 is
+1-2% slower compared to 0.20.100. It is expected to catch up with it, when all latest
+security contributions are ported to the trunk.</li></ul><div class='table-wrap'><table
+class='confluenceTable'><tbody><tr><th class='confluenceTh'>Version</th><th
+class='confluenceTh'>No security</th><th class='confluenceTh'>Kerberos</th><th
+class='confluenceTh'>Delegation Tooken</th></tr><tr><td class='confluenceTd'>0.20.1 
+</td><td class='confluenceTd'>0.920</td><td class='confluenceTd'>&nbsp;</td><td
+class='confluenceTd'>&nbsp;</td></tr><tr><td class='confluenceTd'>0.20.100</td><td
+class='confluenceTd'>1.047 (+14%)</td><td class='confluenceTd'>44.670</td><td
+class='confluenceTd'>42.615</td></tr><tr><td class='confluenceTd'>0.22    </td><td
+class='confluenceTd'>1.597 (+73%)</td><td class='confluenceTd'>45.148</td><td
+class='confluenceTd'>43.455</td></tr></tbody></table></div> 
+
+
+New Comment: 
+Sorry please disregard this comment it is intended for <a
+href="https://issues.apache.org/jira/browse/HADOOP-6637" title="Benchmark overhead of RPC
+session establishment " class="issue-link"
+data-issue-key="HADOOP-6637"><del>HADOOP-6637</del></a>. I'll post these benchmark results
+later. 
+
+
+New Comment: 
+I run <tt>NNThroughputBenchmark -op open</tt>. This opens a lot of files (100,000 -
+500,000) on the name-node. The name-node performs server-side use group resolution. In
+version 0.20.1 we used to pass the user group(s) along with the user name. The security
+branch (and trunk) use server-side UG resolution instead. In regular case for 0.20.100
+most of resolutions will be done from the server-side cache. The actual unix shell group
+resolution will happen only if the entry is not cached or the cache expired. <br/>I run
+the benchmark in two variants in the first the cache is never refreshed, so user groups
+always come from the cache. In the second variant, clients frequently send requests to
+refresh cache, so the server actually resolves groups most of the time.<br/>I also ran the
+benchmark with different number of threads (server handlers). The one-threaded
+(sequential) variant measures the actual overhead of server-side UG resoltion. The
+100-thread variant is closer to what is used in real clusters.<br/>The table below
+summarizes the results. The number units here are operations-per-second.<ul
+class="alternate" type="square">	<li>UG cache resolution adds about 8% overhead per
+operation</li>	<li>direct UG resolutions adds 34%. This should not happen often,
+and</li>	<li>in the (real) concurrent world this only results in 8% overhead.</li>	<li>An
+unexpected result is that cache turns out to be inefficient when accessed concurrently. I
+verified this many times, the numbers vary, but getting cached values is always slower
+than direct resolution. This is not expected, and should be address in future
+optimizations.</li></ul><div class='table-wrap'><table
+class='confluenceTable'><tbody><tr><th class='confluenceTh'>Version</th><th
+class='confluenceTh'>1 thread (ops/sec)</th><th class='confluenceTh'>100 threads
+(ops/sec)</th></tr><tr><td class='confluenceTd'>0.20.1 no server-side UG resolution
+</td><td class='confluenceTd'>48638</td><td class='confluenceTd'>67676</td></tr><tr><td
+class='confluenceTd'>0.20.100 use UG cache</td><td class='confluenceTd'>44581
+(-8%)</td><td class='confluenceTd'>53418 (-18%)</td></tr><tr><td
+class='confluenceTd'>0.20.100 direct UG resolution</td><td class='confluenceTd'>31869
+(-34%)</td><td class='confluenceTd'>62500 (-8%)</td></tr></tbody></table></div> 
+
+
+New Comment: 
+A minor correction to JavaDoc, and a merge with current trunk. 
+
+
+New Comment: 
++1 for the patch. I am surprised that ConcurrentHashMap used for caching groups affects
+the performance when using 100 threads. We should perhaps create a bug to track this
+optimization. 
+
+
+New Comment: 
+I just committed this. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #220 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/220/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/220/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #302 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/302/</a>) 
+
+

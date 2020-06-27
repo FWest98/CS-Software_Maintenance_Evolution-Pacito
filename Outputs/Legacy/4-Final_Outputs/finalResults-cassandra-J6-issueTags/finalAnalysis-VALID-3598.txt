@@ -1,0 +1,123 @@
+Pattern changes caused by commit: e8b42ca60c72bc8e8309476bd2088891576ce24d
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3598.txt 
+
+commit e8b42ca60c72bc8e8309476bd2088891576ce24d
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add counter support to the cli.
+    Patch by Sylvain Lebresne, reviewed by Pavel Yaskevich for
+    CASSANDRA-2341.
+
+
+
+==================================
+ Issue CASSANDRA-2341 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2341] Cli support for counters
+-----------------
+
+-----------------
+Summary: Cli support for counters
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 16 Mar 2011 13:50:58 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Mar 2011 15:41:17 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+The cli should have support for counters operation
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch add two new cli commands: incr and decr. Both use a value of 1 by default
+but can be given another delta with 'by x'. Negative delta are fine so decrement is really
+just syntactic sugar.The get and get_slice are also modified to use counter operation when
+needed.Remove is also implemented. As a side note, there is an inconsistency with remove
+since it assumes the key to be a utf-8 string while get and set assumes an hex string,
+making testing remove pretty annoying. 
+
+
+New Comment: 
+Btw, the 'list' command won't work on counter CF (well until <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2321" title="disallow to querying a
+counter CF with non-counter operation" class="issue-link"
+data-issue-key="CASSANDRA-2321"><del>CASSANDRA-2321</del></a> it kind of work but return
+non human readable values). But we need <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2342" title="Add range slice support
+for counters" class="issue-link"
+data-issue-key="CASSANDRA-2342"><del>CASSANDRA-2342</del></a> first to do that. 
+
+
+New Comment: 
+Patch looks good to me but please add new statements to the CliTest before this can be
+committed. Also, please add new commands to the CliCompleter, so we can get autocomplete
+for them. 
+
+
+New Comment: 
+Updated patch with unit tests and with incr and decr added to CliCompleter. 
+
+
+New Comment: 
++1, side note - please attach v2 next time instead of deleting previous patch, thanks! 
+
+
+New Comment: 
+patch does not apply for me on trunk 
+
+
+New Comment: 
+This is because of <a href="https://issues.apache.org/jira/browse/CASSANDRA-2354"
+title="CLI should allow users to chose consistency level" class="issue-link"
+data-issue-key="CASSANDRA-2354"><del>CASSANDRA-2354</del></a>.<br/>Attaching v2 rebased
+and taking the consistencyLevel into account for counter operation too. 
+
+
+New Comment: 
++1 on v2 
+
+
+New Comment: 
+Committed. 
+
+

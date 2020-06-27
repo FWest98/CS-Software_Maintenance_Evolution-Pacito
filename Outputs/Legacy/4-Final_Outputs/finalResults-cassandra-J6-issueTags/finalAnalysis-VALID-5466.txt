@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 3484f609c6b6f5292414145fb843c25511a831c5
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5466.txt 
+
+commit 3484f609c6b6f5292414145fb843c25511a831c5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    revert #2503
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3491
+
+
+
+==================================
+ Issue CASSANDRA-3491 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3491] Recursion bug in CollationController
+-----------------
+
+-----------------
+Summary: Recursion bug in CollationController
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 14 Nov 2011 17:54:59 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 14 Nov 2011 21:30:20 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+The following stack trace seems to indicate a recursion bug in CollationController
+
+Where
+the stats collection mutation is itself having stats collected on and so fourth
+
+<a
+href="http://pastebin.com/raw.php?i=35Rt7ryB" class="external-link"
+rel="nofollow">http://pastebin.com/raw.php?i=35Rt7ryB</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to revert <a href="https://issues.apache.org/jira/browse/CASSANDRA-2503"
+title="Eagerly re-write data at read time (&quot;superseding / defragmenting&quot;)"
+class="issue-link" data-issue-key="CASSANDRA-2503"><del>CASSANDRA-2503</del></a>.  Clearly
+putting that in 1.0.x was a mistake (mine). 
+
+
+New Comment: 
++1 
+
+

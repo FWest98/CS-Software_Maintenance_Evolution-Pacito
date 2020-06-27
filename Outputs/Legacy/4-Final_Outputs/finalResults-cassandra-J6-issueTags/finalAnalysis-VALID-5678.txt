@@ -1,0 +1,143 @@
+Pattern changes caused by commit: 5cdfaab72c6c8a2a9fab0d1a97fd1cdeafd6c2df
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5678.txt 
+
+commit 5cdfaab72c6c8a2a9fab0d1a97fd1cdeafd6c2df
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    TimeUUID support in CassandraStorage.
+    Patch by brandonwilliams, reviewed by Rick Branson for CASSANDRA-3327
+
+
+
+==================================
+ Issue CASSANDRA-3327 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3327] Support TimeUUID in CassandraStorage
+-----------------
+
+-----------------
+Summary: Support TimeUUID in CassandraStorage
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 6 Oct 2011 19:41:27 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 19 Dec 2011 20:27:03 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Cassandra CLI:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">grunt&gt; raw = LOAD <span
+class="code-quote">'cassandra:<span class="code-comment">//TEST/CF'</span></span>&gt;&gt; 
+   USING CassandraStorage()&gt;&gt;     AS (&gt;&gt;         key:chararray,&gt;&gt;       
+ columns:bag {&gt;&gt;             column:tuple(&gt;&gt;                 name,&gt;&gt;    
+            value&gt;&gt;             )&gt;&gt;         });grunt&gt; describe raw;raw:
+{key: chararray,columns: {(name: bytearray,value: bytearray)}}log_test =    FOREACH raw   
+GENERATE        (CHARARRAY) key,        flatten(columns);grunt&gt; DUMP
+log_test;</pre></div></div>
+Returns:
+<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre
+class="code-java">org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable
+to open iterator <span class="code-keyword">for</span> alias log_test. Backend error :
+Unexpected data type java.util.UUID found in stream. Note only standard Pig type is
+supported when you output from UDF/LoadFunc        at
+org.apache.pig.PigServer.openIterator(PigServer.java:890)        at
+org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:655)        at
+org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:303)     
+  at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)       
+at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)        at
+org.apache.pig.tools.grunt.Grunt.run(Grunt.java:67)        at
+org.apache.pig.Main.run(Main.java:487)        at
+org.apache.pig.Main.main(Main.java:108)Caused by: java.lang.RuntimeException: Unexpected
+data type java.util.UUID found in stream. Note only standard Pig type is supported when
+you output from UDF/LoadFunc        at
+org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:478)        at
+org.apache.pig.data.BinInterSedes.writeTuple(BinInterSedes.java:542)        at
+org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:357)        at
+org.apache.pig.impl.io.InterRecordWriter.write(InterRecordWriter.java:73)        at
+org.apache.pig.impl.io.InterStorage.putNext(InterStorage.java:87)        at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:138)
+       at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:97)
+       at
+org.apache.hadoop.mapred.MapTask$NewDirectOutputCollector.write(MapTask.java:498)       
+at
+org.apache.hadoop.mapreduce.TaskInputOutputContext.write(TaskInputOutputContext.java:80)  
+     at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map.collect(PigMapOnly.java:48)
+       at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:263)
+       at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256)
+       at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:58)
+       at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)        at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)        at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)</pre></div></div>
+According to
+driftx on IRC the setTupleValue function in CassandraStorage needs to handle the uuid case
+and cast it to a DataByteArray.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to do what that driftx guy suggested. 
+
+
+New Comment: 
+v2 uses UUIDGen to decompose to a byte array. 
+
+
+New Comment: 
+Reviewed this, I am +1 
+
+
+New Comment: 
+Committed. 
+
+

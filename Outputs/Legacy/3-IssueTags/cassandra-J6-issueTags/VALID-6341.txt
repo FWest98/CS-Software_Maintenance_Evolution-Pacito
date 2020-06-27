@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 3136c2092cf36b79d09941178eebf83f44f0a7d6
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6341.txt 
+
+commit 3136c2092cf36b79d09941178eebf83f44f0a7d6
+Merge: 050e61a 5a3d4c1
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1.0

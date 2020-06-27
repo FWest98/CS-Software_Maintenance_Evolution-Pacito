@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a9b8424d64893fe6169462a68dfcd0a8788c22c2
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4660.txt 
+
+commit a9b8424d64893fe6169462a68dfcd0a8788c22c2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    actually remove auto_bootstrap from example config (see #2447)

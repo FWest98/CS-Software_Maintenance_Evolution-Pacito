@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 72faeea4fc0da06c63bac815acc0ea9eda1bb36b
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-371.txt 
+
+commit 72faeea4fc0da06c63bac815acc0ea9eda1bb36b
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-877. Client-driven block verification not functioning. Contributed by Todd Lipcon.

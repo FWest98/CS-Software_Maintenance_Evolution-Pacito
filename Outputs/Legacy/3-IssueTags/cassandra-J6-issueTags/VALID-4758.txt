@@ -1,0 +1,20 @@
+Pattern changes caused by commit: e7dc05c0cdd94f21cb09c30313dcf8ff59a009bf
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4758.txt 
+
+commit e7dc05c0cdd94f21cb09c30313dcf8ff59a009bf
+Merge: 994a03c 6fc8124
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

@@ -1,0 +1,78 @@
+Pattern changes caused by commit: 32182f09e115236d391f3d2f86a21ac2d408313e
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4754.txt 
+
+commit 32182f09e115236d391f3d2f86a21ac2d408313e
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix handling of the empty byte buffer by ReversedType
+    patch by frousseau; reviewed by slebresne for CASSANDRA-3111
+
+
+
+==================================
+ Issue CASSANDRA-3111 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3111] Bug in ReversedType comparator
+-----------------
+
+-----------------
+Summary: Bug in ReversedType comparator
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 31 Aug 2011 10:35:33 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 31 Aug 2011 16:57:19 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+Scenario :
+<ul>	<li>create a cf with a reversed comparator</li>	<li>insert a few columns
+in a row</li>	<li>try to read data with : SliceRange(start='', finish='',
+reversed=true)	<ul>		<li>no data is returned, but some columns are
+expected</li>	</ul>	</li>	<li>try to read data with : SliceRange(start='', finish='',
+reversed=false)	<ul>		<li>if not flushed on disk : no data is
+returned</li>	</ul>	</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1Committed with an added unit test. Thanks 
+
+

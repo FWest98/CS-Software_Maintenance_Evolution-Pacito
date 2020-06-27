@@ -1,0 +1,17 @@
+Pattern changes caused by commit: d910cdb2db1919a4aa7c73b78d8107434df82223
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4338.txt 
+
+commit d910cdb2db1919a4aa7c73b78d8107434df82223
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow deleting a rowand updating indexed columns init in the same mutation
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2773

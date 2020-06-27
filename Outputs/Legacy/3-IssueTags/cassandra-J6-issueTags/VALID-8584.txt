@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 082ea28cd7286e9882e60913444b322ea691fc3d
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8584.txt 
+
+commit 082ea28cd7286e9882e60913444b322ea691fc3d
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Unable to start when using Ec2Snitch
+    Patch by Vijay, reviewed by Brandon Williams for CASSANDRA-5212

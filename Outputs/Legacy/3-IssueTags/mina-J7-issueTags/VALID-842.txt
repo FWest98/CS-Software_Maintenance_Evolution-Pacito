@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8572bcc5f698271bc1ad7688f5304f30053d27f1
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-842.txt 
+
+commit 8572bcc5f698271bc1ad7688f5304f30053d27f1
+Author: Trustin Lee <trustin@apache.org>
+
+    * Optimization related with ThreadLocal and MDC copy operation
+    * Removed unused code
+    * Reformatted code
+    * Added getProperty()
+    * Replaced Context with a plain Map<String, String>; let's add a new class when it's really necessary.

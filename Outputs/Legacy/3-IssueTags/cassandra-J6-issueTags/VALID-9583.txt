@@ -1,0 +1,17 @@
+Pattern changes caused by commit: b1d7405fd1263a04d8cc4bbfcba3ec1928b75738
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9583.txt 
+
+commit b1d7405fd1263a04d8cc4bbfcba3ec1928b75738
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix cross-DC mutation forwarding
+    patch by jbellis; reviewed by dbrosius for CASSANDRA-5632

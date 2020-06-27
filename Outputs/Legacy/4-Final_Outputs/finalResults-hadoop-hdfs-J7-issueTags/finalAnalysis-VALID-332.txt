@@ -1,0 +1,191 @@
+Pattern changes caused by commit: fedcebb1a7139164ad199b87b72aba76acb4f8da
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-332.txt 
+
+commit fedcebb1a7139164ad199b87b72aba76acb4f8da
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-813. Stop lease checker in TestReadWhileWriting.
+
+
+
+==================================
+ Issue HDFS-813 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-813] Enable the append test in TestReadWhileWriting
+-----------------
+
+-----------------
+Summary: Enable the append test in TestReadWhileWriting
+-----------------
+
+-----------------
+Issue type: Test
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 8 Dec 2009 02:09:52 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 9 Dec 2009 18:56:02 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+The second part of TestReadWhileWriting should be enabled.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+h813_20091208.patch: enable the second part of the test. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12427369/h813_20091208.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12427369/h813_20091208.patch</a><br/>
+ against trunk revision 888538.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/136/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+&gt; -1 core tests. The patch failed core unit tests.h813_20091208.patch, which changes
+onlyTestReadWhileWriting, is impossible to cause 82 test failures.  Some problems in
+hudson. 
+
+
+New Comment: 
+Try submitting again. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12427369/h813_20091208.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12427369/h813_20091208.patch</a><br/>
+ against trunk revision 888538.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/137/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
++1 patch looks good. 
+
+
+New Comment: 
+I have committed this to 0.21 and above. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #138 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/138/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/138/</a>)<br/>
+   . Enable the append test in TestReadWhileWriting. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #141 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/141/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/141/</a>)<br/>
+   . Stop lease checker in TestReadWhileWriting. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #83 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/83/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/83/</a>)<br/>
+   Fix CHANGES.txt for commit r889086:  should be <a
+href="https://issues.apache.org/jira/browse/HDFS-824" title="Stop lease checker in
+TestReadWhileWriting" class="issue-link"
+data-issue-key="HDFS-824"><del>HDFS-824</del></a><br/>. Stop lease checker in
+TestReadWhileWriting. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #170 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/170/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/170/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #145 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/145/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/145/</a>) 
+
+

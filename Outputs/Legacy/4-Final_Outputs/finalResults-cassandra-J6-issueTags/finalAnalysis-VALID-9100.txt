@@ -1,0 +1,135 @@
+Pattern changes caused by commit: d7066f460aba7765c91ccc96582a447252b78a7b
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9100.txt 
+
+commit d7066f460aba7765c91ccc96582a447252b78a7b
+Merge: ef5390b 8d6ed07
+Author: Jason Brown <jasedbrown@gmail.com>
+
+    Remove node from seeds list when it permanently leaves the cluster
+    patch by jasobrown; freviewed by driftx for CASSANDRA-5459.
+
+
+
+==================================
+ Issue CASSANDRA-5459 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5459] Remove node from seeds list when it permanently leaves the cluster
+-----------------
+
+-----------------
+Summary: Remove node from seeds list when it permanently leaves the cluster
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 12 Apr 2013 12:55:08 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 12 Apr 2013 20:30:32 +0000
+-----------------
+
+-----------------
+Assigned to: Jason Brown
+-----------------
+
+-----------------
+Description: 
+
+When a node leaves the cluster for good (via removetoken, decommission, or is replaced
+via replace_token), we clean up all references to it in MS and Gossiper. However, we never
+remove the entry from the seeds list in Gossiper (if the node was a seed). This will cause
+Gossiper to still try to communicate with the removed node as we try to talk to a random
+seed on each round of gossip.
+
+The attached patch will remove the node from seed list when
+it leaves the cluster, and further, will call the SeedProvider for an updated list of
+seeds. In a dynamic environment like EC2, when a node dies or is replaced, that node is
+never coming back. Thus is it advantageous to get a refreshed set of seeds to help with
+the network partition healing aspect of gossip (we dynamically retrieve that list in
+Priam). This makes seeds a bit more of a dynamic concept, but it's rather essential in a
+dynamic cloud environment.
+
+I believe this also resolves that repeated log message like
+:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">Nodes /10.217.XXX.YYY and /10.217.AAA.BBB have the
+same token 56713727820156410577229101240436610841.  Ignoring
+/10.217.XXX.YYY</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Why do we reload the seeds from DD? 
+
+
+New Comment: 
+seedProvider is private in DD with no public accessor. Since the current DD.getSeeds() is
+simple enough (albeit with some extra collections wrapping around it), it's not
+unreasonable to just reuse that, especially since SeedProvider does not currently have any
+other method besides getSeeds()Admittedly, I imitated how we do things in
+Gossiper.start(), but I see in my patch I'm not excluding the node itself from the seeds
+list like start() does.  I will rework my patch slightly to have start() and
+removeEndpoint() use the same seeds list building code. 
+
+
+New Comment: 
+This version (v2) slightly refactors Gossiper by pulling the seeds list building code out
+of start() and into a shared method that removeEndpoint() will call. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+as per <span class="error">&#91;~krummas&#93;</span> suggestion on the IRC, reload the
+seed list before removing the dead node. (EDIT: corrected to the correct Marcus E) 
+
+
+New Comment: 
+lgtm, +1 
+
+

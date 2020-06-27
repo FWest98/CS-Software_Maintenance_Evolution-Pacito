@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9e58703187e2ca410e63a184a89ae14684374225
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4389.txt 
+
+commit 9e58703187e2ca410e63a184a89ae14684374225
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    improve nodetool compactionstats formatting
+    patch by Wojciech Meler; reviewed by jbellis for CASSANDRA-2844

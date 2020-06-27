@@ -1,0 +1,68 @@
+Pattern changes caused by commit: 7b99df114536732ad4b21a5ce275e58dbe911510
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5579.txt 
+
+commit 7b99df114536732ad4b21a5ce275e58dbe911510
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    reformat NodeCmd.NodeCommand
+    patch by Peter Schuller; reviewed by jbellis for CASSANDRA-3572
+
+
+
+==================================
+ Issue CASSANDRA-3572 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3572] make NodeCommand enum sorted to avoid constant merge conflicts
+-----------------
+
+-----------------
+Summary: make NodeCommand enum sorted to avoid constant merge conflicts
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 5 Dec 2011 03:02:29 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 5 Dec 2011 17:11:07 +0000
+-----------------
+
+-----------------
+Assigned to: Peter Schuller
+-----------------
+
+-----------------
+Description: 
+
+Attaching patch. This is just for developer convenience; the NodeCmd is constantly
+causing conflicts. There will be initial pain in the transition, but once everyone's done
+working on branches with it not sorted, we should achieve merge nirvana.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 51a07442885360168fdad33b6da792911e07dd83
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3714.txt 
+
+commit 51a07442885360168fdad33b6da792911e07dd83
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Try harder to close files after compaction
+    patch by stuhood; reviewed by slebresne for CASSANDRA-2431

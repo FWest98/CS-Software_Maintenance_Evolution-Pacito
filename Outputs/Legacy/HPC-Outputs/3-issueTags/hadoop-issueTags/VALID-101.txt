@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 86724941c5144a06113090d40c50c289e7ebd290
+
+From: Adapter-2
+To:   Adapter-1
+
+From: Mediator-18
+To:   Mediator-14
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-101.txt 
+
+commit 86724941c5144a06113090d40c50c289e7ebd290
+Author: Christopher Douglas <cdouglas@apache.org>
+
+    HADOOP-4012. Provide splitting support for bzip2 compressed files. Contributed by Abdul Qadeer

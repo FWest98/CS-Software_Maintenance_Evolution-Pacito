@@ -1,0 +1,178 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+SocketOutputStream is a Decorator class
+close is a decorate operation
+channel of type WritableByteChannel is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/net/SocketOutputStream.java
+
+
+ WritableByteChannel
+Bridge Pattern.
+AbstractInvokable is abstract.
+Environment is an interface.
+AbstractInvokable delegates Environment.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/jobgraph/tasks/AbstractInvokable.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/execution/Environment.java
+
+Strategy Pattern.
+Buffer is the Context class.
+BufferRecycler is the Strategy interface.
+Concrete Strategy classes:  LocalBufferPoolRecycler DiscardBufferPool BufferPoolConnector DiscardingRecycler
+Delegation through recycler of type BufferRecycler
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/Buffer.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/BufferRecycler.java
+
+Strategy Pattern.
+BufferOrEvent is the Context class.
+AbstractEvent is the Strategy interface.
+Concrete Strategy classes:  AbstractTaskEvent EndOfSuperstepEvent ChannelCloseEvent SenderHintEvent TestEvent1 TestEvent2
+Delegation through event of type AbstractEvent
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/channels/BufferOrEvent.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/event/task/AbstractEvent.java
+
+Strategy Pattern.
+LineReader is the Context class.
+FSDataInputStream is the Strategy interface.
+Concrete Strategy classes:  InflaterInputStreamFSInputWrapper DistributedDataInputStream LocalDataInputStream S3DataInputStream
+Delegation through stream of type FSDataInputStream
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/test/java/org/apache/flink/runtime/fs/LineReader.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-core/src/main/java/org/apache/flink/core/fs/FSDataInputStream.java
+
+Flyweight Pattern.
+QuickSort is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/operators/sort/QuickSort.java
+
+Flyweight Pattern.
+WordCountData is a flyweight factory.
+TEXT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-test-utils/src/main/java/org/apache/flink/test/testdata/WordCountData.java
+
+Flyweight Pattern.
+EnumTriangleData is a flyweight factory.
+EDGES is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-test-utils/src/main/java/org/apache/flink/test/testdata/EnumTriangleData.java
+
+Flyweight Pattern.
+WebLogAnalysisData is a flyweight factory.
+DOCS is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-tests/src/test/java/org/apache/flink/test/testdata/WebLogAnalysisData.java
+
+Flyweight Pattern.
+PageRankData is a flyweight factory.
+VERTICES is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-test-utils/src/main/java/org/apache/flink/test/testdata/PageRankData.java
+
+Flyweight Pattern.
+JobWithExternalDependency is a flyweight factory.
+EXTERNAL_CLASS is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-clients/src/test/java/org/apache/flink/client/testjar/JobWithExternalDependency.java
+
+Flyweight Pattern.
+ConflictingFieldTypeInfoException is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-compiler/src/main/java/org/apache/flink/compiler/postpass/ConflictingFieldTypeInfoException.java
+
+Flyweight Pattern.
+MissingFieldTypeInfoException is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-compiler/src/main/java/org/apache/flink/compiler/postpass/MissingFieldTypeInfoException.java
+
+Flyweight Pattern.
+InsufficientResourcesException is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/InsufficientResourcesException.java
+
+Flyweight Pattern.
+S3BucketObjectPair is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/fs/s3/S3BucketObjectPair.java
+
+Flyweight Pattern.
+DevNullLogStream is a flyweight factory.
+DEV_NULL is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-addons/flink-jdbc/src/test/java/org/apache/flink/api/java/record/io/jdbc/DevNullLogStream.java
+
+Visitor pattern found.
+DataOutputView is an abstract Visitor class.
+LongArrayView is a Vistee class.
+IOReadableWritable is an abstract Visitee class.
+ Value Value SerializableArrayList Invocation AbstractEvent AbstractEvent AbstractID IntegerRecord DeserializationDelegate SerializationDelegate Configuration AccumulatorEvent JobGraph GateDeploymentDescriptor ChannelDeploymentDescriptor SerializableHashSet Accumulator InputSplit DataDistribution Path HardwareDescription TaskExecutionState RemoteReceiver InstanceConnectionInfo TaskOperationResult TaskDeploymentDescriptor LibraryCacheUpdate LibraryCacheProfileResponse LibraryCacheProfileRequest ConnectionHeader SpeedTestRecord UID BlockInfo Message ApplicationMasterStatus ProfilingDataContainer InternalProfilingData FileRecord SerializableHashMap SerializationTestType AbstractTaskEvent LongArrayView LongArrayView
+write is the accept method.
+writeInt is the visit method.
+numEntries is exposed to visitor DataOutputView
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-tests/src/test/java/org/apache/flink/test/recordJobs/graph/pageRankUtil/LongArrayView.java
+
+Observer Pattern.
+SuperstepKickoffLatch is an observer iterator.
+Object is the generic type for the listeners.
+awaitStartOfSuperstepOrTermination is the notify method.
+wait is the update method.
+Subject class(es):
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/iterative/concurrent/SuperstepKickoffLatch.java
+
+Observer Pattern.
+OneShotLatch is an observer iterator.
+Object is the generic type for the listeners.
+await is the notify method.
+wait is the update method.
+Subject class(es):
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/test/java/org/apache/flink/runtime/taskmanager/OneShotLatch.java
+
+Mediator Pattern.
+Mediator: SocketOutputStream
+Colleagues:  Writer SocketIOWithTimeout
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/net/SocketOutputStream.java
+
+Adapter Pattern.
+Adapting classes:  OutputStream Object Flushable Closeable WritableByteChannel Channel
+SocketOutputStream is an adapter class.
+Writer is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/net/SocketOutputStream.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/net/SocketOutputStream.java
+
+Facade Pattern.
+Buffer is a facade class.
+Hidden types: MemorySegment BufferRecycler
+Facade access types: Buffer
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/flink/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/Buffer.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     1
+Bridge                      1
+Composite                   0
+Decorator                   1
+Facade                      1
+Flyweight                  11
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    1
+Observer                    2
+State                       0
+Strategy                    3
+Template Method             0
+Visitor                     1
+------------------------------
+
+Number of classes processed: 138
+Number of files processed: 1974
+Size of DelegationTable: 338
+Size of concrete class nodes: 77
+Size of undirected invocation edges: 15
+
+
+nMediatorFacadeDual/nMediator = 0/1
+nImmutable/nFlyweight = 5/11
+nFlyweightGoFVersion = 0

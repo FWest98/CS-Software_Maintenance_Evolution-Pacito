@@ -1,0 +1,89 @@
+Pattern changes caused by commit: 2d71a8eea5e773e879e311fb5d14a06f30093bd4
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7227.txt 
+
+commit 2d71a8eea5e773e879e311fb5d14a06f30093bd4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix online help in cqlsh for COPY commands.
+    Patch by paul cannon, reviewed by brandon williams for CASSANDRA-4469
+
+
+
+==================================
+ Issue CASSANDRA-4469 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4469] Fix online help in cqlsh for COPY commands
+-----------------
+
+-----------------
+Summary: Fix online help in cqlsh for COPY commands
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 28 Jul 2012 18:55:36 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 28 Jul 2012 21:03:51 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+the HELP COPY output from cqlsh says:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>COPY [cqlsh
+only]  Imports CSV data into a Cassandra table.COPY &lt;table_name&gt; [ ( column [, ...]
+) ]     FROM ( '&lt;filename&gt;' | STDIN )     [ WITH &lt;option&gt;='value' [AND ...]
+];COPY &lt;table_name&gt; [ ( column [, ...] ) ]     TO ( '&lt;filename&gt;' | STDOUT )   
+ [ WITH &lt;option&gt;='value' [AND ...] ];</pre></div></div>
+It's confusing cause COPY is
+now for both export and import, since <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4434" title="add COPY TO"
+class="issue-link" data-issue-key="CASSANDRA-4434"><del>CASSANDRA-4434</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+fix the docstring/help text for COPY 
+
+

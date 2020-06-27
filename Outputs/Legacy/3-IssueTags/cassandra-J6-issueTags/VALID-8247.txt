@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 3474613757028b3841d199d7173dd29eaad45155
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8247.txt 
+
+commit 3474613757028b3841d199d7173dd29eaad45155
+Merge: 1bb78b0 3e27a32
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

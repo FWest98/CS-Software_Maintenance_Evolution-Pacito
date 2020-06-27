@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 212fd417f3e622449725d83e8dacab9506318dff
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6051.txt 
+
+commit 212fd417f3e622449725d83e8dacab9506318dff
+Author: Peter Schuller <peter.schuller@infidyne.com>
+
+    Improve MessagingService assertion.
+    patch by scode; reviewed by jbellis for CASSANDRA-3887

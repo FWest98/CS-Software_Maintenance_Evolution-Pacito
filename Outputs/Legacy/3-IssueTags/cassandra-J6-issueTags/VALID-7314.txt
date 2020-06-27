@@ -1,0 +1,26 @@
+Pattern changes caused by commit: dbf99d6740917cdecc342d84e1e3bec03613d8ba
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7314.txt 
+
+commit dbf99d6740917cdecc342d84e1e3bec03613d8ba
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Change nodetool setcachecapcity to manipulate global caches
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-4563

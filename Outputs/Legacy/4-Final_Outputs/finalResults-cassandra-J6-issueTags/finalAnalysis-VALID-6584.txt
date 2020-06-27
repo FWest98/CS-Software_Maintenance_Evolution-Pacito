@@ -1,0 +1,112 @@
+Pattern changes caused by commit: 10a64bd681c8f7e213fc74f04ac598cad2427464
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6584.txt 
+
+commit 10a64bd681c8f7e213fc74f04ac598cad2427464
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid streaming empty files with bulk loader if sstablewriter errors out
+    patch by yukim; reviewed by jbellis for CASSANDRA-3946
+
+
+
+==================================
+ Issue CASSANDRA-3946 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3946] BulkRecordWriter shouldn't stream any empty data/index files that might be created at end of flush
+-----------------
+
+-----------------
+Summary: BulkRecordWriter shouldn't stream any empty data/index files that might be created at end of flush
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 22 Feb 2012 08:15:01 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 17 Apr 2012 21:27:20 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+If by chance, we flush sstables during BulkRecordWriter (we have seen it happen), I want
+to make sure we don't try to stream them.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I'm not sure I understand &#8211; is it trying to stream a sstable that's in the process
+of being written?  Or did you actually get zero-length files created?  The latter is Not
+Supposed To Happen. 
+
+
+New Comment: 
+Sounds like the right fix here is to make BRW not output zero-length sstables. 
+
+
+New Comment: 
+I'm not convinced that having the loader skip empty files is right yet.  Why are empty
+files being created? 
+
+
+New Comment: 
+Yuki, does anything look suspicious in BulkRecordWriter for zero-length file creation? 
+
+
+New Comment: 
+I suspect if there is a problem here it's actually in UnsortedSimpleSSTableWriter. 
+
+
+New Comment: 
+The only way bulk writer writes 0 size sstable is when bad thing happens during
+writing.<br/>Attached patch makes sure writer get aborted so that incomplete files are
+removed when exception happend during writes. In order to do this, I have to let
+SSTableWriter create "temp" file, but it should be OK since closeAndOpenReader renames
+file. 
+
+
+New Comment: 
+LGTM.  Could you also post a version against 1.0, Yuki? 
+
+
+New Comment: 
+Patch for 1.0 branch attached. 
+
+

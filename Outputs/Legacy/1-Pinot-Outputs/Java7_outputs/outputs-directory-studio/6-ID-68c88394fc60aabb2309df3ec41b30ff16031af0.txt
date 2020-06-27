@@ -1,0 +1,77 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Flyweight Pattern.
+IImageKeys is a flyweight factory.
+ABOUT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/view/IImageKeys.java
+
+Flyweight Pattern.
+ICommandIds is a flyweight factory.
+CMD_DELETE is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/ICommandIds.java
+
+Flyweight Pattern.
+Application is a flyweight factory.
+PLUGIN_ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-schemas-plugin/src/main/java/org/apache/directory/ldapstudio/schemas/controller/Application.java
+
+Flyweight Pattern.
+Plugin is a flyweight factory.
+ID is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/Plugin.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+ENTRY is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-importexport-plugin/src/main/java/org/apache/directory/ldapstudio/importexport/view/ImageKeys.java
+
+Flyweight Pattern.
+ImageKeys is a flyweight factory.
+ABOUT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/directory-studio/ldapstudio-rcp/src/main/java/org/apache/directory/ldapstudio/view/ImageKeys.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   6
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    0
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 20
+Number of files processed: 120
+Size of DelegationTable: 15
+Size of concrete class nodes: 18
+Size of undirected invocation edges: 2
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/6
+nFlyweightGoFVersion = 0

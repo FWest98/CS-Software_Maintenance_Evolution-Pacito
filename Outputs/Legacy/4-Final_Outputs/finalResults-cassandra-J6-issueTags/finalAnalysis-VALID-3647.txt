@@ -1,0 +1,136 @@
+Pattern changes caused by commit: f60187d4d56395f25c45ab26422ac8e7d72f5c9c
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3647.txt 
+
+commit f60187d4d56395f25c45ab26422ac8e7d72f5c9c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    disallow querying a counter CF with non-counter operation
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2321
+
+
+
+==================================
+ Issue CASSANDRA-2321 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2321] disallow to querying a counter CF with non-counter operation
+-----------------
+
+-----------------
+Summary: disallow to querying a counter CF with non-counter operation
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 13 Mar 2011 05:27:53 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 29 Mar 2011 20:39:25 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+CounterColumnType.getString() returns hexString.
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">public</span> <span
+class="code-object">String</span> getString(ByteBuffer bytes){        <span
+class="code-keyword">return</span>
+ByteBufferUtil.bytesToHex(bytes);}</pre></div></div>
+and python stress.py reader
+returns
+
+[ColumnOrSuperColumn(column=None, super_column=SuperColumn(name='19',
+columns=<span class="error">&#91;Column(timestamp=1299984960277, name=&#39;56&#39;,
+value=&#39;\x7f\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00,&#39;,
+ttl=None), Column(timestamp=1299985019923, name=&#39;57&#39;,
+value=&#39;\x7f\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00;\x00\x00\x00\x00\x00\x00\x08\xfd&#39;,
+ttl=None))&#93;</span>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Actually, having getString() return hexString is the right thing to do, because internally
+counters are bytes and getString is used by sstable2json in particular.The problem however
+is that it is not disallowed to query a counter CF with non-counter operation. Attaching a
+patch to correct this. This is a bigger patch that one would hope because ThriftValidation
+doesn't help. So the patch does a bunch of refactoring to allow what it must do. As a side
+node, the refactoring makes it more efficient (We don't revalidate the column family for
+each mutation of a batch_mutate).Btw, stress.py has no support for counters, but
+stress.java has it. 
+
+
+New Comment: 
+Rebased patch attached 
+
+
+New Comment: 
+I'm not sure this refactor is much of an improvement.  Seems like the code moves around a
+lot but volume and complexity are not really reduced.Can't we just add a
+"validateCounterCF" to counter calls and "validateNonCounterCF" otherwise?(I'd prefer to
+say "counter/noncounter" vs "noncommutative/commutative" but if you really prefer the
+other that's okay too.) 
+
+
+New Comment: 
+<blockquote>I'm not sure this refactor is much of an improvement. Seems like the code
+moves around a lot but volume and complexity are not really reduced.</blockquote>I do
+believe the refactor is an improvement (granted, maybe not a huge one). During validation
+we do a bunch of queries to DatabaseDescriptor to check the cf exists, then to get its
+type (super or standard), then to get its value validator, etc... Granted those are just
+hashMaps gets, but they are just unnecessary. I do think that the method used by the
+refactor, that is getting the metadata once and giving it to all other method is cleaner.
+There also the fact that we revalidate the column family for each Mutation of a
+batch_mutate, even if all of them are on the same cf, which this refactor fixes too.<br/>I
+don't care so much about those and won't fight over it, but I think it would be a pity to
+leave ThriftValidation in that state (and the refactoring is really trivial). Note that
+I'll be perfectly ok with moving the refactor in another ticket if that makes it
+better.<blockquote>Can't we just add a "validateCounterCF" to counter calls and
+"validateNonCounterCF" otherwise?</blockquote>Yes we could, up to the fact that the
+refactor would still make sense I think for the reason above <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><blockquote>(I'd prefer to say
+"counter/noncounter" vs "noncommutative/commutative" but if you really prefer the other
+that's okay too.)</blockquote>When I have a few free cycles I plan to remove the
+'commutative' wording completely as I think this was premature generalization and make the
+code less readable right now. So I'm on your side, I just went for consistency with the
+rest of the code for now. 
+
+
+New Comment: 
+committed 
+
+

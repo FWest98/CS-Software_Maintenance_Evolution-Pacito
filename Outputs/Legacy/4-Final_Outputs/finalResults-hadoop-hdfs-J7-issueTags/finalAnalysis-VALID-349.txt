@@ -1,0 +1,189 @@
+Pattern changes caused by commit: a9bae999032d488d426daad8c3008e4ecc2fd58d
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-349.txt 
+
+commit a9bae999032d488d426daad8c3008e4ecc2fd58d
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-762. Balancer causes Null Pointer Exception.
+    (Cristian Ivascu via dhruba)
+
+
+
+==================================
+ Issue HDFS-762 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-762] Trying to start the balancer throws a NPE
+-----------------
+
+-----------------
+Summary: Trying to start the balancer throws a NPE
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Tue, 10 Nov 2009 22:52:36 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Dec 2009 23:14:35 +0000
+-----------------
+
+-----------------
+Assigned to: Cristian Ivascu
+-----------------
+
+-----------------
+Description: 
+
+When trying to run the balancer, I get a NullPointerException:
+
+2009-11-10 11:08:14,235
+ERROR org.apache.hadoop.hdfs.server.balancer.Balancer: java.lang.NullPointerException<br/>
+       at
+org.apache.hadoop.hdfs.server.namenode.BlockPlacementPolicy.getInstance(BlockPlacementPolicy.java:161)<br/>
+       at
+org.apache.hadoop.hdfs.server.balancer.Balancer.checkReplicationPolicyCompatibility(Balancer.java:784)<br/>
+       at
+org.apache.hadoop.hdfs.server.balancer.Balancer.&lt;init&gt;(Balancer.java:792)<br/>      
+ at org.apache.hadoop.hdfs.server.balancer.Balancer.main(Balancer.java:814)
+
+This happens
+when trying to use bin/start-balancer or bin/hdfs balancer -threshold 10
+
+The config files
+(hdfs-site and core-site) have as fs.default.name hdfs://namenode:9000.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Reverts the Balancer() constructor to do nothing. Similar to what 0.20 used. This way,
+when ToolRunner.run() is called, creating a new Balancer() does not cause the NPE. 
+
+
+New Comment: 
+A more logical description of the proposed patch (cannot edit previous comment):The
+attached file contains a patch that changes the behavior of the Balancer() constructor
+(with no parameters) to basically do nothing (like the 0.20 version), and a test in the
+TestBalancer class. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12424526/0001-corrected-balancer-constructor.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12424526/0001-corrected-balancer-constructor.patch</a><br/>
+ against trunk revision 834377.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 4 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/69/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/69/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+If this is a real problem with the Balancer, then can we get it into 0.21? 
+
+
+New Comment: 
+New version of the patch. Changes:<br/>1. correct patch format - svn diff instead of git
+patch<br/>2. removes contents of public void Balancer()<br/>3. adds new test in
+TestBalancer.java that calls Balancer() to initialize the balancer; the other tests only
+call Balancer(conf) 
+
+
+New Comment: 
++1. Code looks good. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12426144/HDFS-762.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12426144/HDFS-762.patch</a><br/>
+ against trunk revision 893039.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/155/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The two failed tests are<br/>
+org.apache.hadoop.hdfs.TestClientProtocolForPipelineRecovery.testGetNewStamp <br/>
+org.apache.hadoop.hdfs.server.datanode.TestBlockReport.blockReportand the only change that
+this patch is to change the constructor of the Balancer. In no way is this test failure
+related to this patch. I a going to commit this patch. 
+
+
+New Comment: 
+I just committed this. Thanks Cristian. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #159 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/159/</a>)<br/>
+   . Balancer causes Null Pointer Exception.<br/>(Cristian Ivascu via dhruba)<br/>.
+Balancer causes Null Pointer Exception. <br/>(Cristian Ivascu via dhruba) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #182 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #158 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/158/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/158/</a>) 
+
+

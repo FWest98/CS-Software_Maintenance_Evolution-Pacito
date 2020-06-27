@@ -1,0 +1,76 @@
+Pattern changes caused by commit: 1a0102751b55f9365fff3f25ab3d7b83e657422b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5856.txt 
+
+commit 1a0102751b55f9365fff3f25ab3d7b83e657422b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix bad validator lookup
+    patch by dbrosius; reviewed by jbellis for CASSANDRA-3789
+
+
+
+==================================
+ Issue CASSANDRA-3789 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3789] [patch] fix bad validator lookup (bad key type)
+-----------------
+
+-----------------
+Summary: [patch] fix bad validator lookup (bad key type)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 26 Jan 2012 02:59:30 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 26 Jan 2012 07:26:33 +0000
+-----------------
+
+-----------------
+Assigned to: David Brosius
+-----------------
+
+-----------------
+Description: 
+
+code looks up an entry in a map by a byte[] even tho the map is keyed by ByteBuffer, add
+a ByteBuffer.wrap call to the key.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

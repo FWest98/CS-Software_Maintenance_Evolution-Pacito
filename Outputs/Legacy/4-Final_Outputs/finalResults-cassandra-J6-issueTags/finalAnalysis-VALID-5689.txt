@@ -1,0 +1,87 @@
+Pattern changes caused by commit: fc0550ece77101c0b81a2f16b901c1a85dfe5af6
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5689.txt 
+
+commit fc0550ece77101c0b81a2f16b901c1a85dfe5af6
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Truncate throws TOE on timeout instead of UA.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3651
+
+
+
+==================================
+ Issue CASSANDRA-3651 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3651] Truncate shouldn't rethrow timeouts as UA
+-----------------
+
+-----------------
+Summary: Truncate shouldn't rethrow timeouts as UA
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 20 Dec 2011 07:02:01 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 22 Dec 2011 16:41:39 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Truncate is a very easy operation to timeout, but the timeouts rethrow as
+UnavailableException which is somewhat confusing.  Instead it should throw
+TimedOutException.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Doesn't updating the Thrift signature mean (Java) clients now have to catch or rethrow TOE
+where before they did not?  If so we should probably do this in 1.1. 
+
+
+New Comment: 
+Yes. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/>  Checked exceptions strike again. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

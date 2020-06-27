@@ -1,0 +1,288 @@
+Pattern changes caused by commit: 7459ac943d73cbe782c7ac1f3acb92ae3f8d50b5
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1648.txt 
+
+commit 7459ac943d73cbe782c7ac1f3acb92ae3f8d50b5
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Replaced the not thread safe CircularQueue by a ConcurentLinkedQueue. This solves DIRMINA-675.
+
+
+
+==================================
+ Issue DIRMINA-675 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-675] Duplicate data from decoder
+-----------------
+
+-----------------
+Summary: Duplicate data from decoder
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 16 Mar 2009 15:22:58 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 17 Mar 2009 10:24:09 +0000
+-----------------
+
+-----------------
+Assigned to: Emmanuel Lécharny
+-----------------
+
+-----------------
+Description: 
+
+I got duplicate messages in messageReceived(...) in my io handler adapter, but there are
+no such problem while decoding message (each message decoded only once). Rolling back to
+M3 seems solved problem.
+
+Note. SslFilter is used.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There is probably something wrong in your decoder, or the client. Without a minimal test
+code, it's almost impossible to know what's going on... 
+
+
+New Comment: 
+I've tested both client and server. Each message have unique id, so it was easy to trace
+all processing cycle. I added debug code within decoder and encoder which prints id of
+each processed message. There are no duplicates on this stage. Problem was solved when I
+rolled back to M3 <b>without modification of my code</b>. 
+
+
+New Comment: 
+The fact that your program works with 2.0.0-M3 cdoes not gives us any clue about what's
+going on. Many things have changed since 2.0.0-M3, including the API. Something that
+worked in the previous version might have been working by pure luck. Again, without a test
+case demonstrating the problem we can run and debug, it's mostly impossible to know where
+the problem is. 
+
+
+New Comment: 
+Here is a sample code, which illustrates problem: <a
+href="http://cid-d1d348276f87717c.skydrive.live.com/self.aspx/.Public/Apache%20Mina/MinaIssue.tar.bz2"
+class="external-link"
+rel="nofollow">http://cid-d1d348276f87717c.skydrive.live.com/self.aspx/.Public/Apache%20Mina/MinaIssue.tar.bz2</a>It
+works well on M3 but fails on M4. 
+
+
+New Comment: 
+Sorry, can't uncompress the file, as it seems not to be a bz2 file. Can you create a
+simple tar ?Thanks 
+
+
+New Comment: 
+Ok. Here goes link: <a
+href="http://cid-d1d348276f87717c.skydrive.live.com/self.aspx/.Public/Apache%20Mina/MinaIssue.tar"
+class="external-link"
+rel="nofollow">http://cid-d1d348276f87717c.skydrive.live.com/self.aspx/.Public/Apache%20Mina/MinaIssue.tar</a> 
+
+
+New Comment: 
+ok, wrong explanation. I simply can't download the file because you are using a M$ soft
+which does not allow around 30% of the population using something better that M$ ie
+explorer to get the file through an aspx link :/. More simply, just attach the file on the
+JIRA.Remember that there are other system out there than just W$, and most of the apache
+peeps are using either Mac of a flavor of Linux ... <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+It's very strange. I use Mozilla Firefox 2.0 under Linux, but I can both upload and
+download to/from skydrive. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> But anyway, file is attached. 
+
+
+New Comment: 
+I have run the test with only 10 loops, and here is what I get :aaa<br/><span
+class="error">&#91;server&#93;</span> Ident: 1<br/><span
+class="error">&#91;server&#93;</span> Ident: 2<br/><span
+class="error">&#91;server&#93;</span> Ident: 3<br/><span
+class="error">&#91;server&#93;</span> Ident: 4<br/><span
+class="error">&#91;server&#93;</span> Ident: 5<br/><span
+class="error">&#91;server&#93;</span> Ident: 6<br/><span
+class="error">&#91;server&#93;</span> Ident: 7<br/><span
+class="error">&#91;server&#93;</span> Ident: 8<br/><span
+class="error">&#91;server&#93;</span> Ident: 9<br/><span
+class="error">&#91;server&#93;</span> Ident: 10<br/><span
+class="error">&#91;Client&#93;</span> Ident: 1<br/><span
+class="error">&#91;Client&#93;</span> Ident: 2<br/><span
+class="error">&#91;Client&#93;</span> Ident: 3<br/><span
+class="error">&#91;Client&#93;</span> Ident: 4<br/><span
+class="error">&#91;Client&#93;</span> Ident: 5<br/><span
+class="error">&#91;Client&#93;</span> Ident: 6<br/><span
+class="error">&#91;Client&#93;</span> Ident: 7<br/><span
+class="error">&#91;Client&#93;</span> Ident: 8<br/><span
+class="error">&#91;Client&#93;</span> Ident: 9<br/><span
+class="error">&#91;Client&#93;</span> Ident: 10<br/><span
+class="error">&#91;server&#93;</span> Ident: 11<br/><span
+class="error">&#91;server&#93;</span> Ident: 12<br/><span
+class="error">&#91;server&#93;</span> Ident: 13<br/><span
+class="error">&#91;server&#93;</span> Ident: 14<br/><span
+class="error">&#91;server&#93;</span> Ident: 15<br/><span
+class="error">&#91;server&#93;</span> Ident: 16<br/><span
+class="error">&#91;server&#93;</span> Ident: 17<br/><span
+class="error">&#91;server&#93;</span> Ident: 18<br/><span
+class="error">&#91;server&#93;</span> Ident: 19<br/><span
+class="error">&#91;server&#93;</span> Ident: 20<br/><span
+class="error">&#91;Client&#93;</span> Ident: 11<br/><span
+class="error">&#91;server&#93;</span> Ident: 21<br/><span
+class="error">&#91;Client&#93;</span> Ident: 12<br/><span
+class="error">&#91;Client&#93;</span> Ident: 13<br/><span
+class="error">&#91;Client&#93;</span> Ident: 14<br/><span
+class="error">&#91;Client&#93;</span> Ident: 15<br/><span
+class="error">&#91;Client&#93;</span> Ident: 16<br/><span
+class="error">&#91;Client&#93;</span> Ident: 17<br/><span
+class="error">&#91;Client&#93;</span> Ident: 18<br/><span
+class="error">&#91;Client&#93;</span> Ident: 19<br/><span
+class="error">&#91;Client&#93;</span> Ident: 20<br/><span
+class="error">&#91;server&#93;</span> Ident: 22<br/><span
+class="error">&#91;Client&#93;</span> Ident: 21<br/><span
+class="error">&#91;Client&#93;</span> Ident: 22<br/><span
+class="error">&#91;server&#93;</span> Ident: 23<br/><span
+class="error">&#91;server&#93;</span> Ident: 24I see no duplication of event... I'm using
+MINA trunk. May be we had a pb with MINA 2.0.0-M4 which has been solved in trunk.Can you
+check with the trunk if your program works correctly ? 
+
+
+New Comment: 
+I checked out latest snapshot but I still got duplicates. It seems that you stopped test
+application too early. There must be an exception thrown if duplicate found. Please wait
+little bit longer, because time when error appears may differ. 
+
+
+New Comment: 
+Upd. I ever made protocol primitive (only one long-type value), disabled ssl, but problem
+still exists on versions M4+. 
+
+
+New Comment: 
+I confirm . Sigh :/I also removed the SSL part, and still get the issue. i'm using a Set
+instead of a vector too.Damn ! 
+
+
+New Comment: 
+Thank you! I hope this issue will be fixed soon. 
+
+
+New Comment: 
+Added 2.0.0-RC1 as affected too. 
+
+
+New Comment: 
+Just to check : do you get the problem at the end of the test ? 
+
+
+New Comment: 
+The problem appears randomly. Sometimes at the beginning (20 &lt; id &lt; 300), sometimes
+a little bit later (id &gt; 3000). In rare cases, the problem does not appear at all. I
+have spent a heap of tests to understand where the problem is covered. In each case the
+result could differ a little, but as a whole the problem was shown always. 
+
+
+New Comment: 
+After some more tests, here are some more infos :<ul class="alternate"
+type="square">	<li>the test is a bit problematic, as the client sends messages as fast as
+possible, so the server can't return a response to all the messages. Counting the number
+of messages received by the client shows that we miss a lot of them.</li>	<li>I'm still
+having some random duplicates, too.</li></ul> 
+
+
+New Comment: 
+I'm just wondering if the CircularQueue we are using to store the decoded messages is not
+the cause of the problem... It does not seems to be synchronized at all ... ?;( 
+
+
+New Comment: 
+There is a bug in the decoder. As it extends CumulativeDecoder, the position has to be
+reset if we can read a length but don't have all the following bytes         if (remaining
+&gt;= INT_SIZE)        {            int start = in.position();             ...           
+}            else            {                in.position( start );                return
+false;            }            ...I still have some duplicated values ... 
+
+
+New Comment: 
+Damnit ! Even after having replaced the CircularQueue with a thread-safe
+ConcurrentLinkedQueue, I still get some duplicates...Are we mixing up sessions ? 
+
+
+New Comment: 
+One step further. I have a duplicated with a buffer containing :in = [0, 0, 0, 6, 49, 51,
+52, 49, 52, 49, 0, 0, 0, 6, 49, 51, 52, 49, 52, 49,...<br/>As we can see, each message is
+6 bytes long, and both values are the same (134141).Pb in the CumulativeDecoder while
+handling buffers ? 
+
+
+New Comment: 
+A slightly modified test which demonstrates the problem. I get from 20 to 100 random
+duplicates on my laptop when sending 500 000 messages 
+
+
+New Comment: 
+Raised to blocker. 
+
+
+New Comment: 
+IMHO it's the encoder, not the decoder.<br/>Currently the IoSession.write does call the
+FilterChain asynchronously instead of using the MessageQueue (or am I missing
+something?).<br/>So there are asynchronous are calls to
+ProtocolCodecFilter.ProtocolEncoderOutputImpl (they definitely exists) which does several
+offers and polls at the CircularQueue at same time and resulting in loss of messages or
+duplicate poll results (which means that a single WriteRequest is proposed more than once
+to the next filter).The interesting part is, that I can't see anything that changes the
+logic between M3 and M4, so it could be pure luck, that it worked with M3. 
+
+
+New Comment: 
+Good catch Steve !I have added some check on the client side, tracking the sent message,
+and for every duplicated message received on the server, there is a duplicated message
+sent from the client ... Here are the logs :Type return to start...Test started<br/>4
+remaining...<br/>3 remaining...<br/>2 remaining...<br/>1 remaining...<br/>0
+remaining...<br/>Done !!!<br/>Type return to stop...<br/>Duplicate ident:
+73780<br/>Duplicate ident: 84208<br/>Message 73780 already sent !<br/>Duplicate ident:
+141390<br/>Duplicate ident: 150062<br/>Duplicate ident: 159952<br/>Message 84208 already
+sent !<br/>Duplicate ident: 176236<br/>Message 141390 already sent !<br/>Message 150062
+already sent !<br/>Message 159952 already sent !<br/>Message 176236 already sent
+!<br/>Duplicate ident: 302169<br/>Duplicate ident: 342648<br/>Message 302169 already sent
+!<br/>Message 342648 already sent !Test stopped 
+
+
+New Comment: 
+Thanks to Steve's insight, I was able to fix the issue by using a ConcurentLinkedQueue in
+the AbstractProtocolEncoderOutput class. No more duplicates !This may have an impact on
+performance, and we may want to check for a better solution later, but atm, it works.Fixed
+in <a href="http://svn.apache.org/viewvc?rev=755181&amp;view=rev" class="external-link"
+rel="nofollow">http://svn.apache.org/viewvc?rev=755181&amp;view=rev</a> 
+
+

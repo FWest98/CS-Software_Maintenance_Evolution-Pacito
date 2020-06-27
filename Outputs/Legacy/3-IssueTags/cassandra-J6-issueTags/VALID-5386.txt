@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4f6350f9e91e81757b6272cdffae2b75cf83c108
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5386.txt 
+
+commit 4f6350f9e91e81757b6272cdffae2b75cf83c108
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    refactor CFS.invalid -> !CFS.valid

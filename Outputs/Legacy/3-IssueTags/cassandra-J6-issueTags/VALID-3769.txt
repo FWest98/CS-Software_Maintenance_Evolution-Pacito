@@ -1,0 +1,26 @@
+Pattern changes caused by commit: c9499e85813970a65796356189e9356083018dbc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3769.txt 
+
+commit c9499e85813970a65796356189e9356083018dbc
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Better detect failure during streaming (always cleaning up tmp files as a consequence)
+    patch by amorton and slebresne; reviewed by jbellis for (the first part of) CASSANDRA-2088

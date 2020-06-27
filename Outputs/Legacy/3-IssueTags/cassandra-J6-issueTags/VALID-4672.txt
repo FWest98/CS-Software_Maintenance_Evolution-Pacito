@@ -1,0 +1,20 @@
+Pattern changes caused by commit: db2d62c22ab514efcb3c137f3b09f2270df84aa6
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4672.txt 
+
+commit db2d62c22ab514efcb3c137f3b09f2270df84aa6
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix sstable file scan when one ColumnFamily starts with the name of another
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3040

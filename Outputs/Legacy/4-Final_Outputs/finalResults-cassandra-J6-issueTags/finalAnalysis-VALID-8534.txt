@@ -1,0 +1,137 @@
+Pattern changes caused by commit: fc1daa3a7fb7328c70b3f07e3234f129ddfa56af
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-3
+To:   Flyweight-2
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8534.txt 
+
+commit fc1daa3a7fb7328c70b3f07e3234f129ddfa56af
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Unbounded (?) thread growth connecting to an removed node
+    Patch by Vijay, reviewed by Brandon Williams for CASSANDRA-5175
+
+
+
+==================================
+ Issue CASSANDRA-5175 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5175] Unbounded (?) thread growth connecting to an removed node
+-----------------
+
+-----------------
+Summary: Unbounded (?) thread growth connecting to an removed node
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 19 Jan 2013 19:52:59 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Jan 2013 06:48:03 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+The following lines started repeating every minute in the log file
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre> INFO [GossipStage:1] 2013-01-19 19:35:43,929 Gossiper.java (line 831)
+InetAddress /10.238.x.y is now dead. INFO [GossipStage:1] 2013-01-19 19:35:43,930
+StorageService.java (line 1291) Removing token 170141183460469231731687303715884105718 for
+/10.238.x.y</pre></div></div>
+Also, I got about 3000 threads which all look like
+this:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>Name: WRITE-/10.238.x.yState: WAITING on
+java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject@1bb65c0fTotal
+blocked: 0  Total waited: 3Stack trace:  sun.misc.Unsafe.park(Native
+Method)java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2043)java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)org.apache.cassandra.net.OutboundTcpConnection.run(OutboundTcpConnection.java:104)</pre></div></div>
+A
+new thread seems to be created every minute, and they never go away.
+
+The endpoint in
+question had been a part of the cluster weeks ago, and the node exhibiting the thread
+growth was added yesterday.
+
+Anyway, assassinating the endpoint in question stopped thread
+growth (but kept the existing threads running), so this isn't a huge issue.  But I don't
+think the thread count is supposed to be increasing like this...
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Can you take a look, Vijay? 
+
+
+New Comment: 
+I think the problem is that when we close the connection the thread will not be ended.
+Attached patch solves thread leak problem. 
+
+
+New Comment: 
+Hard to know for certain if this is truly the cause, but it sounds plausible. +1 
+
+
+New Comment: 
+Committed to trunk, 1.1 and 1.2. Thanks! 
+
+
+New Comment: 
+Also added a commit db8705294ba96fe2b746fea4f26a919538653ebd for test failure (dtest),
+basically we should not close the thread because we convicted the node. Thanks! 
+
+
+New Comment: 
+Hi Vijay,I am using your commit db8705294ba96fe2b746fea4f26a919538653ebd but I think the
+logic in this commit is not the same as the attached patch.  Please take a look.if (m ==
+CLOSE_SENTINEL)             {                 disconnect();+                if
+(!isStopped)+                    break;                 continue;             }I think it
+should be :       if (isStopped)<br/>           break;Thanks. 
+
+

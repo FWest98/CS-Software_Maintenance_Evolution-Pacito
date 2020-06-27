@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 91f36f6dcadcc7260265028e912aeaa6e6129a8e
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8093.txt 
+
+commit 91f36f6dcadcc7260265028e912aeaa6e6129a8e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Remove obsolete test

@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 62f429337caf0aa83b68720a5904e8527b840c80
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9407.txt 
+
+commit 62f429337caf0aa83b68720a5904e8527b840c80
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    cleanup and simplify; only need to create one MessageOut

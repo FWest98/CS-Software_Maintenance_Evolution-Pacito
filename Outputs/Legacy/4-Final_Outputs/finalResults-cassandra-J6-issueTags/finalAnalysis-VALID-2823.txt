@@ -1,0 +1,1034 @@
+Pattern changes caused by commit: 3991fba440756ce5174f54dd544302a0591e61c8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-2823.txt 
+
+commit 3991fba440756ce5174f54dd544302a0591e61c8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid polluting pagecache with commitlog or sstable writes and seq scan operations
+    patch by Pavel Yaskevich and Chris Goffinet; reviewed by tjake and jbellis for CASSANDRA-1470
+
+
+
+==================================
+ Issue CASSANDRA-1470 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1470] Avoid polluting page cache during compaction
+-----------------
+
+-----------------
+Summary: Avoid polluting page cache during compaction
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 5 Sep 2010 02:42:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 24 Dec 2010 16:57:31 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+When compaction scans through a group of sstables, it forces the data in the os buffer
+cache being used for hot reads, which can have a dramatic negative effect on performance.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The best option looks like using direct io to bypass the os cache during this (and,
+similarly, for range scans) &#8211; see <a
+href="http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html"
+class="external-link"
+rel="nofollow">http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html</a> for
+why posix_fadvise won't work.  Looking at the source, posix_madvise doesn't look good
+either (VM_SEQ_READ and VM_RAND_READ are ignored once set). 
+
+
+New Comment: 
+Chris Goffinet's original patch against 0.6.3 
+
+
+New Comment: 
+v2 is rebased to 0.6 branch with some minor cleanup on the Java side. 
+
+
+New Comment: 
+I do believe posix_fadvise() should work with DONTNEED, but it requires fadvising()
+repeatedly after I/O. In addition for writes, one must fdatasync() or fsync() first in
+order for a DONTNEED to have any effect. To what extent this is an artifact of the Linux
+implementation and to what extent it is supposed to work like that, I don't know.(Not that
+I'm arguing for fadvise() over direct I/O, but FWIW.) 
+
+
+New Comment: 
+Can you elaborate? It looks to me like NOREUSE would be the appropriate fadvise flag, and
+that one really is a no-op in linux. 
+
+
+New Comment: 
+Sure. My anecdotal experience was with a use-case where the goal was to write a lot of
+data to disk (effectively copy a large file) without evicting other data from the page
+cache (which was actively being relied upon by a service on the same host). The goal was
+to only take a one-time hit on cache misses when switching to the new data, rather than
+having the process of distributing the data severely affect performance.In order to do
+this, not only was DONTNEED required, it was required that one syncs the relevant data
+before the call. At the time I never looked at the kernel implementation, but based on the
+cross ref. referenced in the post you reference, DONTNEED  results in a call to
+invalidate_mapping_pages:   <a
+href="http://lxr.free-electrons.com/source/mm/fadvise.c#L118" class="external-link"
+rel="nofollow">http://lxr.free-electrons.com/source/mm/fadvise.c#L118</a>Which is defined
+in truncate.c:   <a href="http://lxr.free-electrons.com/source/mm/truncate.c#L309"
+class="external-link"
+rel="nofollow">http://lxr.free-electrons.com/source/mm/truncate.c#L309</a>As is noted in
+the documentation of that function, it won't invalidate dirty pages (among others).I have
+never actually tested whether DONTNEED has an affect for reads (I made an untested
+assumption). I could experiment some more and report back if you think a working
+posix_fadvise() solution would be preferable to direct I/O (I don't have a problem with
+the direct I/O solution, personally).The phrasing in the man page in terms of the intent
+of DONTNEED seems to match this:       "POSIX_FADV_DONTNEED attempts to free cached pages
+associated with the specified region.  This is useful, for<br/>        example, while
+streaming large files.  A program may periodically request the kernel to free  cached 
+data  that  has<br/>        already been used, so that more useful cached pages are not
+discarded instead."In terms of the documented API of posix_fadvise(), I see where you're
+coming from and my initial reaction is that yes, NOREUSE seems like the obvoius choice.
+But on further thought I'm not so sure. Imagine if the kernel actually did implement
+NOREUSE and others by remembering it and adjusting it's behavior subsequent to the call.
+What is the expected behavior with respect to:  (1) different threads in the same
+process<br/>  (2) different file descriptors associated with the same fileThe man page
+doesn't say much explicitly, but my informal suspicion would be that any such
+implementation would tend to be global to a process and to a file, independent of threads
+or file descriptors. That is pure speculation, but I suppose my point is that we don't
+really know (also, I just recently looked at a Python wrapper which even made the
+assumption that it wasn't per-fd).If an implementation <b>where</b> to be like that,
+NOREUSE would actually be less suitable than DONTNEED since DONTNEED would only
+temporarily evict pages just after they were read or written while NOREUSE might
+potentially cause the kernel to avoid retaining pages for the file for <b>all</b> accesses
+(including live traffic), permanently (or at least during the compaction window assuming
+one changes the advise afterwards).My assumption with posix_fadvise() and fsync()+DONTNEED
+has been that it is only an attempt to improve characteristics, and it won't be perfect.
+In particular, on two ends of the spectrum:<ul>	<li>For smaller data sets that mostly or
+completely fit in memory, and it is being relied on for performance, a compaction using
+fsync()+DONTNEED would not really help much since the entire data base is evicted from
+memory very quickly and you end up with a performance impact roughly equal to what you
+expect anyway strictly as a result of flipping the sstable switch, switching over to
+"cold" sstables.</li></ul><ul>	<li>For very large data sets the compaction process takes a
+long time, and the data touched at any given "few minute" (choose some arbitrary time
+period) interval is a very small subset of the total data set. Thus, assuming the cluster
+is not depending on very long-term warm-up periods for performance, the impact should be
+very limited by the mere fact that the continuous live traffic constitutes a continual
+warm-up of whatever data is slowly (relative to the total size) evicted incrementally from
+the page cache. The hit at the point of switch-to-cold-sstable will still be taken, but
+until that happens the long-running compaction should at least have a much more limited
+impact.</li></ul>The nice thing about direct I/O, provided that other concerns (such as
+alignment, which was mentioned on the mailing list) don't outweigh it, is that the
+semantics with respect to interaction with the page cache seems more obvious. I would tend
+to expect that a given OS+fs combination will either support direct I/O or not and that
+when supporting it would truly not interact with the page cache. The posix_fadvise()
+behavior I would not be surprised if it varied a lot in future kernel versions (or other
+OS:es)... 
+
+
+New Comment: 
+It looks like O_DIRECT is the simplest solution and has the most prior art.  Let's go that
+route either with a patch like Chris's or JNA.  (Peter's patch to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1214" title="Force linux to not swap
+the JVM" class="issue-link" data-issue-key="CASSANDRA-1214"><del>CASSANDRA-1214</del></a>
+had a good example of integrating a C patch w/ our ant build, even though we took the JNA
+route there.) 
+
+
+New Comment: 
+Was looking over this patch and noticed it only does O_DIRECT on SSTable writes. The
+commit log contains 100% of writes, but only the header is ever read except in the
+relatively rare replay case. It seems like it would be worth doing these writes as
+O_DIRECT to avoid polluting the page cache with them, spoke with Goffinet and he agreed. I
+looked at the code and it appears to be a two line patch, which I've attached. 
+
+
+New Comment: 
+We just tried to test the v2 patch, 1470-v2.txt, and found problems when it read SSTs.I'll
+look through the patch, when I have time. 
+
+
+New Comment: 
+Kelvin,Let me know what errors you get. This is a draft patch. 
+
+
+New Comment: 
+On the commit log direct I/O: The buffering is currently limited to 128k, which I would
+expect to some extent negate use of periodic sync mode given that for cases where people
+do periodic sync in a write-heavy environment, they probably don't want direct I/O
+(effectively fsync() in terms of performance characteristics) every 128k.It would also be
+detrimental for row mutations that are say &gt; 50k since the probability of hitting disk
+more than once for a single row mutation commit would be high.If my understanding is
+correct, some possible suggestions:(1) up commit log buffer size significantly to mitigate
+the problem, or even to the extent that an entire commit log segment is kept in ram (also
+has negative effects on the latency once you <b>do</b> sync)(2) only enable direct I/O
+when in batched mode (not very useful)(3) actually prefer posix_fadvise() in this case
+(contrary to the sstable/compaction case).Other than the extra effort, (3) is probably
+cleanest (by my initial feeling) in this particular case since the commit log maps
+directly to the actual functionality implemented by DONT_NEED with none of the drawbacks
+talked about above that applied to the compaction case. 
+
+
+New Comment: 
+Pavel: we want compaction row scans to use direct i/o, but not normal row scans.  One
+possible solution is to add a SSTableReader.getDirectScanner method to distinguish the
+two. 
+
+
+New Comment: 
+also, can you add a tryFcntl method that does at least rudimentary error handling the way
+tryMlockall does? 
+
+
+New Comment: 
+can you rebase now that <a href="https://issues.apache.org/jira/browse/CASSANDRA-1694"
+title="fix jna errno reporting" class="issue-link"
+data-issue-key="CASSANDRA-1694"><del>CASSANDRA-1694</del></a> is in, and convert to
+LastErrorException style?also, can you post a version for 0.6?thanks! 
+
+
+New Comment: 
+sorry, initial code in 1694 didn't work when jna was not installed.  Also I re-organized
+CLibrary as part of fixing that.  Can you retry once more? 
+
+
+New Comment: 
+Pavel: Does this actually work on Linux? When opening files with O_DIRECT, you have to use
+alignment boundaries. In the original patch you can see how that was done. 
+
+
+New Comment: 
+Also, please correct me if I am wrong, but it doesn't look like the index file associated
+with the SSTable is opened with Direct I/O, and the new SSTable being written. We don't
+want any of those to pollute page cache either. 
+
+
+New Comment: 
+I will check that up again, thanks. I have read that restrictions on alignment were
+relaxed in 2.6 kernels: offset, buffer and transfer sizes must all be aligned on the
+hardware sector size (512b standart).<br/>About SSTable index file - this task is about
+compaction only, so I can suggest to create a new task for that because things are getting
+pretty messy in this one. 
+
+
+New Comment: 
+Do you need direct io on writes to avoid polluting the cache, or is it like our row cache
+and only caches on reads? 
+
+
+New Comment: 
+You need Direct I/O on writes. If you write data to a file, it's put in cache by default. 
+
+
+New Comment: 
+Got you point. I will start anew with different approach here. 
+
+
+New Comment: 
+I think you could use Lucene's DirectIOLinuxIndexInput with only minor modifications.  It
+does alignment already as well as buffered seeks.  It extends DataInput which may be all
+we need, if not, extending it from RandomAccessFile (just throw NotImplementedException on
+the write methods, we don't care about those) should be easy.It depends on Lucene's
+NativePosixUtil.open_direct but your fcntl approach should work fine as well. 
+
+
+New Comment: 
+... that's in <a
+href="http://svn.apache.org/repos/asf/lucene/dev/trunk/lucene/contrib/misc/src/java/org/apache/lucene/store/DirectIOLinuxDirectory.java"
+class="external-link"
+rel="nofollow">http://svn.apache.org/repos/asf/lucene/dev/trunk/lucene/contrib/misc/src/java/org/apache/lucene/store/DirectIOLinuxDirectory.java</a> 
+
+
+New Comment: 
+This is the approach I took. Note that their code is not buffering reads. I had to
+explicitly make modifications to do buffered reads with proper alignment. 
+
+
+New Comment: 
+Thanks for helping guys! I'm working on implementation which uses com.sun.jna.Memory for
+buffering and pread native call for accessing file data. Btw, should I implement writing
+also or read is all me need? Currently I'm implementing FileDataInput interface from
+org.apache.cassandra.io.util. 
+
+
+New Comment: 
+I think write is needed, for the newly created SSTable not being put into page cache. 
+
+
+New Comment: 
+Let's start with reading and do writes in a separate ticket.What is the advantage of
+pread/Memory over reads into ByteBuffer.allocateDirect?  You still need to set direct mode
+on the fd, right? 
+
+
+New Comment: 
+Jonathan: I agree about separate ticket for write support. About Memory - it's allocated
+directly using malloc and supports alignment + could be used in native calls as it's just
+a pointer to the directly allocated memory region. 
+
+
+New Comment: 
+The advantage of allocateDirect (also a thin layer over malloc) is it's part of the jdk so
+we don't need two separate reader classes for the with-and-without-jna approach, we just
+need to make the fcntl call and if it fails no problem we do non-direct i/o.  (And of
+course the additional advantage that Lucene has already tested it to work.)  Let's go with
+that approach unless there is a compelling reason not to. 
+
+
+New Comment: 
+I will add patch for 0.6 version after this one (v4) will be confirmed. 
+
+
+New Comment: 
+Let's use exceptions rather than return flags in java code.DIRAF copy/pastes a bunch of
+stuff unnecessarily (isEOF, the Mark class, probably more).  Probably we could not even
+need a separate class if we modifed BRAF to do alignment all the time (the performance
+impact would be basically negligible when doing non-direct i/o).We're trying to keep
+platform-specific code in CLibrary, setDirectIO and the flags should go there. 
+
+
+New Comment: 
+FileDataInput defines isEOF and all methods associated with getting/setting marks, so BRAF
+does not copy-pasted them but implemented. I will refactor code and attach updated patch
+soon. 
+
+
+New Comment: 
+i had two different points:<ul>	<li>DIRAF extends BRAF but copy/pastes a bunch of code
+from it unnecessarily.</li>	<li>we probably don't need DIRAF at all</li></ul> 
+
+
+New Comment: 
+Yes, I understand, thanks! 
+
+
+New Comment: 
+tested on linux now, Direct I/O reads aligned and work. 
+
+
+New Comment: 
+What kind of improvements in throughput variance do you see during compactions with this
+patch, Pavel? 
+
+
+New Comment: 
+I ran the v6 patch on OSX and linux, found a few issues :1. OSX never logs that mlockall
+succeeds.<br/>2. No testcase for directio BRAF<br/>3. BRAF.sync() accesses .array() which
+is not allowed in directio mode<br/>4. (minor) Under Linux BRAF test testOverflowMark
+fails with:<br/>  <em>java.lang.Exception: Unexpected exception,
+expected&lt;java.lang.UnsupportedOperationException&gt; but
+was&lt;java.io.IOException&gt;</em><br/>    <em><span class="error">&#91;junit&#93;</span>
+Caused by: java.io.IOException: Invalid argument</em>Don't think it's a big deal but
+probably JDK impl?5. (minor) BRAF uses "this." all over the place to access member vars
+which is against the style guide.I've attached v7 which addresses 1-4, once applied the
+code worked for me, though I haven't yet compared the difference in read performance
+during compaction (tomorrow?) 
+
+
+New Comment: 
+Thanks, Jake!3). I wasn't working on the write support for direct mode, it requires a
+separate ticket as it was agreed in the previous comments. arrayOffset() throws
+UnsupportedOperationException for me on linux (Debian with 1.6.0_0 openJDK), it's an
+optional operation the same as .array() is, so I have reworked your code and everything is
+working now.4). Fixed it5). Don't want to start a holy-war here, it just fills more
+natural and readable for me to use "this.", I haven't seen anywhere that it's forbidden
+(it is optional though). So if you want me to remove those "this.", I will - without any
+problem.Don't think it should have a significantly better performance on the small files
+comparing to ordinary BRAF but as I have tested and seen that it has better performance of
+the large files, try to create file with 10000 column family create/drop statements and
+run it using CLI and compare old and new, you will see the difference <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
++1 here for removing unnecessary "this" (which is mentioned in <a
+href="http://wiki.apache.org/cassandra/CodeStyle" class="external-link"
+rel="nofollow">http://wiki.apache.org/cassandra/CodeStyle</a>)<blockquote>try to create
+file with 10000 column family create/drop statements and run it using CLI and compare old
+and new, you will see the difference</blockquote>why does creating/dropping CFs exercise
+direct i/o? 
+
+
+New Comment: 
+Ok, I will drop "this."."why does creating/dropping CFs exercise direct i/o?" - because it
+triggers the compaction process. 
+
+
+New Comment: 
+And sorry - I actually missed point about avoiding "this" in the "Boilerplate" section...
+I will do v9 patch ASAP without "this." 
+
+
+New Comment: 
+<blockquote>because it triggers the compaction process</blockquote>You mean compacting
+system CFs containing schema data? I'm surprised that would be meaningful. 
+
+
+New Comment: 
+It triggers compation of the system "Schema" and "Migrations" 
+
+
+New Comment: 
+Fixed code styling - removed unnecessary "this." in BRAF.java 
+
+
+New Comment: 
+Another minor issue is I can no longer start C* from src tree, it requires jna.jar to be
+in the classpathAdding the following to bin/cassandra.in.sh to fix the issue:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">#add the ivy specific jars<span class="code-keyword">for</span> jar in
+$CASSANDRA_HOME/build/lib/jars/*.jar; <span class="code-keyword">do</span>   
+CLASSPATH=$CLASSPATH:$jardone</pre></div></div>Should probably add this to the patch for
+convenience. 
+
+
+New Comment: 
+Thanks Jake! And yes can you please add it and create a new patch (v10)? 
+
+
+New Comment: 
+wait... is JNA being made a hard dependency now? 
+
+
+New Comment: 
+Well just the JAR.  It comes in via ivy 
+
+
+New Comment: 
+the reason we haven't made jna a run-time dependency is the license is not compatible with
+the rest of Cassandra.  don't make it required, and don't add anything we pull down via
+ivy (which means it won't be distributed in our binary releases) to the classpath. 
+
+
+New Comment: 
+Next patch iteration,1) Removed dependency on JNA.  Required reflection to check for JNA
+exception types at runtime.<br/>2) BRAF was calling fsync() on every write.  added
+separate flush() and sync() calls. reBuffer calls flush() rather than sync().Next issue
+occurs when running compaction with directIO, the compaction thread seems to get stuck
+<br/>in the rebuffer channel.read() call.  I think it's todo with the alignment but need
+to dig in deeper tomorrow. 
+
+
+New Comment: 
+Couple more fixes:1) Tweaked directio buffer size to be 16k. Gets much better read
+performance.<br/>2) Another fix for non-jna usersI've done some substantial testing of
+this patch and I have to say I see no effect.  I think the reason is commit log and
+SSTable writes are entering the page cache as well.  I think the next approach would be to
+make these use DirectIO as well.  Back to you Pavel <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>My benchmarking looks like this:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">#Write a lot of data to  CFpython stress.py -S 8192 -n 100000
+-k#triggers minor compaction#wait till complete....#read from CF till file cache is
+primedpython stress.py -n 100000 -k -o
+readtotal,interval_op_rate,interval_key_rate,avg_latency,elapsed_time1010,101,101,0.5461584162,112465,145,145,0.384013745219,22[cropped]#primed
+readpython stress.py -n 100000 -k -o
+readtotal,interval_op_rate,interval_key_rate,avg_latency,elapsed_time26962,2696,2696,0.0219141756796,1159567,3260,3260,0.0170967640897,2297089,3752,3752,0.0146972443858,33100000,291,290,0.00880796890495,34#write
+to another column familypython stress.py -S 8192 -n 100000 -k -y <span
+class="code-keyword">super</span>#triggers minor compaction of second CF.. wait till
+complete#read from first CF again (slowwww)python stress.py -n 100000 -k -o
+readtotal,interval_op_rate,interval_key_rate,avg_latency,elapsed_time1010,101,101,0.5461584162,112465,145,145,0.384013745219,223915,145,145,0.385855172749,335683,176,176,0.307302036167,447591,190,190,0.291640462241,559575,198,198,0.281985886275,66[cropped]</pre></div></div> 
+
+
+New Comment: 
+just to clarify: you are waiting for the compaction to finish, before starting the final
+read? 
+
+
+New Comment: 
+Jake:   So problem with JNA requirement is solved by your v11 patch?   If main goal about
+direct I/O reads is reached maybe we can consider this as resolved and add new task for
+write Direct I/O improvements? this one is getting heavy... 
+
+
+New Comment: 
+Johnathan: Yeah, I edited the steps above with a better benchmark approach.Pavel: Yes, JNA
+is no longer required. Works for me to move this to another ticket though compaction isn't
+yet using directio for SSTable writes so we could add that first before we call it
+completed 
+
+
+New Comment: 
+If you and Jonathan agree on this, this ticket could be renamed to "use direct io for
+compaction reads" and resolved and a new one opened for "writes", with description and
+benchmarks from your latest comment, this is how I see it... 
+
+
+New Comment: 
+I don't think I want to commit this w/o write support if it doesn't actually improve
+performance.  I was hoping it would get us halfway there but if it does not we should do
+both together IMO. 
+
+
+New Comment: 
+Ok, gotcha. will continue with direct I/O for writes in the current context then. 
+
+
+New Comment: 
+It may actually help as-is. Just my linux instance has 4G ram, if the file cache had more
+room maybe it would be better than nothing.  Can someone with a larger box run the above
+test and see if there is any impact? 
+
+
+New Comment: 
+rcoli points out that commitlog is less straightforward.  let's start w/ sstable writes
+direct and ignore commitlog for this ticket. 
+
+
+New Comment: 
+I like Peters suggestion of using posix_fadvise for commit log.  The idea would be to call
+posix_fadvise(fd, 0,0,POSIX_FADV_DONTNEED); after every call to fsync. This will tell the
+kernel to avoid caching these pages just written over others. 
+
+
+New Comment: 
+moving to 0.7 only. 
+
+
+New Comment: 
+If you are doing tests/benchmarks, it won't help if commit log and writes are done too.
+One way I did a test was generate X sstables upfront, copy to temp place, restart, copy
+them back over, monitor page cache, trigger compactions with a real workload. 
+
+
+New Comment: 
+*Sorry, won't help if commit log/sstable writers aren't covered as well. 
+
+
+New Comment: 
+An interesting question btw is whether or not memtable flushes should bypass the buffer
+cache. For some workloads it would be very advantageous, while for many it would not
+(making each memtable flush imply a performance hit on recently written data).That might
+be something to consider having as a per-cf option in the future. 
+
+
+New Comment: 
+Another possible option here without changing code base will be to decrease number (to 10)
+in /proc/sys/vm/swappiness (default is 60), by doing that kernel will prefer pruning page
+case and not swap. I was testing it on Linux (Quad-Core AMD Opteron(tm) Processor 2374 HE,
+2 Gb memory) and it gave me a better read/write results.READ (final chunks):<br/>(60 in
+/proc/sys/vm/swappiness)<br/>97441,215,215,0.235058996032,536<br/>99583,214,214,0.236029704857,546<br/>100000,41,41,0.252929151201,549(10
+in
+/proc/sys/vm/swappiness)<br/>97589,186,186,0.271465253625,486<br/>99893,230,230,0.216397065773,496<br/>100000,10,10,0.0753863036075,496WRITE
+(final chunk):<br/>(60 in
+/proc/sys/vm/swappiness)<br/>91934,792,792,0.0656061102088,104<br/>98274,634,634,0.0562482395759,114<br/>100000,172,172,0.127704215216,118(10
+in
+/proc/sys/vm/swappiness)<br/>85593,792,792,0.0618825450318,98<br/>93518,792,792,0.0669648991473,109<br/>100000,648,648,0.0500462510563,116 
+
+
+New Comment: 
+what is being swapped in your tests?the sane case for a server environment is "swap is
+disabled" so that is what we should optimize for. 
+
+
+New Comment: 
+I run the same benchmark tests as T Jake did in previous comment (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1470?focusedCommentId=12933188&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12933188"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-1470?focusedCommentId=12933188&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12933188</a>) 
+
+
+New Comment: 
+Note though that decreasing swappyness doesn't really address the main concern with doing
+direct I/O; namely that compaction avoids evicting significant amounts of relevant data
+from buffer cache. As far as I can tell, while lowering the pressure on the buffer cache
+will probably decrease the tendency for the OS to swap (if swap is enabled), but that
+seems more like a side-effect than a primary goal for this ticket?Now, it's true that once
+compaction finishes you will have a hotness issue (see <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1658" title="support incremental
+sstable switching" class="issue-link"
+data-issue-key="CASSANDRA-1658"><del>CASSANDRA-1658</del></a>), but in the mean time the
+compaction process itself is continuously eviction data from page cache potentially for an
+extended period of time, affecting live traffic for the duration.In particular though, the
+intended effects aren't really something you can benchmark except under specific
+circumstances (such as a given total data set, a given locality of the live read traffic
+and a given memory size, etc). The potential negative effects of compaction as it happens
+now (without direct i/o or fadvise) may be negligible for certain workloads, but can
+certainly be a killer for others. In general, the bigger you data set and active set, the
+more you would expect to be affected by compaction in terms of disk iops. Unless the
+operating system implements a buffer cache eviction policy that specifically avoids large
+sequential scans eviction frequently accessed data, direct I/O, fadvise or some equivalent
+trick is definitely going to be needed for workloads where this matters.I took the
+benchmark to be a test as to whether or not the changes actually worked (rather than
+measuring a performance improvement), and for reasons already talked about (writes and
+commitlog) the effects is actually unseen - but that's expected as long as you're still
+thrashing the buffer cache. 
+
+
+New Comment: 
+I am backporting this work to 0.6. Pavel I observed an issue: In the function,
+readAtMost(): if (current &lt; bufferOffset || current &gt; bufferEnd || current &gt;=
+maxBufferSize) Current is always going to be &gt;= maxBufferSize. This causes reBuffer()
+to be called on every read() operation. I changed the statement to: if (current &lt;
+bufferOffset || current &gt;= bufferEnd) That seemed to work out well. 
+
+
+New Comment: 
+Chris, are you seeing results indicating that this is worth applying even w/o direct i/o
+for writes? 
+
+
+New Comment: 
+It will only help 50% of the issue. As mentioned in earlier ticket, you won't see much of
+a change. You really do need writes to see a difference. The write functions in this patch
+seem broken, I'd hate to commit this just yet. 
+
+
+New Comment: 
+With Direct I/O write support and posix_fadvice(POSIX_FADV_DONTNEED) (added by Chris
+Goffinet) and small fixes comparing to v11.Working branch: trunk, latest commit
+2d21f488cda970f6a595ed9ce2fbd799a6a019d9 
+
+
+New Comment: 
+Right file for version 12 patch... 
+
+
+New Comment: 
+System: Quad-Core AMD Opteron(tm) Processor 2374 HE, 2 Gb RAM, Debian (2.6.35.4-rscloud
+SMP)Test (using stress.py from T Jake comment):          byte[] | Direct I/O (this shows
+elapsed_time)<br/>-----------------------------<br/>write |  113 |
+511<br/>-----------------------------<br/>read |  225 |
+213<br/>-----------------------------<br/>read |  175 |
+205<br/>-----------------------------<br/>write |  118 |
+567<br/>-----------------------------<br/>read |  219 |
+207<br/>-----------------------------Write with Direct I/O should be slower comparing to
+write using kernel buffering + page writeback... 
+
+
+New Comment: 
+does that mean we need to do a better job buffering writes ourselves? 
+
+
+New Comment: 
+Exactly, this means that we need to implement writeback and buffering in user-space
+instead of using kernel implementation... 
+
+
+New Comment: 
+I had tweaked DEFAULT_DIRECT_BUFFER_SIZE to 16k to get faster writes if you want slower
+then increase this 
+
+
+New Comment: 
+Also Pavel, I don't think your box has enough ram for that test.  the page cache wont fit
+the reads in 1 gig.If you see in my test the non-cached vs cached reads went from 150 to
+3000Try lowering the value of the -S param and see how fast you can get the reads before
+running the supercolumn inserts 
+
+
+New Comment: 
+Seems that DEFAULT_DIRECT_BUFFER_SIZE = 16kb is the best option here I was playing with it
+for some time.Can you please apply v12 patch and test it on your machine so we can see
+results you will get comparing to your previous comment? Would be very helpful... Direct
+I/O writes will be slower than ordinary writes because of data transfer performed directly
+to the device without Page Writeback technique which kernel performs. I will work on write
+solution for dirty Direct I/O buffers on my side... 
+
+
+New Comment: 
+Test using -S 2048 on writes         byte[] | Direct I/O (this shows
+elapsed_time)<br/>-----------------------------<br/>write | 33  |
+73<br/>-----------------------------<br/>read | 90   |
+89<br/>-----------------------------<br/>read | 39   |
+58<br/>-----------------------------<br/>write | 35   |
+74<br/>-----------------------------<br/>read | 132 |
+56<br/>-----------------------------Speaks for itself <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Note that at minimum the amount written per direct write has to be high enough that the
+seek overhead of constituent disks becomes irrelevant (and keeping in mind that there may
+be multiple spindles under a RAID controller). In addition on a loaded system there will
+be additional latency resulting from the I/O requests queueing, which increases the
+demands for the size of individual writes. I would expect a sensible "chunk" size to be
+several megabyte at minimum for writes.The other trade-off for reads (and writes if not
+using battery-backed write caching in a RAID controller) is that too large "chunk:s" will
+be detrimental to latency of live traffic. I exclude writes on battery backed controllers
+under the assumption that the chunk size is well below cache size in the controller.
+However, on the other hand there is a throttling issue here so unless rate limiting is
+applied you would see detrimental affects with a RAID controller too since it is going to
+eat your writes until it becomes full, at which point submission of a huge write will
+probably again have the detrimental effects on latency. 
+
+
+New Comment: 
+<blockquote>Direct I/O writes will be slower than ordinary writes because of data transfer
+performed directly to the device without Page Writeback technique which kernel
+performs</blockquote>I don't understand.  I thought direct i/o means we get to throw a
+(native) byte[] at the device, rather than having bytes copied into the kernel's buffer
+first.  So if anything, if our own buffering is doing its job (i.e. if we use a large
+enough buffer that we don't lose out in seek noise), we should be saving copies overall. 
+
+
+New Comment: 
+This is more complex that it seems to be from the first sight: All Direct I/O operations
+will be synchronous; operations will not return until completed. On the other hand
+standard I/O (using page cache) uses mechanism called Page Writeback - write syscalls
+place pages into memory (if necessary), mark them as dirty and return immediately after
+that (pdflush kernel threads are responsible for syncing page cache data to the device)
+actual memory&lt;-&gt;device synchronization happens when:1) When free memory shrinks
+below a configurable threshold, dirty buffers are written back to disk so that the
+now-clean buffers may be removed, freeing memory.<br/>2) When a dirty buffer ages beyond a
+configurable threshold, the buffer is written back to disk. This prevents data from
+remaining dirty indefinitely.Deferred writes and buffer subsystem in Linux enable fast
+writes...More on this could be found in the book "Linux System Programming" in section
+File I/O -&gt; Kernel Internals or in the book "Understanding The Linux Kernel 3rd
+Edition"... 
+
+
+New Comment: 
+Why not try using fadvise approach for all of this rather than use direct-io for sstable
+writes maybe it is the right solution here 
+
+
+New Comment: 
+<blockquote>see <a
+href="http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html"
+class="external-link"
+rel="nofollow">http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html</a> for
+why posix_fadvise won't work <span class="error">&#91;for writes&#93;</span></blockquote> 
+
+
+New Comment: 
+<blockquote>All Direct I/O operations will be synchronous; operations will not return
+until completed</blockquote>Sounds like the problem then is "we're not using a big enough
+buffer" as Peter suggested.  Because at the end of writing an sstable we call force
+(fsync) so there's a fairly small upper bound on how long the kernel can avoid writing it. 
+
+
+New Comment: 
+Also: sounds like we should have an executor in charge of doing the write, so the
+compaction thread can start filling the next buffer immediately 
+
+
+New Comment: 
+I have tried to play with buffer size from 4Kb to 4Mb that does not give any improvement.
+Using separate thread for write in this point won't give any thing because read mutex lock
+is set on the file during write to avoid inconsistency. Please someone who have read linux
+kernel source correct me if I'm wrong about this... 
+
+
+New Comment: 
+<blockquote>Using separate thread for write in this point won't give any
+thing</blockquote>sure it will<blockquote>because read mutex lock is set on the file
+during write to avoid inconsistency. </blockquote>locks on the file don't stop us from
+filling <b>another</b> buffer while writing the last.  so instead of <div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">compaction thread:fill buffer 1write 1fill buffer 2write
+2</pre></div></div>you have<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">compaction thread:                
+         write thread:fill buffer 1fill buffer 2                               write 1    
+                                       write 2</pre></div></div> 
+
+
+New Comment: 
+Agree, it will be possible is lock is set on the region in the file which we won't be
+reading. Let me try and implement the scheme you suggest here, thanks! 
+
+
+New Comment: 
+<blockquote>the region in the file which we won't be reading</blockquote>Isn't it
+primarily the write path that we see the slowdown on?  Or am I misunderstanding those
+benchmark numbers above? 
+
+
+New Comment: 
+Yeah, you are correct about it. You misunderstand my previous comment but nevermind, I
+understand what you mean here. 
+
+
+New Comment: 
+Just to clarify then; as jbellis surmised my comments where indeed based on the fact that
+writes will be synchronous. In particular, what write caching gives you normally is the
+ability to defer the actual writing such that:(1) future writes can be colesced with past
+writes which in the extreme case translates seek-bound I/O to huge slabs of sequential
+I/O<br/>(2) re-written pages aren't re-written on disk<br/>(3) it allows the program to
+continue (e.g. churning CPU) without interrupting to wait for disk I/O<br/>(4) It
+de-couples the size of individual writes the application happens to make from the way it
+gets written out to diskUsing direct I/O in the general case is difficult because there is
+a lot of logic in the kernel to implement this in a way that works generally. But with
+cassandra, we:(1) are not concerned with re-writing pages<br/>(2) are not concerned with
+mixing seek-bound and streaming I/O<br/>(3) are specifically after writing large amounts
+of data and we can select when to flush in-memory buffersSo the problem becomes easier.
+But still, each direct write will essentially behave like a write() followed by an
+fsync(), with the performance implications that has (though not necessarily exactly; e.g.
+an asynchronous write() followed by fsync() might sit in an i/o queue waiting if the
+fsync() doesn't highten the priority of the previous write etc - depending on exact kernel
+behavior and whatnot).As far as I know, given large chunks being written we really should
+be able to achieve similar throughputs as the background writing done by the kernel. With
+one major caveat: If the writing is single-threaded, the lack of an asynchronous syscall
+API means that the thread will not be able to keep busy with CPU bound activity while
+waiting for the actual write. So while the writing when it does happen really should have
+the potential to be efficient, if one does want to simultaneously be CPU bound in e.g.
+compaction, the writing would have to happen from a background thread.However, note that
+the CPU waiting is not necessarily as bad is it sounds. If your compaction is heavily CPU
+bound the effect will be small in relative terms because very little time is spent doing
+the I/O anyway. If the compaction is heavily disk bound, you don't really care anyway
+since any additional time spent spinning CPU is just going to <b>lessen</b> negative
+impacts of compaction because it decreases the effect on live traffic.The most significant
+effect should be seen when compaction is reasonably balanced between CPU and disk, and in
+the extreme case one should potentially see up to a halving of compaction speed in a
+situation without live traffic further delaying I/O.I hope I'm being clear <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> (And definitely do correct me
+if I'm overlooking something.) I feel a bit bad commenting all the time without actually
+putting up any code... 
+
+
+New Comment: 
+.bq see <a href="http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html"
+class="external-link"
+rel="nofollow">http://chbits.blogspot.com/2010/06/lucene-and-fadvisemadvise.html</a> for
+why posix_fadvise won't work <span class="error">&#91;for writes&#93;</span>This article
+is talking about NOREUSE flag being a no-op but we are using DONTNEED which does
+work.Since the true goal of this ticket is to minimize the performance impact of
+compaction I'd like to try the following:At BRAF level:<ul>	<li>use fadvise(DONTNEED)
+instead of direct-io for writes. This will fix the buffering problem we now see affecting
+write speed.</li>	<li>use fadvise(DONTNEED) for sstable reads to remove the need for
+directio flag altogether.</li>	<li>add a method long[] pagesInPageCache()  which uses the
+posix mincore() function to detect the offsets of pages for this file currently in page
+cache.</li></ul>At Compaction level(a separate ticket):<ul>	<li>add getActiveKeys() which
+uses underlying pagesInPageCache() to get the keys actually in the page cache</li>	<li>use
+getActiveKeys() to detect which SSTables being compacted are in the os cache and make sure
+the subsequent pages in the new compacted SSTable are kept in the page cache for these
+keys. This will minimize the impact of compacting a "hot" SSTable as well.</li></ul>A
+simpler yet similar approach is described here:   <a
+href="http://insights.oetiker.ch/linux/fadvise/" class="external-link"
+rel="nofollow">http://insights.oetiker.ch/linux/fadvise/</a> 
+
+
+New Comment: 
+<blockquote>This article is talking about NOREUSE flag being a no-op but we are using
+DONTNEED which does work</blockquote>Peter wrote a book earlier in the ticket about
+DONTNEED &#8211; it sounds like it could work but once you handle all the corner cases it
+may not actually be simpler than direct i/o.  I'm open to giving it a try,
+though.<blockquote>add a method long[] pagesInPageCache() which uses the posix mincore()
+function to detect the offsets of pages for this file currently in page
+cache</blockquote><blockquote>use getActiveKeys() to detect which SSTables being compacted
+are in the os cache and make sure the subsequent pages in the new compacted SSTable are
+kept in the page cache for these keys</blockquote>Let's avoid growing the scope of this
+ticket and make a new one for the "pre-heat sstables post-compaction" feature. 
+
+
+New Comment: 
+@jake:Pretty good idea to combine the two like this. It especially works if the new pages
+written can get intelligently pulled in (or rather "not dropped").A few things:(1) In
+order for DONTNEED to be effective you have to fsync() (well, fdatasync on Linux()) first.
+This will have similar performance implications as direct I/O (see my long post earlier on
+in this ticket too), but at least removes the need to carefully ensure writes happen in
+chunks (but instead fsync() frequency will have to be considered and traded).(2) Remember
+that DONTNEED will affect the data globally for the system; meaning that a compaction that
+reads and does DONTNEED will actively active data from sstables being actively used.
+(Again see my longer post earlier in this issue). So you'd have to use mincore() when
+reading too in order to avoid evicting actively used data. (Note: Not doing so may be
+<b>worse</b> than current behavior, in addition to not causing an improvement, so I think
+this is important.)But given that those are eventually addressed it seems mincore+advise
+seems like a pretty good combination.One issue I can think of is that while mincore()
+gives you information in bulk for many pages, posix_fadvise() does not allow the
+equivalent. So we'd expect potentially quite a large number of posix_fadvise() calls
+assuming in-core data is scattered across a large file. That might be significant in some
+cases (e.g. if half of pages are in core, you may end up approaching a posix_fadvise() per
+page read). 
+
+
+New Comment: 
+@peterre (1) in the v12 patch we already split the buffer flush() from sync() so I would
+imagine it working like this but adding fadvise to the sync call.  That way a number
+writes would be cached then fsync'd and discarded.re (2) from what I can find DONTNEED is
+global but it can be reset by another read (from another fh).  Also, DONTNEED doesn't
+discard the pages instantly but just tells the kernel to mark them as ready to be thrown
+if it wants. So if the data truly is "hot" then a subsequent read on this file will keep
+them in the cache.  I need to test and see if this is the case. If not then it would need
+to work like you describe.Also posix_fadvise will accept a range so you can specify a
+contiguous chunk. if the cached pages truly are randomly scattered then you are right. It
+would maybe then be better to overcommit the cache in this case? 
+
+
+New Comment: 
+(1) - great(2) - i'm pretty sure it will get instantly evicted.  See <a
+href="http://lxr.free-electrons.com/source/mm/fadvise.c#L118" class="external-link"
+rel="nofollow">http://lxr.free-electrons.com/source/mm/fadvise.c#L118</a> and <a
+href="http://lxr.free-electrons.com/source/mm/truncate.c#L309" class="external-link"
+rel="nofollow">http://lxr.free-electrons.com/source/mm/truncate.c#L309</a> (however I
+agree that with the mythical "good enough" implementation the hint would really just be
+that - a hint - but that can easily backfire; sometimes you want instant eviction; in
+reality I think that posix_fadvise() is too limited an interface and while you can imagine
+an implementation that does something correctly for a particular use-case, it's too
+limited to be generally suitable for everyone...).On posix_fadvise: Yes, I was only
+thinking of scattered pages as a problem. Contiguous ranges are fine and what one wants
+for fadvise purposes.On overcommitting: Certainly mincore+advise with fallback to
+overcommit would be an improvement still, but my gut feeling is that lots of real-life
+cases will definitely have very scattered hotness. Pretty much any use-case where row keys
+are spread randomly with respect to hotness (which I believe is very often the case), and
+each row is pretty small.I'm trying to think when one would expect it not to be pretty
+scattered. I suppose if using OPP and the row keys correspond directly to something which
+is correlated with hotness? So I guess something like time series data with OPP, or with
+RP and large rows. But it feels like a pretty narrow subset of use cases.It is worth
+noting that for truly large data sets scattering is fine since the cost of fadvise() per
+page read is still low since the contiguous ranges to drop will be fairly large. But
+"unfortunately" a lot of use cases, I assume, are with data that is either similar to
+memory size or a few factors of memory size (significantly smaller than memory is a
+non-issue since it's all in memory anyway with the current code).(As an aside, and this is
+not a serious suggestion since Cassandra isn't in the business of delivering kernel
+patches, but the implementation seems to iterate over individual pages anyway. So it seems
+that the only thing preventing a more efficient fadvise() for discontiguous ranges is the
+interface to the kernel, rather than an implementation problem. At least based on a very
+brief look...) 
+
+
+New Comment: 
+Oh, and one more thing: Just to bring it up again since we're back to direct i/o vs.
+posix_fadvise(): Be aware that posix_fadvise() is not truly portable in practice even
+though it's POSIX. We have already established that DONTNEED is the only one implemented
+on Linux. On FreeBSD it doesn't seem to exist at all. Googling indicates it might exist in
+Solaris (but I have no idea to what extent or how it is implemented without checking
+thorougly).This is not necessarily a great argument against it, as long as the use of it
+is optional and Cassandra still runs without it, but at least something to not loose sight
+of.What about Windows, anyone? 
+
+
+New Comment: 
+re (2) just following the code it looks like it eventually hits <a
+href="http://lxr.free-electrons.com/source/mm/swap.c#L329" class="external-link"
+rel="nofollow">http://lxr.free-electrons.com/source/mm/swap.c#L329</a> which is doing a
+reference count so if another file has the page cached then it should stick around (again
+I'll need to test) but that would be great! 
+
+
+New Comment: 
+<blockquote>Oh, and one more thing: Just to bring it up again since we're back to direct
+i/o vs. posix_fadvise(): Be aware that posix_fadvise() is not truly portable in practice
+even though it's POSIX.</blockquote>I think we should only really care about linux ATM, 
+most everyone should be using this anyway for production 
+
+
+New Comment: 
+CommitLog/SSTableWriter uses BRAF with posix_fadvice(DONTNEED) for writes.Test using -S
+2048 on writes<br/>byte[] | Direct I/O + posix_fadvice on commitlog/sstable writes (this
+shows elapsed_time)<br/>-----------------------------<br/>write |  34 |
+34<br/>-----------------------------<br/>read |  92 |
+88<br/>-----------------------------<br/>read |  38 |
+63<br/>-----------------------------<br/>write |  36 |
+35<br/>-----------------------------<br/>read | 108 |
+57<br/>-----------------------------Looks like fadvice is solution is working... 
+
+
+New Comment: 
+so we dropped the direct i/o on writes approach? 
+
+
+New Comment: 
+Pavel,It looks like it worked for writes, but reads are still impacted based on your last
+read (file cache blown away)  I'm working on a patch as wellJohnathan,Ideally yes since it
+will allow us to do the pre-heat sstables idea later 
+
+
+New Comment: 
+Yes. Direct I/O write performance is too complicated to handle. As I have tested fadvice
+solution works pretty good in this situation. Other tests are more than welcome!T Jake: on
+last read new version gives 57 compared to 108 with current version of BRAF, seems like it
+does not blow away page cache or I misunderstand something? 
+
+
+New Comment: 
+oh sorry was looking at the wrong version, yeah that looks great 
+
+
+New Comment: 
+v14 does the following:<ul>	<li>removes directIO from BRAF</li>	<li>adds fadvise hooks to
+BRAF</li>	<li>caps active pages in BRAF to 128mb (reads+writes)</li></ul>I have the
+following results<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">op    | current | fadvisewrite |
+126 | 137 read  | 112 | 187read  | 19  | 23write | 139 | 134read  | 281 |
+59</pre></div></div>You can see the initial read is slower in the new method because the
+page cache isn't available after the first write<br/>as it is in the current version, but
+it handles re-reading after a major compaction plus writes much much better.We could allow
+the 128mb page cache size to be configured for folks with write heavy workloads.I'm happy
+with the performance now, I think active pages for reads and writes does the trick. 
+
+
+New Comment: 
+Do we have any more benchmarks? What does context switching look like? How many TLB
+flushes do we see when doing these approaches? 
+
+
+New Comment: 
+BTW.. if you guys want to avoid the JNA dependency so you can distribute native libraries
+out of the box with Cassandra you might want to consider using <a
+href="http://hawtjni.fusesource.org/documentation/index.html" class="external-link"
+rel="nofollow">HawtJNI</a>.You still use a coding style similar to JNA.  You basically
+just define the Java interface and add annotations.  Instead of using a FFI like JNA,
+HawtJNI code generates an actual JNI library which your native methods bind so you get
+slightly better performance.Here's an example of a project using it: <a
+href="https://github.com/chirino/jansi-native" class="external-link"
+rel="nofollow">example</a>If you guys are interested, let me know and I can help port you
+from JNA to HawtJNI 
+
+
+New Comment: 
+@ChrisI re-ran the benchmarks with and tracked context switching and TLB flushes.
+<br/>fadvise approach showed a ~11% increase TLB flushing and a ~11% decrease in context
+switching.<br/>These number goes up and down depending on the value of
+BRAF.maxBytesInPageCache (currently 128mb)Also keep in mind this benchmark only shows
+improvement of compaction of a CF currently not in the page cache.  if a "hot" CF was
+compacted you would see no improvement since the pages will be flushed once the old
+sstables are removed.  in another patch we can try to migrate active pages as described in
+my comments above. 
+
+
+New Comment: 
+<blockquote>fadvise approach showed a ~11% increase TLB flushing and a ~11% decrease in
+context switching</blockquote>vs stock 0.7, or vs the direct i/o approach? 
+
+
+New Comment: 
+stock 0.7.  DirectIO is out IMO due to lack of buffering, io performance is bad 
+
+
+New Comment: 
+committed with a few changes:<ul class="alternate" type="square">	<li>switched cleanup,
+commitlog replay, index sampling, sstableExport, and index writing to skipCache
+mode</li>	<li>made BRAF.skipCache final &amp; set at construction time</li>	<li>minor
+cleanup of CLibrary</li></ul> 
+
+

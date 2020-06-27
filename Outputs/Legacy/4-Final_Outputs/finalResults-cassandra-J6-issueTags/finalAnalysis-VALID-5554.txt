@@ -1,0 +1,93 @@
+Pattern changes caused by commit: 5ae93209f29aab470dbe159eadc040bee073c5f5
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5554.txt 
+
+commit 5ae93209f29aab470dbe159eadc040bee073c5f5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Prevent NPE when encryption options are missing.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3489
+
+
+
+==================================
+ Issue CASSANDRA-3489 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3489] EncryptionOptions should be instantiated
+-----------------
+
+-----------------
+Summary: EncryptionOptions should be instantiated
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 13 Nov 2011 16:32:18 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 1 Dec 2011 20:37:56 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+As the title says, otherwise you get an NPE when the options are missing from the yaml. 
+It's included in my second patch on <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3045" title="Update
+ColumnFamilyOutputFormat to use new bulkload API" class="issue-link"
+data-issue-key="CASSANDRA-3045"><del>CASSANDRA-3045</del></a> and is a one line fix.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+There's a bunch of "if encryption options is null then ignore it" special cases already,
+if you're going to instantiate a default instead then let's get rid of those.May also need
+to be applied to 0.8 unless aforesaid special cases cover everything. 
+
+
+New Comment: 
+I could only find the special case added the first time we fixed this back in 0.8 for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3007" title="NullPointerException in
+MessagingService.java:420" class="issue-link"
+data-issue-key="CASSANDRA-3007"><del>CASSANDRA-3007</del></a>.  Attached patch removes
+that and instantiates the default instead. 
+
+
+New Comment: 
+Hmm.  I thought the other place was OTC, but that's going to NPE in the current code base.
+ So +1 for this patch. 
+
+
+New Comment: 
+(Checked, and 0.8 OTC does have the null check.  So we're good there.) 
+
+

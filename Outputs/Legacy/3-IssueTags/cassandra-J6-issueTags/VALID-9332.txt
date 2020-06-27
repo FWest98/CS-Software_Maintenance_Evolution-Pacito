@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 1aa55abb0ccd359446c394dae428111cde1b037a
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9332.txt 
+
+commit 1aa55abb0ccd359446c394dae428111cde1b037a
+Merge: 740e344 fe10ba7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.2

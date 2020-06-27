@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 520bd60ed98c18f1ce4dc67f8d852da5cac28ead
+
+From: Flyweight-6
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3754.txt 
+
+commit 520bd60ed98c18f1ce4dc67f8d852da5cac28ead
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add optional key alias to CFMetaData
+    patch by jhermes; reviewed by jbellis for CASSANDRA-2396

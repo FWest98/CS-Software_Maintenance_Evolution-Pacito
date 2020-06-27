@@ -1,0 +1,20 @@
+Pattern changes caused by commit: ead90d2ca878b03cded6ebdd20153978b4393a8d
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7974.txt 
+
+commit ead90d2ca878b03cded6ebdd20153978b4393a8d
+Merge: 707da4e 83bbd75
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

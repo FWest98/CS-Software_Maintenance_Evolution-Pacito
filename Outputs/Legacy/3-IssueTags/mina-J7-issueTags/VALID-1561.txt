@@ -1,0 +1,18 @@
+Pattern changes caused by commit: e61327bcc361ac21d49eed562ae21447c453cf2e
+
+From: Facade-3
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1561.txt 
+
+commit e61327bcc361ac21d49eed562ae21447c453cf2e
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Removed duplicated code
+    o Added some javadoc
+    o simplified some time computation

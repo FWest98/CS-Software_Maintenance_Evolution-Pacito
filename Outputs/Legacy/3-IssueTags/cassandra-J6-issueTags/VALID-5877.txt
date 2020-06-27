@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 90e3ec44030b31f853dfd02d6cd3a4a74d990b94
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5877.txt 
+
+commit 90e3ec44030b31f853dfd02d6cd3a4a74d990b94
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix classpath quoting
+    patch by Nick Bailey and jbellis for CASSANDRA-3744

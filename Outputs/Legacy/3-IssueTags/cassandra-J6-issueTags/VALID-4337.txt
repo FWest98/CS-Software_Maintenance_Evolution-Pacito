@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4c8242c07fc57110bd3265107777b499dea9c142
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4337.txt 
+
+commit 4c8242c07fc57110bd3265107777b499dea9c142
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    DTPE comment incorrectly claimed that its rejected execution handler preserved task serialization

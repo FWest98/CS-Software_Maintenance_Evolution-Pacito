@@ -1,0 +1,125 @@
+Pattern changes caused by commit: 3d01ec7e752ec31761ec45637258bc57c6d0f4cc
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8318.txt 
+
+commit 3d01ec7e752ec31761ec45637258bc57c6d0f4cc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Improve handling a changing target throttle rate mid-compaction
+    patch by J.B. Langston; reviewed by jbellis for CASSANDRA-5087
+
+
+
+==================================
+ Issue CASSANDRA-5087 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5087] Changing from higher to lower compaction throughput causes long (multi hour) pause in large compactions
+-----------------
+
+-----------------
+Summary: Changing from higher to lower compaction throughput causes long (multi hour) pause in large compactions
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 21 Dec 2012 16:17:38 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 27 Dec 2012 15:15:35 +0000
+-----------------
+
+-----------------
+Assigned to: J.B. Langston
+-----------------
+
+-----------------
+Description: 
+
+We're running a major compaction against a column family that is 2.1TB (yes, I know it's
+crazy huge, that's an entirely different discussion). During the evenings, we run a
+setcompactionthroughput 0 to unthrottle completely, and throttle again down to 20mb at the
+end of the maintenance window. 
+
+Every morning we've come in to check progress, we find
+that the progress completely halts as soon as the compaction throttling command is issued.
+Eventually, compaction continues. I was looking at the throttling code, and I think I see
+the issue, but would like confirmation:
+
+throttleDelta
+(org.apache.cassandra.utils.Throttle.throttleDelta) sets a sleep time based on the amount
+of data transferred since the last throttle time. Since we've gone from 20 MB to wide
+open, and back to 20MB, the wait that is calculated is based on an attempt to average the
+new throttling rate over the last 6.5 hours of running wide open.
+
+I think this could be
+fixed by adding a reset of bytesAtLastDelay and timeAtLastDelay to the current values
+after the check at line 64:
+
+Current:
+
+        // if the target changed, log<br/>       
+if (newTargetBytesPerMS != targetBytesPerMS) <br/>            logger.debug("{} target
+throughput now {} bytes/ms.", this, newTargetBytesPerMS);<br/>        targetBytesPerMS =
+newTargetBytesPerMS;
+
+New:
+
+        // if the target changed, log<br/>        if
+(newTargetBytesPerMS != targetBytesPerMS) {<br/>            logger.debug("{} target
+throughput now {} bytes/ms.", this, newTargetBytesPerMS);<br/>           
+if(newTargetBytesPerMS &lt; targetBytesPerMS || targetBytesPerMS &lt; 1) 
+{           
+	bytesAtLastDelay += bytesDelta;            	timeAtLastDelay = System.currentTimeMillis();
+               targetBytesPerMS = newTargetBytesPerMS;            	return;            }
+  
+         targetBytesPerMS = newTargetBytesPerMS;<br/>        }
+
+Some redundancies that can
+be removed there, but I wanted to keep the approach local to where I thought the problem
+was. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

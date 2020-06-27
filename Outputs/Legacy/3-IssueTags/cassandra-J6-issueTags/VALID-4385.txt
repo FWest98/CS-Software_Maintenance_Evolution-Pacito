@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 99eee651f47f3e1957c392c2368d69c21b7768d7
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4385.txt 
+
+commit 99eee651f47f3e1957c392c2368d69c21b7768d7
+Merge: e63168d 36638db
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.7

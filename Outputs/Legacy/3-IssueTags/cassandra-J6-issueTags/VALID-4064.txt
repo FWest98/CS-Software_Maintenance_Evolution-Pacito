@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 81e8f4d3deca0e5672e121e4d1f9c94d3a38233f
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4064.txt 
+
+commit 81e8f4d3deca0e5672e121e4d1f9c94d3a38233f
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix changelog

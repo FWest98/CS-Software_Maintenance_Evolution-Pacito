@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 37326e75f1541f6f7b6ab1a60338666df30ab0f5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4477.txt 
+
+commit 37326e75f1541f6f7b6ab1a60338666df30ab0f5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Use a UDF-specific context signature.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2869

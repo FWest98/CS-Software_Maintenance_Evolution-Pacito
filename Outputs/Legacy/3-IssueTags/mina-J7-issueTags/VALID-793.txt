@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 83d3ea12770180beaf7765bc9eb4337635c3b8d1
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-7
+To:   Facade-6
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-793.txt 
+
+commit 83d3ea12770180beaf7765bc9eb4337635c3b8d1
+Author: Trustin Lee <trustin@apache.org>
+
+    * Removed NextFilter.filter() and IoFilterChain.fire() because IoEvent and IoFilterEvent already provides fire() operation.

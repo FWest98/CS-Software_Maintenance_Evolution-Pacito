@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7c50df3f61d84ec5ce842dee94457fe668676476
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6582.txt 
+
+commit 7c50df3f61d84ec5ce842dee94457fe668676476
+Merge: b69fd1a a4a83fc
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1.0' into cassandra-1.1

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 31b6a0d174bfd82406b9706789ae9d00d8a3f737
+
+From: Proxy-1
+To:   Proxy-0
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1262.txt 
+
+commit 31b6a0d174bfd82406b9706789ae9d00d8a3f737
+Author: Maarten Bosteels <maarten@apache.org>
+
+    fixed DIRMINA-510 : Spring version of chat example breaks + added junit test

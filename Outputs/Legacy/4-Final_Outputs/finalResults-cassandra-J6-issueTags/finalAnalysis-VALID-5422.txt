@@ -1,0 +1,78 @@
+Pattern changes caused by commit: e6f11f43bc48aa2ce9a5c01c0215b0c9838f1295
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5422.txt 
+
+commit e6f11f43bc48aa2ce9a5c01c0215b0c9838f1295
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Add missing null check in QueryProcessor
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3473
+
+
+
+==================================
+ Issue CASSANDRA-3473 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3473] Missing null check in CQL QueryProcessor
+-----------------
+
+-----------------
+Summary: Missing null check in CQL QueryProcessor
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 8 Nov 2011 17:12:35 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Nov 2011 18:01:38 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+That seems to be a 1.0 only problem introduced by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2734" title="CQL protocol does not
+include schema information" class="issue-link"
+data-issue-key="CASSANDRA-2734"><del>CASSANDRA-2734</del></a>. 
+
+
+New Comment: 
++1(Actually introduced by <a href="https://issues.apache.org/jira/browse/CASSANDRA-3424"
+title="Selecting just the row_key returns nil instead of just the row_key"
+class="issue-link" data-issue-key="CASSANDRA-3424"><del>CASSANDRA-3424</del></a>, updating
+Affects accordingly.) 
+
+

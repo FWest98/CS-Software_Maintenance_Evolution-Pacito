@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ba29c6b8bef1435545cad70cd71ecd75277f8a83
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3392.txt 
+
+commit ba29c6b8bef1435545cad70cd71ecd75277f8a83
+Author: Eric Evans <eevans@apache.org>
+
+    CQL DROP implementations

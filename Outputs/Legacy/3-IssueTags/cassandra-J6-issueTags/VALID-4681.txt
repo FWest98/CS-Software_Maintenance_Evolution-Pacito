@@ -1,0 +1,20 @@
+Pattern changes caused by commit: fcf01805be385964e4a2eaaba95f27262c126b03
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4681.txt 
+
+commit fcf01805be385964e4a2eaaba95f27262c126b03
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Handle snapshot arguments correctly.
+    Patch by Nate McCall, reviewed by brandonwilliams for CASSANDRA-3038

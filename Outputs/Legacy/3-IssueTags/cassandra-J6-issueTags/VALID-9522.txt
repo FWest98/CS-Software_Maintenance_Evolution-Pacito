@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b973a3336949be81dc10ca16dca29e4b2fb237ec
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9522.txt 
+
+commit b973a3336949be81dc10ca16dca29e4b2fb237ec
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m unused ITransportFactory and rename TClientTransportFactory -> ITransportFactory

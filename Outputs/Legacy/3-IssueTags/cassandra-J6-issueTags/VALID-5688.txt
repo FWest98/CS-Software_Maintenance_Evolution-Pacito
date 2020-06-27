@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 4020da3b9f31ecdde3e4facb14fce4612b58b1bb
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5688.txt 
+
+commit 4020da3b9f31ecdde3e4facb14fce4612b58b1bb
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Warn if gossip generation is from the future.
+    Patch by Aaron Morton, reviewed by brandonwilliams for CASSANDRA-3654.

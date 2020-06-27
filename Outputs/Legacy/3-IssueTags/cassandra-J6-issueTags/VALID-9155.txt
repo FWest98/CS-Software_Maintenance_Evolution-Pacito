@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 17034c0878659ea99e24b665c71e0b454f21809e
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9155.txt 
+
+commit 17034c0878659ea99e24b665c71e0b454f21809e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Revert "Always record row-level tombstones in index component"

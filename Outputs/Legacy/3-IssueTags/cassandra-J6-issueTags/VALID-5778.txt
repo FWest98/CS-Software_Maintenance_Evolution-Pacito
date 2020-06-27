@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 5ad45de6dbcfd163864676ad880de912b68de0ff
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5778.txt 
+
+commit 5ad45de6dbcfd163864676ad880de912b68de0ff
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Update features section of NEWS.txt

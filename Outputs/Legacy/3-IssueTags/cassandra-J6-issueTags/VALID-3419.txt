@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8fa42530f22abd364e27b97f5d3ce73fa0ceda39
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3419.txt 
+
+commit 8fa42530f22abd364e27b97f5d3ce73fa0ceda39
+Author: Eric Evans <eevans@apache.org>
+
+    copy newly added jars (#1848) to bin artifact

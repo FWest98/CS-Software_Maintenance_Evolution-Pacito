@@ -1,0 +1,182 @@
+Pattern changes caused by commit: 87c4ba830a93a782377e4c0ead9c5eca3984a41d
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-367.txt 
+
+commit 87c4ba830a93a782377e4c0ead9c5eca3984a41d
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-897. Fix a bug related to generation stamp comparison in ReplicasMap. Contributed by Suresh Srinivas.
+
+
+
+==================================
+ Issue HDFS-897 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-897] ReplicasMap remove has a bug in generation stamp comparison
+-----------------
+
+-----------------
+Summary: ReplicasMap remove has a bug in generation stamp comparison
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Jan 2010 19:00:07 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Jan 2010 23:28:43 +0000
+-----------------
+
+-----------------
+Assigned to: Suresh Srinivas
+-----------------
+
+-----------------
+Description: 
+
+In <tt>ReplicasMap.remove(block)</tt>, instead of comparing generation stamp of the entry
+in the map to that of the given block, the generation stamp of entry in the map is
+compared to itself. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch changes the comparison from entry in the replica map to that of the block
+passed to <tt>ReplicaMap.remove(Block)</tt>. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430163/hdfs-897.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430163/hdfs-897.patch</a><br/>
+ against trunk revision 898881.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/188/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+New patch with unit test for ReplicasMap class. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430188/hdfs-897.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430188/hdfs-897.patch</a><br/>
+ against trunk revision 898881.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/189/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The failure of tests TestDecommissioningStatus and TestBlockMissingException is not
+related to the patch. 
+
+
+New Comment: 
++1 on the new unit tests. 
+
+
+New Comment: 
+Reverting the accidental change where Long.valueOf was removed. 
+
+
+New Comment: 
+I just committed the change to both trunk and branch 0.21. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #172 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/172/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/172/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #202 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/202/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/202/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #99 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/99/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/99/</a>) 
+
+

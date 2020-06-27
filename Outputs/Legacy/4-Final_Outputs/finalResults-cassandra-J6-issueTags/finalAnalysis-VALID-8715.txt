@@ -1,0 +1,111 @@
+Pattern changes caused by commit: 00748405bc374ee8f5ade4891a6a1445df072344
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8715.txt 
+
+commit 00748405bc374ee8f5ade4891a6a1445df072344
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add nodetool options to repair specific ranges.
+    Patch by brandonwilliams, reviewed by yukim for CASSANDRA-5280
+
+
+
+==================================
+ Issue CASSANDRA-5280 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5280] Provide a nodetool command to repair subranges
+-----------------
+
+-----------------
+Summary: Provide a nodetool command to repair subranges
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 22 Feb 2013 18:29:56 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 22 Feb 2013 21:59:54 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Provide a nodetool command to run repairs for subranges
+
+It appears that the machinery to
+do this is already present and can be run through JMX 
+
+StorageService:<br/>public
+AntiEntropyService.RepairFuture forceTableRepair(final Range&lt;Token&gt; range, final
+String tableName, boolean isSequential, final String... columnFamilies)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch adds the needed options to nodetool, however it looks like something is wrong with
+repairing specific ranges.  Passing start/end that aren't token boundaries results in the
+node saying there are no neighbors to repair with, but passing tokens on the boundary does
+work. 
+
+
+New Comment: 
+Patch lgtm, +1.<br/>Also attaching patch to fix subrange problem. 
+
+
+New Comment: 
+v2 incorporates the getNeighbors fix, and also catches the IAE and returns an error if the
+range crosses nodes. 
+
+
+New Comment: 
++1 
+
+

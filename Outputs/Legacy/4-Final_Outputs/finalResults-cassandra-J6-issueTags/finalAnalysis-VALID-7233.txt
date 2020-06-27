@@ -1,0 +1,89 @@
+Pattern changes caused by commit: fc8e4b56563e9ba04ff7b09febeddf8d138f5c82
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7233.txt 
+
+commit fc8e4b56563e9ba04ff7b09febeddf8d138f5c82
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    FIx cqlsh COPY FROM without explicit column names.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4470
+
+
+
+==================================
+ Issue CASSANDRA-4470 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4470] cqlsh COPY FROM without explicit column names is broken
+-----------------
+
+-----------------
+Summary: cqlsh COPY FROM without explicit column names is broken
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 28 Jul 2012 20:32:04 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 29 Jul 2012 16:50:31 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+When trying to do a COPY FROM command in cqlsh without an explicit list of column names,
+an error results:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>cqlsh:a&gt; copy blah from stdin;[Use \. on
+a line by itself to end input][copy] a,b,cobject of type 'NoneType' has no
+len()</pre></div></div>
+Broken by the fix for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4434" title="add COPY TO"
+class="issue-link" data-issue-key="CASSANDRA-4434"><del>CASSANDRA-4434</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Fixed in attached patch, and in my github, in the 4470 branch. Current version tagged
+pending/4470:<a href="https://github.com/thepaul/cassandra/tree/4470"
+class="external-link" rel="nofollow">https://github.com/thepaul/cassandra/tree/4470</a> 
+
+

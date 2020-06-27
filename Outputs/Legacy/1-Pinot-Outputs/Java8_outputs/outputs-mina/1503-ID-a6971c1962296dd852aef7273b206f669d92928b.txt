@@ -1,0 +1,108 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Bridge Pattern.
+AbstractMessageDecoder is abstract.
+ProtocolDecoderOutput is an interface.
+AbstractMessageDecoder delegates ProtocolDecoderOutput.
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AbstractMessageDecoder.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput.java
+
+Strategy Pattern.
+SingletonStateContextLookup is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/SingletonStateContextLookup.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext.java
+
+Strategy Pattern.
+ImageCodecFactory is the Context class.
+ProtocolEncoder is the Strategy interface.
+Concrete Strategy classes:  NettyEncoder ProtocolEncoderAdapter ImageRequestEncoder DemuxingProtocolEncoder SynchronizedProtocolEncoder ImageResponseEncoder ObjectSerializationEncoder
+Delegation through encoder of type ProtocolEncoder
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageCodecFactory.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder.java
+
+Strategy Pattern.
+ImageCodecFactory is the Context class.
+ProtocolDecoder is the Strategy interface.
+Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder DecodingStateProtocolDecoder SynchronizedProtocolDecoder ImageRequestDecoder
+Delegation through decoder of type ProtocolDecoder
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageCodecFactory.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder.java
+
+Flyweight Pattern.
+IoSessionRecycler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/core/session/IoSessionRecycler.java
+
+Flyweight Pattern.
+MessageDecoder is a flyweight factory.
+OK is a flyweight object (declared public-static-final).
+File location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/demux/MessageDecoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+PrefixedStringCodecFactory is an adapter class.
+PrefixedStringEncoder is the adaptee class.
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringCodecFactory.java
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+PrefixedStringCodecFactory is an adapter class.
+PrefixedStringDecoder is the adaptee class.
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringCodecFactory.java
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/prefixedstring/PrefixedStringDecoder.java
+
+Facade Pattern.
+ImageResponseEncoder is a facade class.
+Hidden types: ImageResponse IoBuffer ProtocolEncoderOutput
+Facade access types: ImageResponseEncoder
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/imagine/step1/codec/ImageResponseEncoder.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     2
+Bridge                      1
+Composite                   0
+Decorator                   0
+Facade                      1
+Flyweight                   2
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    3
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 65
+Number of files processed: 469
+Size of DelegationTable: 148
+Size of concrete class nodes: 20
+Size of undirected invocation edges: 23
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/2
+nFlyweightGoFVersion = 0

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: b256611af1affbfc3f001371e7423c03e44b6f55
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5203.txt 
+
+commit b256611af1affbfc3f001371e7423c03e44b6f55
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update CQL grammar to require key clause in delete statement
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-3349

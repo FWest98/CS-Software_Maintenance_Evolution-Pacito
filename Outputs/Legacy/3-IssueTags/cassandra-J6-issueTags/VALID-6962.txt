@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 34498a9fa8623588034bf05700a0c434b3352db4
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6962.txt 
+
+commit 34498a9fa8623588034bf05700a0c434b3352db4
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix typo

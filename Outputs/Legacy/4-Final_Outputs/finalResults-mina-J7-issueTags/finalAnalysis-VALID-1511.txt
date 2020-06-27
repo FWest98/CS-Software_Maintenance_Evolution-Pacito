@@ -1,0 +1,85 @@
+Pattern changes caused by commit: c6497062e34aab2d237aab01581f402224c032ca
+
+From: Facade-3
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1511.txt 
+
+commit c6497062e34aab2d237aab01581f402224c032ca
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    DIRMINA-610 too big messages aren't correctly flushed
+
+
+
+==================================
+ Issue DIRMINA-610 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-610] ByteBuffer.getString() performance issues
+-----------------
+
+-----------------
+Summary: ByteBuffer.getString() performance issues
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 18 Jul 2008 18:37:33 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 22 Jul 2008 21:30:28 +0000
+-----------------
+
+-----------------
+Assigned to: Sangjin Lee
+-----------------
+
+-----------------
+Description: 
+
+ByteBuffer.getString() in 1.1 &amp; 1.0 underperforms IoBuffer.getString() in the trunk,
+because it's missing some optimizations that were done on the trunk.
+<ul class="alternate"
+type="square">	<li>Default of heap buffers vs. direct buffers</li>	<li>further
+optimization using the indexOf method</li></ul>
+These changes need to be backported.  See
+<a href="http://markmail.org/message/j76kbfbie62ixrtd" class="external-link"
+rel="nofollow">http://markmail.org/message/j76kbfbie62ixrtd</a> for the discussion
+thread.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch for the 1.1 branch 
+
+
+New Comment: 
+patch for the 1.0 branch 
+
+
+New Comment: 
+Fixed. 
+
+

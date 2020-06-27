@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 485c878983ad6e218553544456e48b91d623c1c4
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7113.txt 
+
+commit 485c878983ad6e218553544456e48b91d623c1c4
+Merge: c716fc7 84a1d60
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

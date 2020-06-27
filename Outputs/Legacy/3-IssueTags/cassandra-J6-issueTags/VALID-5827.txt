@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 2046956b6cfd809702bf33cb85a9cae091ce1d72
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5827.txt 
+
+commit 2046956b6cfd809702bf33cb85a9cae091ce1d72
+Author: Pavel Yaskevich <povel.y@gmail.com>
+
+    Fix BulkLoader to support new SSTable layout and add stream throttling to prevent an NPE when there is no yaml config
+    patch by Brandon Williams; reviewed by Pavel Yaskevich for CASSANDRA-3752

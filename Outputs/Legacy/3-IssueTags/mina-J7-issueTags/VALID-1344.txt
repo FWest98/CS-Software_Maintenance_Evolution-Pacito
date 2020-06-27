@@ -1,0 +1,22 @@
+Pattern changes caused by commit: bf945210c35f1618457506d3acf8e18a93e74395
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-2
+To:   Flyweight-3
+
+From: Strategy-5
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1344.txt 
+
+commit bf945210c35f1618457506d3acf8e18a93e74395
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed failing VmPipeEventOrderTest

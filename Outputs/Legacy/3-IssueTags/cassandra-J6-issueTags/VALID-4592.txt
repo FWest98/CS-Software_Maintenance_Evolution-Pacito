@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 65bfd9c1374b00b3340f898a58cbf3e3516119cb
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4592.txt 
+
+commit 65bfd9c1374b00b3340f898a58cbf3e3516119cb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m bogus import

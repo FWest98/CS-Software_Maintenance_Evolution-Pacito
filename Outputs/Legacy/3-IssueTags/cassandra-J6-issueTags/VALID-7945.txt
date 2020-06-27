@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 8dd1d56b4307302bf0ebd1687df28cb3cdd3f711
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7945.txt 
+
+commit 8dd1d56b4307302bf0ebd1687df28cb3cdd3f711
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Set max frame size to 15MB in the cli to avoid OOM.
+    Patch by Tyler Hobbs, reviewed by brandonwilliams for CASSANDRA-4969

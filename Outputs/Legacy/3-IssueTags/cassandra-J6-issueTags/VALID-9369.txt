@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c22c685ffa7da67b7ee069b37e7b3c770ee23263
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9369.txt 
+
+commit c22c685ffa7da67b7ee069b37e7b3c770ee23263
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Replace ArrayBlockingQuery by LinkedBlockingQueue in binary protocol RequestThreadPoolExecutor

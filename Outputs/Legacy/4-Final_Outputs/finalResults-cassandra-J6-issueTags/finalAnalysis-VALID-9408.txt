@@ -1,0 +1,84 @@
+Pattern changes caused by commit: c48c7ef16610b1ef86fc3c784a0659de9b5effd4
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9408.txt 
+
+commit c48c7ef16610b1ef86fc3c784a0659de9b5effd4
+Author: Christian Spriegel <horschi@googlemail.com>
+
+    Exclude localTimestamp from merkle tree calculation for tombstones patch by Christian Spriegel; reviewed by yukim for CASSANDRA-5398
+
+
+
+==================================
+ Issue CASSANDRA-5398 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5398] Remove localTimestamp from merkle-tree calculation (for tombstones)
+-----------------
+
+-----------------
+Summary: Remove localTimestamp from merkle-tree calculation (for tombstones)
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 28 Mar 2013 17:43:41 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 22 May 2013 19:10:27 +0000
+-----------------
+
+-----------------
+Assigned to: Christian Spriegel
+-----------------
+
+-----------------
+Description: 
+
+DeletedColumn and RangeTombstone use the local-timestamp to update the digest during
+repair.
+
+Even though its only a second-precision timestamp, I think it still causes some
+differences in the merkle tree, therefore causing overrepair.
+
+I attached a patch on trunk
+that adds a modified updateDigest() to DeletedColumn, which does not use the value field
+for its calculation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a>: Would this ticket be a candidate for
+1.2? It seems repair is getting a lot of attention lately, so there might be interest in
+reducing overrepair whereever possible. 
+
+
+New Comment: 
+Sounds reasonable.  (Also, I hit Submit Patch which is what marks it ready for review.) 
+
+

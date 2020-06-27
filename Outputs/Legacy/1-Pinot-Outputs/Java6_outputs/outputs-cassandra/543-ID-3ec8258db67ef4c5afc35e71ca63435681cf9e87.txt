@@ -1,0 +1,64 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+FastBufferedOutputStream is a Decorator class
+flush is a decorate operation
+out of type OutputStream is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/FastBufferedOutputStream.java
+
+
+ OutputStream
+Flyweight Pattern.
+HeaderTypes is a flyweight factory.
+TASK_PROFILE_CHAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/HeaderTypes.java
+
+Template Method Found.
+FastHash is the template class
+postInsertHook is the template method
+capacity is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/FastHash.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      0
+Flyweight                   1
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    0
+Template Method             1
+Visitor                     0
+------------------------------
+
+Number of classes processed: 56
+Number of files processed: 297
+Size of DelegationTable: 202
+Size of concrete class nodes: 36
+Size of undirected invocation edges: 8
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/1
+nFlyweightGoFVersion = 0

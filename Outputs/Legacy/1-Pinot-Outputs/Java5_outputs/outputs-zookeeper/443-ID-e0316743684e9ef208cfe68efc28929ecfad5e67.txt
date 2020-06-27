@@ -1,0 +1,175 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+ProposalRequestProcessor is a Decorator class
+shutdown is a decorate operation
+nextProcessor of type RequestProcessor is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/server/quorum/ProposalRequestProcessor.java
+
+Decorator Pattern
+JVector is a Decorator class
+getSignature is a decorate operation
+mElement of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+Decorator Pattern
+JMap is a Decorator class
+getSignature is a decorate operation
+mKey of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+
+ RequestProcessor JType
+Strategy Pattern.
+ServerStats is the Context class.
+Provider is the Strategy interface.
+Concrete Strategy classes: 
+Delegation through provider of type Provider
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/proto/ServerStats.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/proto/ServerStats.java
+
+Strategy Pattern.
+RecordWriter is the Context class.
+OutputArchive is the Strategy interface.
+Concrete Strategy classes:  BinaryOutputArchive CsvOutputArchive XmlOutputArchive
+Delegation through archive of type OutputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/RecordWriter.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/OutputArchive.java
+
+Strategy Pattern.
+JField is the Context class.
+JType is the Strategy interface.
+Concrete Strategy classes:  JByte JInt JFloat JCompType JBoolean JDouble JLong JString JVector JBuffer JMap
+Delegation through mType of type JType
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JField.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JType.java
+
+Strategy Pattern.
+RecordReader is the Context class.
+InputArchive is the Strategy interface.
+Concrete Strategy classes:  BinaryInputArchive XmlInputArchive CsvInputArchive
+Delegation through archive of type InputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/RecordReader.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/InputArchive.java
+
+Flyweight Pattern.
+BKDefs is a flyweight factory.
+prefix is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/client/BKDefs.java
+
+Flyweight Pattern.
+Quotas is a flyweight factory.
+procZookeeper is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/Quotas.java
+
+Flyweight Pattern.
+CommonNames is a flyweight factory.
+DOMAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/jmx/CommonNames.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+BinaryInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  BinaryIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/BinaryInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startVector is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+Visitor pattern found.
+Record is an abstract Visitor class.
+RecordWriter is a Vistee class.
+write is the accept method.
+serialize is the visit method.
+archive is exposed to visitor Record
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/RecordWriter.java
+
+Mediator Pattern.
+Mediator: JVector
+Colleagues:  JField JBuffer JMap
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+Mediator Pattern.
+Mediator: JMap
+Colleagues:  JField JVector JBuffer
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+Proxy Pattern.
+ProposalRequestProcessor is a proxy.
+RequestProcessor is a proxy interface.
+The real object(s): SyncRequestProcessor
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/server/quorum/ProposalRequestProcessor.java
+
+Facade Pattern.
+Main is a facade class.
+Hidden types: BookieServer BookieClient
+Facade access types: Main
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/contrib/bookkeeper/src/java/org/apache/bookkeeper/util/Main.java
+
+Facade Pattern.
+CsvOutputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: CsvOutputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvOutputArchive.java
+
+Facade Pattern.
+CsvInputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: CsvInputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   2
+Facade                      3
+Flyweight                   3
+Proxy                       1
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    2
+Observer                    0
+State                       0
+Strategy                    4
+Template Method             0
+Visitor                     1
+------------------------------
+
+Number of classes processed: 67
+Number of files processed: 274
+Size of DelegationTable: 593
+Size of concrete class nodes: 38
+Size of undirected invocation edges: 22
+
+
+nMediatorFacadeDual/nMediator = 0/2
+nImmutable/nFlyweight = 0/3
+nFlyweightGoFVersion = 0

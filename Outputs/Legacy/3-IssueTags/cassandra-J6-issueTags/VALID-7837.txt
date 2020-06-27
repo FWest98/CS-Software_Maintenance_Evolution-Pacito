@@ -1,0 +1,29 @@
+Pattern changes caused by commit: d909fb4faf7de41b3cf19f19b48f962ab0e6fb32
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7837.txt 
+
+commit d909fb4faf7de41b3cf19f19b48f962ab0e6fb32
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix row key population with old-style mapred interface.
+    Patch by Ben Kempe, reviewed by brandonwilliams for CASSANDRA-4834

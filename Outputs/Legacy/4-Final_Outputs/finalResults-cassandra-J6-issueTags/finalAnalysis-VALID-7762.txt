@@ -1,0 +1,112 @@
+Pattern changes caused by commit: 3d4867109fb09d9a995e0b3f5a9a30e11231db58
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7762.txt 
+
+commit 3d4867109fb09d9a995e0b3f5a9a30e11231db58
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix timestamp formatting for tz info
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4746
+
+
+
+==================================
+ Issue CASSANDRA-4746 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4746] cqlsh timestamp formatting is broken - displays wrong timezone info (at least on Ubuntu)
+-----------------
+
+-----------------
+Summary: cqlsh timestamp formatting is broken - displays wrong timezone info (at least on Ubuntu)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 2 Oct 2012 02:09:37 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 30 Oct 2012 18:51:36 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+cqlsh&gt; create keyspace test with strategy_class = 'SimpleStrategy' AND
+strategy_options:replication_factor = 1;<br/>cqlsh&gt; use test;<br/>cqlsh:test&gt; create
+table ts (id int primary key, ts timestamp);<br/>cqlsh:test&gt; insert into ts (id, ts)
+values (1, '2012-05-14 07:53:20+0000');<br/>cqlsh:test&gt; select * from ts;<br/> id |
+ts<br/>---<del>+</del>-------------------------<br/>  1 | 2012-05-14
+10:53:20+0000
+
+Should've been 2012-05-14 10:53:20+0300.
+
+cqlsh formats timestamps using
+'%Y-%m-%d %H:%M:%S%z' format-string and 'the %z escape that expands to the preferred
+hour/minute offset is not supported by all ANSI C libraries'. In this case it's just
+replaced with all zeroes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Is there any reason not to put this in 1.1? 
+
+
+New Comment: 
+Not anymore. 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+reopening because this was not merged to trunk.  (I got a conflict on merge so I just kept
+the trunk version as a temporary fix.) 
+
+
+New Comment: 
+Huh? I have it in trunk. Seems like it was merged just fine. 
+
+

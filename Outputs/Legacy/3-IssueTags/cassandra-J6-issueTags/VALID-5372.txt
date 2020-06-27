@@ -1,0 +1,17 @@
+Pattern changes caused by commit: aa28540fde7c934fea6c18508b66e1c862b51d05
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5372.txt 
+
+commit aa28540fde7c934fea6c18508b66e1c862b51d05
+Merge: dddeff4 981ee77
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

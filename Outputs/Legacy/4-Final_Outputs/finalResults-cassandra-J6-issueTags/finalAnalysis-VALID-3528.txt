@@ -1,0 +1,141 @@
+Pattern changes caused by commit: 3947dba35b605ad365e62d4c875ff76685bf69c9
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3528.txt 
+
+commit 3947dba35b605ad365e62d4c875ff76685bf69c9
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    do not instrument the *Token classes. patch by gdusbabek, reviewed by jbellis. CASSANDRA-2258
+
+
+
+==================================
+ Issue CASSANDRA-2258 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2258] service.SerializationsTest failes under cobertura
+-----------------
+
+-----------------
+Summary: service.SerializationsTest failes under cobertura
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 1 Mar 2011 21:39:23 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 Mar 2011 13:07:32 +0000
+-----------------
+
+-----------------
+Assigned to: Gary Dusbabek
+-----------------
+
+-----------------
+Description: 
+
+ant codecoverage -Dtest.name=SerializationsTest gives
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>    [junit]
+Testcase: testTreeResponseRead(org.apache.cassandra.service.SerializationsTest):	Caused an
+ERROR    [junit] java.io.InvalidClassException: org.apache.cassandra.dht.BigIntegerToken;
+local class incompatible: stream classdesc serialVersionUID = -5833589141319293006, local
+class serialVersionUID = 2280189098581028124    [junit] java.lang.RuntimeException:
+java.io.InvalidClassException: org.apache.cassandra.dht.BigIntegerToken; local class
+incompatible: stream classdesc serialVersionUID = -5833589141319293006, local class
+serialVersionUID = 2280189098581028124    [junit] 	at
+org.apache.cassandra.service.AntiEntropyService$TreeResponseVerbHandler.deserialize(AntiEntropyService.java:634)
+   [junit] 	at
+org.apache.cassandra.service.SerializationsTest.testTreeResponseRead(SerializationsTest.java:90)
+   [junit] Caused by: java.io.InvalidClassException:
+org.apache.cassandra.dht.BigIntegerToken; local class incompatible: stream classdesc
+serialVersionUID = -5833589141319293006, local class serialVersionUID =
+2280189098581028124    [junit] 	at
+java.io.ObjectStreamClass.initNonProxy(ObjectStreamClass.java:562)    [junit] 	at
+java.io.ObjectInputStream.readNonProxyDesc(ObjectInputStream.java:1582)    [junit] 	at
+java.io.ObjectInputStream.readClassDesc(ObjectInputStream.java:1495)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1731)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1946)    [junit] 	at
+java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1870)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1752)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1946)    [junit] 	at
+java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1870)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1752)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1946)    [junit] 	at
+java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1870)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1752)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1946)    [junit] 	at
+java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1870)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1752)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1946)    [junit] 	at
+java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1870)    [junit] 	at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1752)    [junit] 	at
+java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1328)    [junit] 	at
+java.io.ObjectInputStream.readObject(ObjectInputStream.java:350)    [junit] 	at
+org.apache.cassandra.service.AntiEntropyService$TreeResponseVerbHandler.deserialize(AntiEntropyService.java:630)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Several problems here:<br/>1.  AntiEntropyService is using serialized java objects.<br/>2.
+ Cobertura doesn't preserve serialVersionUID during instrumentation.I've attached two
+possible fixes, neither of them very impressive.The first forces the serialVersionUID for
+all Token descendants to 1L.  This is bad because it breaks wire compatibility between
+$THIS_VERSION and 0.7.x (see <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1015" title="Internal Messaging
+should be backwards compatible" class="issue-link"
+data-issue-key="CASSANDRA-1015"><del>CASSANDRA-1015</del></a> for why we shouldn't allow
+this).The second disables instrumenting *Token.class during the instrumentation phase. 
+Upshot is that we don't get code coverage reports for those classes. 
+
+
+New Comment: 
+<blockquote>The second disables instrumenting *Token.class during the instrumentation
+phase. Upshot is that we don't get code coverage reports for those classes.</blockquote>+1
+this approach if you add a comment to build.xml for posterity <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #382 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/382/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/382/</a>) 
+
+

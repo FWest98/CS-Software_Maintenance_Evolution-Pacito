@@ -1,0 +1,123 @@
+Pattern changes caused by commit: aba9a17742ff6fd6fec2a355d7d7cce68fd06f04
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8734.txt 
+
+commit aba9a17742ff6fd6fec2a355d7d7cce68fd06f04
+Author: Brandon Williams <brandon@datastax.com>
+
+    Remove assertion that gossip is active in migration manager.
+    Patch by brandonwilliams, reviewed by iamaleksey for CASSANDRA-5236
+
+
+
+==================================
+ Issue CASSANDRA-5236 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5236] Migration during shutdown can cause AE
+-----------------
+
+-----------------
+Summary: Migration during shutdown can cause AE
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 8 Feb 2013 23:08:12 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 27 Feb 2013 16:38:40 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Mostly just a problem for the dtests on occasion:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> INFO
+[FlushWriter:1] 2013-02-08 17:03:49,727 Memtable.java (line 453) Writing
+Memtable-schema_columns@1757448463(793/793 serialized/live bytes, 15 ops) INFO
+[FlushWriter:1] 2013-02-08 17:03:49,752 Memtable.java (line 487) Completed flushing
+/tmp/dtest-gEW6x2/test/node3/data/system/schema_columns/system-schema_columns-ib-4-Data.db
+(339 bytes) for commitlog position ReplayPosition(segmentId=1360364624598, position=66887)
+INFO [CompactionExecutor:2] 2013-02-08 17:03:49,754 CompactionTask.java (line 112)
+Compacting
+[SSTableReader(path='/tmp/dtest-gEW6x2/test/node3/data/system/schema_columns/system-schema_columns-ib-4-Data.db'),
+SSTableReader(path='/tmp/dtest-gEW6x2/test/node3/data/system/schema_columns/system-schema_columns-ib-3-Data.db'),
+SSTableReader(path='/tmp/dtest-gEW6x2/test/node3/data/system/schema_columns/system-schema_columns-ib-2-Data.db'),
+SSTableReader(path='/tmp/dtest-gEW6x2/test/node3/data/system/schema_columns/system-schema_columns-ib-1-Data.db')]
+INFO [CompactionExecutor:3] 2013-02-08 17:03:49,759 CompactionTask.java (line 272)
+Compacted 4 sstables to
+[/tmp/dtest-gEW6x2/test/node3/data/system/schema_columnfamilies/system-schema_columnfamilies-ib-5,].
+ 7,473 bytes to 5,595 (~74% of original) in 32ms = 0.166744MB/s.  6 total rows, 4 unique. 
+Row merge counts were {1:3, 2:0, 3:1, 4:0, }ERROR [InternalResponseStage:1] 2013-02-08
+17:03:49,787 CassandraDaemon.java (line 135) Exception in thread
+Thread[InternalResponseStage:1,5,main]java.lang.AssertionError    at
+org.apache.cassandra.service.MigrationManager.passiveAnnounce(MigrationManager.java:320)  
+ at org.apache.cassandra.config.Schema.updateVersionAndAnnounce(Schema.java:458)    at
+org.apache.cassandra.db.DefsTable.mergeSchema(DefsTable.java:347)    at
+org.apache.cassandra.service.MigrationTask$1.response(MigrationTask.java:66)    at
+org.apache.cassandra.net.ResponseVerbHandler.doVerb(ResponseVerbHandler.java:47)    at
+org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:56)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)    at
+java.lang.Thread.run(Thread.java:662)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The simplest thing to do is remove this assertion, since the gossiper actually doesn't
+need to be running to add a state, and a migration may come in right after disabling
+gossip (or someone could disable gossip then issue a migration against the node in
+thrift.) 
+
+
+New Comment: 
+Agreed. +1 
+
+

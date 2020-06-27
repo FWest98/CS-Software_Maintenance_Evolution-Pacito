@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 7459ac943d73cbe782c7ac1f3acb92ae3f8d50b5
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1648.txt 
+
+commit 7459ac943d73cbe782c7ac1f3acb92ae3f8d50b5
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Replaced the not thread safe CircularQueue by a ConcurentLinkedQueue. This solves DIRMINA-675.

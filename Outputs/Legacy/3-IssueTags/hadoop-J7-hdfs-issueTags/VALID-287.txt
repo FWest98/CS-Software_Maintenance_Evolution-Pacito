@@ -1,0 +1,16 @@
+Pattern changes caused by commit: c08188db3363fa446cac8577bc1d5ef8f6c04d51
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-287.txt 
+
+commit c08188db3363fa446cac8577bc1d5ef8f6c04d51
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-702. Add HDFS implementation of AbstractFileSystem. Contributed by Sanjay Radia.

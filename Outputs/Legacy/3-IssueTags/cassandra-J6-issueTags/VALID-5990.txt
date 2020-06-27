@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 22b8a9725b384c0fbee9356ef15e0728bbfd2a58
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5990.txt 
+
+commit 22b8a9725b384c0fbee9356ef15e0728bbfd2a58
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    change snapshot-before-compaction to only snapshot (w/o flush) CFS being compacted
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3803

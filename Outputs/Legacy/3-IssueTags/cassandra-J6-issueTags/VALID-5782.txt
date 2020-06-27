@@ -1,0 +1,20 @@
+Pattern changes caused by commit: a4fc7e27045113ff680327558eef49f6d0c317d9
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5782.txt 
+
+commit a4fc7e27045113ff680327558eef49f6d0c317d9
+Merge: 980663a 185eca5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

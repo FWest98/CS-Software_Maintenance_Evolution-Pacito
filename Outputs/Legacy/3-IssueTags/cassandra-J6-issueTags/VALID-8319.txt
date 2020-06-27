@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 65b377f73e79d47ff7c5b4ee046951c953e00da7
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8319.txt 
+
+commit 65b377f73e79d47ff7c5b4ee046951c953e00da7
+Merge: 986893e 3d01ec7
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2.0

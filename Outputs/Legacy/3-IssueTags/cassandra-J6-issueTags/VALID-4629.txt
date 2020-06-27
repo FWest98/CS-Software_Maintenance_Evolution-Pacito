@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 336476f88d107d54ef9534be1e6c0bd81e148484
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4629.txt 
+
+commit 336476f88d107d54ef9534be1e6c0bd81e148484
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

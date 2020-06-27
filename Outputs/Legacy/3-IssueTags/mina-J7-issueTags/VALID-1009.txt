@@ -1,0 +1,22 @@
+Pattern changes caused by commit: ce81d98521db38fb377c871edcbb60521ad4cae1
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-4
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1009.txt 
+
+commit ce81d98521db38fb377c871edcbb60521ad4cae1
+Author: Trustin Lee <trustin@apache.org>
+
+    Moved normalizeCapacity method to IoBuffer

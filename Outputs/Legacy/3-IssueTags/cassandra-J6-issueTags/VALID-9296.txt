@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 08df0b8604cd34c4f1fb384f9f6eaba86203d116
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9296.txt 
+
+commit 08df0b8604cd34c4f1fb384f9f6eaba86203d116
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Add alias support to SELECT statement

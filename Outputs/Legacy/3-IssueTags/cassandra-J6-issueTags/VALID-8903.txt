@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 9f3c2071bdd54c90a00392f10678819cf5c84847
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8903.txt 
+
+commit 9f3c2071bdd54c90a00392f10678819cf5c84847
+Merge: d551382 4260413
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2

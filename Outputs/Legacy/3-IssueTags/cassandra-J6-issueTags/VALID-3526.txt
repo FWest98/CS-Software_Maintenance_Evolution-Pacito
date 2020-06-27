@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 7a30116632a56d6589dedfbf52cd9bbccb8d5453
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3526.txt 
+
+commit 7a30116632a56d6589dedfbf52cd9bbccb8d5453
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    fix build. make serializations tests do cleanup before running.

@@ -1,0 +1,129 @@
+Pattern changes caused by commit: e90dcd51d010fbe4fa2e2de6b91a7b93cb3ac9ec
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8453.txt 
+
+commit e90dcd51d010fbe4fa2e2de6b91a7b93cb3ac9ec
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Make Ec2Region's datacenter name configurable
+    patch by Jason Brown; reviewed by Vijay for CASSANDRA-5155
+
+
+
+==================================
+ Issue CASSANDRA-5155 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5155] Make Ec2Region's datacenter name configurable
+-----------------
+
+-----------------
+Summary: Make Ec2Region's datacenter name configurable
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 14 Jan 2013 13:24:29 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 Jan 2013 05:06:13 +0000
+-----------------
+
+-----------------
+Assigned to: Jason Brown
+-----------------
+
+-----------------
+Description: 
+
+Ec2Region sets a one-to-one mapping between the EC2 region name and the datacenter name.
+I'd like to be able to make the DC name configurable.
+
+The use case here is running
+DataStax Enterprise in EC2 and the need to have a plain c* datacenter and a c*/solr
+cluster datacenter running within the same region (for the same cluster). Can't make the
+two (or more) datacenters in the region with the one-to-one mapping of EC2 region to c*
+DC.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This change simply appends a string to the end of the EC2 region name. It piggybacks off
+the conf/cassandra-rackdc.properties file (I didn't think this required a new config
+file).This patch only appends to create a unique datacenter name, however, I"m not sure
+how extensible function needs to be. 
+
+
+New Comment: 
+I think instead of copy paste from GPFS we might want to do a little bit of refactor to
+expose the function as static method.Nit: properties.get("dc_suffix") should provide the
+property or return null <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<blockquote>instead of copy paste from GPFS</blockquote>Yeah, I mainly wanted to start the
+conversion, and then clean up the details <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>. Will do the refactor, easy enough. 
+
+
+New Comment: 
+0002 patch incorporates Vijay's refacor recommendation and adds test version of
+cassandra-rackdc.properties to make Ec2RegionTest work with new SnitchProperties. 
+
+
+New Comment: 
+Committed to 1.2 and trunk, Thanks! 
+
+
+New Comment: 
+Cool. Is it possible/reasonable to add it to 1.1.x, as well? 
+
+
+New Comment: 
+looks safe enough for 1.1 to me 
+
+
+New Comment: 
+Committed to 1.1 separately, Sorry it was my bad didn't notice the version number's in the
+ticket. 
+
+
+New Comment: 
+Buddy, this breaks the node startup if cassandra-rackdc.properties is not present for
+nodes using Ec2 and Ec2MultiRegion snitches as a RuntimeException is thrown in
+SnitchProperties.java. I think we should either include an empty
+cassandra-rackdc.properties in the package or have the default being returned on
+FileNotFoundException. What do you think? I opened another bug with the same comment. See
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-5281" title="Nodes with Ec2Snitch
+and Ec2MultiRegionSnitch cannot start due to cassandra-rackdc.properties not getting
+installed by packages!" class="issue-link"
+data-issue-key="CASSANDRA-5281"><del>CASSANDRA-5281</del></a> 
+
+

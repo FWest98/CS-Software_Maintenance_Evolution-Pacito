@@ -1,0 +1,114 @@
+Pattern changes caused by commit: a26eb3ef66ab7370d5187fd1e0e5a0d088bdaaa1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7462.txt 
+
+commit a26eb3ef66ab7370d5187fd1e0e5a0d088bdaaa1
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: combine multiline statements into single line history
+    Patch by Matthew Horsfall, reviewed by brandonwilliams for
+    CASSANDRA-4666
+
+
+
+==================================
+ Issue CASSANDRA-4666 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4666] Add multi-line support to cqlsh history buffer
+-----------------
+
+-----------------
+Summary: Add multi-line support to cqlsh history buffer
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 13 Sep 2012 18:11:42 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 13 Sep 2012 20:49:30 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The cqlsh tool has history support. If you press the up arrow, you get previous
+entries.
+
+If you do a multi-line command however like:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> cqlsh &gt;
+dosomething;</pre></div></div>
+when you press the up arrow you get each individual
+statement separately. (First "something;" and then "do").
+
+This is not useful if you type
+a large create statement and typo one of the pieces.
+
+It'd be nice if cqlsh supported
+multi-line history items and could bring them back with the up arrow.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to provide multi-line history support 
+
+
+New Comment: 
+A bit of interesting behaviour worth noting:If you have a multi-line string as your last
+history line, and you hit the up arrow and then enter, it will not add it to the history
+again. This is intentional. However, if you type out the multi-line command that's already
+in your history, Python's readline module will re-record the lines that you typed so your
+multi-line command gets pushed back in the history. 
+
+
+New Comment: 
+Also I just realized that if you exit out of cqlsh and go back in, the written history has
+everything broken out by line so you once again lose the multi-line support for anything
+saved prior running cqlsh.This is still a step in the right direction I think. To solve we
+could just concat the string together before calling readline.add_history(). 
+
+
+New Comment: 
+Patch that makes multi-line history work WITH written history files.This can be used in
+place of the other patch. 
+
+

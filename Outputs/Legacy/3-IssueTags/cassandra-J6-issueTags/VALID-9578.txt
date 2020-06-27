@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8b908c0acf62cb7c49203ffef54738634b920077
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9578.txt 
+
+commit 8b908c0acf62cb7c49203ffef54738634b920077
+Merge: ee0f495 08878e9
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: a59a5f59ce3042324b68a37b2392775cb191712e
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6401.txt 
+
+commit a59a5f59ce3042324b68a37b2392775cb191712e
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Adds posibility to autoconfigure size of the KeyCache
+    patch by Pavel Yaskevich; reviewed by Yuki Morishita for CASSANDRA-4087

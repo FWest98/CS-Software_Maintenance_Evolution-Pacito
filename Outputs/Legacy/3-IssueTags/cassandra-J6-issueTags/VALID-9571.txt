@@ -1,0 +1,16 @@
+Pattern changes caused by commit: e5c34d7c29e9ec6dc162210b90fc69ea11a4c331
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9571.txt 
+
+commit e5c34d7c29e9ec6dc162210b90fc69ea11a4c331
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    cleanup logger.debug too

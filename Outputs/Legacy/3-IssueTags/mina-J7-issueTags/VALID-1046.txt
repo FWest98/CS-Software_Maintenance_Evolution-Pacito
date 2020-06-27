@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a7e747c7810eea2b6970116797305da149dcf933
+
+From: Facade-2
+To:   Facade-4
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1046.txt 
+
+commit a7e747c7810eea2b6970116797305da149dcf933
+Author: Trustin Lee <trustin@apache.org>
+
+    * Fixed a problem that throughput is not reset when there's no managed session.

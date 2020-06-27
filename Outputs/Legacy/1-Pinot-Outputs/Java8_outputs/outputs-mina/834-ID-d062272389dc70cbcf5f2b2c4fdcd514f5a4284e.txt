@@ -1,0 +1,103 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Strategy Pattern.
+SingletonStateContextLookup is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/SingletonStateContextLookup.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext.java
+
+Strategy Pattern.
+HttpProtocolCodecFactory is the Context class.
+ProtocolEncoder is the Strategy interface.
+Concrete Strategy classes:  NettyEncoder ProtocolEncoderAdapter ProtocolEncoderImpl SynchronizedProtocolEncoder
+Delegation through encoder of type ProtocolEncoder
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder.java
+
+Strategy Pattern.
+HttpProtocolCodecFactory is the Context class.
+ProtocolDecoder is the Strategy interface.
+Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder
+Delegation through decoder of type ProtocolDecoder
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder.java
+
+Strategy Pattern.
+VmPipe is the Context class.
+IoHandler is the Strategy interface.
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate
+Delegation through handler of type IoHandler
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe.java,
+               /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoHandler.java
+
+Flyweight Pattern.
+IoFutureListener is a flyweight factory.
+CLOSE is a flyweight object (declared public-static-final).
+File location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoFutureListener.java
+
+Flyweight Pattern.
+IoSessionRecycler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoSessionRecycler.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineEncoder is the adaptee class.
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineDecoder is the adaptee class.
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Downloads/ResearchProject/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     2
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   2
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    4
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 58
+Number of files processed: 369
+Size of DelegationTable: 13
+Size of concrete class nodes: 14
+Size of undirected invocation edges: 6
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/2
+nFlyweightGoFVersion = 0

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 6d7404bc2eec2c34feb6e2b9db938f9e0e5ae208
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9463.txt 
+
+commit 6d7404bc2eec2c34feb6e2b9db938f9e0e5ae208
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: disable split combination, add split size param
+    Patch by Alex Liu, reviewed by brandonwilliams for CASSANDRA-5544

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: da9bb888d6afbcb683682f7f268cdd199f161d5a
+
+From: Strategy-2
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1344.txt 
+
+commit da9bb888d6afbcb683682f7f268cdd199f161d5a
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    push cfid generation down into CFMetaData, getting rid of TableMetaData in the process

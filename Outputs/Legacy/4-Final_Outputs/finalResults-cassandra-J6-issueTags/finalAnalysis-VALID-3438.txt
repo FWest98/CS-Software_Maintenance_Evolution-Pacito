@@ -1,0 +1,93 @@
+Pattern changes caused by commit: 5e75a7f9f079e363e6ce5f5e95cd36765ffad95c
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3438.txt 
+
+commit 5e75a7f9f079e363e6ce5f5e95cd36765ffad95c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m redundant @Override annotations
+    patch by Tommy Tynja; reviewed by jbellis for CASSANDRA-1257
+
+
+
+==================================
+ Issue CASSANDRA-1257 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1257] Remove @Override annotations when implementing interfaces
+-----------------
+
+-----------------
+Summary: Remove @Override annotations when implementing interfaces
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 7 Jul 2010 15:58:17 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 8 Mar 2011 21:16:07 +0000
+-----------------
+
+-----------------
+Assigned to: Tommy Tynjä
+-----------------
+
+-----------------
+Description: 
+
+There are a lot of places in the code where @Override is used where we are simply
+implementing an interface instead of extending a class.  This task would just be to clean
+out those annotations because they don't make sense - you don't override an interface. 
+IntelliJ IDEA complains about it.  Not a big deal but just housekeeping.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Isn't there a point in having the @Override annotations on interface implementations as
+well as it is supported in Java 1.6? Sure, the name might be misleading but it still works
+as for actual overridden methods. 
+
+
+New Comment: 
+Attached a patch removing the @Override annotations from interface implementations. To be
+used if that markup is more appealing to the project. 
+
+
+New Comment: 
+The purpose of @Override is to cause an error if the parent class changes the name of the
+method you were overriding.  This is redundant for interfaces (or abstract methods) since
+you already get an error in those cases. 
+
+
+New Comment: 
+committed, thanks! 
+
+

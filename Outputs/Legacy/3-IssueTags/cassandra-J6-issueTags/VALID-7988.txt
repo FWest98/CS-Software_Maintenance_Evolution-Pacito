@@ -1,0 +1,21 @@
+Pattern changes caused by commit: edf63d8a5110aaaa1efa708343d1dce071d031cd
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7988.txt 
+
+commit edf63d8a5110aaaa1efa708343d1dce071d031cd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Support multiple outputs in BOF
+    Patch by Michael Kjellman, reviewed by brandonwilliams for
+    CASSANDRA-4912

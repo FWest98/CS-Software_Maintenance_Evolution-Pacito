@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 3f71a98aac5bcf1c3e4ce506ffa5fa513f2a0c40
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3819.txt 
+
+commit 3f71a98aac5bcf1c3e4ce506ffa5fa513f2a0c40
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    move some INFO log messages in HH and tcp to DEBUG
+    patch by jbellis; reviewed by Joaquin Casares for CASSANDRA-2429

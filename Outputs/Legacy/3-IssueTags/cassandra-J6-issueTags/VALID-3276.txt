@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 8e526198f0871f897ccd7a026cfb7318ded2db7b
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3276.txt 
+
+commit 8e526198f0871f897ccd7a026cfb7318ded2db7b
+Merge: 0009db1 9bd4881
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

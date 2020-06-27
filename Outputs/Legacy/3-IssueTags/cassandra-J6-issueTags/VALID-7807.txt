@@ -1,0 +1,28 @@
+Pattern changes caused by commit: a412ebd5b863a2b1a8b3bd16f89d3f90d203cdba
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7807.txt 
+
+commit a412ebd5b863a2b1a8b3bd16f89d3f90d203cdba
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    unit tests are lame

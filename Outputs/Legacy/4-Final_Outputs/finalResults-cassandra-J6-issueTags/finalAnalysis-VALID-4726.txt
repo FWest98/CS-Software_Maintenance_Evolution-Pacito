@@ -1,0 +1,126 @@
+Pattern changes caused by commit: 86cbff7af6df6a3eea2f27b7ba01ad57e8436990
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4726.txt 
+
+commit 86cbff7af6df6a3eea2f27b7ba01ad57e8436990
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    reduce window where dropped CF sstables may not be deleted
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2942
+
+
+
+==================================
+ Issue CASSANDRA-2942 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2942] Dropped columnfamilies can leave orphaned data files that do not get cleared on restart
+-----------------
+
+-----------------
+Summary: Dropped columnfamilies can leave orphaned data files that do not get cleared on restart
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 23 Jul 2011 00:57:49 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 29 Aug 2011 15:12:59 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+<ul>	<li>Bring up 3 node cluster</li>	<li>From node1: Run Stress Tool<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"> stress --num-keys=10 --columns=10 --consistency-level=ALL
+--average-size-values --replication-factor=3 --nodes=node1,node2
+</pre></div></div></li>	<li>Shutdown node3</li>	<li>From node1: drop the Standard1 CF in
+Keyspace1</li>	<li>Shutdown node2 and node3</li>	<li>Bring up node1 and node2. Check that
+the Standard1 files are gone.<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">ls -al /<span
+class="code-keyword">var</span>/lib/cassandra/data/Keyspace1/</pre></div></div></li>	<li>Bring
+up node3. The log file shows the drop column family occurs<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">
+INFO 00:51:25,742 Applying migration 9a76f880-b4c5-11e0-0000-8901a7c5c9ce Drop column
+family: Keyspace1.Standard1</pre></div></div></li>	<li>Restart node3 to clear out dropped
+tables from the filesystem<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">root@cathy3:~/cass-0.8/bin# ls -al
+/<span class="code-keyword">var</span>/lib/cassandra/data/Keyspace1/total 36drwxr-xr-x 3
+root root 4096 Jul 23 00:51 .drwxr-xr-x 6 root root 4096 Jul 23 00:48 ..-rw-r--r-- 1 root
+root    0 Jul 23 00:51 Standard1-g-1-Compacted-rw-r--r-- 2 root root 5770 Jul 23 00:51
+Standard1-g-1-Data.db-rw-r--r-- 2 root root   32 Jul 23 00:51
+Standard1-g-1-Filter.db-rw-r--r-- 2 root root  120 Jul 23 00:51
+Standard1-g-1-Index.db-rw-r--r-- 2 root root 4276 Jul 23 00:51
+Standard1-g-1-Statistics.dbdrwxr-xr-x 3 root root 4096 Jul 23 00:51
+snapshots</pre></div></div>
+<b>Bug:  The files for Standard1 are orphaned on
+node3</b>
+</li></ul> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+You should be able to reproduce this even on a single node &#8211; just drop a CF, then
+restart.  It only cleans out marked-for-delete files from known CFs.May be fixed by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2521" title="Move away from Phantom
+References for Compaction/Memtable" class="issue-link"
+data-issue-key="CASSANDRA-2521"><del>CASSANDRA-2521</del></a>.  Otherwise we can add "go
+ahead and clear out marked-for-delete files, even if they don't belong to an active CF"
+logic. 
+
+
+New Comment: 
+<blockquote>May be fixed by <a href="https://issues.apache.org/jira/browse/CASSANDRA-2521"
+title="Move away from Phantom References for Compaction/Memtable" class="issue-link"
+data-issue-key="CASSANDRA-2521"><del>CASSANDRA-2521</del></a></blockquote>2521 makes it
+substantially better, but there's still a window where you can miss deletes.The "real" fix
+is to commitlog-ify schema changes, but that's outside our scope for the forseeable
+future.Adding "wait for outstanding SSTableDeletingTasks" to our jvm shutdown hook would
+be almost as good. 
+
+
+New Comment: 
+patch to wait for StorageService.tasks on shutdown.  Also moves CL segment deletion there. 
+
+
+New Comment: 
+nit: we could log an info message when awaitTermination returns false. It also look like
+DeletionService could just go away with with this.But otherwise, +1. I agree it is good
+enough and not worth going for more complicated. 
+
+
+New Comment: 
+committed 
+
+

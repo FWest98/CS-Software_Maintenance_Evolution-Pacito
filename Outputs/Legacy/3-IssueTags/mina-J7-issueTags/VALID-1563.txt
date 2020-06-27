@@ -1,0 +1,21 @@
+Pattern changes caused by commit: d0799b0baaeab183f350eff2581f2741e5e4ef3e
+
+From: Facade-4
+To:   Facade-3
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1563.txt 
+
+commit d0799b0baaeab183f350eff2581f2741e5e4ef3e
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Added some javadoc
+    o Modified the select() method to return an int (sticking to the base semantic, and it can help to iterator through the SelectionKeys)
+    o Added some explicit constants

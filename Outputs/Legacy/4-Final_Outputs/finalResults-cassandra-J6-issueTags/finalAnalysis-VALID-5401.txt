@@ -1,0 +1,67 @@
+Pattern changes caused by commit: 222d414bc1aabd9a68b90c9061d2547291ece2ad
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5401.txt 
+
+commit 222d414bc1aabd9a68b90c9061d2547291ece2ad
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m unused renameSSTables code
+    patch by Marcus Eriksson; reviewed by jbellis for CASSANDRA-3464
+
+
+
+==================================
+ Issue CASSANDRA-3464 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3464] Remove renameSSTables from ColumnFamilyStore.java
+-----------------
+
+-----------------
+Summary: Remove renameSSTables from ColumnFamilyStore.java
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 7 Nov 2011 12:31:54 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 7 Nov 2011 17:59:54 +0000
+-----------------
+
+-----------------
+Assigned to: Marcus Eriksson
+-----------------
+
+-----------------
+Description: 
+
+renameSSTables was only called by itself (via KeysIndex etc). This patch removes the dead
+code.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

@@ -1,0 +1,107 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+JMap is a Decorator class
+getSignature is a decorate operation
+mKey of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+Decorator Pattern
+JVector is a Decorator class
+getSignature is a decorate operation
+mElement of type JType is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+
+ JType
+Strategy Pattern.
+JField is the Context class.
+JType is the Strategy interface.
+Concrete Strategy classes:  JByte JInt JFloat JCompType JBoolean JDouble JLong JString JMap JVector JBuffer
+Delegation through mType of type JType
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JField.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JType.java
+
+Flyweight Pattern.
+Quotas is a flyweight factory.
+procZookeeper is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/Quotas.java
+
+Flyweight Pattern.
+CommonNames is a flyweight factory.
+DOMAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/zookeeper/jmx/CommonNames.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startVector is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+Factory Method pattern.
+InputArchive is a Factory Method class.
+CsvInputArchive is a concrete Factory Method class.
+startMap is a factory method returns  CsvIndex
+ which extends Index
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+Mediator Pattern.
+Mediator: JMap
+Colleagues:  JField JVector JBuffer
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JMap.java
+
+Mediator Pattern.
+Mediator: JVector
+Colleagues:  JField JMap JBuffer
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/compiler/JVector.java
+
+Facade Pattern.
+CsvInputArchive is a facade class.
+Hidden types: Utils Record
+Facade access types: CsvInputArchive
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/zookeeper/src/java/main/org/apache/jute/CsvInputArchive.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      1
+Flyweight                   2
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    2
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 63
+Number of files processed: 593
+Size of DelegationTable: 539
+Size of concrete class nodes: 30
+Size of undirected invocation edges: 9
+
+
+nMediatorFacadeDual/nMediator = 0/2
+nImmutable/nFlyweight = 0/2
+nFlyweightGoFVersion = 0

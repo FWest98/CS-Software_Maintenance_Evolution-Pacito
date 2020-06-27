@@ -1,0 +1,284 @@
+Pattern changes caused by commit: 8d55474febf31980f2eb158ae0ff9717b0761f1e
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8150.txt 
+
+commit 8d55474febf31980f2eb158ae0ff9717b0761f1e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Improve schema propagation performance
+    patch by jbellis; reviewed by Chris Herron and xedin for CASSANDRA-5025
+
+
+
+==================================
+ Issue CASSANDRA-5025 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5025] Schema push/pull race
+-----------------
+
+-----------------
+Summary: Schema push/pull race
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 4 Dec 2012 17:52:12 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 7 Dec 2012 21:45:33 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+When a schema change is made, the coordinator pushes the delta to the other nodes in the
+cluster.  This is more efficient than sending the entire schema.  But the coordinator also
+announces the new schema version, so the other nodes' reception of the new version races
+with processing the delta, and usually seeing the new schema wins.  So the other nodes
+also issue a pull to the coordinator for the entire schema.
+
+Thus, schema changes tend to
+become O<img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/thumbs_down.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> in the number of KS and CF present.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch attached to add a delay to rectifySchema to give concurrent changes a chance to
+propagate first 
+
+
+New Comment: 
+For patch 5025.txt:A single schema migration will result in N (num nodes) gossips of the
+new schema version (as before). Through MigrationManager.onChange()-&gt;rectifySchema(),
+those will each result in a delayed comparison of value 'theirVersion', but that value is
+now one minute old.Further, if some new schema migration happens to be underway, the same
+effect of redundant repeat RowMutations will occur.Schema migrations tend to happen in
+bursts - so this patch seems like it might reduce the problem but not eliminate it.Would
+it not be better to have DefsTable.mergeSchema call Schema.instance.updateVersion instead
+of Schema.instance.updateVersionAndAnnounce and then deal with temporarily unavailable
+nodes by doing a MigrationManager.passiveAnnounce(version) if/when we see them come back
+online? 
+
+
+New Comment: 
+I really don't want to reinvent HH poorly for schema migrations.  Maybe Pavel has a better
+suggestion. 
+
+
+New Comment: 
+Clarifying for anyone else who encounters this issue:<ul>	<li>This problem was introduced
+in <a href="https://issues.apache.org/jira/browse/CASSANDRA-3931" title="gossipers notion
+of schema differs from reality as reported by the nodes in question" class="issue-link"
+data-issue-key="CASSANDRA-3931"><del>CASSANDRA-3931</del></a></li>	<li>For use cases that
+involve creation/update/deletion of multiple keyspaces or column families, the symptom
+will be increasingly slow schema migrations as the KS/CF population grows. Depending on
+client RPC timeout config, schema change requests may fail.</li>	<li>In a test environment
+running stock C* 1.1.7, for a test that creates new CFs in sequence, we see the following
+CF creation times:	<ul>		<li>Empty cluster: sub-second</li>		<li>200+ CFs: 15s
+ave.</li>		<li>400+ CFs: 30s+ with eventual failure due to 30s client side (Hector) RPC
+timeout.</li>	</ul>	</li>	<li>In the same test environment running 1.1.7 patched with
+5025.txt:	<ul>		<li>For the first 60s duration of the test, CF creation times are
+sub-second</li>		<li>At 60s, the delayed rectifySchema migration calls kick in and
+creation times drop to 50s+ (including waits for schema agreement) with eventual failure
+due to 30s client side RPC timeout.</li>	</ul>	</li></ul> 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=cherro"
+class="user-hover" rel="cherro">Chris Herron</a> I don't think that we every want to make
+such a frequent schema changes, it's not considered a good practice for a number of
+reasons, unless you are trying to do something like temp-tables which has it's own
+implications... Agree on <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a> that it doesn't seem like a good idea
+to re-invent HH for schema until we have a good reason to do so. 
+
+
+New Comment: 
+<blockquote>Through MigrationManager.onChange()-&gt;rectifySchema(), those will each
+result in a delayed comparison of value 'theirVersion', but that value is now one minute
+old.</blockquote>v2 attached that compares the current version after the delay. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=jbellis"
+class="user-hover" rel="jbellis">Jonathan Ellis</a>: patch 5025-v2.txt works better. For
+the same test, after 60s, the CF creation time drops from sub-second to 5 seconds average.
+Delayed rectifySchema work will still interfere with coincident schema migrations, but I
+think this is the right compromise. Thank you!Minor: import for <tt>Callable</tt> was
+dropped, but is still referenced at line 229.<a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=xedin"
+class="user-hover" rel="xedin">Pavel Yaskevich</a>: This test was not endorsing a high
+rate of CF creation for real world use, the goal was to investigate if/why CF creation
+time was <tt>O(N)</tt>. 
+
+
+New Comment: 
++1 with <a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=cherro"
+class="user-hover" rel="cherro">Chris Herron</a> nit. 
+
+
+New Comment: 
+committed, thanks guys! 
+
+
+New Comment: 
+This broke bootstrapping, the node thinks it has the schema when it does not, then of
+course streams nothing and joins the ring. 
+
+
+New Comment: 
+Could StorageServer.joinTokenRing wait max(RING_DELAY, 1min) (the 1 min being the delay in
+MigrationManager.maybeScheduleSchemaPull? Or could
+MigrationManager.maybeScheduleSchemaPull use some multiple of RING_DELAY?Related: is it
+correct that StorageServer.joinTokenRing calls Schema.instance.updateVersionAndAnnounce
+and MigrationManager.passiveAnnounce(Schema.instance.getVersion()) in quick succession? 
+
+
+New Comment: 
+From discussion on #cassandra-dev with <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a>,
+StorageServer.joinTokenRing could use Schema.emptyVersion as Schema UUID in order to allow
+the maybeScheduleSchemaPull delay to be skipped. Patch to follow... 
+
+
+New Comment: 
+Attached patch 3 proposing the use of Schema.emptyVersion to differentiate
+StorageServer.joinTokenRing from other scenarios so that migration delay can be skipped
+for bootstrapping. 
+
+
+New Comment: 
+Close, but maybeScheduleSchemaPull is actually called by the bootstrapping node, so the
+check needs to see if the current schema version is empty and if so pull.  v4 attached. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+(Following up on IRC discussion)<ul>	<li>My patch 3 incorrectly hardcoded
+Schema.emptyVersion for the announcement in SS.joinTokenRing. For actual bootstrap
+scenario, the schema version should be Schema.emptyVersion anyway.</li>	<li>Since
+Schema.updateVersion actually reads rows, I wondered if this will be equivalent to   
+Schema.emptyVersion (perhaps Schema tables themselves are represented already by this
+point in time?) Brandon said that he would check this.</li>	<li>I had asked in a previous
+comment in this jira, and Brandon also noticed that SS.joinTokenRing had been calling
+Schema.updateVersionAndAnnounce and Schema.passiveAnnounce in quick succession. Brandon
+said that it should be removed.</li></ul>I'm attaching patch 5 with these
+changes:<ul>	<li>Reverted my hardcoded Schema.emptyVersion in SS.joinTokenRing (back to
+original Schema.updateVersionAndAnnounce).</li>	<li>Removed apparently redundant call to
+Schema.passiveAnnounce.</li></ul>Brandon, could you please confirm whether it is safe to
+assume that Schema.updateVersionAndAnnounce would emit Schema.emptyVersion in a bootstrap
+scenario? 
+
+
+New Comment: 
+<blockquote>Since Schema.updateVersion actually reads rows, I wondered if this will be
+equivalent to Schema.emptyVersion (perhaps Schema tables themselves are represented
+already by this point in time?) Brandon said that he would check this.</blockquote>If that
+is bootstrap and node is completely empty thus has newly created system tables
+Schema.updateVersion would emit "emptyVersion" as there is no data to be read and empty
+digest has a constant value. 
+
+
+New Comment: 
+I fixed this up in 36389f7d8d59881cad309b078fc89df5864fd6d1 and allowed pulling
+immediately after a restart. 
+
+
+New Comment: 
+Thanks <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=brandon.williams"
+class="user-hover" rel="brandon.williams">Brandon Williams</a>, <a
+href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=xedin"
+class="user-hover" rel="xedin">Pavel Yaskevich</a>. 
+
+
+New Comment: 
+Hi,Looks like that the issue has not been resolved. I've just got this:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">15:52:40.194 [cluster1-nio-worker-1] WARN 
+c.d.driver.core.RequestHandler - /127.0.0.1:9042 replied with server error
+(java.lang.RuntimeException: java.util.concurrent.ExecutionException:
+org.apache.cassandra.exceptions.ConfigurationException: Column family ID mismatch (found
+5230d9a0-c6cc-11e6-9ece-6d2c86545d91; expected 51d06a20-c6cc-11e6-9ece-6d2c86545d91)),
+defuncting connection.</pre></div></div>On C* 3.9:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]Use
+HELP <span class="code-keyword">for</span> help.cqlsh&gt;</pre></div></div>with latest
+driver: <tt>"com.datastax.cassandra" % "cassandra-driver-core" % "3.1.2"</tt>It's one-node
+setup and everything I'm doing is just running <tt>CREATE TABLE IF NOT EXISTS</tt> from
+several threads at the same time.The only difference with previous version is the fact
+that applications starts hanging forever with stack like<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span
+class="code-quote">"pool-4-thread-5-ScalaTest-running-CassandraMwsRestTest"</span> #37
+prio=5 os_prio=31 tid=0x00007f7f7048a800 nid=0x5113 waiting on condition
+[0x0000700006010000]   java.lang.<span class="code-object">Thread</span>.State: WAITING
+(parking)	at sun.misc.Unsafe.park(Native Method)	- parking to wait <span
+class="code-keyword">for</span>  &lt;0x0000000796682630&gt; (a
+com.datastax.driver.core.DefaultResultSetFuture)	at
+java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)	at
+com.google.common.util.concurrent.AbstractFuture.get(AbstractFuture.java:445)	at
+com.google.common.util.concurrent.Uninterruptibles.getUninterruptibly(Uninterruptibles.java:143)	at
+com.datastax.driver.core.DefaultResultSetFuture.getUninterruptibly(DefaultResultSetFuture.java:243)	at
+com.datastax.driver.core.AbstractSession.execute(AbstractSession.java:68)	at
+com.datastax.driver.core.AbstractSession.execute(AbstractSession.java:43)</pre></div></div> 
+
+

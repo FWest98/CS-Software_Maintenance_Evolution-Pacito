@@ -1,0 +1,18 @@
+Pattern changes caused by commit: a6298bc6bf530527c8ce5ba3191ea1f35f155e57
+
+From: Facade-4
+To:   Facade-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1649.txt 
+
+commit a6298bc6bf530527c8ce5ba3191ea1f35f155e57
+Author: Ashish Paliwal <apaliwal@apache.org>
+
+    JIRA Issue: DIRMINA-676
+    Added check for attribute not found exception, to avoid null pointer, for unknown attributes
+    Submitted By: Ashish Paliwal (apaliwal.at.apache.org)

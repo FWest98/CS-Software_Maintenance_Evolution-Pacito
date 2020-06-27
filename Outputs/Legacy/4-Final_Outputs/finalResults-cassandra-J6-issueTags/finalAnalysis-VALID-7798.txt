@@ -1,0 +1,128 @@
+Pattern changes caused by commit: 73f479c287d3f8b399926abea7d771e34c79f623
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7798.txt 
+
+commit 73f479c287d3f8b399926abea7d771e34c79f623
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix deadlockin mutation state underconcurrent, CL > ONE writes to counters
+    backport of CASSANDRA-4578
+
+
+
+==================================
+ Issue CASSANDRA-4578 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4578] Dead lock in mutation stage when many concurrent writes to few columns
+-----------------
+
+-----------------
+Summary: Dead lock in mutation stage when many concurrent writes to few columns
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 27 Aug 2012 04:46:11 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 1 Nov 2012 19:34:07 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+When I send many request to increment counters to few counter columns, sometimes mutation
+stage cause dead lock. When it happened, all of mutation threads are locked and do not
+accept updates any more.
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>"MutationStage:432" - Thread t@1389  
+java.lang.Thread.State: TIMED_WAITING	at java.lang.Object.wait(Native Method)	- waiting on
+&lt;b90b45b&gt; (a org.apache.cassandra.utils.SimpleCondition)	at
+java.lang.Object.wait(Object.java:443)	at
+java.util.concurrent.TimeUnit.timedWait(TimeUnit.java:292)	at
+org.apache.cassandra.utils.SimpleCondition.await(SimpleCondition.java:54)	at
+org.apache.cassandra.service.AbstractWriteResponseHandler.get(AbstractWriteResponseHandler.java:55)	at
+org.apache.cassandra.db.CounterMutationVerbHandler.doVerb(CounterMutationVerbHandler.java:51)	at
+org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:59)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.Thread.run(Thread.java:662)   Locked ownable synchronizers:	- locked
+&lt;4b1b0a6f&gt; (a
+java.util.concurrent.locks.ReentrantLock$NonfairSync)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached thread dump 
+
+
+New Comment: 
+You're right, since CMVH grabs a writer thread until it gets replies from the other
+replicas, you can have two replicas deadlock with A waiting for a reply from B, and B
+waiting for a reply from A.One fix would be to move the local write into CMVH and the
+remote part into a separate stage (or maybe just a custom callback).As a workaround, use
+CL.ONE with counters. 
+
+
+New Comment: 
+Attaching patch to use a callback (as it avoids creating lots of thread that just spend
+time waiting on a condition) to send back the response from CMVH. 
+
+
+New Comment: 
+Would prefer to have the callback final in constructor to make it more clear that it
+doesn't get changed during processing, otherwise +1 
+
+
+New Comment: 
+<blockquote>Would prefer to have the callback final in constructor</blockquote>I initially
+feared pushing the callback to the constructor would artifically require too much code
+changes but looking closer it doesn't really, so committed with that changed. 
+
+
+New Comment: 
+Re-open for backport to 1.0.x 
+
+
+New Comment: 
+Against cassandra-1.0 latest. Only differs in line numbers, otherwise no issues. All tests
+pass. 
+
+

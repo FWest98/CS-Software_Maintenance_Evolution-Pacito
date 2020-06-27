@@ -1,0 +1,259 @@
+Pattern changes caused by commit: 8c7bc2fe8718d612fdbcf0f8b7e33554f17efcaa
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3743.txt 
+
+commit 8c7bc2fe8718d612fdbcf0f8b7e33554f17efcaa
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    push replication_factor into strategy_options
+    patch by jhermes and jbellis; reviewed by jhanna for CASSANDRA-1263
+
+
+
+==================================
+ Issue CASSANDRA-1263 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1263] Push replication factor down to the replication strategy
+-----------------
+
+-----------------
+Summary: Push replication factor down to the replication strategy
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 9 Jul 2010 17:02:55 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 10 Apr 2011 22:59:54 +0000
+-----------------
+
+-----------------
+Assigned to: Jon Hermes
+-----------------
+
+-----------------
+Description: 
+
+Currently the replication factor is in the keyspace metadata.  As we've added the
+datacenter shard strategy, the replication factor becomes more computed by the replication
+strategy.  It seems reasonable to therefore push the replication factor for the keyspace
+down to the replication strategy so that it can be handled in one place.
+
+This adds on the
+work being done in <a href="https://issues.apache.org/jira/browse/CASSANDRA-1066"
+title="DatacenterShardStrategy needs enforceable and keyspace based RF" class="issue-link"
+data-issue-key="CASSANDRA-1066"><del>CASSANDRA-1066</del></a> since that ticket will make
+the replication strategy a member variable of keyspace metadata instead of just a quasi
+singleton giving the replication strategy state for each keyspace.  That makes it able to
+have the replication factor.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This would make it a lot easier/natural to enforce the replication factor down to the
+keyspace.  For example in the DatacenterShardStrategy, when the RF per datacenter is
+specified - it's easier to enforce that the total RF is the same as the sum of the DCs RF. 
+
+
+New Comment: 
+in my mind what this ticket means is NTS should have its per-dc options and the other RS
+should have replication_factor. 
+
+
+New Comment: 
+<del>We need to make sure they give us a replication_factor. We cannot make it required on
+the def because not all strategies use a static type to give us that information. We
+should not verify arbitrary key/values in strategy_opts because that is FAR messier than
+the current solution, and doesn't handle user-created strategies at all.</del>All code
+that asks for RF should really be asking for strategy.getReplicationFactor(). 
+
+
+New Comment: 
+<blockquote>We need to make sure they give us a
+replication_factor.</blockquote>Right.<blockquote>We should not verify arbitrary
+key/values in strategy_opts because that is FAR messier than the current
+solution</blockquote>Wrong.  strategy_ops is by definition he only place for per-strategy
+options, and replication_factor is already a per-strategy option.  The problem is the
+current KsDef doesn't acknowledge that yet.  This is a bug.Classes implementing ARS should
+take whatever replication configuration necessary from strategy_options and store that
+state at construction time, the way NTS already does.ReplicationFactor is an
+implementation detail of some strategies, NOT something we should expose as integral to
+all of them because we have proof that it's not.  If you look at the code the only
+references it outside the Strategy classes themselves are a couple assert statements that
+could easily be cleaned up. 
+
+
+New Comment: 
+<blockquote>the only references to <span class="error">&#91;RF&#93;</span> outside the
+Strategy classes themselves are a couple assert statements that could easily be cleaned
+up.</blockquote><span class="error">&#91;reply-to-self&#93;</span> Actually I don't think
+this is true, wanting to know the total number of copies of the data is a reasonable thing
+to do.<blockquote>All code that asks for RF should really be asking for
+strategy.getReplicationFactor().</blockquote>Agreed. 
+
+
+New Comment: 
+So on keyspace instantiation, I expect some set of opts for a given strategy to exist,
+otherwise calling getRF() will explode. Because user-def strats can require arbitrary
+opts, I can't easily verify that they exist*, and I can't guarantee that
+system_create_keyspace() will not explode (which is a non-desired side effect).
+Furthermore, I have to call getRF() in every place in the code that we ask for the
+instance RF, and I can't guarantee that getRF() is non-trivial (and it runs in tight
+loops). <del>Caching the getRF() call is a hefty chunk of code, and then I need to reset
+the cached value if the KSMD changes during runtime, which is another hefty chunk of
+code.</del> &lt; This can be done in the current place of replication_factor, so it's not
+painful.*It is possible to make every strat implement an interface method for
+`List&lt;String&gt; returnRequiredOpts()`. 
+
+
+New Comment: 
+<blockquote>Because user-def strats can require arbitrary opts, I can't easily verify that
+they exist</blockquote>you shouldn't be trying to.  instead you should merely instantiate
+the strategy, which should be responsible for throwing ConfigurationException if it
+borks.<blockquote>Furthermore, I have to call getRF() is every place in the code that we
+ask for the instance RF, and I can't guarantee that getRF() is non-trivial (and it runs in
+tight loops).</blockquote>Add a docstring saying that implementors of getRF (which becomes
+abstract) are responsible for making it fast, which may or may not include caching it. 
+
+
+New Comment: 
+Agreed and agreed. 
+
+
+New Comment: 
+Rep_factor has been wiped off the face of the earth, and the engine for its usage was
+nicely wrapped up in DD.getReplicationFactor(), so now that just gets the strat for the
+keyspace and calls strat.getRF().Converter does the right thing, and the CLI still does
+the right thing. ConfigurationException throwing/handling still needs to be glued onto
+strategies (most likely in ARS).The problem right now is that YAML is being finicky, and
+is either trying to load a map as a non-collection, or it tries to expand the map in place
+and check for a property on RawKeyspace for every arbitrary strat_opt.In any event, I'm
+attaching the partial patch now to make sure it doesn't get lost in the revision-shuffle
+(and because it's more code than I thought it would be). The best time to finish this may
+be in a larger YAML/config fix. 
+
+
+New Comment: 
+Depends on <a href="https://issues.apache.org/jira/browse/CASSANDRA-1906" title="Sanitize
+configuration code" class="issue-link"
+data-issue-key="CASSANDRA-1906"><del>CASSANDRA-1906</del></a>, which removes the YAML
+blocker (and makes the code here so much easier to work with). 
+
+
+New Comment: 
+There's a slight hiccup with avro filed at <a
+href="https://issues.apache.org/jira/browse/AVRO-786" title="Equality for
+&quot;order&quot;:&quot;ignore&quot; fields cannot use compareTo" class="issue-link"
+data-issue-key="AVRO-786"><del>AVRO-786</del></a> . Inability to compare maps means that
+it's not possible to round-trip a KsDef test (in DatabaseDescriptorTest).Aside from that,
+patch posted. 
+
+
+New Comment: 
+Oh, not quite done. CLI still has bad help messages and it's not running through the code
+path that validates options on KSMD creation. 
+
+
+New Comment: 
+Done and done. 
+
+
+New Comment: 
+rebased.<br/>NOTE: system tests are currently failing. If the system tests in trunk runs
+fine and these continue to fail, please re-open. 
+
+
+New Comment: 
+Overall looks like a clean way of pushing down the RF to strategy.  A few minor points:In
+KSMetaData it has the following:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        StringBuilder sb = <span
+class="code-keyword">new</span> StringBuilder();        sb.append(name)         
+.append(<span class="code-quote">"rep factor:"</span>)          .append(<span
+class="code-quote">"rep strategy:"</span>)          .append(strategyClass.getSimpleName())
+         .append(<span class="code-quote">"{"</span>)         
+.append(StringUtils.join(cfMetaData.values(), <span class="code-quote">", "</span>))      
+   .append(<span class="code-quote">"}"</span>);        <span
+class="code-keyword">return</span> sb.toString();</pre></div></div>Shouldn't the rep
+factor String be gone along with the variable output?The end of SimpleStrategy - the curly
+brace should be on its own line.I see an instance of replication_factor in Cli.g - not
+sure if that matters.  Seems that's just for typing generally.Looks like CQL still has
+some references to the way things were with RF - that could be a separate issue I would
+think. 
+
+
+New Comment: 
+Btw - Jon - how extensively did you test this?  I wonder if something like RF + Strategy
+could be something that could be handled in a distributed test. 
+
+
+New Comment: 
+One other small thing that would be easy to fix while you're in there - in
+CliUserHelp:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">                state.out.println(<span
+class="code-quote">"update keyspace foo with"</span>);               
+state.out.println(<span class="code-quote">"        placement_strategy = <span
+class="code-quote">'org.apache.cassandra.locator.SimpleStrategy'</span>;"</span>);        
+       state.out.println(<span class="code-quote">"        and
+strategy_options=[{replication_factor:4}];"</span>);</pre></div></div>That second line
+shouldn't have a ';' at the end of it - it's the middle of the update keyspace. 
+
+
+New Comment: 
+All those corrections are in patch-4.As for testing, it was hand-tested at RF1 and 3 on a
+3-node cluster. The things to look/test for were that trying to create and update
+keyspaces without the correct strat opts failed verification and never hit the
+MigrationsTable (either via CLI or via thrift) and that load/performance was as expected
+from trunk-clean.An automated distributed test would rock my socks off. 
+
+
+New Comment: 
+Updated schema-sample.txt. 
+
+
+New Comment: 
++1 - changes look good to me. May need to be rebased before committing. Also schema sample
+could use a NTS example, but not necessary.  Overall, it seems like NTS needs some
+documentation love with the amount of use it gets - but maybe that's for a blog post or at
+least another ticket.  Sorry for the belated updated review. 
+
+
+New Comment: 
+(working on the rebase here, it's pretty straightforward) 
+
+
+New Comment: 
+rebased, fixed thrift and cql tests, committed 
+
+

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 5df3f13b6ca993c9987c4e4b0319e01ff3895d54
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7553.txt 
+
+commit 5df3f13b6ca993c9987c4e4b0319e01ff3895d54
+Merge: 1078e6f 93bd3d8
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

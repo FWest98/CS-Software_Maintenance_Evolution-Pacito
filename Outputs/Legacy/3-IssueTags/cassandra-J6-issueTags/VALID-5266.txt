@@ -1,0 +1,22 @@
+Pattern changes caused by commit: bca27bd391fa5964aacb5b360110765d1a382848
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5266.txt 
+
+commit bca27bd391fa5964aacb5b360110765d1a382848
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    cleanup for #3314

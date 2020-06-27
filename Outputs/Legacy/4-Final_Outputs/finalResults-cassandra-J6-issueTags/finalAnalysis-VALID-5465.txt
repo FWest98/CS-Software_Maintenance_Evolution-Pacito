@@ -1,0 +1,110 @@
+Pattern changes caused by commit: 9f7a83d1b1881ff23ed2c5ed53b33d252993e821
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5465.txt 
+
+commit 9f7a83d1b1881ff23ed2c5ed53b33d252993e821
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Use (Guava inspired) faster bytes comparison
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3434
+
+
+
+==================================
+ Issue CASSANDRA-3434 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3434] Explore using Guava (or guava inspired) faster bytes comparison
+-----------------
+
+-----------------
+Summary: Explore using Guava (or guava inspired) faster bytes comparison
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 31 Oct 2011 18:42:40 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 14 Nov 2011 14:31:56 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Guava uses un.misc.Unsafe to do a faster byte arrays comparison (on long at a time) as
+noted in <a href="https://issues.apache.org/jira/browse/HADOOP-7761" title="Improve
+performance of raw comparisons" class="issue-link"
+data-issue-key="HADOOP-7761"><del>HADOOP-7761</del></a>.<br/>We should probably look into
+it.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Adding Chris's links from <a href="https://issues.apache.org/jira/browse/CASSANDRA-3435"
+title="FBUtilities.compareUnsigned could be faster with sun.misc.Unsafe"
+class="issue-link" data-issue-key="CASSANDRA-3435"><del>CASSANDRA-3435</del></a>:<ul
+class="alternate" type="square">	<li><a
+href="http://hiroshiyamauchi.blogspot.com/2010/08/fast-unsigned-byte-lexicographical.html"
+class="external-link"
+rel="nofollow">http://hiroshiyamauchi.blogspot.com/2010/08/fast-unsigned-byte-lexicographical.html</a></li>	<li><a
+href="http://code.google.com/p/guava-libraries/source/browse/guava/src/com/google/common/primitives/UnsignedBytes.java?name=v10.0.1"
+class="external-link"
+rel="nofollow">http://code.google.com/p/guava-libraries/source/browse/guava/src/com/google/common/primitives/UnsignedBytes.java?name=v10.0.1</a></li></ul> 
+
+
+New Comment: 
+Patch attached that basically adds the FastBytesComparisons class from <a
+href="https://issues.apache.org/jira/browse/HADOOP-7761" title="Improve performance of raw
+comparisons" class="issue-link" data-issue-key="HADOOP-7761"><del>HADOOP-7761</del></a>
+and uses it (we need the same variation from the guava code, i.e, being able to compare
+from offsets). Quick microbenchmark do confirm it's much faster, but I haven't really took
+the time to do proper Cassandra benchmark with and without.The patch also slightly changes
+the non-array-backed ByteBuffer case, because at least on my machine it's slightly (but
+consistenly) faster than our previous code. 
+
+
+New Comment: 
++1(should we do this in 1.1?  history suggests that extra caution around bytebuffers is
+warranted <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+<blockquote>should we do this in 1.1?</blockquote>Probably, it's not worst shooting
+ourselves in the foot. I'll commit to trunk directly. 
+
+
+New Comment: 
+Committed 
+
+

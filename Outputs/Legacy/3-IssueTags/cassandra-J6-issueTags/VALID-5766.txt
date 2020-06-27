@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f64c17e428ce4fc73bca4119b4513762cd0120af
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5766.txt 
+
+commit f64c17e428ce4fc73bca4119b4513762cd0120af
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Shutdown ParallelCompaction reducer executor after use

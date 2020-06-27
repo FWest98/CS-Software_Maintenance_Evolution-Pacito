@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 69337a43670f71ae1fc55e23d6a9031230423900
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8340.txt 
+
+commit 69337a43670f71ae1fc55e23d6a9031230423900
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Update version for 1.2.0 final

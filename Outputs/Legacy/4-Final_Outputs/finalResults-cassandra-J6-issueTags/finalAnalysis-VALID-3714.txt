@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 51a07442885360168fdad33b6da792911e07dd83
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3714.txt 
+
+commit 51a07442885360168fdad33b6da792911e07dd83
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Try harder to close files after compaction
+    patch by stuhood; reviewed by slebresne for CASSANDRA-2431
+
+
+
+==================================
+ Issue CASSANDRA-2431 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2431] Try harder to close scanners after a failed compaction
+-----------------
+
+-----------------
+Summary: Try harder to close scanners after a failed compaction
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Apr 2011 09:30:57 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 7 Apr 2011 20:15:35 +0000
+-----------------
+
+-----------------
+Assigned to: Stu Hood
+-----------------
+
+-----------------
+Description: 
+
+Forked from 2191.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1(Committed as r1089976 and merged to trunk as 1089980) 
+
+
+New Comment: 
+Integrated in Cassandra #835 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra/835/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra/835/</a>)<br/>    Merge <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2431" title="Try harder to close
+scanners after a failed compaction" class="issue-link"
+data-issue-key="CASSANDRA-2431"><del>CASSANDRA-2431</del></a> from 0.7 
+
+

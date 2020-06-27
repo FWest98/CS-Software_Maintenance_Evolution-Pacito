@@ -1,0 +1,114 @@
+Pattern changes caused by commit: c0347ddda617cc001368fc7cd21792f49f49ef59
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1310.txt 
+
+commit c0347ddda617cc001368fc7cd21792f49f49ef59
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-543 (Incorrect sessionCreated event order in VmPipe transport)
+    * Made sure no other event can be fired while sessionCreated() is invoked.
+
+
+
+==================================
+ Issue DIRMINA-543 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-543] Incorrect sessionCreated event order in VmPipe transport
+-----------------
+
+-----------------
+Summary: Incorrect sessionCreated event order in VmPipe transport
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 10 Mar 2008 07:47:09 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 10 Mar 2008 09:04:10 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+The following unit test method fails because sessionOpened can be called before
+sessionCreated.
+
+    public void testSessionCreated() throws Exception {<br/>        final
+Semaphore semaphore = new Semaphore(0);<br/>        final StringBuffer stringBuffer = new
+StringBuffer();<br/>        VmPipeAcceptor vmPipeAcceptor = new VmPipeAcceptor();<br/>    
+   final VmPipeAddress vmPipeAddress = new VmPipeAddress(12345);<br/>       
+vmPipeAcceptor.setHandler(new IoHandlerAdapter() {<br/>            @Override<br/>         
+  public void sessionCreated(IoSession session) throws Exception 
+{                //
+pretend we are doing some time-consuming work. For                // performance reasons,
+you would never want to do time                // consuming work in sessionCreated.       
+        // However, this increases the likelihood of the timing bug.               
+Thread.sleep(1000);                stringBuffer.append("A");            }
+           
+@Override<br/>            public void sessionOpened(IoSession session) throws Exception 
+{
+               stringBuffer.append("B");            }
+            @Override<br/>          
+ public void messageReceived(IoSession session, Object message)<br/>                   
+throws Exception 
+{                stringBuffer.append("C");            }
+           
+@Override<br/>            public void sessionClosed(IoSession session) throws Exception 
+{
+               stringBuffer.append("D");                semaphore.release();            }
+
+       });<br/>        vmPipeAcceptor.bind(vmPipeAddress);
+
+        final VmPipeConnector
+vmPipeConnector = new VmPipeConnector();<br/>       
+vmPipeConnector.getFilterChain().addLast("executor", new ExecutorFilter());<br/>       
+vmPipeConnector.setHandler(new IoHandlerAdapter() {<br/>            @Override<br/>        
+   public void sessionOpened(IoSession session) throws Exception 
+{               
+session.write(IoBuffer.wrap(new byte[1]));            }
+        });<br/>       
+ConnectFuture connectFuture =
+vmPipeConnector.connect(vmPipeAddress).awaitUninterruptibly();<br/>       
+Thread.sleep(3000);<br/>        connectFuture.getSession().close();<br/>       
+semaphore.tryAcquire(1, TimeUnit.SECONDS);<br/>       
+vmPipeAcceptor.unbind(vmPipeAddress);<br/>        Assert.assertEquals("ABCD",
+stringBuffer.toString());<br/>    }
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

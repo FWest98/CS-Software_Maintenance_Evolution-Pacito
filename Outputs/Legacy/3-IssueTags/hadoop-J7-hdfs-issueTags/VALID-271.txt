@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 8969fd33ade2e649aabed7a57f6cc36737f50310
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-271.txt 
+
+commit 8969fd33ade2e649aabed7a57f6cc36737f50310
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-730. Add 4 fault injection tests to simulate non-responsive datanode and out-of-memory problem for pipeline close ack.

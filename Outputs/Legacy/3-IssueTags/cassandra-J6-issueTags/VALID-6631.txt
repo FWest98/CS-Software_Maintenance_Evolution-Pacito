@@ -1,0 +1,20 @@
+Pattern changes caused by commit: dc975e8ac3c6fc557e8b2b3ad83742bd259f91ac
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6631.txt 
+
+commit dc975e8ac3c6fc557e8b2b3ad83742bd259f91ac
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix recognizing uppercase SELECT keyword
+    patch by Jonas Dohse and pcannon for CASSANDRA-4161

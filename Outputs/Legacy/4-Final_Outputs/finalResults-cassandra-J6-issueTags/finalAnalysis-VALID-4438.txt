@@ -1,0 +1,86 @@
+Pattern changes caused by commit: 69f4fec007989f2ce47a59abf84a98bd02ed8fac
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4438.txt 
+
+commit 69f4fec007989f2ce47a59abf84a98bd02ed8fac
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Do not allow extra params to nodetool commands to prevent confusion.
+    Patch by Jon Hermes, reviewed by brandonwilliams for CASSANDRA-2740
+
+
+
+==================================
+ Issue CASSANDRA-2740 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2740] nodetool decommission should throw an error when there are extra params
+-----------------
+
+-----------------
+Summary: nodetool decommission should throw an error when there are extra params
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 4 Jun 2011 03:24:27 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Jul 2011 23:42:49 +0000
+-----------------
+
+-----------------
+Assigned to: Jon Hermes
+-----------------
+
+-----------------
+Description: 
+
+removetoken takes a token parameter, but decommission works against the node where the
+call is issued.  This allows confusion such as 'nodetool -h localhost decommission &lt;ip
+or token&gt;' actually decommissioning the local node, instead of whatever was passed to
+it.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+For 1.0 I'd like to see decom work like rt, and take a token parameter, but I don't want
+to break existing jmx tools for 0.8, so let's just error on extra params there. 
+
+
+New Comment: 
+why add token param? 
+
+
+New Comment: 
+All zero-arg commands now complain when there's extra args. 
+
+
+New Comment: 
+Committed. 
+
+

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: eed76ae9c3700649b0b9bdbed81865c86d5e0213
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7252.txt 
+
+commit eed76ae9c3700649b0b9bdbed81865c86d5e0213
+Merge: 70e318e 38e5cf7
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    merge from 1.1

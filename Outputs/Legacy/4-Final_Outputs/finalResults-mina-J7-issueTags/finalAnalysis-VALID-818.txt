@@ -1,0 +1,122 @@
+Pattern changes caused by commit: 462979aeaad341e275badeb836b5059bb5309259
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-6
+To:   Facade-5
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-818.txt 
+
+commit 462979aeaad341e275badeb836b5059bb5309259
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-454 (Trivial denial of service in TextLineDecoder)
+    * Applied Owen Jacobson's patch
+
+
+
+==================================
+ Issue DIRMINA-454 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-454] Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Summary: Trivial denial of service in TextLineDecoder
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Sat, 6 Oct 2007 04:52:25 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Oct 2007 08:16:53 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+In both of TextLineDecoder's decoding methods, the decoder only checks the size of input
+after it's found at least one line ending character.  Infinitely long streams of, say,
+'y's will cause the decoder to try to buffer up data until the JVM falls over.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It seems to me that there's no reason to buffer up more than (maximum encoding size) *
+(line length) bytes + overflow from one receive call, anyways.  For practical purposes the
+maximum encoding size is 4 bytes, I believe.Alternately, the line length cap should either
+be replaced or augmented by a byte length cap (defaulting to the above, maybe) to give
+users a little more control over whether or not to die of OutOfMemoryErrors. 
+
+
+New Comment: 
+Oh, and by "trivial" I mean "run the following"(while true; do echo -n
+yyyyyyyyyyyyyyyyyyyyyyyyyyy; done) | nc host portand watch the JVM fall over. 
+
+
+New Comment: 
+Attached a patch that should resolve it.  I was unable to submit "too long" messages using
+either decoding path. 
+
+
+New Comment: 
+Patch applies to the current 1.1.3 tag, incidentally. 
+
+
+New Comment: 
+Yigal Rachman wrote:Another thing with this problem:  once the buffer has exceeded the
+maximum line length, the decoder stops recognizing the termination sequence, and is
+therefore doomed anyway.  Is there some elegant way to reject the offending line and start
+over? 
+
+
+New Comment: 
+Thank you very much for the patch and the inspiration.  The bug has been fixed.  I made
+sure OOM is not thrown anymore and decoder continues to decode even after too long text
+line.  Please confirm if the bug has been fixed and close this issue.One difference from
+no-dos.patch is that OOM is not thrown immediately.  It keeps discarding incoming data
+when client sends too long line, and throws an OOM error when EOL (line delimiter) is
+encountered.  It was necessary behavior to make the decoder continue to work even after
+encountering broken data.  ProtocolCodecFilter also has been improved to continue decoding
+after an exception is thrown.  Please refer to the svn commit log for the detailed
+information.  All these changes shouldn't affect existing applications. 
+
+
+New Comment: 
+I finally got a chance to test this out &#8211; it works great!  I had a look at the code,
+and if I understand what it's doing it's good enough for my purposes.  You might want to
+document the exact semantics of the line length limit in the javadocs somewhere; they're a
+little vague right now. 
+
+

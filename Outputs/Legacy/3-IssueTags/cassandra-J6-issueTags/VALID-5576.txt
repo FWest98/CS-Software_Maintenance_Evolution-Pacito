@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 9b623dc37a876f5a48d647dbd91a2c4e5e82c57f
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5576.txt 
+
+commit 9b623dc37a876f5a48d647dbd91a2c4e5e82c57f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (CQL) Proper ColumnFamily metadata validation on CREATE COLUMNFAMILY
+    patch by Jonathan Ellis; reviewed by Pavel Yaskevich for CASSANDRA-3565

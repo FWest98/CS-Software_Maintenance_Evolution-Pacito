@@ -1,0 +1,85 @@
+Pattern changes caused by commit: 6882c11afd78a0e4158df4a3605893906ceff32f
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5124.txt 
+
+commit 6882c11afd78a0e4158df4a3605893906ceff32f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    tolerate whitespace in seed CDL
+    patch by Marcus Eriksson; reviewed by jbellis for CASSANDRA-3263
+
+
+
+==================================
+ Issue CASSANDRA-3263 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3263] Whitespace in SimpleSeedProvider string makes seed ignored
+-----------------
+
+-----------------
+Summary: Whitespace in SimpleSeedProvider string makes seed ignored
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 27 Sep 2011 13:49:43 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 3 Oct 2011 19:35:59 +0000
+-----------------
+
+-----------------
+Assigned to: Marcus Eriksson
+-----------------
+
+-----------------
+Description: 
+
+If a seeds given to SimpleSeedProvider contains whitespace, the seed will be ignored
+
+for
+example "1.2.3.4, 5.6.7.8" will only make 5.6.7.8 a seed.
+
+patch simply trim()s the host.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+trim() host 
+
+
+New Comment: 
+of course i meant that only 1.2.3.4 will became a seed in the example in the description.. 
+
+

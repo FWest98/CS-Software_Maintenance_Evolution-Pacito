@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 2f187c92033b5b3f689d75375308dbf4dbac515f
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8079.txt 
+
+commit 2f187c92033b5b3f689d75375308dbf4dbac515f
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Update version in preparation for 1.2.0-rc1

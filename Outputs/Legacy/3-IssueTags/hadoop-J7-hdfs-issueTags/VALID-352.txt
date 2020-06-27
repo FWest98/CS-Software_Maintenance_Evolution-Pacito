@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8bf59c1a84d0cec00bc945590d8eb857ac08b153
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-352.txt 
+
+commit 8bf59c1a84d0cec00bc945590d8eb857ac08b153
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-767. An improved retry policy when the DFSClient is unable to fetch a
+    block from the datanode.  (Ning Zhang via dhruba)

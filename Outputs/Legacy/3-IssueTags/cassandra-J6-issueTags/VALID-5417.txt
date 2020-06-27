@@ -1,0 +1,22 @@
+Pattern changes caused by commit: e2c2ed61a27428b2b67e7dd06e6fef760b72c6de
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5417.txt 
+
+commit e2c2ed61a27428b2b67e7dd06e6fef760b72c6de
+Author: T Jake Luciani <jake@apache.org>
+
+    merged from 0.8

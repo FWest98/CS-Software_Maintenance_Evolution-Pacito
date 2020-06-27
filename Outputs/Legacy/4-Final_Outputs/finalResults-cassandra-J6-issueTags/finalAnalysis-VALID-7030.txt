@@ -1,0 +1,103 @@
+Pattern changes caused by commit: a846cd659ee1f3f1adcfc9dbf40e63c05ea8cde2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7030.txt 
+
+commit a846cd659ee1f3f1adcfc9dbf40e63c05ea8cde2
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    hsha server may stop responding and will not close selectors
+    patch by Viktor Kuzmin; reviewed by Vijay for CASSANDRA-4370
+
+
+
+==================================
+ Issue CASSANDRA-4370 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4370] hsha server may stop responding and will not close selectors
+-----------------
+
+-----------------
+Summary: hsha server may stop responding and will not close selectors
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 25 Jun 2012 12:20:19 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 26 Jun 2012 01:42:23 +0000
+-----------------
+
+-----------------
+Assigned to: Viktor Kuzmin
+-----------------
+
+-----------------
+Description: 
+
+Cassandra launches several threads to listen on selectors. There can be
+CancelledKeyException and cassandra will log "Unexpected exception". In that case there
+two problems:<br/>1) listener thread will be closed and cassandra will stop after all
+listener threads will stop.<br/>2) selector will be not closed
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch 
+
+
+New Comment: 
+1) I am wondering when will we get the CancelledKeyException? <br/>We might get it when
+the client decides to exit out, isn't it safe to ignore it (may ignore the log as well)
+and let the following code deal with it?<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">                   
+<span class="code-keyword">if</span> (!key.isValid())                    {                
+       <span class="code-comment">// <span class="code-keyword">if</span> invalid
+cleanup.</span>                        cleanupSelectionkey(key);                       
+<span class="code-keyword">continue</span>;                    }</pre></div></div>2) Why
+should we close the selector when one of the key is invalid? 
+
+
+New Comment: 
+1) This code is not enough. Even if key is valid in that expression, it may be invalid in
+next statement - I was able to reproduce it on my boxes with cassandra 1.1.1.<br/>2) We
+should not close selector at all until server shutdown. 
+
+

@@ -1,0 +1,35 @@
+Pattern changes caused by commit: 9828c63b49b98ef3530ef03a075208d4e40c906d
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8682.txt 
+
+commit 9828c63b49b98ef3530ef03a075208d4e40c906d
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Don't generate compaction statistics if logging isn't enabled
+    patch by dbrosius reviewed by jbellis for cassandra-5262

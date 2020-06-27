@@ -1,0 +1,94 @@
+Pattern changes caused by commit: 351110c3c1ec5b43be06f9cd2a3f47abd4f969e9
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4826.txt 
+
+commit 351110c3c1ec5b43be06f9cd2a3f47abd4f969e9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow topology sort to work with non-unique rack names between datacenters
+    patch by Vijay; reviewed by jbellis for CASSANDRA-3152
+
+
+
+==================================
+ Issue CASSANDRA-3152 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3152] Logic of AbstractNetworkTopologySnitch.compareEndpoints is wrong
+-----------------
+
+-----------------
+Summary: Logic of AbstractNetworkTopologySnitch.compareEndpoints is wrong
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 7 Sep 2011 22:22:53 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Sep 2011 00:54:26 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+Current logic in ANTS.cE is to compare the rack and then compare the DC's, the problem is
+when we have the same rack name but the racks are in a diffrent DC's this logic
+breaks...
+
+Example: <br/>"us-east,1a",
+InetAddress.getByName("127.0.0.1")<br/>"us-east,1b",
+InetAddress.getByName("127.0.0.2")<br/>"us-east,1c",
+InetAddress.getByName("127.0.0.3")<br/>"us-west,1a",
+InetAddress.getByName("127.0.0.4")<br/>"us-west,1b",
+InetAddress.getByName("127.0.0.5")<br/>"us-west,1c",
+InetAddress.getByName("127.0.0.6")
+
+Expected:<br/>/127.0.0.1,/127.0.0.3,/127.0.0.2,/127.0.0.4,/127.0.0.5,/127.0.0.6
+
+Current:<br/>/127.0.0.1,/127.0.0.4,/127.0.0.3,/127.0.0.2,/127.0.0.5,/127.0.0.6
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Tested and passed basically moved the DC comparison logic up in ANTS 
+
+
+New Comment: 
+committed 
+
+

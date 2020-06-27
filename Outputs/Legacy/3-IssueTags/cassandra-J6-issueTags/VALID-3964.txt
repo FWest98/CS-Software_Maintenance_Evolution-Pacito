@@ -1,0 +1,23 @@
+Pattern changes caused by commit: f9ffb4777640c6f4b996c982818998000a9f27bd
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3964.txt 
+
+commit f9ffb4777640c6f4b996c982818998000a9f27bd
+Merge: d383294 3b90765
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

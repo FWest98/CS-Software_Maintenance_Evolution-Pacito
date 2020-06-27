@@ -1,0 +1,482 @@
+Pattern changes caused by commit: be22ee49b7156d57378cd4812c38e8b4d0dd03b0
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4478.txt 
+
+commit be22ee49b7156d57378cd4812c38e8b4d0dd03b0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    store hints as serialized mutations instead of pointers to data rows
+    patch by Nick Telford, jbellis, and Patricio Echague for CASSANDRA-2045
+
+
+
+==================================
+ Issue CASSANDRA-2045 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2045] Simplify HH to decrease read load when nodes come back
+-----------------
+
+-----------------
+Summary: Simplify HH to decrease read load when nodes come back
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 24 Jan 2011 21:13:13 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 11 Aug 2011 15:01:39 +0000
+-----------------
+
+-----------------
+Assigned to: Nicholas Telford
+-----------------
+
+-----------------
+Description: 
+
+Currently when HH is enabled, hints are stored, and when a node comes back, we begin
+sending that node data. We do a lookup on the local node for the row to send. To help
+reduce read load (if a node is offline for long period of time) we should store the data
+we want forward the node locally instead. We wouldn't have to do any lookups, just take
+byte[] and send to the destination.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It's a tradeoff &#8211; storing the full mutation would be a much bigger hit on writes. 
+Since we store hints on other replicas, storing just a "pointer" is almost free.when we
+were doing the more expensive HH of storing the hint + row on non-replica nodes, we saw a
+lot of cascading failures; this would be a similar bump in extra work done when HH kicks
+in, so that scares me. 
+
+
+New Comment: 
+I disagree, storing a pointer is not almost free. The trade off you make is read
+performance when nodes come back up. At the moment read performance could very well cause
+cascading failures too. You trade storage vs I/O.  Nodes down for long periods of time,
+would have a bigger impact on the nodes trying to send HH data.Can you clarify, aren't we
+sending the entire row as well? We might be doing paging but if I modify 1 column, and it
+has 1M columns, 1M + 1 columns still get sent? I would agree to having it be tunable, but
+I prefer consistency of performance over storage when it comes to I/O. We brought this up
+because we actually saw this in our live clusters. 
+
+
+New Comment: 
+I think the two approaches are suitable for different kinds of data models. The pointer
+approach is almost certainly better for narrow rows, while worse for large, dynamic rows. 
+
+
+New Comment: 
+Hmm.  We could probably pick which one to use based on the CF histograms we collect now. 
+
+
+New Comment: 
+Do we still need to get this fancy now that we have <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2161" title="throttle hinted handoff
+delivery" class="issue-link"
+data-issue-key="CASSANDRA-2161"><del>CASSANDRA-2161</del></a>? 
+
+
+New Comment: 
+Yes. I think the trade off of storage vs reads even if you throttle. 
+
+
+New Comment: 
+You want to use the pointer approach when your ratio of overwrites : row size is
+sufficiently high &#8211; the biggest win there is when you can turn dozens or hundreds of
+mutations, into replay of just the latest version.Not sure what the best way to estimate
+that is &#8211; Brandon suggested checking SSTable bloom filters on writes.  Which is
+probably low-overhead enough, especially if we just do it only every 10% of writes for
+instance. I kind of like that idea, I think it will be useful in multiple places down the
+road.("Sufficiently high" depends on SSD vs magnetic &#8211; time to introduce a
+postgresql-like random vs sequential penalty setting?) 
+
+
+New Comment: 
+I wanted to suggest two ideas.<ul>	<li>Commit Log<br/>Store it in commit log
+format<br/>Stream the commit log to the awoken host<br/>let the awoken host worry about
+replay throttling</li></ul><ul>	<li>store hints in a separate physical column family.
+Still have hinted pointers<br/>when finding data for the "pointer" the Read has to read
+through the much smaller hinted handoff table, rather then the actual data table.
+This</li></ul><ul>	<li>store hints in separate physical column family (IE write
+twice)<br/>Then stream the files to the awoken node.</li></ul> 
+
+
+New Comment: 
+I've been looking in to this and I have a few observations/questions, although I'm still
+quite new to the Cassandra codebase, so if I'm wrong, please let me
+know.<ul>	<li>Currently, when a node receives a RowMutation containing a hint, it stores
+it to the application CF and places a hint in the system hints CF. This is fine in the
+general case, but writes using CL.ANY may result in hinted RowMutations being sent to
+nodes that don't own that key. They still write the RowMutation to their application CF so
+they can pass it on to the destination node when it recovers. But this data is only ever
+deleted during a manual cleanup. Doesn't this mean that, given a very unstable cluster
+(e.g. EC2) writes using CL.ANY can cause nodes to fill up with data unexpectedly
+quickly?</li></ul><ul>	<li>The JavaDoc for HintedHandOffManager mentions another issue
+caused by the current strategy: cleanup compactions on the application CF will cause the
+hints to become invalid. It goes on to suggest a strategy similar to what's being
+discussed here (placing the individual RowMutations in a separate HH
+CF).</li></ul><ul>	<li>It's probably a good idea to try to retain backwards compatibility
+here as much as possible so that rolling upgrades of a cluster is possible - hints stored
+for the old version need to be deliverable to nodes coming back up with the new version
+and vice versa.</li></ul><ul>	<li>I think Edward's idea of storing hints in a per-node
+CommitLog is a pretty elegant solution, unfortunately it's quite a lot more invasive and
+would be a nightmare for maintaining backwards compatibility. Thoughts?</li></ul> 
+
+
+New Comment: 
+<blockquote>Doesn't this mean that, given a very unstable cluster (e.g. EC2) writes using
+CL.ANY can cause nodes to fill up with data unexpectedly quickly?</blockquote>Sort of.  It
+means you can fill up by at most 1/RF faster than you thought, yes, since rows can only be
+stored on at most once node that is not a replica (the coordinator). The correct fix to
+that is "stabilize your cluster." <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><blockquote>It's probably a good idea to
+try to retain backwards compatibility here as much as possible so that rolling upgrades of
+a cluster is possible</blockquote>Right, but as discussed above we're not planning to move
+to materialized-hints entirely, so ripping out "classic" hints isn't an option
+anyway.<blockquote>I think Edward's idea of storing hints in a per-node CommitLog is a
+pretty elegant solution, unfortunately it's quite a lot more invasive and would be a
+nightmare for maintaining backwards compatibility.</blockquote>serialized mutation objects
+as columns in a row is pretty close to commitlog format, only you can query it w/ normal
+tools. 
+
+
+New Comment: 
+Implements serialized RowMutations for Hints.This should be optional, but currently isn't.
+The "if (true)" should be replaced with some logic to either detect the appropriate
+strategy from the CF histogram or using a manual per-CF setting. I've left this out for
+now pending a consensus on the matter.I'm not hugely familiar with the Cassandra codebase,
+so it's quite possible I've missed something.Unit tests are currently missing, I'll get
+those sorted out next. I wanted to get feedback on the implementation before
+continuing.I've optimised the patch for fewest changes, as such there's lots of room for
+refactoring (e.g. HHM.sendRow() and HHM.sendMutation() share a lot of validation
+code).Importantly, the RowMutations are indexed under a sub-column representing the
+MessagingService.version_ that serialized them. This allows nodes running on a different
+version to classify these hints as invalid and discard them. 
+
+
+New Comment: 
+Looks pretty good to me.  I'd only add that you should use RowMutation.getSerializedBuffer
+(which caches, so you don't redo the serialize unnecessarily for the commitlog as well),
+instead of manually using the serializer.  And of course the obvious about following the
+C* code style (<a href="http://wiki.apache.org/cassandra/CodeStyle" class="external-link"
+rel="nofollow">http://wiki.apache.org/cassandra/CodeStyle</a>).The more I think about it
+the less I think it's worth keeping the old-style hinting around.  The cleanup caveat
+(cleanup will throw out rows that don't belong to this replica, even if they have hints)
+is a pretty big one, even if it's fairly obscure (rows that don't belong will only be
+hinted for CL.ANY when all other replicas are down). 
+
+
+New Comment: 
+<ul>	<li>Rebased patch to latest trunk.</li>	<li>Changed serialization to use cached
+RowMutation.getSerializedBuffer</li></ul>I agree with your thoughts on removing the
+old-style hinting, although I haven't given much thought to the impact on compatibility.
+As far as I can tell, using my patch and removing the old style hinting would be a matter
+of removing <tt>hintedMutation.apply();</tt> from <tt>RowMutationVerbHandler@63</tt>. For
+now, I've left it as-is.I tried to keep to the CodingStyle as much as possible; is there
+anything specific you noticed that was wrong?Btw, the tests I promised have been delayed
+by nightmarish work-schedule. I'll try to get them sorted ASAP though. 
+
+
+New Comment: 
+Code style is generally fine, though there's a few violations of brace-on-newline. <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Attached is my current patchset for this issue, rebased against trunk as of 23rd
+June.Patches 2, 5 and 6 are optional. 2 and 5 simply remove what I perceive to be
+redundant code; 6 entirely removes the old-style hint storage.Thanks for the tip on coding
+style, I actually noticed my mistakes shortly after asking - those damn braces, old habits
+die hard! 
+
+
+New Comment: 
+Sorry, patch failures on 0001 already. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+It's quite possible that my previous patchset wasn't quite right. I'm still getting used
+to the git/apache workflow.I've rebased against trunk again and tested this set with `git
+am`. Should apply now. 
+
+
+New Comment: 
+Thanks!For v3 I merged patches and did some cleanup.It looks like we do a query per hint
+to look up its version on replay?  I think we can avoid that (one of the benefits of the
+new approach is we should be able to just do seq reads of a hint row on replay).  Why not
+just add version in as another subcolumn of the hint entry?HHOM javadoc needs to be
+updated.Minor: looks like HHOM.getTableAndCFNames is unused, can be removed. 
+
+
+New Comment: 
+Thought of something else: if we're storing the full mutation, why add the complexity of
+hint headers and forwarding?  Can we just make the coordinator responsible for all hints
+instead? 
+
+
+New Comment: 
+What if the coordinator happens to be one of the replicas for that key? Having the
+coordinator store the hint would mean it wasn't replicated at the replication_factor. The
+same is true for a coordinator that's not a replica for a key, but has to store a hint for
+multiple nodes (i.e. when multiple replicas are down).I don't like this; I was under the
+impression that HintedHandoff helps to retain the replication factor even in the face of
+failed replicas. 
+
+
+New Comment: 
+<blockquote>I was under the impression that HintedHandoff helps to retain the replication
+factor even in the face of failed replicas.</blockquote>Nope. If you require N replicas to
+be written, then you should use an appropriate consistency level.In 0.6+ hints are stored
+to other live replicas whenever possible (i.e. you still have less total replicas written)
+unless, as you noted, no replicas are alive and you're writing at CL.ANY.So my point is
+that after we move away from storing hints as pointers to row data, there's no reason for
+the "prefer other replicas" optimization so we might as well just always store it on the
+coordinator. 
+
+
+New Comment: 
+<blockquote>It looks like we do a query per hint to look up its version on replay? I think
+we can avoid that (one of the benefits of the new approach is we should be able to just do
+seq reads of a hint row on replay). Why not just add version in as another subcolumn of
+the hint entry?</blockquote>I don't quite follow this. The new schema for hints doesn't
+really allow sequential reads of the row. Here's what I currently have:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>Old-----Hints: {                    // cf  &lt;dest ip&gt;: {          
+   // key    &lt;key&gt;: {                // super-column      &lt;table&gt;-&lt;cf&gt;:
+null    // column    }  }}New------Hints: {                    // cf  &lt;dest ip&gt;: {  
+           // key    &lt;key&gt;: {                // super-column     
+&lt;table&gt;-&lt;cf&gt;: &lt;id&gt;    // column    }  }}HintedMutations: {          //
+cf  &lt;dest ip&gt;: {              // key    &lt;id&gt;: {                 //
+super-column      &lt;version&gt;: &lt;mutation&gt; // column    } 
+}}</pre></div></div>The point was to retain backwards compatability with the old Hints (so
+we don't have to expunge old ones on upgrade), but if we feel that we gain more by
+breaking this compatibility I'm open to it. As has been previously mentioned, losing hints
+during upgrade isn't the end of the world as they're little more than an optimization. 
+
+
+New Comment: 
+<blockquote>if we're storing the full mutation, why add the complexity of hint headers and
+forwarding? Can we just make the coordinator responsible for all hints
+instead?</blockquote><blockquote>So my point is that after we move away from storing hints
+as pointers to row data, there's no reason for the "prefer other replicas" optimization so
+we might as well just always store it on the coordinator.</blockquote>While I agree with
+this, it seems that changing this is non-trivial (lots of changes to StorageProxy by the
+looks of it) so I'm leaning towards not including it in this ticket. It seems like an
+isolated idea though, albeit one that depends on this issue. Can we open this as a
+dependent ticket? 
+
+
+New Comment: 
+Another consideration: If we're moving away from the old hint storage layout, we can
+optimize for cases where the same RowMutation needs to be delivered to multiple endpoints
+(i.e. multiple replicas are down). This can be done by moving the "destination IP" down to
+the bottom level of the map so each RowMutation maps to multiple destinations.Thoughts? 
+
+
+New Comment: 
+That's bad though, because then we can't access hints efficiently on a node up/down
+message (we actually did it that way in 0.6 and learned our lesson.) 
+
+
+New Comment: 
+<blockquote>losing hints during upgrade isn't the end of the world</blockquote>Right.  I'm
+saying we should do this:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>Hints: {                    // cf  &lt;dest
+ip&gt;: {              // key    &lt;key&gt;: {                // super-column     
+&lt;table&gt;-&lt;cf&gt;: &lt;id&gt;    // column      mutation: &lt;mutation&gt;  //
+column    }  }}</pre></div></div>So we denormalize but we gain not having to do
+secondary-lookup-per-mutation, which is our main motivation for the change.  (And
+single-destination-per-hint is by far the common case.)<blockquote>Can we open this as a
+dependent ticket?</blockquote>WFM. 
+
+
+New Comment: 
+<blockquote>That's bad though, because then we can't access hints efficiently on a node
+up/down message (we actually did it that way in 0.6 and learned our
+lesson.)</blockquote>Good point. I retract that idea. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><blockquote>So we denormalize but we gain
+not having to do secondary-lookup-per-mutation, which is our main motivation for the
+change. (And single-destination-per-hint is by far the common case.)</blockquote>I'm a bit
+confused here. There could be many mutations for a single key, we'd need to store each of
+them. I do like the idea of being able to slide the mutations though. Perhaps we could
+form the key from a compound of the key-table-cf, so it would look something like
+this:<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>Hints: {                    // cf  &lt;dest
+ip&gt;: {              // key    &lt;key&gt;-&lt;table&gt;-&lt;cf&gt;: {   // super-column
+     &lt;version&gt;: &lt;mutation&gt; // column    }  }}</pre></div></div>Or is it vital
+that the key is stored separately from the table and cf? 
+
+
+New Comment: 
+oops, didn't look too closely to what I was pasting.<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>Hints: {    
+               // cf  &lt;dest ip&gt;: {              // key    &lt;uuid&gt;: {           
+   // super-column      table: &lt;table&gt;        // columns      key: &lt;key&gt;     
+mutation: &lt;mutation&gt;      }  }}</pre></div></div>(Mutations can contain multiple CFs
+so storing a single CF value wouldn't make sense.) 
+
+
+New Comment: 
+Ok, that makes sense. I've implemented this in my tree (albeit with an additional
+"version" column to store the serialization version). I won't post the patch yet as I need
+to go through it all and ensure it's correct and clean it up a little.As an aside: while
+digging into RowMutationSerializer, I noticed that the "version" passed to deserialize()
+is ignored - is this intentional? 
+
+
+New Comment: 
+<blockquote>I noticed that the "version" passed to deserialize() is ignored - is this
+intentional</blockquote>Just means RM serialization hasn't changed since we started
+versioning the protocol. 
+
+
+New Comment: 
+Since we're now deserializing the RowMutation we find for a hint, we're going to need to
+start at least ensuring the version matches MessagingService.version_. At the moment, this
+is done by HHOM, but I'd feel more comfortable having it in
+RowMutationSerializer.deserialize().What would be preferable here? I was thinking of
+throwing an Exception in deserialize, but I'm concerned about other callers not handling
+it properly. 
+
+
+New Comment: 
+It's fine the way it is. It's simpler if the deserializers can assume they will get a
+valid version. 
+
+
+New Comment: 
+Nicholas, what is the status of this ticket? I'm willing to help if you need me to. Please
+let me know. 
+
+
+New Comment: 
+Sorry about the delay to this, my free time this month has been pretty sparse.This patch
+combines all previous changes and uses the new hint storage format we discussed above.On
+my machine, a pile of unrelated tests are failing (mostly in
+SSTable.estimateRowsFromIndex), but I suspect this is an issue with my test setup.If you
+prefer, the full workflow for this patch is available on GitHub: <a
+href="https://github.com/nicktelford/cassandra/tree/CASSANDRA-2045" class="external-link"
+rel="nofollow">https://github.com/nicktelford/cassandra/tree/CASSANDRA-2045</a> 
+
+
+New Comment: 
+<blockquote>if we're storing the full mutation, why add the complexity of hint headers and
+forwarding? Can we just make the coordinator responsible for all hints
+instead?</blockquote>Created <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2914" title="Simplify HH to always
+store hints on the coordinator" class="issue-link"
+data-issue-key="CASSANDRA-2914"><del>CASSANDRA-2914</del></a> for this followup. 
+
+
+New Comment: 
+v5 fixes a couple bugs and updates the javadoc for HintedHandoffManager.Patricio, can you
+test that hint creation / replay works as expected? 
+
+
+New Comment: 
+Getting this:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [MutationStage:40] 2011-07-19 11:52:58,649
+AbstractCassandraDaemon.java (line 138) Fatal exception in thread <span
+class="code-object">Thread</span>[MutationStage:40,5,main]java.lang.AssertionError:
+-836382071	at
+org.apache.cassandra.db.ExpiringColumn.&lt;init&gt;(ExpiringColumn.java:55)	at
+org.apache.cassandra.db.ExpiringColumn.&lt;init&gt;(ExpiringColumn.java:48)	at
+org.apache.cassandra.db.ColumnFamily.addColumn(ColumnFamily.java:135)	at
+org.apache.cassandra.db.RowMutation.add(RowMutation.java:173)	at
+org.apache.cassandra.db.RowMutation.hintFor(RowMutation.java:114)	at
+org.apache.cassandra.db.RowMutationVerbHandler.doVerb(RowMutationVerbHandler.java:61)	at
+org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:59)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:680)</pre></div></div> 
+
+
+New Comment: 
+v6 fixes some variable name confusion in RM.hintFor, and deserialization from a direct
+buffer in replay. 
+
+
+New Comment: 
+Jonathan/all, the hints delivery seems to be broken in trunk. However, triggering manually
+the deliverHints() through JConsole effectively delivers the hints to the replica and
+remove them from the sender. 
+
+
+New Comment: 
+So delivery is broken prior to this ticket? 
+
+
+New Comment: 
+I think <a href="https://issues.apache.org/jira/browse/CASSANDRA-2668" title="don&#39;t
+perform HH to client-mode nodes" class="issue-link"
+data-issue-key="CASSANDRA-2668"><del>CASSANDRA-2668</del></a> broke it.  state.hasToken()
+is set in the Gossiper's status check, which won't have happened when the onAlive event is
+sent to SS.  hasToken relies entirely on TM.isMember though, so maybe that is the better
+check. 
+
+
+New Comment: 
+<blockquote>state.hasToken() is set in the Gossiper's status check, which won't have
+happened when the onAlive event is sent to SS.</blockquote>It looks to me though like once
+set it's permanent.  How does it get un-set? 
+
+
+New Comment: 
+It never gets unset, since a participating node can never suddenly become a fat client. 
+However, the Ack and Ack2 verb handlers are applying a new ep state every time there is a
+generation change via Gossiper.applyStateLocally, so it's always unset initially when the
+node starts up.  We should probably make hasToken private, since really that is what the
+Gossiper uses internally to determine if it needs to evict a dead fat client. 
+
+
+New Comment: 
+Created <a href="https://issues.apache.org/jira/browse/CASSANDRA-2928" title="Fix Hinted
+Handoff replay" class="issue-link"
+data-issue-key="CASSANDRA-2928"><del>CASSANDRA-2928</del></a> to fix this. 
+
+
+New Comment: 
+Tested with <a href="https://issues.apache.org/jira/browse/CASSANDRA-2928" title="Fix
+Hinted Handoff replay" class="issue-link"
+data-issue-key="CASSANDRA-2928"><del>CASSANDRA-2928</del></a> patch and it works
+perfectly.Test environment:<ul class="alternate" type="square">	<li>2 nodes on localhost
+(127.0.02 and .3)</li></ul>Test case:<ul class="alternate" type="square">	<li>start both
+nodes</li>	<li>create the schema for testing</li>	<li>stop node 1</li>	<li>insert 5 keys
+into node 2.</li>	<li>verified HintsColumnFamily that has 5 entries in node
+2.</li>	<li>start node 1.</li>	<li>Verify that node 1 has the new data</li>	<li>Verify
+that node 2 deleted the delivered hints.</li></ul> 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 1bd7b421026e1d4fc0e1db265f99a898f7000256
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5715.txt 
+
+commit 1bd7b421026e1d4fc0e1db265f99a898f7000256
+Merge: 2eacaf7 c68e90b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

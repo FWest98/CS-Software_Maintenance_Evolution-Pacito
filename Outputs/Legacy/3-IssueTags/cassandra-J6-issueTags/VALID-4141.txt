@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 41954ffcf747cdf0052d2d92480e95b3d17ee715
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4141.txt 
+
+commit 41954ffcf747cdf0052d2d92480e95b3d17ee715
+Merge: 11eba37 43c05d9
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7 (#2693)

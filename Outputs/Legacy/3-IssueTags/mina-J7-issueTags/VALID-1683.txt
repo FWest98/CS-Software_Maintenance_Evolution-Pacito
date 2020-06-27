@@ -1,0 +1,16 @@
+Pattern changes caused by commit: d7fbec2c58b6279e60c3e8ed3963875d26c1f199
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1683.txt 
+
+commit d7fbec2c58b6279e60c3e8ed3963875d26c1f199
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Added javadoc & minor fixes to the handling of InetSocketAddress vars

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: b226ae59311c31cb739c956d7e45f33477380678
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7955.txt 
+
+commit b226ae59311c31cb739c956d7e45f33477380678
+Author: Dave Brosius <dbrosius@apache.org>
+
+    add cli documentation for using composites
+    patch by dbrosius reviewed by jbellis for CASSANDRA-3151

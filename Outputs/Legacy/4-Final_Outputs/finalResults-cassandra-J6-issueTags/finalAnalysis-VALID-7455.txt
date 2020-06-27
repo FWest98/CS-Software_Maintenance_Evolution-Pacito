@@ -1,0 +1,120 @@
+Pattern changes caused by commit: 5a63858d0d9896baab66b12f2d83f424e5c0fbfa
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7455.txt 
+
+commit 5a63858d0d9896baab66b12f2d83f424e5c0fbfa
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: suggesting cql3 to cql2 users when they get an error and their
+    statement appears to parse for cql 2, and vice versa.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4454
+
+
+
+==================================
+ Issue CASSANDRA-4454 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4454] Add a notice on cqlsh startup about CQL2/3 switches
+-----------------
+
+-----------------
+Summary: Add a notice on cqlsh startup about CQL2/3 switches
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 20 Jul 2012 15:56:08 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 13 Sep 2012 19:03:36 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+Several developers I've talked with seem not to have noticed the <tt>-3</tt> switch
+immediately to run in CQL3 mode. If missing, cqlsh can obviously appear buggy in its way
+to handle CQL3.<br/>I guess it would be worth to add a notice at startup about this
+important detail.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It does actually tell you this on startup:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>cassandra-3:/srv/cassandra# bin/cqlsh cassandra-3Connected to Test
+Cluster at cassandra-3:9160.[cqlsh 2.2.0 | Cassandra unknown | CQL spec 2.0.0 | Thrift
+protocol 19.33.0]Use HELP for help.cqlsh&gt; cassandra-3:/srv/cassandra# bin/cqlsh
+cassandra-3 -3Connected to Test Cluster at cassandra-3:9160.[cqlsh 2.2.0 | Cassandra
+unknown | CQL spec 3.0.0 | Thrift protocol 19.33.0]Use HELP for help.cqlsh&gt;
+</pre></div></div> 
+
+
+New Comment: 
+Indeed the way it's currently mentioned is enough for experienced users. On the other hand
+newcomers might not even be familiar with the fact we're in the middle of a CQL grammar
+switch, then they run cqlsh with default settings, copy paste an example of CQL3 DDL with
+a composite column from a web page and end up with something like this:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>cqlsh:mykeyspace&gt; CREATE TABLE timeline (              ...         
+user_id varchar,              ...          tweet_id uuid,              ...          author
+varchar,              ...          body varchar,              ...          PRIMARY KEY
+(user_id, tweet_id));Bad Request: line 6:40 mismatched input ')' expecting
+EOF</pre></div></div>This is an example of confusing error you can have pushing CQL3
+commands. The fact that several guys had difficulties with this situation tends to show
+that a message like "<tt>Consider using -3 switch to enable CQL3</tt> would be useful,
+either at startup or when a CQL2/3 grammar mismatch occur. As the former is trivial to
+implement, I was suggesting it. 
+
+
+New Comment: 
+I'd prefer a hint message like "<tt>Consider using -3</tt>" over adding more text to the
+startup banner. It seems to me like people don't usually pay much attention to that. 
+
+
+New Comment: 
+Added a notice suggesting cql 3 to cql 2 users when they get an error and their statement
+appears to parse for cql 2, and vice versa. Changes in my github clone:<a
+href="http://github.com/thepaul/cassandra/tree/4454" class="external-link"
+rel="nofollow">http://github.com/thepaul/cassandra/tree/4454</a>current version is tagged
+pending/4454. 
+
+

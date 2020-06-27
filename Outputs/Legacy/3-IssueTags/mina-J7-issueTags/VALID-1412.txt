@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 1f9d3261f4aa65f4ce1a0a593f88258c89f98e97
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1412.txt 
+
+commit 1f9d3261f4aa65f4ce1a0a593f88258c89f98e97
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-584 (Using apr-transport crashes jvm on Linux)
+    * Made sure a socket is destroyed only once

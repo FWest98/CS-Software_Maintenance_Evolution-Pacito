@@ -1,1 +1,0 @@
-pinot: expr.cpp:481: void Semantic::ReportMethodNotFound(AstMethodInvocation*, TypeSymbol*): Assertion `base' failed.

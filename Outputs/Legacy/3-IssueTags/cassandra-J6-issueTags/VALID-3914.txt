@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 96a04d294837201a23c53b539a419ad84a012a06
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3914.txt 
+
+commit 96a04d294837201a23c53b539a419ad84a012a06
+Merge: ac5f549 5e6539a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

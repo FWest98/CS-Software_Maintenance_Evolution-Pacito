@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 541e0b38d33c4035d1241ef8fe38a2c23e054454
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3525.txt 
+
+commit 541e0b38d33c4035d1241ef8fe38a2c23e054454
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    clear Built flag in system table when dropping an index
+    patch by jbellis; reviewed by mdennis for CASSANDRA-2320
+
+
+
+==================================
+ Issue CASSANDRA-2320 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2320] Dropping an index leaves index in Built state in system table
+-----------------
+
+-----------------
+Summary: Dropping an index leaves index in Built state in system table
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 13 Mar 2011 04:43:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 14 Mar 2011 19:58:18 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+setIndexRemoved was called with the wrong columnfamily name, so the old index name
+remained in the built state.this is harmless unless you want to recreate the index
+afterwards, and then it is fatal (because addIndex says "never mind, it's already built). 
+Workaround is to give a different index name when re-creating.patch attached with failing
+test + fix. 
+
+
+New Comment: 
+I'd rather see the index build scheduled at the end of addIndex scheduled via an executor
+of some sort instead of creating a new thread each time, but otherwise patch looks good. 
+
+
+New Comment: 
+committed 
+
+

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 66026510dfb300b6d66e114ea1df70f46112b7c7
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8104.txt 
+
+commit 66026510dfb300b6d66e114ea1df70f46112b7c7
+Merge: 91f36f6 2e27123
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2.0

@@ -1,0 +1,26 @@
+Pattern changes caused by commit: e1b10590e84189b92af168e33a63c14c3ca1f5fa
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7366.txt 
+
+commit e1b10590e84189b92af168e33a63c14c3ca1f5fa
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix FD leak in slice queries
+    patch by jbellis; reviewed by Sam Tunnicliffe and tested by brandonwilliams

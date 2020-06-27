@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 8cfd45906682b7a2a0e3cd73e9e852b2bceaa498
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-217.txt 
+
+commit 8cfd45906682b7a2a0e3cd73e9e852b2bceaa498
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-657. Remove unused legacy data-node protocol methods. Contributed by Konstantin Shvachko.

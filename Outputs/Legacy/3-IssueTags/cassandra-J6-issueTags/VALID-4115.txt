@@ -1,0 +1,23 @@
+Pattern changes caused by commit: ed7f7e8f57e34f33b74e9c6e5179facc619ccbcf
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4115.txt 
+
+commit ed7f7e8f57e34f33b74e9c6e5179facc619ccbcf
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix IntegerType.getString with direct buffers
+    patch by Ed Anuff; reviewed by jbellis for CASSANDRA-2684

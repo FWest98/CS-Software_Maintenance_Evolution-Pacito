@@ -1,0 +1,118 @@
+Pattern changes caused by commit: 742648c821bb5922018423ff5f360233017a08ba
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6004.txt 
+
+commit 742648c821bb5922018423ff5f360233017a08ba
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig's objToBB should handle all types.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-3886
+
+
+
+==================================
+ Issue CASSANDRA-3886 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3886] Pig can't store some types after loading them
+-----------------
+
+-----------------
+Summary: Pig can't store some types after loading them
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 10 Feb 2012 15:59:14 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 13 Feb 2012 20:55:49 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+In <a href="https://issues.apache.org/jira/browse/CASSANDRA-2810" title="RuntimeException
+in Pig when using &quot;dump&quot; command on column name" class="issue-link"
+data-issue-key="CASSANDRA-2810"><del>CASSANDRA-2810</del></a>, we removed the decompose
+methods in putNext instead relying on objToBB, however it cannot sufficiently handle all
+types.  For instance, if longs are loaded and then an attempt to store them is made, this
+causes a cast exception: java.io.IOException: java.io.IOException:
+java.lang.ClassCastException: java.lang.Long cannot be cast to
+org.apache.pig.data.DataByteArray Output must be (key, 
+{(column,value)...}) for
+ColumnFamily or (key, {supercolumn:{(column,value)...}
+...}) for SuperColumnFamily
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to convert all possible types.  Includes UUID, even though setTupleValue should make
+it impossible for a UUID to get here, just in case. 
+
+
+New Comment: 
++1, with following nit: I think we should make objToBB method uniform and return in each
+case e.g.<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>private ByteBuffer objToBB(Object o){    if
+(o == null)        return (ByteBuffer)o;    if (o instanceof java.lang.String)       
+return new DataByteArray((String)o);    if (o instanceof Integer)        return
+IntegerType.instance.decompose((BigInteger)o);    if (o instanceof Long)        return
+LongType.instance.decompose((Long)o);    if (o instanceof Float)        return
+FloatType.instance.decompose((Float)o);    if (o instanceof Double)        return
+DoubleType.instance.decompose((Double)o);    if (o instanceof UUID)        return
+ByteBuffer.wrap(UUIDGen.decompose((UUID) o));        return null;}</pre></div></div> 
+
+
+New Comment: 
+Committed w/nit fixed. 
+
+
+New Comment: 
+We actually do need the catch-all:<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>return
+ByteBuffer.wrap(((DataByteArray) o).get());</pre></div></div>To cast all the pig-native
+types like CharArray, but these are all guaranteed to be castable to DataByteArray. 
+
+
+New Comment: 
++1 
+
+

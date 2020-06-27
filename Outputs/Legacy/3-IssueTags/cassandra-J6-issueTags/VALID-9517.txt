@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 72ca5e6bfb8d52f8f66b992b6a562ae63f01d897
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9517.txt 
+
+commit 72ca5e6bfb8d52f8f66b992b6a562ae63f01d897
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix typo in CQL doc

@@ -1,0 +1,103 @@
+Pattern changes caused by commit: 5cc12f37f6419a80efaa7341e8a284e19165ef30
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6131.txt 
+
+commit 5cc12f37f6419a80efaa7341e8a284e19165ef30
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    always compact away deleted hints immediately after handoff
+    patch by brandonwilliams and jbellis for CASSANDRA-3955
+
+
+
+==================================
+ Issue CASSANDRA-3955 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3955] HintedHandoff won't compact a single sstable, resulting in repeated log messages
+-----------------
+
+-----------------
+Summary: HintedHandoff won't compact a single sstable, resulting in repeated log messages
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 24 Feb 2012 15:33:20 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 24 Feb 2012 16:47:07 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+First introduced by <a href="https://issues.apache.org/jira/browse/CASSANDRA-3554"
+title="Hints are not replayed unless node was marked down" class="issue-link"
+data-issue-key="CASSANDRA-3554"><del>CASSANDRA-3554</del></a>, and then mostly solved in
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-3733" title="Once a host has been
+hinted to, log messages for it repeat every 10 mins even if no hints are delivered"
+class="issue-link" data-issue-key="CASSANDRA-3733"><del>CASSANDRA-3733</del></a>, there is
+still one special case where the HH log message will repeat every 10 mins for 0 rows: when
+there have previously been hints delivered to the node, but now only a single sstable
+exists.  Because the we refused to compact a single sstable, and it contains tombstones
+for the hints, the message repeats.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-3442" title="TTL histogram for
+sstable metadata" class="issue-link"
+data-issue-key="CASSANDRA-3442"><del>CASSANDRA-3442</del></a> seems like the "right" way
+to fix this.  Is it an easy special case for 1.0.9? 
+
+
+New Comment: 
+No need to special case, instead we'll just always force a user defined compaction. 
+
+
+New Comment: 
+v2 attached to cover both places HHOM compacts 
+
+
+New Comment: 
++1 
+
+

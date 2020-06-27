@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 851472062193ee3d14f4ae999c2a76703cac81c6
+
+From: Facade-3
+To:   Facade-5
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-962.txt 
+
+commit 851472062193ee3d14f4ae999c2a76703cac81c6
+Author: Mike Heath <mheath@apache.org>
+
+    Added utility methods for adding a collection of types per encoder.

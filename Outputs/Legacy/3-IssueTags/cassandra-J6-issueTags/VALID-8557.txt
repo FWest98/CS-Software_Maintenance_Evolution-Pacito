@@ -1,0 +1,35 @@
+Pattern changes caused by commit: f4a941e49fa6557190dd03335bdf39e52191992a
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8557.txt 
+
+commit f4a941e49fa6557190dd03335bdf39e52191992a
+Merge: 8540974 3298c2f
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2

@@ -1,0 +1,27 @@
+Pattern changes caused by commit: e7f28f30320bae4faa1092567d7b9b46f8947842
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7478.txt 
+
+commit e7f28f30320bae4faa1092567d7b9b46f8947842
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: catch IOError on history loading
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-4669

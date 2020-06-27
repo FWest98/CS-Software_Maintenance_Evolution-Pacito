@@ -1,0 +1,226 @@
+Pattern changes caused by commit: d910cdb2db1919a4aa7c73b78d8107434df82223
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4338.txt 
+
+commit d910cdb2db1919a4aa7c73b78d8107434df82223
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow deleting a rowand updating indexed columns init in the same mutation
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2773
+
+
+
+==================================
+ Issue CASSANDRA-2773 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2773] "Index manager cannot support deleting and inserting into a row in the same mutation"
+-----------------
+
+-----------------
+Summary: "Index manager cannot support deleting and inserting into a row in the same mutation"
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 15 Jun 2011 03:10:33 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 30 Jun 2011 01:02:54 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+I use hector 0.8.0-1 and cassandra 0.8.
+
+1. create mutator by using hector api, <br/>2.
+Insert a few columns into the mutator for key "key1", cf "standard". <br/>3. add a
+deletion to the mutator to delete the record of "key1", cf "standard".<br/>4. repeat 2 and
+3<br/>5. execute the mutator.
+
+the result: the connection seems to be held by the sever
+forever, it never returns. when I tried to restart the cassandra I saw
+unsupportedexception : "Index manager cannot support deleting and inserting into a row in
+the same mutation". and the cassandra is dead forever, unless I delete the commitlog. 
+
+I
+would expect to get an exception when I execute the mutator, not after I restart the
+cassandra.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Like it says, you will have to send your deletes and mutations in different mutations. 
+
+
+New Comment: 
+sure, I know what you mean.however, when the user uses it the wrong way, the server should
+at least response an error or exception... not just hold the connection and do
+nothing...In addition, the server should not be dead forever, when this kind of exception
+occurs. 
+
+
+New Comment: 
+You're right, there's a validation problem here. 
+
+
+New Comment: 
+we could add some valdation logic but it looks like it's almost as easy to just remove
+this limitation.  patch to do this attached. 
+
+
+New Comment: 
+Hum, we cannot remove the column from cf in ignoreObsoleteMutations() because cf is the
+original column family from the row mutation and that's racy with commit log write (à la
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-2604" title="EOFException on
+commitlogs" class="issue-link"
+data-issue-key="CASSANDRA-2604"><del>CASSANDRA-2604</del></a>). We should clone the column
+family, but maybe it's simpler to add validation logic after all ? In any case, it could
+be worth it adding some comment in Table.apply() or Table.ignoreObsoleteMutations(). 
+
+
+New Comment: 
+<blockquote>we cannot remove the column from cf in
+ignoreObsoleteMutations()</blockquote>You're right.  Fortunately I don't think that's
+actually necessary.  v2 attached. 
+
+
+New Comment: 
+Right, +1. I still think we should add a comment somewhere saying we shouldn't change cf
+(and that there is no reason to change it anyway). 
+
+
+New Comment: 
+Committed, with comment.  (I wish CF objects could be immutable AND efficient...) 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #187 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/187/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/187/</a>)<br/>    allow
+deleting a rowand updating indexed columns init in the same mutation<br/>patch by jbellis;
+reviewed by slebresne for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2773"
+title="&quot;Index manager cannot support deleting and inserting into a row in the same
+mutation&quot;" class="issue-link"
+data-issue-key="CASSANDRA-2773"><del>CASSANDRA-2773</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1138959"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1138959</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/db/Table.java</li></ul> 
+
+
+New Comment: 
+We are experiencing this issue on a cluster running 0.7.6-2. Once this occurs on a server,
+the same message is repeated over and over again in system.log. When we attempted to
+restart the box it failed. I will attach the log to this issue. 
+
+
+New Comment: 
+Log of failed restart attempt 
+
+
+New Comment: 
+Marked as critical, because when this occurs the server will not restart without removing
+commitlog and attending loss of data. 
+
+
+New Comment: 
+I explained on-list that I'm not comfortable committing this to 0.7.  The critical thing
+we need to deliver in 0.7 at this stage is stability.  The rarity of the problem combined
+with the complexity of the code involved leads me to conclude that it's better to live
+with a bug we know how to avoid, than risk introducing new ones.  Remember, the risk of
+new bugs affects <em>everyone</em>, while the fix can only benefit those who were
+generating the unusual mutation pattern here.  It's our responsibility to take a balanced
+view.For the rare people who do find themselves affected here, your options include<ul
+class="alternate" type="square">	<li>stay on &lt; 0.7.6</li>	<li>drain the commitlog with
+an earlier version before upgrading, then re-upgrade to 0.7.6 after fixing your code to
+not generate problematic mutations</li>	<li>run an unofficial build with this patch
+included</li>	<li>upgrade to 0.8.2 when released</li></ul> 
+
+
+New Comment: 
+I disagree. This is a bug which allows a client to make a cluster unresponsive by
+performing a seemingly innocuous series of operations. If that happens, the cluster is
+un-restartable without loss of data. I wouldn't call a release where this can occur
+"stable". So if the goal for 0.7 is stability...WRT "fixing your code to not generate
+problematic mutations," this may be difficult to do. I have so far identified code that
+does deletes followed by updates in the same mutation, but I haven't yet found any updates
+followed by deletes. Are we sure that only the update-followed-by-delete scenario is
+problematic?In any case, even after reviewing all our code for the relevant scenarios, I
+would not feel comfortable deploying an 0.7 release with this vulnerability to production.
+The risk of a catastrophic failure is too great. 
+
+
+New Comment: 
+Actually, there isn't really much risk for data loss given that as Jonathan said, if you
+hit that, it's fairly easy to go back to 0.7.5, fix client code and upgrade again. Granted
+this is not user friendly and not something you should expect from a minor upgrade, but
+let at least set the record straight on the data loss part.That being said, I don't think
+the patch on this ticket could screw up indexes more that we use to prior to 0.7.6, so
+maybe we can commit to 0.7.7 on that ground.I'd still suggest fixing client code in the
+meantime. 
+
+
+New Comment: 
+<blockquote>I don't think the patch on this ticket could screw up indexes more that we use
+to prior to 0.7.6</blockquote>That's a valid way to frame the issue.I'm good to commit for
+0.7.7 if Jim can test the patch first, since he's the only one we've heard of hitting this
+in 0.7.x.  (Specifically, we want to make sure that if we query "WHERE foo = X" we don't
+get results back where foo is something other than X.  Ideally you'd start with an empty
+database, or at least drop + recreate indexes first to make sure the results aren't
+contaminated w/ corrupt entries from pre-0.7.6.) 
+
+
+New Comment: 
+I applied the 0.8 patch and added a couple of tests to ColumnFamilyStoreTest. The tests
+trigger the UnsupportedOperationException in 0.7.6 and return the correct values with the
+patch applied. Would you like me to test the same scenario against an actual patched
+server? 
+
+
+New Comment: 
+Thanks for the test case, Jim.If by the same scenario, you mean the workload that left
+your commitlog throwing exceptions, then yes please. 
+
+
+New Comment: 
+We have deployed and tested 0.7.6 plus this patch to the affected cluster. The cluster
+restarted successfully and the tests that caused the original failure ran successfully. In
+addition, functional tests of our applications show no regressions. I also reviewed the
+Cassandra system logs after the testing and saw no errors or obvious problems. 
+
+
+New Comment: 
+committed.  Thanks, Jim! 
+
+

@@ -1,0 +1,92 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Flyweight Pattern.
+OutputBuffer is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/OutputBuffer.java
+
+Flyweight Pattern.
+DataOutputBuffer is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/DataOutputBuffer.java
+
+Flyweight Pattern.
+HeaderTypes is a flyweight factory.
+TASK_PROFILE_CHAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/HeaderTypes.java
+
+Flyweight Pattern.
+ProtocolHeader is a flyweight factory.
+SERIALIZER is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/ProtocolHeader.java
+
+Template Method Found.
+WrappedRunnable is the template class
+run is the template method
+runMayThrow is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/WrappedRunnable.java
+
+Factory Method pattern.
+FileDataInput is a Factory Method class.
+BufferedRandomAccessFile is a concrete Factory Method class.
+mark is a factory method returns  BufferedRandomAccessFileMark
+ which extends FileMark
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedRandomAccessFile.java
+
+Factory Method pattern.
+SegmentedFile is a Factory Method class.
+BufferedSegmentedFile is a concrete Factory Method class.
+getSegment is a factory method returns  BufferedRandomAccessFile
+ which extends FileDataInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+Factory Method pattern.
+Builder is a Factory Method class.
+Builder is a concrete Factory Method class.
+complete is a factory method returns  BufferedSegmentedFile
+ which extends SegmentedFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            3
+Factory Method              3
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   4
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    0
+Template Method             1
+Visitor                     0
+------------------------------
+
+Number of classes processed: 59
+Number of files processed: 468
+Size of DelegationTable: 144
+Size of concrete class nodes: 29
+Size of undirected invocation edges: 5
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 2/4
+nFlyweightGoFVersion = 0

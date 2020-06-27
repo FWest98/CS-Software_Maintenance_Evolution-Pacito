@@ -1,0 +1,17 @@
+Pattern changes caused by commit: ab72dc9270bc14235ea81f7fc73da1b780f657e5
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4442.txt 
+
+commit ab72dc9270bc14235ea81f7fc73da1b780f657e5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Proper function support and key validation for cli deletes.
+    Patch by Pavel Yaskevich, reviewed by brandonwilliams for CASSANDRA-2821

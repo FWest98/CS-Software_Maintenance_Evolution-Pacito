@@ -1,0 +1,98 @@
+Pattern changes caused by commit: a12aa08154faaae7e096d8a6f500d1b352ef94b8
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7119.txt 
+
+commit a12aa08154faaae7e096d8a6f500d1b352ef94b8
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    If detected cores is zero, try at least one.
+    Patch by Andy Cobley, reviewed by brandonwilliams for CASSANDRA-4401
+
+
+
+==================================
+ Issue CASSANDRA-4401 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4401] If processor is missing from /proc/cpuinfo, cassandra will not start
+-----------------
+
+-----------------
+Summary: If processor is missing from /proc/cpuinfo, cassandra will not start
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 2 Jul 2012 15:17:26 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 Jul 2012 14:30:02 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+cassandra.env.sh does an egrep on /proc/cpuinfo in order to find the number of processors
+on the system.  If /proc/cpuinfo does not contain a processor :# line then the script will
+fail because of a divide  by 0 error.  Changing the Linux section of cassandra.env.sh
+to:
+
+Linux)<br/>            system_memory_in_mb=`free -m | awk '/Mem:/ 
+{print $2}
+'`<br/>
+           system_cpu_cores=`egrep -c 'processor([<span
+class="error">&#91;:space:&#93;</span>]+):.*' /proc/cpuinfo`<br/>            if [
+"$system_cpu_cores" -lt "1" ]<br/>            then<br/>              
+system_cpu_cores="1"<br/>            fi<br/>is a possible fix
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached, hope I've done it right ! 
+
+
+New Comment: 
+Committed, but move outside of the linux-specific block in case this happens elsewhere,
+since zero cores is always invalid. 
+
+

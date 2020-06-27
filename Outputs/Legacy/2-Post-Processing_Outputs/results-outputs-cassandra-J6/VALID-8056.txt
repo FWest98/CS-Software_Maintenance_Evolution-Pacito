@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 93738e31266e87eb34f8fe0de72262b5312b0db7
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: dc23a33efda97e95233c071dc5317cd6d0d27487
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5097.txt 
+
+commit dc23a33efda97e95233c071dc5317cd6d0d27487
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Evict gossip state immediately when a token is taken over.
+    Patch by vijay, reviewed by brandonwilliams for CASSANDRA-3259

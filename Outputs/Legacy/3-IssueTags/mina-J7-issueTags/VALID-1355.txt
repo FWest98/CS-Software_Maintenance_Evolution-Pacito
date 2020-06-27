@@ -1,0 +1,16 @@
+Pattern changes caused by commit: cf7837b0731f26beaae94af7278726d2f867dbdb
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1355.txt 
+
+commit cf7837b0731f26beaae94af7278726d2f867dbdb
+Author: Trustin Lee <trustin@apache.org>
+
+    More strict return value check when a new socket is created in APR

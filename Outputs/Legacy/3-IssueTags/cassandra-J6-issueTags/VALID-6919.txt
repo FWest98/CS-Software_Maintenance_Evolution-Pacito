@@ -1,0 +1,28 @@
+Pattern changes caused by commit: a5e0994a130dac325dfde8b8d258b14677788c60
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6919.txt 
+
+commit a5e0994a130dac325dfde8b8d258b14677788c60
+Author: Yuki Morishita <yukim@apache.org>
+
+    make tools/bin scripts executable

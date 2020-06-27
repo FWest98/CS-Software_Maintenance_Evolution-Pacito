@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 8f7fb46e5c1aa2b7a7ee637ea5943c756b87f09a
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Flyweight-5
+To:   Flyweight-6
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3783.txt 
+
+commit 8f7fb46e5c1aa2b7a7ee637ea5943c756b87f09a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update LongCompactionSpeedTest.java for uuid counters
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2461

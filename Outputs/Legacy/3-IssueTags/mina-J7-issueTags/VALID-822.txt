@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 89c95284b4d7831d600eea5f67b7e90f71499c47
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-6
+To:   Facade-2
+
+From: Flyweight-5
+To:   Flyweight-3
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-822.txt 
+
+commit 89c95284b4d7831d600eea5f67b7e90f71499c47
+Author: Trustin Lee <trustin@apache.org>
+
+    Improved ProtocolCodecFilter to handle the exceptions thrown by decoders more robustly.
+    * Now retries if an exception is raised (only when the decoder is capable.)

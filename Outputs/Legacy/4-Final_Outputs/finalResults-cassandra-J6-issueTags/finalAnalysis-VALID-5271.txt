@@ -1,0 +1,175 @@
+Pattern changes caused by commit: 6f38e10b10f768cc8e220197e8f983f30bae8a14
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5271.txt 
+
+commit 6f38e10b10f768cc8e220197e8f983f30bae8a14
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix Deflate compressor when compression makes data bigger
+    patch by slebresne; reviewed by xedin for CASSANDRA-3370
+
+
+
+==================================
+ Issue CASSANDRA-3370 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3370] Deflate Compression corrupts SSTables
+-----------------
+
+-----------------
+Summary: Deflate Compression corrupts SSTables
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 16 Oct 2011 23:04:01 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 20 Oct 2011 13:35:22 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Hi,
+
+it seems that the Deflate Compressor corrupts the SSTables. 3 out of 3 Installations
+were corrupt. Snappy works fine.
+
+Here is what I did:
+
+1. Start a single cassandra node (I
+was using ByteOrderedPartitioner)<br/>2. Write data into cf that uses deflate compression
+- I think it has to be enough data so that the data folder contains some files.<br/>3.
+When I now try to read (I did a range scan) from my application, it fails and the logs
+show corruptions:
+
+Caused by: org.apache.cassandra.io.compress.CorruptedBlockException:
+(/home/cspriegel/Development/cassandra1/data/Test/Response-h-2-Data.db): corruption
+detected, chunk at 0 of length 65536.
+
+regards,<br/>Christian
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached system.log of broken installation 
+
+
+New Comment: 
+The exception is raised because there is a digest mismatch for the initial block of one of
+the sstable.Haven't been able to reproduce so far using stress with deflate with the
+default 1M keys (which create a bunch of sstables, at least on my machine) using row
+slices and range scans (using both Random and ByteOrdered partitioners).Would you be able
+to 1) try with 1.0.0 and 2) try with the stress tool that comes with Cassandra (it's in
+tools/stress of the source distribution, and you'll want to insert values with 'stress -I
+DeflateCompressor' and read with 'stress -I DeflateCompressor -o RANGE_SLICE' ) and see if
+you can reproduce? Another question is, did you used openJDK or Sun JDK? 
+
+
+New Comment: 
+My Java version is: <br/>java version "1.6.0_26"<br/>Java(TM) SE Runtime Environment
+(build 1.6.0_26-b03)<br/>Java HotSpot(TM) 64-Bit Server VM (build 20.1-b02, mixed
+mode)Cassandra report during startup:<br/>INFO 17:20:39,113 JVM vendor/version: Java
+HotSpot(TM) 64-Bit Server VM/1.6.0_26I will test tonight ... 
+
+
+New Comment: 
+I tested again with 1.0.0. Unfortunetaly the problem still exists.But I think I was able
+to narrow it down: It seems that the problem only occurs when I insert large
+byte-arrays.It seems to work fine with 10kb arrays, no problem there. I was able to
+repeatedly insert and read.With 100kb or 200kb arrays it crashes after about 1000-2000
+insertions. (Insertions work, but range scan afterwards crashes) 
+
+
+New Comment: 
+btw: I just tested the DeflaterOutputStream/DeflaterInputStream classes in a small
+testcase and there it works fine. I thought maybe Deflate in my jvm is broken. 
+
+
+New Comment: 
+Still cannot reproduce. I've tried multiple times inserting 5000 keys using the stress
+tool using values of 10KB, 20KB, 100KB and 200KB (using 'stress -I DeflateCompressor -S
+200000 -n 5000'). I then try to reading both with 'stress -o RANGE_SLICE -n 5000' and by
+simply fetching the 100 first keys using the CLI (with a simple 'list Standard1;') and got
+no exceptions (the actual listing in the CLI took a while to be printed on screen because
+the columns are big but outside of that, no errors).Would you mind trying the same
+experiment (with the same tools) or providing the test script you're using so we can check
+if it has to do with the specific insertions or with something in your environment. 
+
+
+New Comment: 
+Ok, I will try the stress tool.Just to be sure: You are talking about stress.py and not
+the java-based stress? Because I was trying the java stress and it did not accept the -I
+parameter. 
+
+
+New Comment: 
+No, I'm talking of the java one. The python one is old and won't support compression for
+instance. The java one in the 1.0.0 source does support compression through the -I
+parameter. Are you sure you're looking at the right version ? 
+
+
+New Comment: 
+I see! I got the wrong version. Sorry, I did not know that it was included in the
+cassandra source. I thought I had to download it some place else.I will try with that and
+let you know about the results... 
+
+
+New Comment: 
+I tried using stress from 1.0.0 and I got the same results as you. Stress for some reason
+works fine. One thing is strange about stress:<br/>I let stress run for quite some time,
+but there is only 12 MB in the datafolder.<br/>I let my tool run for 10 seconds, but there
+are 97MB in the data folder.Is stress maybe not generating random data, so that it
+compresses really well? Might that be the difference?Can I maybe share my application with
+you? Its a single source file with a pom.xml. If you have any idea what I can do, please
+let me know. 
+
+
+New Comment: 
+Attached my client that causes the crash. 
+
+
+New Comment: 
+You test did help. Turns out that's because you're inserting random and thus basically
+uncompressible data, and the compressed data was bigger than the uncompressed one. The
+code is supposed to handle that but there is a bug in that part.Patch attached to fix. 
+
+
+New Comment: 
+Great! This would also apply if some app would insert already compressed data. 
+
+
+New Comment: 
++1 
+
+

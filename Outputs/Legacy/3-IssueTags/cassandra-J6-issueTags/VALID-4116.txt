@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 505a2accd0ffa2f9bdb0d8c7a0ef937e4bf8fe8c
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4116.txt 
+
+commit 505a2accd0ffa2f9bdb0d8c7a0ef937e4bf8fe8c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

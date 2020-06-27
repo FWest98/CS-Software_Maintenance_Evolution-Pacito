@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 9bec1e42a60e4e7e8c3d16cd45ac44447704ef65
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5653.txt 
+
+commit 9bec1e42a60e4e7e8c3d16cd45ac44447704ef65
+Author: Eric Evans <eevans@apache.org>
+
+    CQL support for prepared statements

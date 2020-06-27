@@ -1,0 +1,16 @@
+Pattern changes caused by commit: e20b6aec2875990119dff911950265f32d0cce76
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-393.txt 
+
+commit e20b6aec2875990119dff911950265f32d0cce76
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HDFS-913. Rename fault injection test TestRename.java to TestFiRename.java to include it in tests run by ant target run-test-hdfs-fault-inject. Contributed by Suresh Srinivas.

@@ -1,0 +1,106 @@
+Pattern changes caused by commit: 7105ae1dfd609230be8d9f09f0f4f0d1af0986a8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3929.txt 
+
+commit 7105ae1dfd609230be8d9f09f0f4f0d1af0986a8
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Deploy parent POM to maven central
+    patch by stephenc for CASSANDRA-2562
+
+
+
+==================================
+ Issue CASSANDRA-2562 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2562] Parent POM does not get deployed to the maven repository
+-----------------
+
+-----------------
+Summary: Parent POM does not get deployed to the maven repository
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 26 Apr 2011 13:48:36 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 29 Apr 2011 17:28:17 +0000
+-----------------
+
+-----------------
+Assigned to: Stephen Connolly
+-----------------
+
+-----------------
+Description: 
+
+The parent pom does not get deployed to the Maven Central
+
+(for 0.7.5 I am fixing this by
+hand)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch is for post 0.7.5 unless there is a take#2 of 0.7.5 
+
+
+New Comment: 
+updated patch as I missed one line 
+
+
+New Comment: 
+Committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #464 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/464/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/464/</a>)<br/>    Deploy
+parent POM to maven central<br/>patch by stephenc for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2562" title="Parent POM does not get
+deployed to the maven repository" class="issue-link"
+data-issue-key="CASSANDRA-2562"><del>CASSANDRA-2562</del></a> 
+
+
+New Comment: 
+Integrated in Cassandra #873 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra/873/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra/873/</a>)<br/>    merge
+records of <a href="https://issues.apache.org/jira/browse/CASSANDRA-2562" title="Parent
+POM does not get deployed to the maven repository" class="issue-link"
+data-issue-key="CASSANDRA-2562"><del>CASSANDRA-2562</del></a> from 0.8 
+
+

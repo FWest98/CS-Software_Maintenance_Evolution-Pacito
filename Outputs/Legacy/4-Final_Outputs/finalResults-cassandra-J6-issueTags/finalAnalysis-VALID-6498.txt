@@ -1,0 +1,112 @@
+Pattern changes caused by commit: 17d6354f65592de48525764da4817d03c1e0da1d
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6498.txt 
+
+commit 17d6354f65592de48525764da4817d03c1e0da1d
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (CLI) properly handle quotes in create/update keyspace commands
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis (CASSANDRA-4129)
+
+
+
+==================================
+ Issue CASSANDRA-4129 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4129] Cannot create keyspace with specific keywords through cli
+-----------------
+
+-----------------
+Summary: Cannot create keyspace with specific keywords through cli
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 Apr 2012 13:42:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 6 Apr 2012 16:46:49 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Keyspaces cannot be create when the keyspace name which are used as keywords in the cli,
+such as 'keyspace', 'family' etc., through CLI. Even when surrounding the keyspace with
+quotation does not solve the problem. However, such keyspaces can be created through other
+client such as Hector.
+
+This is similar to the issue <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3195" title="Cassandra-CLI does not
+allow &quot;Config&quot; as column family name" class="issue-link"
+data-issue-key="CASSANDRA-3195"><del>CASSANDRA-3195</del></a>, in which the column
+families could not be created. Similar to the solution of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3195" title="Cassandra-CLI does not
+allow &quot;Config&quot; as column family name" class="issue-link"
+data-issue-key="CASSANDRA-3195"><del>CASSANDRA-3195</del></a>, using String keyspaceName =
+CliUtil.unescapeSQLString(statement.getChild(0).getText()) in executeAddKeySpace would
+solve the problem. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+To be more specific, creating keyspaces like 'create keyspace keyspace' or 'create
+keyspace 'keyspace'' or 'create keyspace family' would fail and raise syntax error error. 
+
+
+New Comment: 
+cli keywords must be quoted 
+
+
+New Comment: 
+For keyspace creation quotation, both single and double, does not work.Here is a sample of
+error I get when creating keyspace<span
+class="error">&#91;default@unknown&#93;</span>create keyspace 'column';<br/>Invalid
+keyspace name: 'column'<span class="error">&#91;default@unknown&#93;</span>create keyspace
+"column";<br/>Syntax error at position 16: unexpected """ for `create keyspace
+"column";`.Using quotation works for cf, but not for ks. Anything specific I need to do? 
+
+
+New Comment: 
+patch against cassandra-1.0 
+
+
+New Comment: 
++1 
+
+

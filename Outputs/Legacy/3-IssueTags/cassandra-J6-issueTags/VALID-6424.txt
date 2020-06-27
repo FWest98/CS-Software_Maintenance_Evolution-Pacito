@@ -1,0 +1,23 @@
+Pattern changes caused by commit: b85d44a25bec8355a86288376eca17021b9793f2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6424.txt 
+
+commit b85d44a25bec8355a86288376eca17021b9793f2
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    make ITC to handle versioning using BCA
+    patch by Vijay; reviewed by Brandon Williams for CASSANDRA-4098

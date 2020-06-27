@@ -1,0 +1,83 @@
+Pattern changes caused by commit: fe2905b48ae2c07d70ee7d7f29b4ae3f34e8b7ae
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5225.txt 
+
+commit fe2905b48ae2c07d70ee7d7f29b4ae3f34e8b7ae
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    display CLI version string on startup
+    patch by pyaskevich; reviewed by jbellis for CASSANDRA-3196
+
+
+
+==================================
+ Issue CASSANDRA-3196 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3196] Cassandra-CLI command should have --version option
+-----------------
+
+-----------------
+Summary: Cassandra-CLI command should have --version option
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Sep 2011 10:22:36 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 13 Oct 2011 21:12:14 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+Implementing "cassandra-cli --version" command line option would make it easier to write
+bug reports and check the versions of tools in use. Or if you want to make it a CLI
+command inside the tool, I don't know. --version option seems to be the standard way.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Can we just make the cli print FBUtilities.getReleaseVersionString() on startup? 
+
+
+New Comment: 
+committed, w/ addition of "CLI" string to make clear that this is the cli's version, not
+necessarily the version of the server we're talking to 
+
+

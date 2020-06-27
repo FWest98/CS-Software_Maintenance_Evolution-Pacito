@@ -1,0 +1,264 @@
+Pattern changes caused by commit: 2e25600fabab058b642a301d92bc2732e0b3d560
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4588.txt 
+
+commit 2e25600fabab058b642a301d92bc2732e0b3d560
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    prune index scan resultset back to original request
+    patch by jbellis; tested by Roland Gude for CASSANDRA-2964
+
+
+
+==================================
+ Issue CASSANDRA-2964 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2964] IndexRangeSliceQuery results include index column even though it is not in SliceRange
+-----------------
+
+-----------------
+Summary: IndexRangeSliceQuery results include index column even though it is not in SliceRange
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 28 Jul 2011 09:19:17 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Jun 2012 10:02:59 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+When an IndexSlicwQuery is done the result contains the index column even though it was
+not in the slice range.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This was working correctly in 0.7.5 but after uzpgrading to 0.7.7 the ranges seem to be
+wrong.<br/>Will add a testcase soon. 
+
+
+New Comment: 
+testng testcase and cassandra.yaml to be used 
+
+
+New Comment: 
+Creating the testcase makes this more awkward.<br/>It only fails when run against our
+production cluster (which was migrated recently) but not against a fresh setup 0.7.7 (in
+the testcase the embedded server)Therefor i was not able to check if the error is limited
+to TimeUUIDType Columns as that is the only index used in our production system.<br/>I
+will try to figure out why it fails in that cluster but not in fresh one 
+
+
+New Comment: 
+some log output from when the above testcase fails (the columnfamily name is different
+from the one in the testcase, because it is the original system - i have not yet been able
+to reproduce the issue on any other system)DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,103
+CassandraServer.java (line 522) scan<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,103
+StorageProxy.java (line 666) restricted ranges for query <span
+class="error">&#91;-1,-1&#93;</span> are [<span class="error">&#91;-1,0&#93;</span>,
+(0,42535295865117307932921825928971026432],
+(425352958651173079329218259289710<br/>26432,85070591730234615865843651857942052864],
+(85070591730234615865843651857942052864,127605887595351923798765477786913079296],
+(127605887595351923798765477786913079296,-1]]<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,103
+StorageProxy.java (line 753) scan ranges are <span
+class="error">&#91;-1,0&#93;</span>,(0,42535295865117307932921825928971026432],(42535295865117307932921825928971026432,850705917302346158658<br/>43651857942052864],(85070591730234615865843651857942052864,127605887595351923798765477786913079296],(127605887595351923798765477786913079296,-1]<br/>DEBUG
+<span class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,104
+ReadCallback.java (line 86) Blockfor/repair is 2/false; setting up requests to
+/10.234.81.208,/10.226.130.128<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,107
+StorageProxy.java (line 780) reading org.apache.cassandra.db.IndexScanCommand@31bcc110
+from /10.234.81.208<br/>DEBUG <span class="error">&#91;pool-1-thread-8858&#93;</span>
+2011-07-28 14:45:19,107 StorageProxy.java (line 780) reading
+org.apache.cassandra.db.IndexScanCommand@31bcc110 from /10.226.130.128<br/>DEBUG <span
+class="error">&#91;ReadStage:563&#93;</span> 2011-07-28 14:45:19,107
+ColumnFamilyStore.java (line 1514) Primary scan clause is
+00000000-0000-1000-0000-000000000000<br/>DEBUG <span
+class="error">&#91;ReadStage:563&#93;</span> 2011-07-28 14:45:19,108
+ColumnFamilyStore.java (line 1569) Scanning index
+'EventsByUser.00000000-0000-1000-0000-000000000000 EQ 41' starting with<br/>DEBUG <span
+class="error">&#91;ReadStage:563&#93;</span> 2011-07-28 14:45:19,108 SliceQueryFilter.java
+(line 123) collecting 0 of 100:
+74657374526573756c74446f6573436f6e7461696e436f727265637452616e67654578636c7564696e67496e6465786564526f77:fa<br/>lse:0@1311857119516000DEBUG
+<span class="error">&#91;ReadStage:555&#93;</span> 2011-07-28 14:45:19,173
+ColumnFamilyStore.java (line 1581) fetched ColumnFamily(&lt;anonymous&gt;
+[74657374526573756c74446f6573436f6e7461696e436f727265637452616e67654578636c7564696e67496e6465<br/>786564526f77:false:0@1311857119516000,])<br/>DEBUG
+<span class="error">&#91;ReadStage:555&#93;</span> 2011-07-28 14:45:19,173
+IndexScanVerbHandler.java (line 46) Sending RangeSliceReply{rows=} to
+14083152@/10.234.81.208<br/>DEBUG <span
+class="error">&#91;RequestResponseStage:3&#93;</span> 2011-07-28 14:45:19,173
+ResponseVerbHandler.java (line 48) Processing response on a callback from
+14083152@/10.234.81.208<br/>DEBUG <span class="error">&#91;pool-1-thread-8858&#93;</span>
+2011-07-28 14:45:19,173 StorageProxy.java (line 780) reading
+org.apache.cassandra.db.IndexScanCommand@22bb5662 from /10.234.81.208<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,173
+StorageProxy.java (line 780) reading org.apache.cassandra.db.IndexScanCommand@22bb5662
+from /10.227.141.155<br/>DEBUG <span class="error">&#91;RequestResponseStage:4&#93;</span>
+2011-07-28 14:45:19,175 ResponseVerbHandler.java (line 48) Processing response on a
+callback from 14083153@/10.227.141.155<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,175
+ReadCallback.java (line 86) Blockfor/repair is 2/false; setting up requests to
+/10.234.81.208,/10.226.130.128<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,175
+ColumnFamilyStore.java (line 1514) Primary scan clause is
+00000000-0000-1000-0000-000000000000<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,176
+ColumnFamilyStore.java (line 1569) Scanning index
+'EventsByUser.00000000-0000-1000-0000-000000000000 EQ 41' starting with<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,176 SliceQueryFilter.java
+(line 123) collecting 0 of 100:
+74657374526573756c74446f6573436f6e7461696e436f727265637452616e67654578636c7564696e67496e6465786564526f77:fa<br/>lse:0@1311857119516000<br/>DEBUG
+<span class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,176
+ColumnFamilyStore.java (line 1581) fetched ColumnFamily(&lt;anonymous&gt;
+[74657374526573756c74446f6573436f6e7461696e436f727265637452616e67654578636c7564696e67496e6465<br/>786564526f77:false:0@1311857119516000,])<br/>DEBUG
+<span class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,176
+SliceQueryFilter.java (line 123) collecting 0 of 1000:
+8ab6d400-1dd2-11b2-8bac-0024e8e90693:true:4@1311850071466000<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,177 SliceQueryFilter.java
+(line 123) collecting 0 of 1000:
+8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,177 SliceQueryFilter.java
+(line 123) collecting 0 of 1000:
+8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000<br/>DEBUG <span
+class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,177
+ColumnFamilyStore.java (line 1605) fetched data row ColumnFamily(EventsByUser <del>deleted
+at 1311849448186000</del>
+[8ab6d400-1dd2-11b2-8bac-0024e8e90693:true:4@13118500<br/>71466000,8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000,8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000,])<br/>DEBUG
+<span class="error">&#91;ReadStage:560&#93;</span> 2011-07-28 14:45:19,177
+ColumnFamilyStore.java (line 1616) adding extraFilter to cover additional
+expressions<br/>DEBUG <span class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28
+14:45:19,177 StorageProxy.java (line 780) reading
+org.apache.cassandra.db.IndexScanCommand@39244dbe from /10.234.81.208<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,177
+StorageProxy.java (line 780) reading org.apache.cassandra.db.IndexScanCommand@39244dbe
+from /10.226.130.128<br/>DEBUG <span class="error">&#91;ReadStage:560&#93;</span>
+2011-07-28 14:45:19,177 ColumnFamilyStore.java (line 1640) row ColumnFamily(EventsByUser
+<del>deleted at 1311849448186000</del>
+[00000000-0000-1000-0000-000000000000:false:1@1311857119516000,8ab<br/>6d400-1dd2-11b2-8bac-0024e8e90693:true:4@1311850071466000,8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000,8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000,])
+satisfies all clauses<br/>DEBUG <span class="error">&#91;ReadStage:560&#93;</span>
+2011-07-28 14:45:19,177 IndexScanVerbHandler.java (line 46) Sending
+RangeSliceReply{rows=Row(key=DecoratedKey(162359547821047417387034252314579509322,
+74657374526573756c74446f6573436f6e7461696e436f727265637452616e67654578636c7564696e67496e6465786564526f77),
+cf=ColumnFamily(EventsByUser -deleted at 1311849448186000-
+[00000000-0000-1000-0000-000000000000:false:1@1311857119516000,8ab6d400-1dd2-11b2-8bac-0024e8e90693:true:4@1311850071466000,8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000,8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000,]))}
+to 14083154@/10.234.81.208<br/>DEBUG <span
+class="error">&#91;RequestResponseStage:3&#93;</span> 2011-07-28 14:45:19,178
+ResponseVerbHandler.java (line 48) Processing response on a callback from
+14083154@/10.234.81.208<br/>DEBUG <span
+class="error">&#91;RequestResponseStage:4&#93;</span> 2011-07-28 14:45:19,180
+ResponseVerbHandler.java (line 48) Processing response on a callback from
+14083155@/10.226.130.128<br/>DEBUG <span class="error">&#91;pool-1-thread-8858&#93;</span>
+2011-07-28 14:45:19,181 SliceQueryFilter.java (line 123) collecting 0 of 2147483647:
+00000000-0000-1000-0000-000000000000:false:1@1311857119516000<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,181
+SliceQueryFilter.java (line 123) collecting 1 of 2147483647:
+8ab6d400-1dd2-11b2-8bac-0024e8e90693:true:4@1311850071466000<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,181
+SliceQueryFilter.java (line 123) collecting 1 of 2147483647:
+8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,181
+SliceQueryFilter.java (line 123) collecting 1 of 2147483647:
+8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000<br/>DEBUG <span
+class="error">&#91;pool-1-thread-8858&#93;</span> 2011-07-28 14:45:19,181
+StorageProxy.java (line 788) read
+Row(key=DecoratedKey(162359547821047417387034252314579509322,
+74657374526573756c74446f6573436f6e7461696e436f72726563745261<br/>6e67654578636c7564696e67496e6465786564526f77),
+cf=ColumnFamily(EventsByUser <del>deleted at 1311849448186000</del>
+[00000000-0000-1000-0000-000000000000:false:1@1311857119516000,8ab6d400-1dd2-11b2-8bac-0024e8e90693:t<br/>rue:4@1311850071466000,8ab6d400-1dd2-11b2-93fb-0024e8e90693:true:4@1311849715863000,8ab6d400-1dd2-11b2-ba61-0024e8e90693:false:0@1311857119500000,]))<br/>DEBUG
+<span class="error">&#91;pool-1-thread-27&#93;</span> 2011-07-28 14:45:19,211
+StorageService.java (line 1456) computing ranges for 0,
+42535295865117307932921825928971026432, 85070591730234615865843651857942052864,
+1276058875953519237987<br/>65477786913079296 
+
+
+New Comment: 
+Hi Roland,I think the attached patch should fix the problem.  If it does not, what we need
+to troubleshoot is the debug logs from the data nodes, e.g., 10.234.81.208 when it the
+coordinator logs, "reading org.apache.cassandra.db.IndexScanCommand@22bb5662 from
+/10.234.81.208". 
+
+
+New Comment: 
+great i will apply the patch and give it a try. 
+
+
+New Comment: 
+Issue seems to be fixed. thanks. 
+
+
+New Comment: 
+committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #538 (See <a
+href="https://builds.apache.org/job/Cassandra-0.7/538/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.7/538/</a>)<br/>    prune index
+scan resultset back to original request<br/>patch by jbellis; tested by Roland Gude for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2964" title="IndexRangeSliceQuery
+results include index column even though it is not in SliceRange" class="issue-link"
+data-issue-key="CASSANDRA-2964"><del>CASSANDRA-2964</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1154267"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1154267</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.7/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/db/ColumnFamilyStore.java</li></ul> 
+
+
+New Comment: 
+Unfortunately this one is back in 1.1.1 (maybe in other versions as well, but i just
+realized it for 1.1.1 and cannot say anythiing about the intermediate versions)We just
+created a new cluster on 1.1.1, imported the data from the old 0.7 cluster with
+sstableloader and the issue is back in the new cluster. 
+
+
+New Comment: 
+Can you create a new ticket with debug logs from 1.1.1? 
+
+
+New Comment: 
+opened <a href="https://issues.apache.org/jira/browse/CASSANDRA-4332"
+title="IndexRangeSliceQuery results contain IndexColumn even though it is not included in
+SliceRange" class="issue-link"
+data-issue-key="CASSANDRA-4332"><del>CASSANDRA-4332</del></a> for itwill attach DEBUG logs
+asap 
+
+

@@ -1,0 +1,188 @@
+Pattern changes caused by commit: 51a9fd131a815bf4d368d89b0961429a1d51a532
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7127.txt 
+
+commit 51a9fd131a815bf4d368d89b0961429a1d51a532
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix 1.0.x node join to mixed version cluster, other nodes >= 1.1
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4195
+
+
+
+==================================
+ Issue CASSANDRA-4195 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4195] error in log when upgrading multi-node cluster to 1.1
+-----------------
+
+-----------------
+Summary: error in log when upgrading multi-node cluster to 1.1
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 30 Apr 2012 14:17:05 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 Jul 2012 22:00:53 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+I upgraded a cluster from 1.0.9 to 1.1.0. The following message shows up in the logs for
+all but the first node.
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">ERROR [GossipStage:1] 2012-04-30
+07:37:06,986 AbstractCassandraDaemon.java (line 139) Fatal exception in thread <span
+class="code-object">Thread</span>[GossipStage:1,5,main]java.lang.UnsupportedOperationException:
+Not a time-based UUID                      at java.util.UUID.timestamp(UUID.java:331)     
+                                at
+org.apache.cassandra.service.MigrationManager.updateHighestKnown(MigrationManager.java:121)
+   at org.apache.cassandra.service.MigrationManager.rectify(MigrationManager.java:99)   
+at org.apache.cassandra.service.MigrationManager.onAlive(MigrationManager.java:83)    at
+org.apache.cassandra.gms.Gossiper.markAlive(Gossiper.java:806)               at
+org.apache.cassandra.gms.Gossiper.handleMajorStateChange(Gossiper.java:849)    at
+org.apache.cassandra.gms.Gossiper.applyStateLocally(Gossiper.java:908)       at
+org.apache.cassandra.gms.GossipDigestAck2VerbHandler.doVerb(GossipDigestAck2VerbHandler.java:62)
+   at org.apache.cassandra.net.MessageDeliveryTask.run(MessageDeliveryTask.java:59)    at
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)    at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:679)</pre></div></div>
+this dtest demonstrates the
+issue. It was added to the cassandra-dtest repository as upgrade_to_11_test:
+<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">from dtest <span class="code-keyword">import</span> Tester, debug from
+tools <span class="code-keyword">import</span> *  <span class="code-keyword">class
+</span>TestUpgradeTo1_1(Tester):      def upgrade_test(self):         self.num_rows = 0   
+     cluster = self.cluster          # Forcing cluster version on purpose        
+cluster.set_cassandra_dir(cassandra_version=<span class="code-quote">'1.0.9'</span>)      
+   cluster.populate(3).start()         time.sleep(1)          <span
+class="code-keyword">for</span> node in cluster.nodelist():                 node.flush()  
+          time.sleep(.5)             node.stop(wait_other_notice=True)            
+node.set_cassandra_dir(cassandra_version=<span class="code-quote">'1.1.0'</span>)         
+   node.start(wait_other_notice=True)             time.sleep(.5)</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I thought we added logic to not send incompatible migration messages to 1.0.x nodes? 
+
+
+New Comment: 
+Yes, we don't send it and the problem is not about it - here we see the same problem I was
+talking about at <a href="https://issues.apache.org/jira/browse/CASSANDRA-3804"
+title="upgrade problems from 1.0 to trunk" class="issue-link"
+data-issue-key="CASSANDRA-3804"><del>CASSANDRA-3804</del></a> - as we no longer use
+time-based UUID to represent schema version, the "old" nodes (version &lt; 1.1) would fail
+to join into the ring because they would be stuck on the "highest" version resolution as
+they assume that all nodes have time-based UUID for version which is no longer the case.
+We should make a strict regulation about mixed version C* ring otherwise things would
+continue to break in the different ways, probably to forbid the older node to join if it
+detects nodes with version &gt;= 1.1, because we can't rely just skip schema agreement
+checks on startup or on ring changes... 
+
+
+New Comment: 
+<blockquote>probably to forbid the older node to join if it detects nodes with version
+&gt;= 1.1, because we can't rely just skip schema agreement checks on startup or on ring
+changes</blockquote>Doesn't that kill node-at-a-time upgrading dead in the water? 
+
+
+New Comment: 
+It would, but on the other hand one can't upgrade node-at-a-time to 1.1 because of
+incompatible schema changes... We of course can report something like "Nodes with C*
+version &gt;= 1.1 detected, please upgrade!" instead of failing in MM.rectify(...) but if
+we continue to operate on that node we can't guarantee stability anyway... 
+
+
+New Comment: 
+We <b>need</b> to support read/write ops in a mixed cluster.  We don't need to support
+schema changes. 
+
+
+New Comment: 
+<blockquote>We need to support read/write ops in a mixed cluster. We don't need to support
+schema changes.</blockquote>See my first comment, old nodes wouldn't be able to join the
+ring because they can't resolve the schema version correctly and as we can't know what is
+the difference between old/new schemas they wouldn't be able to properly handle read/write
+workloads. We can probably add special mechanism to the 1.0 that would ask for schema in
+Avro format if it detects that schema version is not a TimeUUID, load it and try to
+operate but that would require from uses to update their nodes to the latest 1.0 version
+before they can do upgrade to 1.1. 
+
+
+New Comment: 
+Ugh, how did we miss this in testing?How I think it should work:<ol>	<li>if node can't
+parse schema version, it should join ring w/ whatever schema it currently
+has</li>	<li>nodes should make best-effort to fulfil requests w/ current schema instead of
+blocking for schema reconciliation</li></ol>That way as long as users don't try to modify
+schema during the upgrade they will be fine.I think #2 works as desired, which leaves #1
+as a fairly easy update to make in 1.0.11. 
+
+
+New Comment: 
+Ok, I can do #1 and it would get ring into disagreement until upgrade to 1.1 is finished
+with is a good thing in our case because users won't be able to mutate it. I was warning
+about from the time we have decided to change the way version is handled... 
+
+
+New Comment: 
+patch against cassandra-1.0 to make it skip trying to migrate the schema if it detects
+that it's running in mixed node cluster and verbose warning. 
+
+
+New Comment: 
+Worked for me. 
+
+
+New Comment: 
++1 
+
+

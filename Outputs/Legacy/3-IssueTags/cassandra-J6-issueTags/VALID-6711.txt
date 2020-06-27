@@ -1,0 +1,29 @@
+Pattern changes caused by commit: f20badb685393e60f74b236edf623c7c9264f1eb
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6711.txt 
+
+commit f20badb685393e60f74b236edf623c7c9264f1eb
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    stress tool to return appropriate exit code on failure
+    patch by Tyler Patterson; reviewed by Pavel Yaskevich for CASSANDRA-4188

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: e594e0dca839124582f05b5787a396c5219c702c
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5841.txt 
+
+commit e594e0dca839124582f05b5787a396c5219c702c
+Merge: 2f115d4 b318404
+Author: Pavel Yaskevich <povel.y@gmail.com>
+
+    Merge branch cassandra-1.0 into trunk

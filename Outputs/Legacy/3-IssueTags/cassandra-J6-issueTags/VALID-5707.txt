@@ -1,0 +1,20 @@
+Pattern changes caused by commit: d38aea143338939c887a0bd7c28225f77f310e90
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5707.txt 
+
+commit d38aea143338939c887a0bd7c28225f77f310e90
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow configuring bloom_filter_fp_chance
+    patch by yukim and jbellis for CASSANDRA-3497

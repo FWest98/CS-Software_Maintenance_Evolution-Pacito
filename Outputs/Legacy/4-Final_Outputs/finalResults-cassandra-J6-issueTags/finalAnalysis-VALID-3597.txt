@@ -1,0 +1,89 @@
+Pattern changes caused by commit: 0d443b037611bd3576b21fa17fecd27366eb7878
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3597.txt 
+
+commit 0d443b037611bd3576b21fa17fecd27366eb7878
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix potential infinite loop in ByteBufferUtil.inputStream
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2365
+
+
+
+==================================
+ Issue CASSANDRA-2365 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2365] ByteBufferUtil.read(byte[]) returns 0 when the end of the stream has been reached.
+-----------------
+
+-----------------
+Summary: ByteBufferUtil.read(byte[]) returns 0 when the end of the stream has been reached.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 22 Mar 2011 18:23:30 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Mar 2011 02:29:56 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+read(byte[], int, int) doesn't return -1 when the end of the stream is reached. Instead,
+it returns 0. 
+
+len = Math.min(len, copy.remaining());<br/>copy.get(bytes, off,
+len);
+
+return len;
+
+copy.remaining() returns 0 when the end of the stream is reached. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to return -1 if no more data 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

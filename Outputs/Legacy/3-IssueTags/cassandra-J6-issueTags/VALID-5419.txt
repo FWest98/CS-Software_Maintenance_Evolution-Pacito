@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 61109407ddacdf2031cde711d25f3a1cc8e78bbf
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5419.txt 
+
+commit 61109407ddacdf2031cde711d25f3a1cc8e78bbf
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix bug preventing the use of efficient cross-DC writes
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3472

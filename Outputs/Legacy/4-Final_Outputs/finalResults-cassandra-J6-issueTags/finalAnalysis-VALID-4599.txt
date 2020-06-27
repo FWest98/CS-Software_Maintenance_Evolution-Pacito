@@ -1,0 +1,225 @@
+Pattern changes caused by commit: 8a8a2bd2e2c2f7a562914d860d389456b6d57475
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4599.txt 
+
+commit 8a8a2bd2e2c2f7a562914d860d389456b6d57475
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add 'show creates' commands to the cli to export schema.
+    Patch by Aaron Morton, reviewed by xedin for CASSANDRA-2221
+
+
+
+==================================
+ Issue CASSANDRA-2221 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2221] 'show create' commands on the CLI to export schema
+-----------------
+
+-----------------
+Summary: 'show create' commands on the CLI to export schema
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 22 Feb 2011 20:29:51 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 8 Aug 2011 21:08:07 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+It would be nice to have 'show create' type of commands on the command-line so that it
+would generate the DDL for the schema.
+
+A scenario that would make this useful is where a
+team works out a data model over time with a dev cluster.  They want to use parts of that
+schema for new clusters that they create, like a staging/prod cluster.  It would be very
+handy in this scenario to have some sort of export mechanism.
+
+Another use case is for
+testing purposes - you want to replicate a problem.
+
+We currently have schematool for
+import/export but that is deprecated and it exports into yaml.
+
+This new feature would
+just be able to 'show' - or export if they want the entire keyspace - into a script or
+commands that could be used in a cli script.  It would need to be able to regenerate
+everything about the keyspace including indexes and metadata.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Aaron, if you want to take a look at this it's related to the yaml-removal from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2007" title="Move demo Keyspace1
+definition from casandra.yaml to an input file for cassandra-cli" class="issue-link"
+data-issue-key="CASSANDRA-2007"><del>CASSANDRA-2007</del></a>. 
+
+
+New Comment: 
+Sounds reasonable, will take a look. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-1906" title="Sanitize
+configuration code" class="issue-link"
+data-issue-key="CASSANDRA-1906"><del>CASSANDRA-1906</del></a> completes the YAML removal
+(all that's left is with on-boot yaml load of per-node settings, which is fine as
+is).Tying this right next to the 'show keyspaces;' logic (maybe 'export keyspaces;') is
+going to be the easiest, as it already iterates through your settings. Instead of showing
+shorthand ("  default_validation_class: BytesType"), show longhand ("with
+default_validation_class=BytesType ") and cascade them into a "create column family ... "
+output. 
+
+
+New Comment: 
+Do we need this in 0.7.5 or only 0.8 ? There have been some small changes to the CLI
+script in 0.8 wrt specifying the RF. 
+
+
+New Comment: 
+It's more of a nice-to-have in 0.7.5 since we have yaml import/export there.Definitely
+don't need to make 0.8 try to read 0.7.5 files (the nice thing about human-readable is you
+can make people tweak things if they absolutely positively need to do that &#8211; in this
+case the sane thing to do would just be re-export from 0.8 since the system table itself
+is compatible). 
+
+
+New Comment: 
+at this point is probably best to target CQL-style schema. 
+
+
+New Comment: 
+Attached patch 0001 is for 0.7 and modifies the show keyspace statement to create a cli
+script. The previous statement was "show keyspaces" changed to "show keyspace
+&lt;keyspace&gt;?" (dropped the s) to match "describe keyspace &lt;keyspace&gt;?"Also bug
+fix to unescape the default validation clause. 
+
+
+New Comment: 
+I created the attached 0001-change...v0.8 patch before I saw Jonathans last comment. It's
+like the 0.7 one but rebased against the 0.8 branch and includes the additional 0.8
+attributes, and updates the 0.8 help. Also adds unescaping of the value for row cache
+provider. 
+
+
+New Comment: 
+Let me know if we also want this in CQL format. 
+
+
+New Comment: 
+It's still valuable to support this from CLI since (a) this gives us an upgrade path for
+0.7 to 0.8 and (b) CQL isn't going to support all the options for 0.8.0 (notably
+counters).I'd like to introduce a new command though instead of changing an existing one
+in a stable release. "show schema" maybe? 
+
+
+New Comment: 
+Updated patches for 07 and 08.<ul class="alternate" type="square">	<li>show keyspaces
+returned to normal</li>	<li>added show schema &lt;keyspace&gt;?;</li></ul>Sample from
+0.8<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>[default@Keyspace1] show schema
+Keyspace1;create keyspace Keyspace1  with placement_strategy = 'SimpleStrategy'  and
+strategy_options = [{replication_factor : 1}];use Keyspace1;create column family Counter1 
+with column_type = 'Standard'  and comparator = 'BytesType'  and default_validation_class
+= 'CounterColumnType'  and key_validation_class = 'BytesType'  and memtable_operations =
+0.29062499999999997  and memtable_throughput = 62  and memtable_flush_after = 1440  and
+rows_cached = 0.0  and row_cache_save_period = 0  and keys_cached = 200000.0  and
+key_cache_save_period = 14400  and read_repair_chance = 1.0  and gc_grace = 864000  and
+min_compaction_threshold = 4  and max_compaction_threshold = 32  and replicate_on_write =
+false  and row_cache_provider = 'ConcurrentLinkedHashCacheProvider';</pre></div></div> 
+
+
+New Comment: 
+This looks a lot like the use case that I was trying to solve with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2636" title="Import/Export of Schema
+Migrations" class="issue-link"
+data-issue-key="CASSANDRA-2636"><del>CASSANDRA-2636</del></a> (I didn't know about this
+ticket), except for one thing: I want to either create a new cluster or update an old one
+(i.e. propagate <b>changes</b> from dev). I could manually substitute "update" for
+"create", but I would prefer a solution that doesn't require human intervention. How
+about, "recreate", which will create the CF if it doesn't exist, otherwise update it? 
+
+
+New Comment: 
+Schema diffing is out of scope here. 
+
+
+New Comment: 
+Why schema diffing? I want to get all the attributes of all the CFs, so I an port them to
+another cluster. 
+
+
+New Comment: 
+<blockquote>Why schema diffing?</blockquote>""recreate", which will create the CF if it
+doesn't exist, otherwise update it" implicitly requires diffing. 
+
+
+New Comment: 
+That's a very minimal amount of diffing, whether the CF exists or not! 
+
+
+New Comment: 
+True.Still, adding new CLI commands is out of scope here. 
+
+
+New Comment: 
+needs rebase, tried to apply on cassandra-0.8 branch
+(1e77d805fb893515db6a6ab625297ac17412fb45 latest commit). 
+
+
+New Comment: 
+rebased for v0.8 as 0001-add-show-schema-statement-v08-2.patchLet me know if you want it
+for 0.7 
+
+
+New Comment: 
+Any update on this?  It's been "patch available" for a while and would be nice to have
+committed. 
+
+
+New Comment: 
+I don't know why I didn't get a notification about this, it's confusing :/ Patch looks ok
+(+1), I'm adding version of v2 rebased with latest cassandra-0.8 branch. Brandon will
+commit it shortly. 
+
+
+New Comment: 
+Committed. 
+
+

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: a8291d97d08d3d60ea0387fb5ae2bb50b72650c4
+
+From: Facade-4
+To:   Facade-3
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1878.txt 
+
+commit a8291d97d08d3d60ea0387fb5ae2bb50b72650c4
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    moved the src.xml and bin.xml to the src/main/assembly directory

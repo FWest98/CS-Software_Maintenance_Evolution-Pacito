@@ -1,0 +1,100 @@
+Pattern changes caused by commit: d222de26747e2b6bde3323dc1f8755d36c8c9174
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3270.txt 
+
+commit d222de26747e2b6bde3323dc1f8755d36c8c9174
+Author: Chris Goffinet <goffinet@apache.org>
+
+    Use a SynchronousQueue instead of LBQ so when memtable_flush_writers is > 1, it will allow actual parallel flushes.
+    patch by goffinet reviewed by jbellis for CASSANDRA-2178
+
+
+
+==================================
+ Issue CASSANDRA-2178 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2178] Memtable Flush writers doesn't actually flush in parallel
+-----------------
+
+-----------------
+Summary: Memtable Flush writers doesn't actually flush in parallel
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 17 Feb 2011 01:45:52 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 17 Feb 2011 02:44:35 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Goffinet
+-----------------
+
+-----------------
+Description: 
+
+The flushWriter JMXEnabledThreadPoolExecutor sets the core pool min to 1, and sets the
+LBQ to DatabaseDescriptor.getFlushWriters(). Increasing memtable_flush_writers should
+allow us to flush more in parallel. The pool will not grow until LBQ fills up to
+DatabaseDescriptor.getFlushWriters(). 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Wouldn't setting {core=1, max=flush_writers, queue=SynchronousQueue) be better since it
+allows the pool size to adjust as needed? 
+
+
+New Comment: 
+Use a SynchronousQueue instead 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+commited to 0.7 and merged into trunk 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #283 (See <a
+href="https://hudson.apache.org/hudson/job/Cassandra-0.7/283/" class="external-link"
+rel="nofollow">https://hudson.apache.org/hudson/job/Cassandra-0.7/283/</a>)<br/>    Use a
+SynchronousQueue instead of LBQ so when memtable_flush_writers is &gt; 1, it will allow
+actual parallel flushes. <br/>patch by goffinet reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2178" title="Memtable Flush writers
+doesn&#39;t actually flush in parallel" class="issue-link"
+data-issue-key="CASSANDRA-2178"><del>CASSANDRA-2178</del></a> 
+
+

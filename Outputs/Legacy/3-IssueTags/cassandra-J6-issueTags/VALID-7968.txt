@@ -1,0 +1,34 @@
+Pattern changes caused by commit: e30519f333b05dd70c881ff57bd4a5ddee24aaa0
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7968.txt 
+
+commit e30519f333b05dd70c881ff57bd4a5ddee24aaa0
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    fix CQL2 ALTER TABLE compaction_strategy_class altering; patch by Aleksey Yeschenko, reviewed by jbellis for CASSANDRA-4965

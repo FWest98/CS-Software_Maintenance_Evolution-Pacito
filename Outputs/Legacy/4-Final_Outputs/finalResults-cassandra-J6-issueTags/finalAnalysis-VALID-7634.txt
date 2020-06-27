@@ -1,0 +1,88 @@
+Pattern changes caused by commit: c44af8c2c5c74b4f033bde5e445776122c4a3197
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7634.txt 
+
+commit c44af8c2c5c74b4f033bde5e445776122c4a3197
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: allow configuration of value display formats
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-3756
+
+
+
+==================================
+ Issue CASSANDRA-3756 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3756] cqlsh: allow configuration of value display formats
+-----------------
+
+-----------------
+Summary: cqlsh: allow configuration of value display formats
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 19 Jan 2012 21:15:06 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 9 Oct 2012 15:08:03 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+With <a href="https://issues.apache.org/jira/browse/CASSANDRA-3726" title="cqlsh and
+cassandra-cli show keys differently for data created via stress tool" class="issue-link"
+data-issue-key="CASSANDRA-3726"><del>CASSANDRA-3726</del></a>, cqlsh now formats some
+types of query result data to be more human-readable, such as timestamps and hex data. The
+format of timestamps and the precision of floating point values should be configurable by
+cqlshrc and/or command line.
+
+see the <tt>Shell.display_time_format</tt> and
+<tt>Shell.display_float_precision</tt> attributes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<span class="error">&#91;~iamaleksey&#93;</span> can you rebase? 
+
+

@@ -1,0 +1,90 @@
+Pattern changes caused by commit: 2b77ef61cc119fbaf76080f5d6e6083571e7b02c
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6478.txt 
+
+commit 2b77ef61cc119fbaf76080f5d6e6083571e7b02c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix read_repair_chance to really default to 0.1 in the cli and Thrift clients
+    patch by jbellis; reviewed by vijay for CASSANDRA-4114
+
+
+
+==================================
+ Issue CASSANDRA-4114 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4114] Default read_repair_chance value is wrong
+-----------------
+
+-----------------
+Summary: Default read_repair_chance value is wrong
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 4 Apr 2012 07:20:28 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 4 Apr 2012 17:06:56 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+The documents says that the default read_repair_chance value is 0.1, and it is also
+declared so in CFMetaDeta. However, when creating a column family with "create column
+family foo" via cli and checking with "show keyspaces" shows that the
+read_repair_chance=1.0. This also happens when creating the column family through
+Hector.
+
+Going through the code, I find that in CfDef class, the constructor without any
+parameters sets the read_repair_chance to 1. Changing this value to 0.1 seems to create a
+column family with the 0.1 read_repair_chance. The best might be to remove it from the
+CfDef as the read_repair_chance is set to the default value in CFMetaDeta.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I think that since the cli has behaved this way since 1.0.0, changing it now might
+surprise people who didn't read NEWS (and thus don't know that it was supposed to change
+to default of 0.1).  So I propose fixing this in 1.1.0 instead. (For completeness, I note
+that cql <tt>CREATE COLUMNFAMILY</tt> does default to 0.1 correctly since it does not
+build its CFMetadata objects from Thrift.) 
+
+
+New Comment: 
++1 and tested by creating a cf via cli. (  and read_repair_chance = 0.1 ) 
+
+

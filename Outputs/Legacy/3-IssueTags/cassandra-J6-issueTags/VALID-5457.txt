@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 5771a1c836d2251e2b7acc5c8c88704f53ea7d40
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5457.txt 
+
+commit 5771a1c836d2251e2b7acc5c8c88704f53ea7d40
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix pattern for windows for CASSANDRA-3456

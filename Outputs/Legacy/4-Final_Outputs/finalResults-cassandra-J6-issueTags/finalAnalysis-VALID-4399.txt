@@ -1,0 +1,83 @@
+Pattern changes caused by commit: dbcfe673224bb0f9670ada2bf6a3fcbdc23a6565
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4399.txt 
+
+commit dbcfe673224bb0f9670ada2bf6a3fcbdc23a6565
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    log unavailableexception details at debug level
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2856
+
+
+
+==================================
+ Issue CASSANDRA-2856 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2856] log unavailableexception details at debug level
+-----------------
+
+-----------------
+Summary: log unavailableexception details at debug level
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 5 Jul 2011 18:00:45 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 12 Jul 2011 17:33:47 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #521 (See <a
+href="https://builds.apache.org/job/Cassandra-0.7/521/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.7/521/</a>)<br/>    log
+unavailableexception details at debug level<br/>patch by jbellis; reviewed by slebresne
+for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2856" title="log
+unavailableexception details at debug level" class="issue-link"
+data-issue-key="CASSANDRA-2856"><del>CASSANDRA-2856</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143399"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1143399</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/service/ReadCallback.java</li>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/service/DatacenterReadCallback.java</li></ul> 
+
+

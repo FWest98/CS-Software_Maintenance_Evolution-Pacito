@@ -1,0 +1,80 @@
+Pattern changes caused by commit: 3b41d21d9b997530e48511e1d09ea904e8937bf0
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9330.txt 
+
+commit 3b41d21d9b997530e48511e1d09ea904e8937bf0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Ensure that submitBackground enqueues at least one task
+    patch by Oleg Anastasyev; reviewed by jbellis for CASSANDRA-5554
+
+
+
+==================================
+ Issue CASSANDRA-5554 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5554] Growing pending compactions
+-----------------
+
+-----------------
+Summary: Growing pending compactions
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 10 May 2013 06:25:34 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 13 May 2013 18:45:54 +0000
+-----------------
+
+-----------------
+Assigned to: Oleg Anastasyev
+-----------------
+
+-----------------
+Description: 
+
+I noticed on one of our new cassandra production server, that "pending compactions"
+number is steadily growing. The cluster is under low write load, so "compactions are not
+keeping up" was not the case.
+
+A quick investigation shown, that compactions are stopping
+far before all pending tasks are completed. I also found, that if concurrent_compactors=1,
+background compactions are not happening at all.
+
+The bug is in BackgroundCompactionTask
+rescheduling logic. The executor pool "room control" code in
+CompactionManager.submitBackground() does not reschedule next background cycle, if
+executor.getActiveCount reach maximun pool size, so it is lost forever.
+
+So I patched it
+to always schedule single background cycle, regardless of the free room in executor pool.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

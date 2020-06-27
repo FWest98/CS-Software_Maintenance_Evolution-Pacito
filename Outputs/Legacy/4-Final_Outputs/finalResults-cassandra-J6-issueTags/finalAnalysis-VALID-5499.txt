@@ -1,0 +1,378 @@
+Pattern changes caused by commit: aee40158c07cbed8e452d426ea486249044d0cc1
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5499.txt 
+
+commit aee40158c07cbed8e452d426ea486249044d0cc1
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix incorrect query results due to invalid SSTable.maxTimestamp
+    patch by slebresne; reviewed by jbellis and amorton for CASSANDRA-3510
+
+
+
+==================================
+ Issue CASSANDRA-3510 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3510] Incorrect query results due to invalid SSTable.maxTimestamp
+-----------------
+
+-----------------
+Summary: Incorrect query results due to invalid SSTable.maxTimestamp
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 21 Nov 2011 07:15:46 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 22 Nov 2011 09:40:36 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+related to <a href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a>
+
+(sorry this is so long,
+took me a bit to work through it all and there is a lot of new code <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> )
+<h1><a
+name="Summary"></a>Summary</h1>
+SSTable.maxTimestamp for files created before 1.0 defaults
+to Long.MIN_VALUE, and this means the wrong data is returned from queries. 
+<h2><a
+name="Details"></a>Details </h2>
+Noticed on a cluster that was upgraded from 0.8.X to 1.X,
+it then had trouble similar to <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a>. It was rolled back to 0.8
+and the migrated to 1.0.3. 
+
+4 Node cluster, all files upgraded to "hb" format. 
+
+In a
+super CF there are situations where a get for a sub columns returns a different value than
+a get for the column. .e.g. 
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>[default@XXX] get
+Users[ascii('username')]['meta']['password'];=&gt; (column=password,
+value=3130323130343130, timestamp=1307352647576000)[default@XX] get
+Users[ascii('username')]['meta'];     (snip)       =&gt; (column=password,
+value=3034323131303034, timestamp=1319563673493000)</pre></div></div>
+The correct value is
+the second one. 
+
+I added logging after line 109 in
+o.a.c.db.CollectionController.collectTimeOrderedData() to log the sstable name and the
+file max timestamp, this is what I got:
+<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">for</span> (SSTableReader sstable : view.sstables){    <span
+class="code-object">long</span> currentMaxTs = sstable.getMaxTimestamp();   
+logger.debug(<span class="code-object">String</span>.format(<span class="code-quote">"Got
+sstable %s and max TS %d"</span>, sstable, currentMaxTs));   
+reduceNameFilter(reducedFilter, container, currentMaxTs);</pre></div></div><div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>DEBUG 14:08:46,012 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12348-Data.db') and max TS
+1321824847534000DEBUG 14:08:47,231 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12346-Data.db') and max TS
+1321813380793000DEBUG 14:08:49,879 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12330-Data.db') and max TS
+-9223372036854775808DEBUG 14:08:49,880 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12325-Data.db') and max TS
+-9223372036854775808</pre></div></div>
+The key I was reading is present in files 12330 and
+12325, the first contains the <b>old / wrong</b> value with timestamp 1307352647576000
+above. The second contains the <b>new / correct</b> value with timestamp
+1319563673493000.
+
+*<b>Updated:</b>* Incorrect, it was a later file that had the correct
+value, see the first comment. 
+
+When CollectionController.collectTimeOrderedData()
+processes the 12325 file (after processing the 12330 file) while looping over the sstables
+the call to reduceNameFilter() removes the column  from the filter because the column read
+from the 12330 file has a time stamp of 1307352647576000 and the 12325 file incorrectly
+has a max time stamp of -9223372036854775808 .
+
+SSTableMetadata is reading the max time
+stamp from the stats file, but it is Long.MIN_VALUE. I think this happens because scrub
+creates the SSTableWriter using cfs.createCompactionWriter() which sets the maxTimestamp
+in the meta data collector according to the maxTimestamp in the meta data for the file(s)
+that will be scrubbed / compacted. But for pre 1.0 format files the default in
+SSTableMetadata is Long.MIN_VALUE, (see SSTableMetaData.deserialize() and the ctor). So
+scrubbing a pre 1.0 file will write stats files that have maxTimestamp as
+Long.MIN_VALUE.
+
+During scrubbing the SSTableWriter does not update the maxTimestamp
+because append(AbstractCompactedRow) is called which expects the that
+cfs.createCompactionWriter() was able to set the correct maxTimestamp on the meta data.
+Compaction also uses append(AbstractCompactedRow) so may create an SSTable with an
+incorrect maxTimestamp if one of the input files started life as a pre 1.0 file and has a
+bad maxTimestamp. 
+
+It looks like the only time the maxTimestamp is calculated is when the
+SSTable is originally written. So the error from the old files will be carried along.
+
+
+e.g. If the files a,b and c have the maxTimestamps 10, 100 and Long.MIN_VALUE compaction
+will write a SSTable with maxTimestamp 100. However file c may actually contain columns
+with a timestamp &gt; 100 which will be in the compacted file.
+<h1><a
+name="Reproduce"></a>Reproduce</h1>
+1. Start a clean 0.8.7
+
+2. Add a schema (details of
+the schema do not matter):
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>[default@unknown] create keyspace dev;  
+5f834620-140b-11e1-0000-242d50cf1fdfWaiting for schema agreement...... schemas agree
+across the cluster[default@unknown] [default@unknown] use dev;Authenticated to keyspace:
+dev[default@dev] [default@dev] create column family super_dev with column_type = 'Super'
+...	and key_validation_class = 'AsciiType' and comparator = 'AsciiType' and
+...	subcomparator = 'AsciiType' and default_validation_class =
+'AsciiType';60490720-140b-11e1-0000-242d50cf1fdfWaiting for schema agreement...... schemas
+agree across the cluster</pre></div></div>
+3. Shutdown 0.8.7
+
+4. Start 1.0.3 using the
+same data. Check the schema version loaded, example below shows the wrong schema is
+loaded. I stepped the code and the wrong value was read from
+Migration.getLastMigrationId() due to this bug. 
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre> INFO [main]
+2011-11-21 19:39:08,546 DatabaseDescriptor.java (line 501) Loading schema version
+5f834620-140b-11e1-0000-242d50cf1fdf</pre></div></div>
+5. Check the schema using the 1.0.3
+CLI 
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>[default@unknown] use dev;Authenticated to
+keyspace: dev[default@dev] describe;Keyspace: dev:  Replication Strategy:
+org.apache.cassandra.locator.NetworkTopologyStrategy  Durable Writes: true    Options:
+[datacenter1:1]  Column Families:[default@dev] </pre></div></div>
+6. I then did a 1.0.3
+scrub and re-started. The correct schema version was read, but stepping the code both
+Schema SSTables had Long.MIN_VALUE as the maxTimestamp so I think it was only the random
+order of the files that made it work. 
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>DEBUG
+19:52:30,744 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/system/Schema-hb-4-Data.db') and max TS
+-9223372036854775808DEBUG 19:52:30,744 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/system/Schema-hb-3-Data.db') and max TS
+-9223372036854775808</pre></div></div><h1><a name="Fixes"></a>Fixes</h1>
+Not sure, (wanted
+to get the ticket opened and find out if I was imagining things), guessing...
+
+Use
+Long.MIN_VALUE as a magic maxTimestamp that means the value is not know. This would not
+fix issues where the incorrect maxTimestamp been included in compaction. 
+
+Looking at
+making scrub re-calculate the maxTimestamp.
+
+Also wondering if the maxTimestamp should
+default to Long.MAX_VALUE if read from a file format that does not support maxTimestamp ?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+To be clear, I do not think this is an issue with super CF's. The Schema CF is a standard,
+it was noticed on a super CF. I added some more logging and removed the call to cut the
+query short by checking maxTimestamp in CollationController.collectTimeOrderedData(). The
+query returned the result value (password col with timestamp 1319563673493000) and this
+was the output <div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java"><span class="code-keyword">for</span> (SSTableReader
+sstable : view.sstables){    <span class="code-object">long</span> currentMaxTs =
+sstable.getMaxTimestamp();    logger.debug(<span
+class="code-object">String</span>.format(<span class="code-quote">"Got sstable %s and max
+TS %d"</span>, sstable, currentMaxTs));<span class="code-comment">//               
+reduceNameFilter(reducedFilter, container, currentMaxTs);</span><span
+class="code-comment">//                <span class="code-keyword">if</span>
+(((NamesQueryFilter) reducedFilter.filter).columns.isEmpty())</span><span
+class="code-comment">//                    <span class="code-keyword">break</span>;</span>
+   IColumnIterator iter = reducedFilter.getSSTableColumnIterator(sstable);   
+iterators.add(iter);    <span class="code-keyword">if</span> (iter.getColumnFamily() !=
+<span class="code-keyword">null</span>)    {       
+container.delete(iter.getColumnFamily());        sstablesIterated++;        <span
+class="code-keyword">while</span> (iter.hasNext())        {            IColumn col =
+iter.next();            <span class="code-keyword">if</span> (col <span
+class="code-keyword">instanceof</span> SuperColumn)            {              <span
+class="code-keyword">for</span> (IColumn subcol : ((SuperColumn)col).columns)             
+{                <span class="code-keyword">if</span>
+(subcol.name().equals(ByteBufferUtil.bytes(<span class="code-quote">"password"</span>)))  
+               logger.debug(<span class="code-object">String</span>.format(<span
+class="code-quote">"Add Sub Column %s"</span>,
+subcol.getString(cfs.metadata.subcolumnComparator)));              }            }         
+  <span class="code-keyword">else</span>            {              logger.debug(<span
+class="code-object">String</span>.format(<span class="code-quote">"Add Column %s"</span>,
+col.getString(cfs.metadata.comparator)));            }           
+container.addColumn(col);        }</pre></div></div><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>DEBUG
+22:05:20,748 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12348-Data.db') and max TS
+1321824847534000DEBUG 22:05:20,749 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12346-Data.db') and max TS
+1321813380793000DEBUG 22:05:20,753 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12330-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,754 Add Sub Column
+password:false:8@1307352647576000DEBUG 22:05:20,755 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12325-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,757 Add Sub Column
+password:false:8@1307352647576000DEBUG 22:05:20,758 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12327-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,760 Add Sub Column
+password:false:8@1307352647576000DEBUG 22:05:20,761 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12328-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,762 Add Sub Column
+password:false:8@1319563673493000DEBUG 22:05:20,763 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12326-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,765 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12331-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,767 Add Sub Column
+password:false:8@1307352647576000DEBUG 22:05:20,768 Got sstable
+SSTableReader(path='/var/lib/cassandra/data/X/Users-hb-12332-Data.db') and max TS
+-9223372036854775808DEBUG 22:05:20,774 Read: 27 ms.</pre></div></div> 
+
+
+New Comment: 
+patch 0001 is a proof of concept hack based on my first comment, it generated this output
+when using the extra logging <div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>DEBUG [ReadStage:1] 2011-11-21
+23:12:28,578 CollationController.java (line 77) collectTimeOrderedDataDEBUG [ReadStage:1]
+2011-11-21 23:12:28,578 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12348-Data.db') and max TS
+1321824847534000DEBUG [ReadStage:1] 2011-11-21 23:12:28,578 CollationController.java (line
+111) Got sstable SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12346-Data.db')
+and max TS 1321813380793000DEBUG [ReadStage:1] 2011-11-21 23:12:28,583
+CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12330-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,584 CollationController.java
+(line 130) Add Sub Column password:false:8@1307352647576000DEBUG [ReadStage:1] 2011-11-21
+23:12:28,585 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12325-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,587 CollationController.java
+(line 130) Add Sub Column password:false:8@1307352647576000DEBUG [ReadStage:1] 2011-11-21
+23:12:28,588 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12327-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,590 CollationController.java
+(line 130) Add Sub Column password:false:8@1307352647576000DEBUG [ReadStage:1] 2011-11-21
+23:12:28,591 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12328-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,592 CollationController.java
+(line 130) Add Sub Column password:false:8@1319563673493000DEBUG [ReadStage:1] 2011-11-21
+23:12:28,593 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12326-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,595 CollationController.java
+(line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12331-Data.db') and max TS
+-9223372036854775808DEBUG [ReadStage:1] 2011-11-21 23:12:28,596 CollationController.java
+(line 130) Add Sub Column password:false:8@1307352647576000DEBUG [ReadStage:1] 2011-11-21
+23:12:28,597 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hb-12332-Data.db') and max TS
+-9223372036854775808DEBUG [pool-2-thread-1] 2011-11-21 23:12:28,604 StorageProxy.java
+(line 694) Read: 26 ms.</pre></div></div>patch 0002 makes scrub update the maxTimestamp
+and when I ran my test afterwards it created this output:*<b>NOTE</b>* patch 0002 has
+incorrect file name, it modifies scrub.<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>DEBUG
+[ReadStage:33] 2011-11-21 23:20:32,032 CollationController.java (line 77)
+collectTimeOrderedDataDEBUG [ReadStage:33] 2011-11-21 23:20:32,033
+CollationController.java (line 111) Got sstable
+SSTableReader(path='/private/var/lib/cassandra/data/fmm/Users-hc-12357-Data.db') and max
+TS 1321824847534000DEBUG [ReadStage:33] 2011-11-21 23:20:32,033 CollationController.java
+(line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hc-12352-Data.db') and max TS
+1321813380793000DEBUG [ReadStage:33] 2011-11-21 23:20:32,063 CollationController.java
+(line 111) Got sstable
+SSTableReader(path='/private/var/lib/cassandra/data/fmm/Users-hc-12356-Data.db') and max
+TS 1321560509938000DEBUG [ReadStage:33] 2011-11-21 23:20:32,064 CollationController.java
+(line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hc-12349-Data.db') and max TS
+1319813295567000DEBUG [ReadStage:33] 2011-11-21 23:20:32,105 CollationController.java
+(line 130) Add Sub Column password:false:8@1319563673493000DEBUG [ReadStage:33] 2011-11-21
+23:20:32,105 CollationController.java (line 111) Got sstable
+SSTableReader(path='/var/lib/cassandra/data/fmm/Users-hc-12350-Data.db') and max TS
+1318523190222000DEBUG [pool-2-thread-2] 2011-11-21 23:20:32,106 StorageProxy.java (line
+694) Read: 74 ms.</pre></div></div> 
+
+
+New Comment: 
+The fix of the first patch looks. For the second patch, even though this is an option, I
+think I'd rather make this parts of compaction, because I don't like too much having
+potential subtle bug that needs scrub to be run (without really anything telling you that
+you potentially have a problem btw).Attaching a patch that does this (make it work for
+compaction in general as long as we're not using an EchoedRow (which makes it work for
+scrub in particular)). The patch also adds a few comments and a unit test. It includes the
+fix of the first patch. 
+
+
+New Comment: 
+<blockquote></blockquote><div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>+         * However, for old sstables
+without timestamp, we still want to update the timestamp (and we know+         * that in
+this case we will not use EchoedRow).</pre></div></div>Where is the "don't use echoedrow
+for old sstables" logic? 
+
+
+New Comment: 
+<blockquote>Where is the "don't use echoedrow for old sstables" logic?</blockquote>In
+CompactionController.needDeserialize(), but I agree that the comment could be improved to
+recall it. 
+
+
+New Comment: 
+Referring to the isLatestVersion check? 
+
+
+New Comment: 
+<blockquote>Referring to the isLatestVersion check?</blockquote>Yes. 
+
+
+New Comment: 
+Thanks, will test shortly. 
+
+
+New Comment: 
+Tested against the current 1.0 head, with the test case I had and the query works as
+expected. I agree doing it in compaction is safer, putting it in repair just got me there
+faster last night. Thanks for cleaning up the patch. <br/>+1 
+
+
+New Comment: 
++1 
+
+

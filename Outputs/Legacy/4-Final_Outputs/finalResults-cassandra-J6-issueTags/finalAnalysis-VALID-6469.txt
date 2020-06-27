@@ -1,0 +1,111 @@
+Pattern changes caused by commit: c9f88103d0a75d838e12ba7037b3893abba65421
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6469.txt 
+
+commit c9f88103d0a75d838e12ba7037b3893abba65421
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    guess correct version of Python for Arch Linux
+    patch by Andrew Ash and Paul Cannon for CASSANDRA-4090
+
+
+
+==================================
+ Issue CASSANDRA-4090 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4090] cqlsh can't handle python being a python3
+-----------------
+
+-----------------
+Summary: cqlsh can't handle python being a python3
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 27 Mar 2012 07:34:38 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 3 Apr 2012 16:12:34 +0000
+-----------------
+
+-----------------
+Assigned to: Andrew Ash
+-----------------
+
+-----------------
+Description: 
+
+cqlsh fails to run when <tt>python</tt> is a Python 3, with this error message:
+<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">andrew@spite:~/src/cassandra-trunk/bin $ ./cqlsh   File <span
+class="code-quote">"./cqlsh"</span>, line 97    except ImportError, e:                    
+ ^SyntaxError: invalid syntaxandrew@spite:~/src/cassandra-trunk/bin $
+</pre></div></div>
+The error occurs because the cqlsh script checks for a default
+installation of python that is older than a certain version, but not one newer that is
+incompatible (e.g. Python3).  To fix this, I update the logic to only run <tt>python</tt>
+if it's a version at least 2.5 but before 3.0  If this version of python is in that range
+then role with it, otherwise try python2.6, python2.7, then python2.5 (no change from
+before).
+
+This is working on my installation, where <tt>python</tt> executes python 3.2.2
+and doesn't break backwards compatibility to distributions that haven't made the jump to
+Python3 as default yet.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached. 
+
+
+New Comment: 
+I would argue that Archlinux is the broken one, in this respect: nearly everything
+executable in the Python ecosystem still expects an unqualified "python" to be python2.But
+oh well. This is an easy improvement to make. The logic in the original patch is backward;
+you want sys.exit to exit with False when the version is good (since False becomes 0,
+which shell treats as success). Adjusted a little for brevity and inverted logic. 
+
+
+New Comment: 
+Paul's patch looks good to me, and I agree that python being a python3<br/>is nonstandard.
+An easy fix to support though, and flipping the error<br/>code is right too.Anything else
+needed before applying the patch to trunk?Thanks!On Apr 2, 2012, at 16:37, "paul cannon
+(Updated) (JIRA)" 
+
+
+New Comment: 
++1 from me. 
+
+

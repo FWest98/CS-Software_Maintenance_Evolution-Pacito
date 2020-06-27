@@ -1,0 +1,239 @@
+Pattern changes caused by commit: dc9992a391f01ef79b74b5d9fc69fb7390184ecf
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3251.txt 
+
+commit dc9992a391f01ef79b74b5d9fc69fb7390184ecf
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    no more waiting for RPC_TIMEOUT before finishing RR
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-2069
+
+
+
+==================================
+ Issue CASSANDRA-2069 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2069] Read repair causes tremendous GC pressure
+-----------------
+
+-----------------
+Summary: Read repair causes tremendous GC pressure
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 27 Jan 2011 21:14:02 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 Feb 2011 17:15:55 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+To reproduce: start a three node cluster, insert 1M rows with stress.java and rf=2.  Take
+one down, delete its data, then bring it back up and issue 1M reads against it.  After the
+run is done you will see at least 1 STW long enough to mark the node as dead, often 4 or
+5.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+is this also true for 0.6? 
+
+
+New Comment: 
+No, only 0.7 
+
+
+New Comment: 
+In the log snippets I saw the heap was legitimately nearly-full during the repair process.
+ What does MAT show is using all the memory? 
+
+
+New Comment: 
+MAT indicates there are millions of pending futuretasks in StorageProxy.repairExecutor. 
+
+
+New Comment: 
+Bisecting this indicates two problems.  First, the tremendous GC pressure doesn't exhibit
+until we increase the newgen size.  If that is ignored and we only observe whether
+stress.java moves forward (it has the 'keep trying' rather than 'keep going' behavior)
+then the culprit is r1053245.Both cases show that RR requests can grow unbounded, which is
+probably ok, but if it's the same request over and over we still queue it as many times as
+it's requested. 
+
+
+New Comment: 
+I've observed similar issues with large a large newgen, largish memtables and writing at
+RF&gt;1 at CL.Q/CL.ALL though it's not as immediate as it is with RR.We should look into a
+way at bounding the number of outstanding requests (RR or "send to replica"), or more
+aggressively timing out the older requests once we hit some configurable threshold of
+outstanding requests. 
+
+
+New Comment: 
+Attached patch does two things:<ul class="alternate" type="square">	<li>allows the repair
+executor to use threads = # of cores</li>	<li>stops sending repair requests when the
+executor queue gets too large.  ("dropped" requests will be logged by MessagingService
+along with the other overload-scenario dropping.)</li></ul> 
+
+
+New Comment: 
+Working on another approach that should let us throw away repair handlers in the expected
+case that everyone responds quickly.  This will be kinder to new gen gc since we won't
+have nearly as many survivors. 
+
+
+New Comment: 
+v2 adds a READ_REPAIR stage and	does resolve of digests that were not checked for the
+client result on that stage as soon as response() collects all the replies.	If there is a
+mismatch and we do a re-read of full	resultset, we also check those results on the RR
+stage based on response() (in AsyncRepairRunner, now in ReadCallback.)I preserved
+the	feature	from v1	of not doing repairs if	the RR stage is	full.Most of the code changes
+are about getting the right information into ReadCallback (e.g. endpoints) and some
+ceremony to make static typing happy (IReadCallback).A side benefit is that
+StorageProxy.fetchRows is significantly cleaner (no more commandEndpoints or  repairs
+collections). 
+
+
+New Comment: 
+<blockquote>I preserved the feature from v1 of not doing repairs if the RR stage is
+full.</blockquote>Removed this for v3. It's complexity we don't need to solve a
+non-problem, when we're not hanging on to each callback until RPC_TIMEOUT (as demonstrated
+by 0.6). 
+
+
+New Comment: 
+v4 fixes build 
+
+
+New Comment: 
+v5 fixes a confusion of endpoints and handler.endpoints 
+
+
+New Comment: 
+No GC pressure now, however RR does not appear to actually occur. 
+
+
+New Comment: 
+what does debug log show? 
+
+
+New Comment: 
+Nothing interesting, afaict.  Just a lot of this:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>DEBUG
+23:19:42,094 get_sliceDEBUG 23:19:42,094 get_sliceDEBUG 23:19:42,240 ReadCallback blocking
+for 1 responsesDEBUG 23:19:42,240 ReadCallback blocking for 1 responsesDEBUG 23:19:42,093
+ReadCallback blocking for 1 responsesDEBUG 23:19:42,092 reading data for
+SliceFromReadCommand(table='Keyspace1', key='30343939323034',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5) locallyDEBUG
+23:19:42,091 Read: 21 ms.DEBUG 23:19:42,091 LocalReadRunnable reading
+SliceFromReadCommand(table='Keyspace1', key='30353032333935',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5)DEBUG 23:19:42,091 Read:
+17 ms.DEBUG 23:19:42,241 Read: 159 ms.DEBUG 23:19:42,091 Read: 12 ms.DEBUG 23:19:42,091
+reading data for SliceFromReadCommand(table='Keyspace1', key='30333636313035',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5) locallyDEBUG
+23:19:42,091 LocalReadRunnable reading SliceFromReadCommand(table='Keyspace1',
+key='30343831383238', column_parent='QueryPath(columnFamilyName='Standard1',
+superColumnName='null', columnName='null')', start='', finish='', reversed=false,
+count=5)DEBUG 23:19:42,091 get_sliceDEBUG 23:19:42,242 Read: 161 ms.DEBUG 23:19:42,242
+ReadCallback blocking for 1 responsesDEBUG 23:19:42,091 get_sliceDEBUG 23:19:42,090 Read:
+17 ms.DEBUG 23:19:42,243 ReadCallback blocking for 1 responsesDEBUG 23:19:42,090 Read: 19
+ms.DEBUG 23:19:42,090 reading data for SliceFromReadCommand(table='Keyspace1',
+key='30353131363631', column_parent='QueryPath(columnFamilyName='Standard1',
+superColumnName='null', columnName='null')', start='', finish='', reversed=false, count=5)
+locallyDEBUG 23:19:42,089 ReadCallback blocking for 1 responsesDEBUG 23:19:42,243 reading
+data for SliceFromReadCommand(table='Keyspace1', key='30353532343833',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5) locallyDEBUG
+23:19:42,244 LocalReadRunnable reading SliceFromReadCommand(table='Keyspace1',
+key='30353532343833', column_parent='QueryPath(columnFamilyName='Standard1',
+superColumnName='null', columnName='null')', start='', finish='', reversed=false,
+count=5)DEBUG 23:19:42,244 Read: 1 ms.DEBUG 23:19:42,243 reading data for
+SliceFromReadCommand(table='Keyspace1', key='30363137363033',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5) locallyDEBUG
+23:19:42,242 reading data for SliceFromReadCommand(table='Keyspace1',
+key='30363234303332', column_parent='QueryPath(columnFamilyName='Standard1',
+superColumnName='null', columnName='null')', start='', finish='', reversed=false, count=5)
+locallyDEBUG 23:19:42,242 LocalReadRunnable reading
+SliceFromReadCommand(table='Keyspace1', key='30333636313035',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5)DEBUG 23:19:42,241
+LocalReadRunnable reading SliceFromReadCommand(table='Keyspace1', key='30343939323034',
+column_parent='QueryPath(columnFamilyName='Standard1', superColumnName='null',
+columnName='null')', start='', finish='', reversed=false, count=5)DEBUG 23:19:42,245 Read:
+3 ms.</pre></div></div> 
+
+
+New Comment: 
+v6 adds the new repair callbacks to DES latency tracking. 
+
+
+New Comment: 
+v7 rebases post-1530. 
+
+
+New Comment: 
+<blockquote>RR does not appear to actually occur</blockquote>No digest reads are being
+sent but I don't know why.  v8 adds better debug logging around ReadCallback.endpoints
+creation which governs that. 
+
+
+New Comment: 
+v9 fixes ReadCallback construction and adds more asserts around AsyncRepairRunner. 
+
+
+New Comment: 
+v10 fixes a race where a quick repair would remove the data needed for the response to
+client.  it also splits repair and digest-processing resolvers into different classes. 
+
+
+New Comment: 
+rebased v10 
+
+
+New Comment: 
++1, RR works, GC pressure is gone. 
+
+
+New Comment: 
+committed 
+
+

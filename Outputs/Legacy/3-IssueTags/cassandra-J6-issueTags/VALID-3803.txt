@@ -1,0 +1,23 @@
+Pattern changes caused by commit: ac7c83535f05dfc55daf3c77e7aa22d08e35a278
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3803.txt 
+
+commit ac7c83535f05dfc55daf3c77e7aa22d08e35a278
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add optional replication_factor fields to KsDef to make supporting both 0.8 and 0.7 easier for client devs
+    patch by jbellis; reviewed by Nate McCall for CASSANDRA-2481

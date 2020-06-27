@@ -1,0 +1,19 @@
+Pattern changes caused by commit: dee2bc52a10867223c7693630dfaf9ac3a98c1d8
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3235.txt 
+
+commit dee2bc52a10867223c7693630dfaf9ac3a98c1d8
+Author: Eric Evans <eevans@apache.org>
+
+    basic JDBC'ish (non-compliant) driver for CQL

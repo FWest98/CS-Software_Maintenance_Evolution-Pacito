@@ -1,0 +1,81 @@
+Pattern changes caused by commit: d790ed1bc871a9bd3a8c8640629532c0bed77656
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5193.txt 
+
+commit d790ed1bc871a9bd3a8c8640629532c0bed77656
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix places where uncompressed sstable size is used in place of the compressed one.
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3338
+
+
+
+==================================
+ Issue CASSANDRA-3338 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3338] Uncompressed sizes are used to estimate space for compaction of compressed sstables
+-----------------
+
+-----------------
+Summary: Uncompressed sizes are used to estimate space for compaction of compressed sstables
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 10 Oct 2011 08:30:43 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 10 Oct 2011 14:00:31 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+We are using the uncompressed data size when estimating if we have enough to compact
+sstables. This means we can easily refuse compaction when there is clearly enough room to
+compact.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+maybe we should rename .length() to uncompressedLength() as well?otherwise +1 
+
+
+New Comment: 
+Actually renaming length() to uncompressedLength() proved to be a good idea, as I had
+missed quite a bunch of places where the onDiskLength should be used. Attached v2. 
+
+
+New Comment: 
++1 
+
+

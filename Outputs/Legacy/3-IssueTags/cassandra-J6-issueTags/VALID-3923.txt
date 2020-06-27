@@ -1,0 +1,23 @@
+Pattern changes caused by commit: d24d7ce6c47637512864892c222f396dd6eaa6e7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3923.txt 
+
+commit d24d7ce6c47637512864892c222f396dd6eaa6e7
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Reject queries with missing mandatory super column and always validate super column name
+    patch by jbellis and slebresne for CASSANDRA-2571

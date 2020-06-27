@@ -1,0 +1,17 @@
+Pattern changes caused by commit: f620b348a064a55749ffcbc4d25e08c3fe71f1be
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9417.txt 
+
+commit f620b348a064a55749ffcbc4d25e08c3fe71f1be
+Merge: 0680372 b706391
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.2

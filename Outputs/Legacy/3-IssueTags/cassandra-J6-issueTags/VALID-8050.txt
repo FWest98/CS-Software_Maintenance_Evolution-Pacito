@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 24cf1d1256dd837cfb9b310195c83f9bb1aa697a
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8050.txt 
+
+commit 24cf1d1256dd837cfb9b310195c83f9bb1aa697a
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    client_encryption_options to use enabled
+    Patch by aleksey reviewed by vijay for CASSANDRA-4994

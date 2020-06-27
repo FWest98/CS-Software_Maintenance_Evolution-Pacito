@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 445696052d0a488b4ab7c71a2958a058242169eb
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5071.txt 
+
+commit 445696052d0a488b4ab7c71a2958a058242169eb
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    FBUtilities.hexToBytes(String) to throw NumberFormatException when string contains non-hex characters
+    patch by Jonathan Ellis and Pavel Yaskevich; reviewed by Pavel Yaskevich for (CASSANDRA-3231)

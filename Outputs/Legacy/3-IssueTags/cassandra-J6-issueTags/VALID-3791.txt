@@ -1,0 +1,23 @@
+Pattern changes caused by commit: b553e773310deb0f17a0ded6424fac1e03614859
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3791.txt 
+
+commit b553e773310deb0f17a0ded6424fac1e03614859
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix duplicate results from CFS.scan
+    patch by Pavel Yaskevich and jbellis for CASSANDRA-2406

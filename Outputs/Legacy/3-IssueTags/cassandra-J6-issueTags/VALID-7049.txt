@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 67c26d4715a2ad699eccd749971671aa7e487a4d
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7049.txt 
+
+commit 67c26d4715a2ad699eccd749971671aa7e487a4d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    commitlog cleanup; fixes stderr for RecoveryManager2Test on Windows

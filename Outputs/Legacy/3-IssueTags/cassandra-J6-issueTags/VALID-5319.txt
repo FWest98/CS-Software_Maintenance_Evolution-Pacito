@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 16e1875d7d074f1f95cb776c6ad40aea168ded1c
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5319.txt 
+
+commit 16e1875d7d074f1f95cb776c6ad40aea168ded1c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    ignore 0.8 hints even if compaction begins before we try to purge them
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3385

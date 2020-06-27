@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 56a47b3948ef326070663aea465e23eb3fdf8eda
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9608.txt 
+
+commit 56a47b3948ef326070663aea465e23eb3fdf8eda
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    StandaloneUpgrader fix

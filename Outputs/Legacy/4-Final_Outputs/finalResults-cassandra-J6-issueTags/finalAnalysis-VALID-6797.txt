@@ -1,0 +1,126 @@
+Pattern changes caused by commit: be9fa05d06063ed84dca8f9ce6d3be5439359231
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6797.txt 
+
+commit be9fa05d06063ed84dca8f9ce6d3be5439359231
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Enable piping to cqlsh with locale.getpreferredencoding()
+    Patch by paul cannon, reviewd by brandonwilliams for CASSANDRA-4113
+
+
+
+==================================
+ Issue CASSANDRA-4113 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4113] cqlsh does not work with piping
+-----------------
+
+-----------------
+Summary: cqlsh does not work with piping
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 3 Apr 2012 16:18:07 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 May 2012 22:25:29 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+When I run cqlsh under ant like this<br/>	&lt;target
+name="create-test-db"&gt;<br/>		&lt;exec executable="../dsc-cassandra-1.0.8/bin/cqlsh"
+input="./resource/test/test.cql"&gt;  <br/>		&lt;/exec&gt;<br/>	&lt;/target&gt;<br/>I got:
+<br/>     <span class="error">&#91;exec&#93;</span> Traceback (most recent call
+last):<br/>     <span class="error">&#91;exec&#93;</span>   File
+"../dsc-cassandra-1.0.8/bin/cqlsh", line 1891, in &lt;module&gt;<br/>     <span
+class="error">&#91;exec&#93;</span>     main(*read_options(sys.argv<span
+class="error">&#91;1:&#93;</span>, os.environ))<br/>     <span
+class="error">&#91;exec&#93;</span>   File "../dsc-cassandra-1.0.8/bin/cqlsh", line 1863,
+in main<br/>     <span class="error">&#91;exec&#93;</span>    
+completekey=options.completekey)<br/>     <span class="error">&#91;exec&#93;</span>   File
+"../dsc-cassandra-1.0.8/bin/cqlsh", line 384, in _<em>init</em>_<br/>     <span
+class="error">&#91;exec&#93;</span>     self.output_codec = codecs.lookup(encoding)<br/>  
+  <span class="error">&#91;exec&#93;</span> TypeError: must be string, not None<br/>    
+<span class="error">&#91;exec&#93;</span> Result: 1
+
+I suggest replacement of:<br/>       
+if encoding is None:<br/>            encoding = sys.stdout.encoding<br/>to: <br/>       if
+encoding is None:<br/>           encoding=locale.getpreferredencoding()
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Fixed in my 4113 branch (current tag pending/4113) in github:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4113" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4113</a> . Defaults
+encoding to ascii when python doesn't provide any useful sys.stdout.encoding (as happens
+when stdout is not a tty).1.1 branch already had this fix as part of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3479" title="add read from/write to
+file support to cqlsh" class="issue-link"
+data-issue-key="CASSANDRA-3479"><del>CASSANDRA-3479</del></a>. 
+
+
+New Comment: 
+Oops, I didn't even read the last part of the report. Didn't know about
+locale.getpreferredencoding()- tested it out, and you're right, that's a perfect fit.
+Redoing fix. 
+
+
+New Comment: 
+New fix in same branch (4113), now tagged pending/4113-2:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4113-2" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4113-2</a>And adjusted
+for the 1.1 branch, since it doesn't cherry-pick or merge cleanly:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4113-for-1.1"
+class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4113-for-1.1</a> 
+
+

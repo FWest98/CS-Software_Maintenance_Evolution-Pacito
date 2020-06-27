@@ -1,0 +1,23 @@
+Pattern changes caused by commit: aaef16ed122fa3cac60f9e7ac7448ce9f062c574
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3799.txt 
+
+commit aaef16ed122fa3cac60f9e7ac7448ce9f062c574
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Update row cache post streaming
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2420

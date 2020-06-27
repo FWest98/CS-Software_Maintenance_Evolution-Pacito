@@ -1,0 +1,122 @@
+Pattern changes caused by commit: 5979bce8ec6338f3aaf88ce193da01e10249b12e
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6795.txt 
+
+commit 5979bce8ec6338f3aaf88ce193da01e10249b12e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    calculate exact size required for cleanup operations
+    patch by yukim; reviewed by jbellis for CASSANDRA-1404
+
+
+
+==================================
+ Issue CASSANDRA-1404 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-1404] Improve pre-cleanup estimate of disk space required
+-----------------
+
+-----------------
+Summary: Improve pre-cleanup estimate of disk space required
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 17 Aug 2010 21:39:44 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 May 2012 21:30:08 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Compaction sums the sizes of all ranges to estimate the output size in order to pick a
+target drive. Anti-compactions directly drop ranges from sstables, and the volume of data
+dropped can easily be calculated using the SSTable index. Using this knowledge in our
+estimate in ColumnFamilyStore.getExpectedCompactedFileSize would allow 'nodetool cleanup'
+to run when less than 50% of disk is available, in the case where ranges are being dropped
+(post node-move).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+That's a reasonable improvement to make; I'd also like to make cleanup operate on one
+sstable at a time, and <em>just</em> clean out unneeded rows, rather than doing clean +
+major-compaction-merging.  That way you can continue to rely on minor compactions if that
+fits your needs. 
+
+
+New Comment: 
+<blockquote>I'd also like to make cleanup operate on one sstable at a
+time</blockquote>this is done in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1916" title="Cleanup needs to remove
+secondary index entries" class="issue-link"
+data-issue-key="CASSANDRA-1916"><del>CASSANDRA-1916</del></a> 
+
+
+New Comment: 
+Bumping this one: with 60% full nodes, it can become impossible to cleanup the largest
+sstable (256GB or so). 
+
+
+New Comment: 
+(Targetting 1.1.1 because I think it's a minor change. If that is not the case then let's
+put it back on the back burner.) 
+
+
+New Comment: 
+Attaching patch to calculate estimated compacted file size with eliminating ranges when
+performing cleanup. 
+
+
+New Comment: 
+I think this makes the " / 2" guess obsolete? 
+
+
+New Comment: 
+You are right. There is no need to halve since we are actually calculating the exact size
+of cleanup'ed sstable. 
+
+

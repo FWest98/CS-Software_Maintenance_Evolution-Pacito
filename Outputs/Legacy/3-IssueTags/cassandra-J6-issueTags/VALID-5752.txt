@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 70a350e6e975c8c1aaaa5ed732f090974621355c
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5752.txt 
+
+commit 70a350e6e975c8c1aaaa5ed732f090974621355c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    use correct list of replicas for LOCAL_QUORUM reads when read repair is disabled
+    patch by jbellis; reviewed by Vijay for CASSANDRA-3696

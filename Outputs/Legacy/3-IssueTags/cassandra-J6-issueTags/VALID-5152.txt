@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 078a605a5e60e2b138a8b9d41c8d53465360188d
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5152.txt 
+
+commit 078a605a5e60e2b138a8b9d41c8d53465360188d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    backport r1174472 from 1.0.0

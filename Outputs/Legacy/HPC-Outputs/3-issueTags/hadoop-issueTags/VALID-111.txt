@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 0294c49df60150bd9b363af5cfbc312222c12c69
+
+From: Flyweight-12
+To:   Flyweight-11
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-111.txt 
+
+commit 0294c49df60150bd9b363af5cfbc312222c12c69
+Author: Suresh Srinivas <suresh@apache.org>
+
+    HADOOP-4952. Add new improved file system interface FileContext for the application writer. Contributed by Sanjay Radia.

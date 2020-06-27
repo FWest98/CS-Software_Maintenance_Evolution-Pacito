@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 7ed395de8ed30fc865fe7077d98b106dd6475114
+
+From: Flyweight-5
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3421.txt 
+
+commit 7ed395de8ed30fc865fe7077d98b106dd6475114
+Author: T Jake Luciani <jake@apache.org>
+
+    Track and Migrate cached pages during compaction

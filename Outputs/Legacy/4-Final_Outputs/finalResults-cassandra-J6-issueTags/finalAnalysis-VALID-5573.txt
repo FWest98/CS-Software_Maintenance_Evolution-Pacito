@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 562cd1391d24a5d43e1eb63c355c773be03ea73a
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5573.txt 
+
+commit 562cd1391d24a5d43e1eb63c355c773be03ea73a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    enableReserveSegmentCreation even when there is nothing to replay
+    patch by Rick Branson; reviewed by jbellis for CASSANDRA-3543
+
+
+
+==================================
+ Issue CASSANDRA-3543 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3543] Commit Log Allocator deadlock after first start with empty commitlog directory
+-----------------
+
+-----------------
+Summary: Commit Log Allocator deadlock after first start with empty commitlog directory
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 30 Nov 2011 19:22:26 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 22:10:07 +0000
+-----------------
+
+-----------------
+Assigned to: Rick Branson
+-----------------
+
+-----------------
+Description: 
+
+While testing <a href="https://issues.apache.org/jira/browse/CASSANDRA-3541"
+title="Support timeuuid column names" class="issue-link"
+data-issue-key="CASSANDRA-3541"><del>CASSANDRA-3541</del></a> at some point stress
+completely timed out.  I proceeded to shut the cluster down and 2/3 JVMs hang infinitely. 
+After a while, one of them logged:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>WARN 19:07:50,133 Some hints were
+not written before shutdown.  This is not supposed to happen.  You should (a) run repair,
+and (b) file a bug report</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here is a thread dump. 
+
+
+New Comment: 
+This is a bug in the new commit log allocator from #3411. The MutationStage threads are
+all blocked because the CommitLogExecutor queue is full. The COMMIT-LOG-WRITER thread
+which drains this queue is blocking on fetchSegment() which waits on CommitLogAllocator to
+push newly created segments onto this queue. Brandon also stated that only 1 commit log
+segment existed afterwards. 
+
+
+New Comment: 
+Steps to reproduce:1) $ rm -rf /var/lib/cassandra/*<br/>2) Start Cassandra<br/>3) $ stress
+-F1 -n 999999999The stress will run until requests start timing out, on my box it was
+~400,000. 
+
+
+New Comment: 
+A workaround is to restart Cassandra immediately after it comes up the first time with an
+empty commitlog directory. 
+
+
+New Comment: 
+committed 
+
+

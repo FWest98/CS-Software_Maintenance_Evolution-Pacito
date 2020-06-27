@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 844b9c46c9ceb08a52da7738c8312e8c0b599737
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7243.txt 
+
+commit 844b9c46c9ceb08a52da7738c8312e8c0b599737
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix build

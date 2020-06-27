@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 29a373bb798ca5dd5a3beb62ea5cc7879a707d5a
+
+From: Template Method-1
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-2946.txt 
+
+commit 29a373bb798ca5dd5a3beb62ea5cc7879a707d5a
+Author: T Jake Luciani <jake@apache.org>
+
+    zero-copy reads
+    Patch by Pavel Yaskevich; Reviewed by Jake Luciani for CASSANDRA-1714

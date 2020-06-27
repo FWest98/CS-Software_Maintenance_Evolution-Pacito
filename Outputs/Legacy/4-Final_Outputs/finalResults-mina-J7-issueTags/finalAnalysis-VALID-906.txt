@@ -1,0 +1,74 @@
+Pattern changes caused by commit: 34ddcd4134dba61bdd76b6d6a99c29143b857d54
+
+From: Facade-2
+To:   Facade-4
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-906.txt 
+
+commit 34ddcd4134dba61bdd76b6d6a99c29143b857d54
+Author: Trustin Lee <trustin@apache.org>
+
+    Fixed issue: DIRMINA-469 (Write throughput is horribly low.)
+    * Fixed as described in the issue tracker; removed the problematic if statement and added another sanity check code that doesn't cause the problem.
+
+
+
+==================================
+ Issue DIRMINA-469 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-469] Write throughput is horribly low.
+-----------------
+
+-----------------
+Summary: Write throughput is horribly low.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 5 Nov 2007 02:58:51 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 5 Nov 2007 03:02:38 +0000
+-----------------
+
+-----------------
+Assigned to: Trustin Lee
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/DIRMINA-362" title="Channel writes being
+made without OP_WRITE selector ready" class="issue-link"
+data-issue-key="DIRMINA-362"><del>DIRMINA-362</del></a> introduced seriously slow write
+throughput in a certain situation.  Removing the added if block immediately boosted write
+throughput up.  Instead of the problematic if statement, I added channel.isConnected()
+check before the write loop in SocketIoProcessor.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

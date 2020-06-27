@@ -1,0 +1,17 @@
+Pattern changes caused by commit: ce91f41907a915bdef83d7e4d345a78984d49938
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-390.txt 
+
+commit ce91f41907a915bdef83d7e4d345a78984d49938
+Author: Owen O'Malley <omalley@apache.org>
+
+    HDFS-965. Split TestDelegationToken in to two parts and fix configuration
+    to allow proxy users in the test. (Jitendra Pandey via omalley)

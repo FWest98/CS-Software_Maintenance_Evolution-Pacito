@@ -1,0 +1,22 @@
+Pattern changes caused by commit: b73b0d7eb6a3a6651c7361189e808098431576a4
+
+From: Facade-4
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1006.txt 
+
+commit b73b0d7eb6a3a6651c7361189e808098431576a4
+Author: Trustin Lee <trustin@apache.org>
+
+    * Replaced CRLF with CrLf to conform with our naming rules
+    * Added IntegerDecodingState
+    * Added ShortIntegerDecodingState
+    * Added SingleByteDecodingState

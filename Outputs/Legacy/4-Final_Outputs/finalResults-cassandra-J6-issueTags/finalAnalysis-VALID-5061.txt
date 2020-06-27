@@ -1,0 +1,111 @@
+Pattern changes caused by commit: 22f52ab3a8758a8c6ebfaf87fcd1310b3447a5f3
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5061.txt 
+
+commit 22f52ab3a8758a8c6ebfaf87fcd1310b3447a5f3
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    test for NUMA policy support as well as numactl presence
+    patch by Peter Schuller; reviewed by Paul Cannon for CASSANDRA-3245
+
+
+
+==================================
+ Issue CASSANDRA-3245 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3245] Don't fail when numactl is installed, but NUMA policies are not supported
+-----------------
+
+-----------------
+Summary: Don't fail when numactl is installed, but NUMA policies are not supported
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 23 Sep 2011 02:56:25 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 26 Sep 2011 20:47:27 +0000
+-----------------
+
+-----------------
+Assigned to: Peter Schuller
+-----------------
+
+-----------------
+Description: 
+
+When numactl is installed but NUMA policies are not supported, trying to run cassandra
+gives only:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>numactl: This system does not support NUMA
+policy</pre></div></div>
+..and the startup script fails there.
+
+We should probably fail a
+little more gracefully. Possibly the best way to tell if numactl will work is by
+using:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>numactl --hardware</pre></div></div>
+but I
+don't have ready access to a machine with proper NUMA support at the moment so I can't
+check how easy it is to tell the difference in the output.
+
+It looks just as reliable (if
+possibly a bit more brittle) to check for the existence of the directory
+<tt>/sys/devices/system/node</tt>. If that directory doesn't exist, we shouldn't even try
+to use or run numactl.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Or we could do something seemingly ugly but probably very effective and safe: Try running
+"ls -d / &gt; /dev/null" with numactl and if that fails, assume it is because numactl
+isn't working. That should hopefully work in pretty much any environment.I'll submit a
+patch soonish. 
+
+
+New Comment: 
+Attaching trivial patch that does the ls test.@paul Can you test whether numactl exits
+with a proper non-0 exit status on the system where it is not supported? I've tested the
+script as such, but I don't have a system available without the necessary support to test
+on. 
+
+
+New Comment: 
+<blockquote>@paul Can you test whether numactl exits with a proper non-0 exit status on
+the system where it is not supported?</blockquote>Indeed it does; using --interleave=all
+when there is no NUMA policy support causes an exit value of 1.+1 
+
+

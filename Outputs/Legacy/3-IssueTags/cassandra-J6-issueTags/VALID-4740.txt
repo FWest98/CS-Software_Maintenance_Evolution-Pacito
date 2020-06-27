@@ -1,0 +1,22 @@
+Pattern changes caused by commit: a832be4b8a5fd694d4e50de53b9027a5586166df
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4740.txt 
+
+commit a832be4b8a5fd694d4e50de53b9027a5586166df
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add comment about Linux and thread priority

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 016244785802c29cace8d89b6c3f022af668ee1b
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6502.txt 
+
+commit 016244785802c29cace8d89b6c3f022af668ee1b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow short snitch names & update snitch comments
+    patch by jbellis; reviewed by vijay for CASSANDRA-4130

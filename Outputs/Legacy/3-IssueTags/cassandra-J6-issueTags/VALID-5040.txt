@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 5927193d397ddbc7bf94beda213aae8f804bf58b
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5040.txt 
+
+commit 5927193d397ddbc7bf94beda213aae8f804bf58b
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix sstableloader --ignores option
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3247

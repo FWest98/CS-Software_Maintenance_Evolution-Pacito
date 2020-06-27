@@ -1,0 +1,194 @@
+Pattern changes caused by commit: 48438ffc61bce2396fa2eac2f88fa66a6e6a69cd
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6825.txt 
+
+commit 48438ffc61bce2396fa2eac2f88fa66a6e6a69cd
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    warn if deb sysctl vm.max_map_count setting fails for OpenVZ
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3636
+
+
+
+==================================
+ Issue CASSANDRA-3636 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3636] cassandra 1.0.x breakes APT on debian OpenVZ
+-----------------
+
+-----------------
+Summary: cassandra 1.0.x breakes APT on debian OpenVZ
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 15 Dec 2011 07:51:52 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 23 Jul 2012 17:07:13 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+During upgrade from 1.0.6
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">Setting up cassandra (1.0.6)
+...*error: permission denied on key <span
+class="code-quote">'vm.max_map_count'</span>*dpkg: error processing cassandra
+(--configure): subprocess installed post-installation script returned error exit status
+255Errors were encountered <span class="code-keyword">while</span> processing:
+cassandra</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+What version of openvz is this?  As far as I can tell, there shouldn't be a problem
+changing this in a guest. 
+
+
+New Comment: 
+This must be increasec on host, not on guest. This is kernel shared memory modifications,
+guests haven't their own kernel.This problem apperears on debian squeeze openvz kernel and
+on newest openvz patches 
+
+
+New Comment: 
+I have exactly same version with cassandra 1.0.6 and 1.0.7 version (1.0.5 version works
+fine)Installing from debian packanges on ubuntu 10.04 64bits:Installing new version of
+config file /etc/cassandra/cassandra.yaml ...<br/>error: permission denied on key
+'vm.max_map_count'<br/>dpkg: error processing cassandra (--configure):<br/> subprocess
+installed post-installation script returned error exit status 255uname -a<br/>Linux server
+2.6.32-042stab044.11 #1 SMP Wed Dec 14 16:02:00 MSK 2011 x86_64 GNU/Linux 
+
+
+New Comment: 
+Saulius- are you also running openvz? What version, if so? 
+
+
+New Comment: 
+Paul &gt; yes, I'm running openvz. Openvz kernel version is 2.6.32-042stab044.11 . 
+
+
+New Comment: 
+Cassandra is running on openvz, but post-install procedure is not completed, but changing
+this sysctl in openvz container is impossible.This is not a bug with OpenVZ stricte, so I
+set components to packaging.There is line in cassandra.postinst script:<br/>sysctl -p
+/etc/sysctl.d/cassandra.confapt tries to run this script before install/remove any
+packages and stops on this step.This script is breaking apt.changing
+"/etc/sysctl.d/cassandra.conf" to "sysctl -p /etc/sysctl.d/cassandra.conf || rm
+/etc/sysctl.d/cassandra.conf" could solve this. 
+
+
+New Comment: 
+Solved it! Just unpack the .deb and comment the sysctl -p /etc/sysctl.d/cassandra.conf
+line in postinst.It is already set to vm.max_map_count = 1048575 as the script tries to
+do..After that rebuild the .deb and proceed with Datastax's installation. 
+
+
+New Comment: 
+Hi, it's still a problem for cassandra 1.0.9 and openvz 3.0.23 on Debian Squeeze. 
+
+
+New Comment: 
+Added latest stable version of Cassandra. 
+
+
+New Comment: 
+So...  should we just log a warning if the sysctl fails instead of failing entirely? 
+
+
+New Comment: 
+Not much else we <em>can</em> do. 
+
+
+New Comment: 
+This change should allow the deb install to succeed. Patrik, Tio, Zenek, Saulius, or
+someone else with this problem, could you try applying the patch and installing the
+deb?Change also available on the 3636 branch on my github:<a
+href="https://github.com/thepaul/cassandra/tree/3636" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/3636</a> 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+The fix seems to have been lost during a merge.The <a
+href="https://git-wip-us.apache.org/repos/asf?p=cassandra.git;a=blob;f=debian/cassandra.postinst"
+class="external-link" rel="nofollow">trunk version of debian/cassandra.postinst</a>
+doesn't contain the changes from Paul's fix in commit <a
+href="https://git-wip-us.apache.org/repos/asf?p=cassandra.git;a=commitdiff;h=48438ffc61bce2396fa2eac2f88fa66a6e6a69cd"
+class="external-link" rel="nofollow">48438ffc61bce2396fa2eac2f88fa66a6e6a69cd</a>. 
+
+
+New Comment: 
+Integrated in Cassandra #1768 (See <a href="https://builds.apache.org/job/Cassandra/1768/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/1768/</a>)<br/>    merge <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3636" title="cassandra 1.0.x breakes
+APT on debian OpenVZ" class="issue-link"
+data-issue-key="CASSANDRA-3636"><del>CASSANDRA-3636</del></a> from 1.0 to 1.1 cassandra
+1.0.x breakes APT on debian OpenVZ (Revision ff64c5d11e9e66dfa42a1ca72572a65fb7480f37)    
+Result = ABORTED<br/>dbrosius : <br/>Files : <ul>	<li>debian/cassandra.postinst</li></ul> 
+
+
+New Comment: 
+<blockquote>The trunk version of debian/cassandra.postinst doesn't contain the changes
+from Paul's fix in commit 48438ffc61bce2396fa2eac2f88fa66a6e6a69cd.</blockquote>Yes it
+does. 
+
+
+New Comment: 
+I am still facing this issue with cassandra 1.1.2. I downloaded the debian file and
+unpacked it to look at the postinst script. I don't see Paul's fix in there. 
+
+
+New Comment: 
+You're looking at the wrong branch, in that case, because it's not in 1.1.2. 
+
+

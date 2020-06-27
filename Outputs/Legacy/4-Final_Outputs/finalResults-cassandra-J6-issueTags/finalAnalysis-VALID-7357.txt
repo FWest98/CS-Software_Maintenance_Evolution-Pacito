@@ -1,0 +1,264 @@
+Pattern changes caused by commit: 5c91bd1420e68c84433681122cb0fb7f5235ad8c
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7357.txt 
+
+commit 5c91bd1420e68c84433681122cb0fb7f5235ad8c
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (cql3) fix setting compaction strategy
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-4597
+
+
+
+==================================
+ Issue CASSANDRA-4597 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4597] Impossible to set LeveledCompactionStrategy to a column family.
+-----------------
+
+-----------------
+Summary: Impossible to set LeveledCompactionStrategy to a column family.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 31 Aug 2012 07:51:38 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 4 Sep 2012 11:40:23 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+CFPropDefs.applyToCFMetadata() does not set the compaction class on CFM
+
+When altering
+the compaction strategy of a column family to LeveledCompactionStrategy, the compaction
+strategy is not changed (the describe command shows that the SizeTieredCompactionStrategy
+is still set to the CF)<br/>When creating a column family WITH
+compaction_strategy_class='LeveledCompactionStrategy', the compaction strategy class used
+is  SizeTieredCompactionStrategy
+
+Ex :
+<br/>jal@jal-VirtualBox:~/cassandra/apache-cassandra-1.1.1/bin$ ./cqlsh -3<br/>Connected
+to Test Cluster at localhost:9160.<br/><span class="error">&#91;cqlsh 2.2.0 | Cassandra
+1.1.1 | CQL spec 3.0.0 | Thrift protocol 19.32.0&#93;</span><br/>Use HELP for
+help.<br/>cqlsh&gt; use test1;<br/>cqlsh:test1&gt; describe table pns_credentials;
+
+CREATE
+TABLE pns_credentials (<br/>  ise text PRIMARY KEY,<br/>  isnew int,<br/>  ts
+timestamp,<br/>  mergestatus int,<br/>  infranetaccount text,<br/>  user_level int,<br/> 
+msisdn bigint,<br/>  mergeusertype int<br/>) WITH<br/>  comment='' AND<br/> 
+comparator=text AND<br/>  read_repair_chance=0.100000 AND<br/>  gc_grace_seconds=864000
+AND<br/>  default_validation=text AND<br/>  min_compaction_threshold=4 AND<br/> 
+max_compaction_threshold=32 AND<br/>  replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor';
+
+I want to set the
+LeveledCompaction strategy for this table, so I execute the following ALTER TABLE
+:
+
+cqlsh:test1&gt; alter table pns_credentials <br/>         ... WITH
+compaction_strategy_class='LeveledCompactionStrategy'<br/>         ... AND
+compaction_strategy_options:sstable_size_in_mb=10;
+
+In Cassandra logs, I see some
+informations :<br/> INFO 10:23:52,532 Enqueuing flush of
+Memtable-schema_columnfamilies@965212657(1391/1738 serialized/live bytes, 20 ops)<br/>
+INFO 10:23:52,533 Writing Memtable-schema_columnfamilies@965212657(1391/1738
+serialized/live bytes, 20 ops)<br/> INFO 10:23:52,629 Completed flushing
+/var/lib/cassandra/data/system/schema_columnfamilies/system-schema_columnfamilies-hd-94-Data.db
+(1442 bytes) for commitlog position ReplayPosition(segmentId=3556583843054,
+position=1987)
+
+However, when I look at the description of the table, the table is still
+with the SizeTieredCompactionStrategy<br/>cqlsh:test1&gt; describe table pns_credentials
+;
+
+CREATE TABLE pns_credentials (<br/>  ise text PRIMARY KEY,<br/>  isnew int,<br/>  ts
+timestamp,<br/>  mergestatus int,<br/>  infranetaccount text,<br/>  user_level int,<br/> 
+msisdn bigint,<br/>  mergeusertype int<br/>) WITH<br/>  comment='' AND<br/> 
+comparator=text AND<br/>  read_repair_chance=0.100000 AND<br/>  gc_grace_seconds=864000
+AND<br/>  default_validation=text AND<br/>  min_compaction_threshold=4 AND<br/> 
+max_compaction_threshold=32 AND<br/>  replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor';
+
+In the
+schema_columnfamilies table (in system keyspace), the table pns_credentials is still using
+the SizeTieredCompactionStrategy<br/>cqlsh:test1&gt; use system;<br/>cqlsh:system&gt;
+select * from schema_columnfamilies ;<br/>...<br/>         test1 |   pns_credentials |    
+              null | KEYS_ONLY |                        [] |         |
+org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy |                         
+{} |                                                                                      
+                                                                                   
+org.apache.cassandra.db.marshal.UTF8Type |
+
+{"sstable_compression":"org.apache.cassandra.io.compress.SnappyCompressor"}
+ |         
+org.apache.cassandra.db.marshal.UTF8Type |           864000 | 1029 |       ise |    
+org.apache.cassandra.db.marshal.UTF8Type |                        0 |                     
+ 32 |                        4 |                0.1 |               True |          null |
+Standard |        null<br/>... 
+
+Same behaviour using cqlsh or command-cli.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Several schema bugs have been fixed since 1.1.1.  Let us know if you can reproduce in
+1.1.4.  You may need to recreate the schema because 1.1.1 used an incorrectly-high
+timestamp on the original creation. 
+
+
+New Comment: 
+I tried to alter the table with the folowing CQL command :<br/>alter table
+pns_credentials6<br/>WITH compaction_strategy_class='LeveledCompactionStrategy'<br/>AND
+compaction_strategy_options:sstable_size_in_mb=15;Using cassandra 1.1.1 : it doesn't work
+(neither compaction_strategy_class nor compaction_strategy_options is modified)<br/>Using
+cassandra 1.1.2 : same as 1.1.1<br/>Using cassandra 1.1.3 : neither
+compaction_strategy_class is not modified, but compaction_strategy_options is
+modified)<br/>Using cassandra 1.1.4 : same as 1.1.3Below are the details with cassandra
+1.1.4 :<br/>At first, I create a table pns_credentials6 (with
+compaction_strategy_class='SizeTieredCompactionStrategy')<br/>Then, I describe the
+table<br/>Then, I alter the table<br/>Then, I describe again the table :  the line
+compaction_strategy_options:sstable_size_in_mb='15' (since 1.1.3) appears but
+compaction_strategy_class is still 'SizeTieredCompactionStrategy'Connected to Test Cluster
+at localhost:9160.<br/><span class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.4 | CQL spec
+3.0.0 | Thrift protocol 19.32.0&#93;</span><br/>Use HELP for help.<br/>cqlsh&gt; use
+test1;<br/>cqlsh:test1&gt; CREATE TABLE pns_credentials6 (<br/>         ...    ise text
+PRIMARY KEY,<br/>         ...    isnew int,<br/>         ...    ts timestamp,<br/>        
+...    mergestatus int,<br/>         ...    infranetaccount text,<br/>         ...   
+user_level int,<br/>         ...    msisdn bigint,<br/>         ...    mergeusertype
+int<br/>         ...  ) WITH<br/>         ...    comment='' AND<br/>         ...   
+read_repair_chance=0.100000 AND<br/>         ...   gc_grace_seconds=864000 AND<br/>       
+ ...    replicate_on_write='true' AND<br/>         ...   
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/>         ...   
+compression_parameters:sstable_compression='SnappyCompressor';<br/>cqlsh:test1&gt;
+describe table pns_credentials6;CREATE TABLE pns_credentials6 (<br/>  ise text PRIMARY
+KEY,<br/>  infranetaccount text,<br/>  isnew int,<br/>  mergestatus int,<br/> 
+mergeusertype int,<br/>  msisdn bigint,<br/>  ts timestamp,<br/>  user_level int<br/>)
+WITH<br/>  comment='' AND<br/>  caching='KEYS_ONLY' AND<br/>  read_repair_chance=0.100000
+AND<br/>  gc_grace_seconds=864000 AND<br/>  replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor';cqlsh:test1&gt; alter table
+pns_credentials6<br/>         ... WITH
+compaction_strategy_class='LeveledCompactionStrategy'<br/>         ... AND
+compaction_strategy_options:sstable_size_in_mb=15;<br/>cqlsh:test1&gt; describe table
+pns_credentials6;CREATE TABLE pns_credentials6 (<br/>  ise text PRIMARY KEY,<br/> 
+infranetaccount text,<br/>  isnew int,<br/>  mergestatus int,<br/>  mergeusertype
+int,<br/>  msisdn bigint,<br/>  ts timestamp,<br/>  user_level int<br/>) WITH<br/> 
+comment='' AND<br/>  caching='KEYS_ONLY' AND<br/>  read_repair_chance=0.100000 AND<br/> 
+gc_grace_seconds=864000 AND<br/>  replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compaction_strategy_options:sstable_size_in_mb='15' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor';As you can see, I did the
+check with a new table (pns_credentials6), created in 1.1.4.<br/>When you say that I need
+to recreate the schema, is it what you were expecting ? 
+
+
+New Comment: 
+Still happening in 1.1.4 
+
+
+New Comment: 
+Thanks, we'll have a second look at that. 
+
+
+New Comment: 
+I have noticed and included a fix for this in patch for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4497" title="Update CQL pseudo-maps
+to real map syntax" class="issue-link"
+data-issue-key="CASSANDRA-4497"><del>CASSANDRA-4497</del></a> for 1.2.0, will add patch
+for 1.1 here soon. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+still happening in 1.1.5Connected to SMEVCLUSTER at 192.168.157.94:9160.<br/><span
+class="error">&#91;cqlsh 2.2.0 | Cassandra 1.1.5 | CQL spec 2.0.0 | Thrift protocol
+19.32.0&#93;</span><br/>Use HELP for help.<br/>cqlsh &gt; describe columnfamily
+auditlog_01;<br/>CREATE TABLE auditlog_01 (<br/>  lid text PRIMARY KEY,<br/>  dscn
+text,<br/>  asid text,<br/>  soapa text,<br/>  sysn text,<br/>  msgs double,<br/>  leid
+bigint,<br/>  prc text,<br/>  aeid bigint,<br/>  adt timestamp,<br/>  name text,<br/>  asn
+text,<br/>  msg text,<br/>  msgid text,<br/>  msgt text<br/>) WITH<br/>  comment=''
+AND<br/>  comparator=text AND<br/>  read_repair_chance=0.100000 AND<br/> 
+gc_grace_seconds=864000 AND<br/>  default_validation=text AND<br/> 
+min_compaction_threshold=4 AND<br/>  max_compaction_threshold=32 AND<br/> 
+replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compaction_strategy_options:sstable_size_in_mb='5' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor';<br/>cqlsh&gt; alter table
+auditlog_01 with compaction_strategy_class='LeveledCompactionStrategy' AND
+compaction_strategy_options:sstable_size_in_mb=5;<br/>cqlsh&gt; describe columnfamily
+auditlog_01;<br/>CREATE TABLE auditlog_01 (<br/>  lid text PRIMARY KEY,<br/>  dscn
+text,<br/>  asid text,<br/>  soapa text,<br/>  sysn text,<br/>  msgs double,<br/>  leid
+bigint,<br/>  prc text,<br/>  aeid bigint,<br/>  adt timestamp,<br/>  name text,<br/>  asn
+text,<br/>  msg text,<br/>  msgid text,<br/>  msgt text<br/>) WITH<br/>  comment=''
+AND<br/>  comparator=text AND<br/>  read_repair_chance=0.100000 AND<br/> 
+gc_grace_seconds=864000 AND<br/>  default_validation=text AND<br/> 
+min_compaction_threshold=4 AND<br/>  max_compaction_threshold=32 AND<br/> 
+replicate_on_write='true' AND<br/> 
+compaction_strategy_class='SizeTieredCompactionStrategy' AND<br/> 
+compaction_strategy_options:sstable_size_in_mb='5' AND<br/> 
+compression_parameters:sstable_compression='SnappyCompressor'; 
+
+
+New Comment: 
+Shamim,Your case may be a product of <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4965" title="in cqlsh, alter table
+with compaction_strategy_class does nothing" class="issue-link"
+data-issue-key="CASSANDRA-4965"><del>CASSANDRA-4965</del></a>.  Can you try to update the
+column family metadata in the cassandra-cli such as: <div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">update column family auditlog_01 with
+compaction_strategy=LeveledCompactionStrategy;</pre></div></div>See if that works for you. 
+
+

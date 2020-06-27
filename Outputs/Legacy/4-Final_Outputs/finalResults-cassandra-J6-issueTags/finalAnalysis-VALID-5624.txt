@@ -1,0 +1,81 @@
+Pattern changes caused by commit: cc63c8d1626668dec0a4c409669f18a8f79cf84c
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5624.txt 
+
+commit cc63c8d1626668dec0a4c409669f18a8f79cf84c
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add missing file for CASSANDRA-3563
+
+
+
+==================================
+ Issue CASSANDRA-3563 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3563] Packaging should increase vm.max_map_count to accommodate leveled compaction
+-----------------
+
+-----------------
+Summary: Packaging should increase vm.max_map_count to accommodate leveled compaction
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Dec 2011 20:54:02 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Dec 2011 21:31:29 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+As the title says, leveled can create a lot of files and you can run into an IOError
+trying to mmap all of them.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This won't work as is; dh_install doesn't support renaming a file while putting it into a
+directory (it will make a directory named /etc/sysctl.d/cassandra.conf/ and put
+cassandra-sysctl.conf in it).Attachment applies on top of original patch, does file rename
+in debian/rules.+1 with this fix 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Looks like debian/cassandra-sysctl.conf didn't actually get committed. 
+
+

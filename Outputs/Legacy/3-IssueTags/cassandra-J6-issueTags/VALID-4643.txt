@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 39e2d12f53846003263851a4ff4a6b5488ef2a75
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4643.txt 
+
+commit 39e2d12f53846003263851a4ff4a6b5488ef2a75
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m unnecessary Map from cql processor
+    patch by Dave Brosius; reviewed by jbellis for CASSANDRA-3030

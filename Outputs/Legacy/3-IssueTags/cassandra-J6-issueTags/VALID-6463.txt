@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 3fd0fb6aa0038f0c8aaf34f98f2ceed2f308a501
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6463.txt 
+
+commit 3fd0fb6aa0038f0c8aaf34f98f2ceed2f308a501
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix exception during cleanup for Leveled compaction

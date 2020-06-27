@@ -1,0 +1,81 @@
+Pattern changes caused by commit: 6968f68cd7c8d4a1ab4a6d4638c547e9de33a560
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9163.txt 
+
+commit 6968f68cd7c8d4a1ab4a6d4638c547e9de33a560
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow STCS options to apply to the L0 compaction performed by LCS
+    patch by Carl Yeksigian; reviewed by jbellis for CASSANDRA-5439
+
+
+
+==================================
+ Issue CASSANDRA-5439 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5439] allow STCS options to apply to the L0 compaction performed by LCS
+-----------------
+
+-----------------
+Summary: allow STCS options to apply to the L0 compaction performed by LCS
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 8 Apr 2013 18:21:33 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 21 Apr 2013 23:08:36 +0000
+-----------------
+
+-----------------
+Assigned to: Carl Yeksigian
+-----------------
+
+-----------------
+Description: 
+
+(See <a href="https://issues.apache.org/jira/browse/CASSANDRA-5371" title="Perform
+size-tiered compactions in L0 (&quot;hybrid compaction&quot;)" class="issue-link"
+data-issue-key="CASSANDRA-5371"><del>CASSANDRA-5371</del></a>)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch adds a new file, SizeTieredCompactionStrategyOptions, which is used by both the
+SizeTiered and the Leveled compaction strategies. 
+
+
+New Comment: 
+v2 attached to pass the options from LCS constructor into the manifest. 
+
+
+New Comment: 
+Changes to the original patch look good. 
+
+

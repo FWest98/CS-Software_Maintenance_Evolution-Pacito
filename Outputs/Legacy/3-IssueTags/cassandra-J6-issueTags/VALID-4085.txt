@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 85ea33912e326cf406d3b9b0c64416b5094839d7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4085.txt 
+
+commit 85ea33912e326cf406d3b9b0c64416b5094839d7
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix for dh_installinit syntax for CASSANDRA-2481
+    Patch by Paul Cannon, reviewed by brandonwilliams

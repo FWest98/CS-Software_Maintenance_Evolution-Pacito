@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1150d10545a6896ad261e8adbaba76fe9c288f68
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1615.txt 
+
+commit 1150d10545a6896ad261e8adbaba76fe9c288f68
+Author: Julien Vermillard <jvermillard@apache.org>
+
+    re-added IoSession.close(); as deprecated for not breaking API

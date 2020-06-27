@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ffa00a673f7a916c956ea231272f313da094c0ac
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3691.txt 
+
+commit ffa00a673f7a916c956ea231272f313da094c0ac
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

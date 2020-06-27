@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 877c70d93fa233d11ef738c3605b8cfacbc0de68
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1810.txt 
+
+commit 877c70d93fa233d11ef738c3605b8cfacbc0de68
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Switched more classes to JUnit 4 @nnotations

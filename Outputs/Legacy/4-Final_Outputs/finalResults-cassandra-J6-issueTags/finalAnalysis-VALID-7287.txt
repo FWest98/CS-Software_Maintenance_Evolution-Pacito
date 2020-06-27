@@ -1,0 +1,157 @@
+Pattern changes caused by commit: 5e5fbc6853468e47abe5d25817be1220e90c980f
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7287.txt 
+
+commit 5e5fbc6853468e47abe5d25817be1220e90c980f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    generify collection types
+    patch by slebresnse; reviewed by Paul Cannon for CASSANDRA-4453
+
+
+
+==================================
+ Issue CASSANDRA-4453 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4453] Better support of collections in the binary protocol
+-----------------
+
+-----------------
+Summary: Better support of collections in the binary protocol
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 20 Jul 2012 10:13:06 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 14 Aug 2012 21:54:13 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Currently, collections results are serialized to json string and send that way. This
+doesn't feel right at all for the binary protocol and we should use a simple binary
+serialization of the collection instead.
+
+For the thrift protocol, we might want to keep
+the json serialization or use the same binary serialization. I don't really have much
+opinion.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attaching 2 patches for this. The first one adds the use of a simple binary encoding for
+the collection for the binary protocol. But it also adds proper compose/decompose methods
+to the collection types to make it more useful for java drivers.<br/>The second patch
+makes collection native types for the binary protocol (i.e. it assign them short ids like
+we do for other native types instead of serializing the full name of the comparator in the
+metadata).Note that I've kept json formalization for the thrift side (that's easier for
+the dtests right now), but as said previously, we could use the binary encoding there too,
+it's not a lot more complicated for clients. 
+
+
+New Comment: 
+Can you summarize the encoding design?  In particular where is the type information
+included? 
+
+
+New Comment: 
+The encoding is the more straightforward I can think of: each collection stars by an int
+representing the number of elements, following by each element as a short size followed by
+the bytes. For the type information, they are all in the metadata.I've rebased the patch,
+and I'm attaching a 3rd patch that switch the thrift transport to the binary format too.
+JSON was fun for the initial testing but the more I think about it, the less I think we
+should keep it. There was also a "bug" on the thrift side, in that we were using only the
+(short) name of the AbstractType class in the CQLRow metadata. However, for collection we
+want to know the type of the elements too, so we want to return the full name of the
+class. The third patch fixes that. 
+
+
+New Comment: 
+does name.type.toString return the full org.apache.cassandra package name too? 
+
+
+New Comment: 
+<blockquote>does name.type.toString return the full org.apache.cassandra package name
+too?</blockquote>It does currently yes. In the javadoc of AbstractType.toString(), I wrote
+"Note that for backwards compatibility this includes the full classname. For CQL purposes
+the short name is fine", but damn if I remember to which extent using the short name would
+break compatibility. That is, as long as TypeParser.parse() is able to understand both the
+long and the short name, I think we should be fine in using the short name. 
+
+
+New Comment: 
+Maybe we should introduce a separate method then to generate shortname + parameters.  Full
+package will bloat things a <b>lot</b> for small resultsets. 
+
+
+New Comment: 
+<blockquote>Full package will bloat things a lot for small resultsets.</blockquote>I note
+however that this would be only for the thrift transport. The binary protocol has short (2
+byte) code for all the native types and this patch extend it to collections. For this
+reason I'm a bit reluctant to introduce a whole new method. Though as I said above, we can
+probably just use the short name in the existing toString() provided we make sure
+TypeParser.pase() is fine parsing both full and short class names (a quick check says it
+works just fine).I think I initially kept long names in toString() only for compatibility
+with old nodes that weren't using TypeParser when decoding types in schema messages.
+However, TypeParser is used since at least 1.0 and besides, we've broken schema messages
+compatibility since then so this likely does not matter anymore.To sum that up, I think
+we're fine if we just s/getClass().getName()/getClass().getSimpleName()/ in
+AbstractType.toString(). 
+
+
+New Comment: 
+Sounds reasonable to me.Waiting for Paul's review of the rest. 
+
+
+New Comment: 
+Only a tiny nit here: might be worth removing the
+`o.a.c.cql3.ResultSet.Metadata.dataTypeCodec` static instance declaration, since it's
+unused now and could be a little confusing with `DataType.codec` serving the same
+purpose.Also- this is only somewhat related, but I came across it while testing and
+reviewing, and it might be a good place to shoehorn in an extra tweaks: The
+native_protocol.spec doc doesn't ever explicitly mention endianness. It's big-endian,
+network byte order, as probably everyone would expect, but it's still nice to make that
+clear.But yeah, +1. 
+
+

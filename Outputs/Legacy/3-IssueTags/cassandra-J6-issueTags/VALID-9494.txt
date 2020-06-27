@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 11eb35291643d99bf5a3a1879a3b7356ff3d4bdd
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9494.txt 
+
+commit 11eb35291643d99bf5a3a1879a3b7356ff3d4bdd
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Backport from 2.0 - Expose whether jna is enabled and memory is locked via JMX
+    patch by dbrosius reviewed by jbellis for cassandra-5508

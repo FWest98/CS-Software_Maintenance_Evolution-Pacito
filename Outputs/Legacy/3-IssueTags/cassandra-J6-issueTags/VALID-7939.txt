@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 2f3b8d4b365ba333f088bff4dcbb7908beabb021
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7939.txt 
+
+commit 2f3b8d4b365ba333f088bff4dcbb7908beabb021
+Merge: 275fae9 add2d2d
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

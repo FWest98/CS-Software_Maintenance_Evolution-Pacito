@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 718190062f2b68887b799575c07cdcacdf498cf0
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4036.txt 
+
+commit 718190062f2b68887b799575c07cdcacdf498cf0
+Merge: d9ccfd5 022208b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

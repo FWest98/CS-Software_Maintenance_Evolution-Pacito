@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 4d6da77b6561cad1424a6bc65c13d85a26362182
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-270.txt 
+
+commit 4d6da77b6561cad1424a6bc65c13d85a26362182
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-723. Fix deadlock in DFSClient#DFSOutputStream. Contributed by Hairong Kuang.

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 84eeb28e3c60fee44597f4e4c663472ef147c811
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5211.txt 
+
+commit 84eeb28e3c60fee44597f4e4c663472ef147c811
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    ICompactSerializer* -> I[Versioned]Serializer
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3333

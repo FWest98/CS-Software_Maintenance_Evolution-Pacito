@@ -1,0 +1,19 @@
+Pattern changes caused by commit: ddcf6855afd57ff1cb63b70dd47604557be2f0e4
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3485.txt 
+
+commit ddcf6855afd57ff1cb63b70dd47604557be2f0e4
+Author: Eric Evans <eevans@apache.org>
+
+    enable commented BytesType tests missed in earlier commit

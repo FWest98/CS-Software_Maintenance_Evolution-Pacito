@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 1e7ae537cfad9fc03153915a6207abdc31dc6231
+
+From: Facade-3
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1566.txt 
+
+commit 1e7ae537cfad9fc03153915a6207abdc31dc6231
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Fixed the bug in slice(int, int).

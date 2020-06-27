@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 42eb2517c086fe67ac56b5c5705812851f6a3aa4
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1379.txt 
+
+commit 42eb2517c086fe67ac56b5c5705812851f6a3aa4
+Author: Trustin Lee <trustin@apache.org>
+
+    scheduledWriteBytes and scheduledWriteMessages cannot be greated than Integer.MAX.  Otherwise we will get OOM 100%.  Consequently, changed the type of scheduledWriteBytes and scheduledWriteMessages to AtomicInteger.

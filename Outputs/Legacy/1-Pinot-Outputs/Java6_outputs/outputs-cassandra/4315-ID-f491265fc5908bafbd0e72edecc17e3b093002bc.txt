@@ -1,0 +1,106 @@
+
+--------- Original GoF Patterns ----------
+
+
+
+Flyweight Pattern.
+DeletionService is a flyweight factory.
+executor is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/DeletionService.java
+
+Flyweight Pattern.
+DataOutputBuffer is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/DataOutputBuffer.java
+
+Flyweight Pattern.
+OutputBuffer is immutable.
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/OutputBuffer.java
+
+Flyweight Pattern.
+HeaderTypes is a flyweight factory.
+TASK_PROFILE_CHAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/HeaderTypes.java
+
+Flyweight Pattern.
+ProtocolHeader is a flyweight factory.
+SERIALIZER is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/ProtocolHeader.java
+
+Template Method Found.
+WrappedRunnable is the template class
+run is the template method
+runMayThrow is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/WrappedRunnable.java
+
+Template Method Found.
+AbstractDataInput is the template class
+readLine is the template method
+seekInternal is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/AbstractDataInput.java
+
+Factory Method pattern.
+SegmentedFile is a Factory Method class.
+BufferedSegmentedFile is a concrete Factory Method class.
+getSegment is a factory method returns  BufferedRandomAccessFile
+ which extends FileDataInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+Factory Method pattern.
+Builder is a Factory Method class.
+Builder is a concrete Factory Method class.
+complete is a factory method returns  BufferedSegmentedFile
+ which extends SegmentedFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+Mediator Pattern.
+Mediator: DeletionService$1
+Colleagues:  WrappedRunnable FileUtils
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/DeletionService.java
+
+Mediator Pattern.
+Mediator: MemoryInputStream
+Colleagues:  AbstractDataInput FreeableMemory
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/MemoryInputStream.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            2
+Factory Method              2
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   0
+Facade                      0
+Flyweight                   5
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    2
+Observer                    0
+State                       0
+Strategy                    0
+Template Method             2
+Visitor                     0
+------------------------------
+
+Number of classes processed: 63
+Number of files processed: 603
+Size of DelegationTable: 226
+Size of concrete class nodes: 33
+Size of undirected invocation edges: 14
+
+
+nMediatorFacadeDual/nMediator = 0/2
+nImmutable/nFlyweight = 2/5
+nFlyweightGoFVersion = 0

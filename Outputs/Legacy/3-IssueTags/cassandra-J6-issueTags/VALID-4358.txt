@@ -1,0 +1,17 @@
+Pattern changes caused by commit: ebe9815431255fceba3b2238814be92360caada7
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4358.txt 
+
+commit ebe9815431255fceba3b2238814be92360caada7
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix potential NPE in range slice read repair
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2823

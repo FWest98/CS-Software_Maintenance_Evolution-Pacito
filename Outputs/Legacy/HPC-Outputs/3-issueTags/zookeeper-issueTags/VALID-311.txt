@@ -1,0 +1,16 @@
+Pattern changes caused by commit: da1e988798fd0336a893e16e94d699e6b156c941
+
+From: Facade-8
+To:   Facade-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-311.txt 
+
+commit da1e988798fd0336a893e16e94d699e6b156c941
+Author: Patrick D. Hunt <phunt@apache.org>
+
+    ZOOKEEPER-234. Eliminate using statics to initialize the sever. Should allow server to be more embeddable in OSGi enviorments.

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b853630e305bae63e07a7766a179319f185e724d
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9508.txt 
+
+commit b853630e305bae63e07a7766a179319f185e724d
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Evaluate now() function at execution time

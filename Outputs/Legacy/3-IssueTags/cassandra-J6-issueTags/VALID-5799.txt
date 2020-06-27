@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 9f04f3e16ecb2a52c91afe21309e496dbfde3070
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5799.txt 
+
+commit 9f04f3e16ecb2a52c91afe21309e496dbfde3070
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Bootstrapping nodes never use the hibernation state.
+    Patch by brandonwilliams, reviewed by vijay for CASSANDRA-3737

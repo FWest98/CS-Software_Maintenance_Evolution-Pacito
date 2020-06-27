@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 25da034fb3bb8edb393ae7908ee0d292efbb4ed9
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6499.txt 
+
+commit 25da034fb3bb8edb393ae7908ee0d292efbb4ed9
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix terminination of the stress.java when errors were encountered
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-4128

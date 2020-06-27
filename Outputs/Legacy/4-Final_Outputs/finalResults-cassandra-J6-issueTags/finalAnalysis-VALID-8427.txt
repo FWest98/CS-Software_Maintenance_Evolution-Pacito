@@ -1,0 +1,181 @@
+Pattern changes caused by commit: 3cc8656f8fbb67c7e665fe27642076ae0109c2b5
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8427.txt 
+
+commit 3cc8656f8fbb67c7e665fe27642076ae0109c2b5
+Author: Yuki Morishita <yukim@apache.org>
+
+    better handling for amid compaction failure; patch by yukim reviewed by slebresne for CASSANDRA-5137
+
+
+
+==================================
+ Issue CASSANDRA-5137 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5137] Make sure SSTables left over from compaction get deleted and logged
+-----------------
+
+-----------------
+Summary: Make sure SSTables left over from compaction get deleted and logged
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 9 Jan 2013 17:31:33 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Jan 2013 19:18:16 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+When opening ColumnFamily, cassandra checks SSTable files' ancestors and skips loading
+already compacted ones. Those files are expected to be deleted, but currently that never
+happens.<br/>Also, there is no indication of skipping loading file in the log, so it is
+confusing especially doing upgradesstables.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+We need to mark skipping SSTable as compacted to be removed. 
+
+
+New Comment: 
+Hmm.This patch is correct as far as it goes but I think the existing assumption is broken:
+that if we have any sstable with ancestor X, then X is safe to delete.Specifically, LCS
+will create multiple sstables from a given set of ancestors, so unless we know that we
+finished the compaction (and finished writing all the resulting descendant sstables), we
+could lose data if we delete the ancestors themselves.One possible fix:<ol>	<li>Add a flag
+to SSTM for "this was the final sstable in the compaction"</li>	<li>When we scan sstables,
+we can delete ancestors if we find that marker in any of the
+descendants</li>	<li>Otherwise, we should delete the <b>descendants</b> and leave the
+ancestors alone (so we don't doublecount data for counters)</li></ol> 
+
+
+New Comment: 
+I think you're right.A fourth pseudo-solution could be to wait the end of the compaction
+to rename all the newly created writers (i.e remove the tmp markers). It's not bulletproof
+though as I don't think we can rename multiple files atomically but just wanted to mention
+it.Maybe at least for 1.1, 3. is the best/simplest option. On the longer term, maybe 1. is
+better. 
+
+
+New Comment: 
+You're right, you don't actually need a marker since if compaction completes the next step
+is to remove the ancestors.  I think "if ancestors are still alive, assume compaction
+didn't finish and delete the descendants" is good enough. 
+
+
+New Comment: 
+<blockquote>I think "if ancestors are still alive, assume compaction didn't finish and
+delete the descendants" is good enough.</blockquote>yeah agreed. 
+
+
+New Comment: 
+Hum wait, it only works if we have all ancestors though. What if just one ancestor don't
+get deleted for some reason (or only some of the SSTableDeletingTask have executed before
+a crash)? It's easy enough to check that we have <b>all</b> ancestors, but what if we
+don't? We're back to square one <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+You're right.  Guess we need a compaction-finished flag after all.Instead of storing it in
+sstable metadata, maybe we could store it in system.local the way we do with truncation
+information.  Unfortunately 1.1 doesn't support Maps so we'd be doing two separate
+implementations for 1.1 and 1.2.Should we just say that for 1.1 we'll retain all sstables
+(counter users will get overcounts, everyone else just gets extra compaction work) and fix
+it better in 1.2? 
+
+
+New Comment: 
+Something like this...<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">create table compaction_log (  id
+uuid primary key,  inputs set&lt;<span class="code-object">int</span>&gt;,  outputs
+set&lt;<span class="code-object">int</span>&gt;);</pre></div></div>When we start a
+compaction, we add it to the log.  When we finish, we remove it.  If we restart and
+compaction_log is not empty, we remove any sstables from the outputs set. 
+
+
+New Comment: 
+<blockquote>Should we just say that for 1.1 we'll retain all sstables</blockquote>For 1.1,
+I'd suggest doing my fourth pseudo-solution above, i.e. moving the renaming of newly
+created writes at the end of the compaction (it's trivial). Then at startup, we could
+indeed retain all sstables for normal CF, but for counter we would keep removing the
+predecessors as we do now. It wouldn't totally fix the risk of losing counters, but it
+would make it very unlikely (you'd need to fail exactly in the middle of the bulk renaming
+a newly create sstable writers), while just retaining all sstables would make it very easy
+to have overcounts.For 1.2, you compaction_log solution does seem reasonable. 
+
+
+New Comment: 
+V2 implements Sylvain's idea that renames written SSTables at the end of compaction.For
+1.2, let's open different issue for Jonathan's suggestion. 
+
+
+New Comment: 
+The code of v2 looks alright, but let's also disable the filtering in
+ColumnFamilyStore.ctor for non-counter CFs so we take zero chance of losing data (and
+since reusing an already compacted sstable is a bit inefficient but
+harmless).<blockquote>For 1.2, let's open different issue for Jonathan's
+suggestion</blockquote>Agreed. 
+
+
+New Comment: 
+Attached v3 that also changes the filtering part only for counter CF. 
+
+
+New Comment: 
++1 (though do commit your v1 along the way, no way in keeping sstable we're not going to
+use, even if it's only for counters). 
+
+

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 39dd8550194676766a260e4bc92edebf17cf8162
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6822.txt 
+
+commit 39dd8550194676766a260e4bc92edebf17cf8162
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix split generation regression
+    patch by Bartomiej Romaski; reviewed by jbellis for CASSANDRA-4259

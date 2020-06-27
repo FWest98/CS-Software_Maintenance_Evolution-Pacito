@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 1280c6c7dd7103955a728f8f274f26ab6f85b528
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6966.txt 
+
+commit 1280c6c7dd7103955a728f8f274f26ab6f85b528
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    inline

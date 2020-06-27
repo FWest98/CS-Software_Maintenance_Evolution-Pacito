@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 912385eb3402a82ce69ee2c994e5b11c4ddffca1
+
+From: Facade-3
+To:   Facade-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1501.txt 
+
+commit 912385eb3402a82ce69ee2c994e5b11c4ddffca1
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    New IoFilter that implements DIRMINA-519

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 4e6c0f6c6bc51ab0e35dbdd0b07017085682bc95
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4087.txt 
+
+commit 4e6c0f6c6bc51ab0e35dbdd0b07017085682bc95
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Allow limiting row slices in the cli
+    patch by slebresne; reviewed by xedin for CASSANDRA-2646

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 09ac4bc05bbc2ef7f0fb68895fafb858ff7cfeb0
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5584.txt 
+
+commit 09ac4bc05bbc2ef7f0fb68895fafb858ff7cfeb0
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix compression "chunk_length_kb" option to set correct kb value for thrift/avro
+    patch by Sylvain Lebresne; reviewed by Pavel Yaskevich for CASSANDRA-3558

@@ -1,0 +1,22 @@
+Pattern changes caused by commit: b87e2a7582de7fd5f87c6aa64150fd3e7f7e230a
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4776.txt 
+
+commit b87e2a7582de7fd5f87c6aa64150fd3e7f7e230a
+Author: Eric Evans <eevans@apache.org>
+
+    add missing mbean method

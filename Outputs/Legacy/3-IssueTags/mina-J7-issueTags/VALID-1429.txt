@@ -1,0 +1,18 @@
+Pattern changes caused by commit: ca7309924753d38914570c81556868cba092d311
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1429.txt 
+
+commit ca7309924753d38914570c81556868cba092d311
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Added some missing @author
+    o Added some missing class headers
+    o Added two more missing ASL 2.0 header

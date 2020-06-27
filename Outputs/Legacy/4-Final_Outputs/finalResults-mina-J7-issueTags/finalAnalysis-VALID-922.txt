@@ -1,0 +1,131 @@
+Pattern changes caused by commit: 7bc5c06a7dbd873d80f3074a05b9fd99d9180c90
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-922.txt 
+
+commit 7bc5c06a7dbd873d80f3074a05b9fd99d9180c90
+Author: Niklas Therning <niklas@apache.org>
+
+    Resolved DIRMINA-463: Introduced IoHandler and IoFilter specific transition annotations and enums which enumerates the possible IoHandler and IoFilter events.
+
+
+
+==================================
+ Issue DIRMINA-463 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-463] Find the best way to specify both MINA and non-MINA events.
+-----------------
+
+-----------------
+Summary: Find the best way to specify both MINA and non-MINA events.
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 29 Oct 2007 03:27:45 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 5 Nov 2007 19:21:12 +0000
+-----------------
+
+-----------------
+Assigned to: Niklas Therning
+-----------------
+
+-----------------
+Description: 
+
+As discussed here: <a href="http://tinyurl.com/2omrl9" class="external-link"
+rel="nofollow">http://tinyurl.com/2omrl9</a>
+
+For now, we use String to identify event
+types, which is somewhat unsafe.  Using an enum might be useful, but there are a few
+disadvantages:
+<ul>	<li>Wildcard event type cannot be used, which could be extended
+further (e.g. "message*" or "session(Opened|Closed)")</li></ul>
+Probably sticking to
+String might be the best solution? <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I've introduced IoHandlerEvents and IoFilterEvents which enumerate the possible events for
+the IoHandler and IoFilter interfaces. I've also added IoHandlerTransition and
+IoFilterTransition annotations. When used the events for the on annotation parameter
+aren't strings but instead come from either IoHandlerEvents or IoFilterEvents.
+StateMachine.createForIoHandler() should be used to create a StateMachine which uses the
+IoHandlerTransition annotation. See the TapeDeck example for a demonstration.PS:
+Annotations in Java are extremely limited. For example you cannot have null as a default
+value for a parameter. This is why I found it impossible to use IoEventType from mina-core
+and had to introduce IoHandlerEvents (my first idea was to use null for the wildcard
+event). Furthermore enums cannot be extended which is why IoFilterEvents redefines all the
+events which are also in IoHandlerEvents. In don't like code duplication but I didn't have
+a choice this time. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Excellent!  and a few tiny comments... <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>1) We are now tightly-coupled with
+mina-core.  Are you sure about this?<br/>2) WDYT about removing FILTER_ prefix to get
+aligned with org.apache.mina.common.IoEventType? 
+
+
+New Comment: 
+1) Just checked in a fix for this. There are now MINA specific versions of
+StateMachineFactory.<br/>2) Fixed!I'm not sure I like how 1) turned out. There are lots of
+code duplication there. Maybe if we changed StateMachineFactory so that it isn't all
+static like now and to obtain one you would always have to specifiy the annotations to be
+used like so:StateMachineFactory.getInstance(IoHandlerTransition.class).create(...)We need
+a way to couple IoHandlerTransition and IoHandlerTransitions together. I think we can use
+a special annotation for that:@TransitionsCombiner(IoHandlerTransitions.class)<br/>public
+interface @IoHandlerTransition {<br/>...<br/>}That way you won't have to specifiy both
+IoHandlerTransition and IoHandlerTransitions in the call to getInstance(...).WDYT? 
+
+
+New Comment: 
+&gt; We need a way to couple IoHandlerTransition and IoHandlerTransitions together. I
+think we can use a special annotation for that:<br/>&gt;<br/>&gt;
+@TransitionsCombiner(IoHandlerTransitions.class)<br/>&gt; public interface
+@IoHandlerTransition {&gt; ...&gt; } Does this mean we apply the same technique to
+IoFilterTransition(s) and Transition(s)?  Then it sounds great to me.  Probably we could
+allow user to specify either annotation
+class:StateMachineFactory.getInstance(IoHandlerTransition.class).create(...) =
+StateMachineFactory.getInstance(IoHandlerTransitions.class).create(...)Does it make a
+sense? 
+
+

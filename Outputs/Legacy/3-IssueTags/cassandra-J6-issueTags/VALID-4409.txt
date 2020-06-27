@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 6a9a336ad4a4621aeb7bf73a4e6cd15aaf74323d
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4409.txt 
+
+commit 6a9a336ad4a4621aeb7bf73a4e6cd15aaf74323d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    ensure that string tokens do not contain commas
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2762

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 64a5e70ef5aacdfe244baa91b5698a326173082f
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6884.txt 
+
+commit 64a5e70ef5aacdfe244baa91b5698a326173082f
+Merge: 1bfb685 853a759
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

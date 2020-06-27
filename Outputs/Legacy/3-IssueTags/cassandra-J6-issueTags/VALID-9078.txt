@@ -1,0 +1,35 @@
+Pattern changes caused by commit: feae9efa42a3395fce2447e97258ffdbe19d31cb
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9078.txt 
+
+commit feae9efa42a3395fce2447e97258ffdbe19d31cb
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix trying to load deleted row into row cache on startup
+    patch by jbellis; reviewed by dbrosius for CASSANDRA-4463

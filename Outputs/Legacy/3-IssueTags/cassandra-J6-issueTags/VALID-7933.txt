@@ -1,0 +1,23 @@
+Pattern changes caused by commit: caeee7c68383df5597002944b32731f1104c5105
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7933.txt 
+
+commit caeee7c68383df5597002944b32731f1104c5105
+Merge: 8d6e43f 08eebcd
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1

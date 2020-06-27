@@ -1,0 +1,19 @@
+Pattern changes caused by commit: bd00a2355ac576afb57e5f3fe73093c729ed79ed
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5763.txt 
+
+commit bd00a2355ac576afb57e5f3fe73093c729ed79ed
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Revert "Separate input and output connection details in ConfigHelper."

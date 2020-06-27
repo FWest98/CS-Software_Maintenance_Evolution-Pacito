@@ -1,0 +1,22 @@
+Pattern changes caused by commit: e6499d8dd1828547563936f8e4f0096d71c42f71
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4229.txt 
+
+commit e6499d8dd1828547563936f8e4f0096d71c42f71
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge #2733 from 0.8

@@ -1,0 +1,126 @@
+Pattern changes caused by commit: f1ee34f08fdde93f4a79227a5d6d3987fe007d77
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6678.txt 
+
+commit f1ee34f08fdde93f4a79227a5d6d3987fe007d77
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: in cql3 mode, use cql3 quoting when outputting cql.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-4173
+
+
+
+==================================
+ Issue CASSANDRA-4173 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4173] cqlsh: in cql3 mode, use cql3 quoting when outputting cql
+-----------------
+
+-----------------
+Summary: cqlsh: in cql3 mode, use cql3 quoting when outputting cql
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 19 Apr 2012 19:14:46 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 1 May 2012 14:53:04 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+when cqlsh needs to output a column name or other term which needs quoting (say, if you
+run DESCRIBE KEYSPACE and some column name has a space in it), it currently only knows how
+to quote in the cql2 way. That is,
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>cqlsh:foo&gt; describe
+columnfamily barCREATE COLUMNFAMILY bar (  a int PRIMARY KEY,  'b c' text)
+WITH...</pre></div></div>
+cql3 does not recognize single quotes around column names, or
+columnfamily or keyspace names either. cqlsh ought to learn how to use double-quotes
+instead when in cql3 mode.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Does CQL2 support double quotes?  If so, switching to doublequotes everywhere may be
+simpler. 
+
+
+New Comment: 
+No, it doesn't. Definitely that would have been easier. 
+
+
+New Comment: 
+break out calls to cql_escape so that they're separated by the sort of thing being quoted
+(column/cf/keyspace name vs. value) and go through the Shell object, so it can route to
+cql3 quoting or cql2 quoting as appropriate.This should fix all uses of quoting except in
+tab completion areas.Fix attached here and in the 4173 branch in my github, tagged here:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4173" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4173</a>The patch is
+meant to go on top of 4164.patch.txt from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4164" title="Cqlsh should support
+DESCRIBE on cql3-style composite CFs" class="issue-link"
+data-issue-key="CASSANDRA-4164"><del>CASSANDRA-4164</del></a>. 
+
+
+New Comment: 
+Updating patch against new 4164.patch-2.txt from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4164" title="Cqlsh should support
+DESCRIBE on cql3-style composite CFs" class="issue-link"
+data-issue-key="CASSANDRA-4164"><del>CASSANDRA-4164</del></a>. 
+
+
+New Comment: 
+New patch attached, github branch rebased, new tag at:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4173-2" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4173-2</a> 
+
+
+New Comment: 
+Rebased again on top of cassandra-1.1; I think I mucked something up with the last one.
+Wouldn't apply cleanly.Github branch updated too. New tag:<a
+href="https://github.com/thepaul/cassandra/tree/pending/4173-3" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4173-3</a> 
+
+

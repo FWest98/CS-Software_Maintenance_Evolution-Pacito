@@ -1,0 +1,118 @@
+Pattern changes caused by commit: 840c56cb6b330f8de8754991828e577519719e93
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4167.txt 
+
+commit 840c56cb6b330f8de8754991828e577519719e93
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    close scrub file handles
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2669
+
+
+
+==================================
+ Issue CASSANDRA-2669 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2669] Scrub does not close files
+-----------------
+
+-----------------
+Summary: Scrub does not close files
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 19 May 2011 17:14:34 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 15 Jun 2011 12:06:05 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+After scrubbing I find that cassandra process still holds file handles to the deleted
+sstables:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>root@blnrzh047:/mnt/cassandra# jps6932
+Jps32359 CassandraDaemon32398 CassandraJmxHttpServerroot@blnrzh047:/mnt/cassandra# du -sh
+.315G	.root@blnrzh047:/mnt/cassandra# df -h .Filesystem            Size  Used Avail Use%
+Mounted on/dev/md0              1.1T  626G  420G  60%
+/mnt/cassandraroot@blnrzh047:/mnt/cassandra# lsof | grep /mntjava      32359        root 
+356r      REG                9,0           24    4194599
+/mnt/cassandra/data/system/Migrations-f-13-Index.db (deleted)java      32359        root 
+357r      REG                9,0       329451    4194547
+/mnt/cassandra/data/system/HintsColumnFamily-f-588-Data.db (deleted)java      32359       
+root  358r      REG                9,0           22    4194546
+/mnt/cassandra/data/system/HintsColumnFamily-f-588-Index.db (deleted)java      32359      
+ root  359r      REG                9,0       313225    4194534
+/mnt/cassandra/data/system/HintsColumnFamily-f-587-Data.db (deleted)java      32359       
+root  360r      REG                9,0           22    4194494
+/mnt/cassandra/data/system/HintsColumnFamily-f-587-Index.db (deleted)java      32359      
+ root  361r      REG                9,0        30452    4194636
+/mnt/cassandra/data/system/Schema-f-13-Data.db (deleted)java      32359        root  362r 
+    REG                9,0          484    4194635
+/mnt/cassandra/data/system/Schema-f-13-Index.db (deleted)</pre></div></div>
+I guess
+there's a missing dataFile.close() in CompactionManager:648
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch attached to add finally { close } block. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #497 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/497/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/497/</a>)<br/>    close
+scrub file handles<br/>patch by jbellis; reviewed by slebresne for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2669" title="Scrub does not close
+files" class="issue-link"
+data-issue-key="CASSANDRA-2669"><del>CASSANDRA-2669</del></a>jbellis : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1127589"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1127589</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.7/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.7/src/java/org/apache/cassandra/db/CompactionManager.java</li></ul> 
+
+

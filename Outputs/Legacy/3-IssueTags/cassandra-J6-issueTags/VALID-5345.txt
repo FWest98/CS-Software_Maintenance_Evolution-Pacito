@@ -1,0 +1,17 @@
+Pattern changes caused by commit: aa6ce5d158ba0a2d14f5bc4a5a07ce48123f8ccd
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5345.txt 
+
+commit aa6ce5d158ba0a2d14f5bc4a5a07ce48123f8ccd
+Merge: 6e34dc3 2284ee0
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    merge from 1.0

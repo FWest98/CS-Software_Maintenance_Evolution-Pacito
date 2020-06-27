@@ -1,0 +1,127 @@
+Pattern changes caused by commit: 0d12493721fdf3212ecfe58a341ca07ba83453cd
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7626.txt 
+
+commit 0d12493721fdf3212ecfe58a341ca07ba83453cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix HH to compact with correct gcBefore
+    patch by Alexey Zotov; reviewed by jbellis for CASSANDRA-4772
+
+
+
+==================================
+ Issue CASSANDRA-4772 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4772] HintedHandoff fails to deliver hints after first repaired node
+-----------------
+
+-----------------
+Summary: HintedHandoff fails to deliver hints after first repaired node
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 5 Oct 2012 21:01:47 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 9 Oct 2012 13:55:08 +0000
+-----------------
+
+-----------------
+Assigned to: Alexey Zotov
+-----------------
+
+-----------------
+Description: 
+
+If some node has hints for a few nodes it will deliver hints only for the first one of
+them. After all hints delivery for the first node compaction process is started. After
+compaction all data from hints cf is removed.
+
+target fix for 1.2 version:
+<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">diff --git a/src/java/org/apache/cassandra/db/HintedHandOffManager.java
+b/src/java/org/apache/cassandra/db/HintedHandOffManager.javaindex e5ff163..c02997e
+100644--- a/src/java/org/apache/cassandra/db/HintedHandOffManager.java+++
+b/src/java/org/apache/cassandra/db/HintedHandOffManager.java@@ -189,7 +189,7 @@ <span
+class="code-keyword">public</span> <span class="code-keyword">class
+</span>HintedHandOffManager <span class="code-keyword">implements</span>
+HintedHandOffManagerMBean         ArrayList&lt;Descriptor&gt; descriptors = <span
+class="code-keyword">new</span> ArrayList&lt;Descriptor&gt;();         <span
+class="code-keyword">for</span> (SSTable sstable : hintStore.getSSTables())            
+descriptors.add(sstable.descriptor);-        <span class="code-keyword">return</span>
+CompactionManager.instance.submitUserDefined(hintStore, descriptors, <span
+class="code-object">Integer</span>.MAX_VALUE);+        <span
+class="code-keyword">return</span> CompactionManager.instance.submitUserDefined(hintStore,
+descriptors, (<span class="code-object">int</span>) <span
+class="code-object">System</span>.currentTimeMillis() / 1000);     }      <span
+class="code-keyword">private</span> <span class="code-keyword">static</span> <span
+class="code-object">boolean</span> pagingFinished(ColumnFamily hintColumnFamily,
+ByteBuffer startColumn)</pre></div></div>
+Can I expect to see that fix in 1.1.6 version?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+the timestamp is "time before which we can throw away deleted columns."  columns that have
+not already been deleted are unaffected. 
+
+
+New Comment: 
+That timestamp is passed to ColumnFamilyStore.removeDeleted() method. That method removes
+columns with tombstones and expired columns. All columns in "hints" column family are
+"expiring columns" and they should be removed if gcBefore is greater than
+localExpirationTime. We pass gcBefore as Integer.MAX_VALUE, so all columns should be
+deleted because of Integer.MAX_VALUE &gt;&gt; localExpirationTime.<br/>I've attached some
+test, that fails without the fix. Please take a look on it. 
+
+
+New Comment: 
+You're right, Alexey.  Thanks for the followup.Thought at first this would affect 1.0 as
+well &#8211; compaction code is the same in 1.0.x &#8211; but the bug needs on both
+compaction w/ MAX_TIMESTAMP <b>and</b> <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3716" title="Clean up
+isMarkedForDelete / getLocalDeletionTime" class="issue-link"
+data-issue-key="CASSANDRA-3716"><del>CASSANDRA-3716</del></a>. 
+
+
+New Comment: 
+attaching backport of test to 1.0 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f6edaa8555307dc94c905e5627e79c97d06b254e
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5837.txt 
+
+commit f6edaa8555307dc94c905e5627e79c97d06b254e
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    disallow user modification of System keyspace
+    patch by Dave Brosius; reviewed by jbellis for CASSANDRA-3759

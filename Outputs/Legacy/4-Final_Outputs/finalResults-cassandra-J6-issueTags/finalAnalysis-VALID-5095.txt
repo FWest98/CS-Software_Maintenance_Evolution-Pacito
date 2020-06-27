@@ -1,0 +1,123 @@
+Pattern changes caused by commit: 01eb6fec979c6b5a1b3101dfdb91b8a1358090e4
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5095.txt 
+
+commit 01eb6fec979c6b5a1b3101dfdb91b8a1358090e4
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    CLI documentation change for ColumnFamily `compression_options`
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3282
+
+
+
+==================================
+ Issue CASSANDRA-3282 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3282] CLI does not support removing compression options from a ColumnFamily
+-----------------
+
+-----------------
+Summary: CLI does not support removing compression options from a ColumnFamily
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 30 Sep 2011 06:08:46 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 30 Sep 2011 20:20:40 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+This may be an issue with ThriftValidator as well - not accepting a null or empty
+compression properties map as a disable flag.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Works for me on the latest cassandra-1.0.0 branch:<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>[git:cassandra-1.0.0] (~/work/java/cassandra-trunk) →
+./bin/cassandra-cli --host localhostConnected to: "Test Cluster" on localhost/9160Welcome
+to the Cassandra CLI.Type 'help;' or '?' for help.Type 'quit;' or 'exit;' to
+quit.[default@unknown] create keyspace ks;972385e0-eb7a-11e0-0000-242d50cf1fddWaiting for
+schema agreement...... schemas agree across the cluster[default@ks] create column family
+cf with comparator=UTF8Type and key_validation_class=UTF8Type and
+...	compression_options={sstable_compression:SnappyCompressor, chunk_length_kb:16};       
+11870140-eb7b-11e0-0000-242d50cf1fddWaiting for schema agreement...... schemas agree
+across the cluster[default@ks] describe cf;                                               
+                               ColumnFamily: cf      Key Validation Class:
+org.apache.cassandra.db.marshal.UTF8Type      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType      Columns sorted by:
+org.apache.cassandra.db.marshal.UTF8Type      Row cache size / save period in seconds /
+keys to save : 0.0/0/all      Key cache size / save period in seconds: 200000.0/14400     
+GC grace seconds: 864000      Compaction min/max thresholds: 4/32      Read repair chance:
+1.0      Replicate on write: true      Built indexes: []      Compaction Strategy:
+org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy      Compression Options: 
+      chunk_length_kb: 16        sstable_compression:
+org.apache.cassandra.io.compress.SnappyCompressor[default@ks] update column family cf with
+comparator=UTF8Type and key_validation_class=UTF8Type and ...	compression_options=null;   
+                                                         
+18177490-eb7b-11e0-0000-242d50cf1fddWaiting for schema agreement...... schemas agree
+across the cluster[default@ks] describe cf;                                               
+                               ColumnFamily: cf      Key Validation Class:
+org.apache.cassandra.db.marshal.UTF8Type      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType      Columns sorted by:
+org.apache.cassandra.db.marshal.UTF8Type      Row cache size / save period in seconds /
+keys to save : 0.0/0/all      Key cache size / save period in seconds: 200000.0/14400     
+GC grace seconds: 864000      Compaction min/max thresholds: 4/32      Read repair chance:
+1.0      Replicate on write: true      Built indexes: []      Compaction Strategy:
+org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy[default@ks]
+quit;</pre></div></div>Can you please provide at least your error message? 
+
+
+New Comment: 
+Thanks Pavel - I just verified this on the rc1 binary as well. Can we keep this open in
+the context of adding the above to the CLI help? 
+
+
+New Comment: 
+I will attach help update as a patch tonight. 
+
+
+New Comment: 
++1 
+
+

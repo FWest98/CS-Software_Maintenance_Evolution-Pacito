@@ -1,0 +1,119 @@
+Pattern changes caused by commit: 3a6125db8782f09c291ec3625af65c624e16df3a
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8815.txt 
+
+commit 3a6125db8782f09c291ec3625af65c624e16df3a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix DatabaseDescriptor.hasExistingNoSystemTables to skip system table correctly
+    patch by Jackson Chung; reviewed by jbellis for CASSANDRA-5289
+
+
+
+==================================
+ Issue CASSANDRA-5289 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5289] DatabaseDescriptor.hasExistingNoSystemTables return true even with only system keyspace
+-----------------
+
+-----------------
+Summary: DatabaseDescriptor.hasExistingNoSystemTables return true even with only system keyspace
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 26 Feb 2013 05:43:32 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 7 Mar 2013 21:18:02 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+The hasExistingNoSystemTables method in DatabaseDescriptor checks for directory only.
+
+
+On a new start, system KS would be created. This method current return true because of
+it, resulting incorrect/confusing log:
+
+ logger.info("Found table data in data
+directories. Consider using the CLI to define your schema.")     ;
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to add check the name not equal to Table.SYSTEM_KSpatch based on 1.1 branchnote for
+trunk, Table.SYSTEM_KS is changed to Table.SYSTEM_TABLE 
+
+
+New Comment: 
+Honestly, you could debate whether we need that check at all. In either case, all we do
+after calling hasExistingNoSystemTables() is tell the user to create some CFs - I think
+that should be obvious by now <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>. I think we can just eliminate that
+method and the not overwhelmingly helpful logging, and have startup be nanoseonds more
+efficient. 
+
+
+New Comment: 
+I understand your point. We had a EC2 node outage last week, and subsequently the ops team
+rebuilt a node to replace it. However, I am not part of the ops team and so wasn't aware
+of such happened. But I was reviewing the logs for other issues, and reaching here was
+really confusing. (i saw node was started with new token indicating a new start, but then
+saw the log msg seems suggesting there were data).Hence I would prefer keep the log but
+fix the bug to make it clear, instead of seeking for that sub nanoseconds improvement. But
+I would agree taking the log out would make it less confusing and gain that sub
+nanoseconds improvement.Either way, your call <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+

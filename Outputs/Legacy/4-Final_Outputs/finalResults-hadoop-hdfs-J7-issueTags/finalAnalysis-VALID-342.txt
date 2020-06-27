@@ -1,0 +1,1080 @@
+Pattern changes caused by commit: ad05d72a8d0abdbac38e64139befeff922bf9fe2
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-342.txt 
+
+commit ad05d72a8d0abdbac38e64139befeff922bf9fe2
+Author: Michael Stack <stack@apache.org>
+
+    HDFS-630 In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when locating the next block; back out this patch so can replace w/ improved version
+
+
+
+==================================
+ Issue HDFS-630 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-630] In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when locating the next block.
+-----------------
+
+-----------------
+Summary: In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when locating the next block.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 18 Sep 2009 07:05:53 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 26 Jan 2010 06:21:09 +0000
+-----------------
+
+-----------------
+Assigned to: Cosmin Lehene
+-----------------
+
+-----------------
+Description: 
+
+created from hdfs-200.
+
+If during a write, the dfsclient sees that a block replica
+location for a newly allocated block is not-connectable, it re-requests the NN to get a
+fresh set of replica locations of the block. It tries this dfs.client.block.write.retries
+times (default 3), sleeping 6 seconds between each retry ( see
+DFSClient.nextBlockOutputStream).
+
+This setting works well when you have a reasonable size
+cluster; if u have few datanodes in the cluster, every retry maybe pick the dead-datanode
+and the above logic bails out.
+
+Our solution: when getting block location from namenode,
+we give nn the excluded datanodes. The list of dead datanodes is only for one block
+allocation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Ruyue Ma added a comment - 20/Jul/09 11:32 PM<br/>to: dhruba borthakur&gt; This is not
+related to <a href="https://issues.apache.org/jira/browse/HDFS-4379" title="DN block
+reports should include a sequence number" class="issue-link"
+data-issue-key="HDFS-4379">HDFS-4379</a>. let me explain why.<br/>&gt; The problem is
+actually related to HDFS-xxx. The namenode waits for 10 minutes after losing heartbeats
+from a datanode to declare it dead. During this 10 minutes, the NN is free to choose the
+dead datanode as a possible replica for a newly allocated block.&gt; If during a write,
+the dfsclient sees that a block replica location for a newly allocated block is
+not-connectable, it re-requests the NN to get a fresh set of replica locations of the
+block. It tries this dfs.client.block.write.retries times (default 3), sleeping 6 seconds
+between each retry ( see DFSClient.nextBlockOutputStream). &gt; This setting works well
+when you have a reasonable size cluster; if u have only 4 datanodes in the cluster, every
+retry picks the dead-datanode and the above logic bails out.&gt; One solution is to change
+the value of dfs.client.block.write.retries to a much much larger value, say 200 or so.
+Better still, increase the number of nodes in ur cluster.Our modification: when getting
+block location from namenode, we give nn the excluded datanodes. The list of dead
+datanodes is only for one block allocation.+++
+hadoop-new/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java 2009-07-20 00:19:03.000000000
++0800<br/>@@ -2734,6 +2734,7 @@<br/>LocatedBlock lb = null;<br/>boolean retry =
+false;<br/>DatanodeInfo[] nodes;<br/>+ DatanodeInfo[] exludedNodes = null;<br/>int count =
+conf.getInt("dfs.client.block.write.retries", 3);<br/>boolean success;<br/>do {<br/>@@
+-2745,7 +2746,7 @@<br/>success = false;long startTime =
+System.currentTimeMillis();<ul>	<li>lb = locateFollowingBlock(startTime);<br/>      + lb =
+locateFollowingBlock(startTime, exludedNodes);<br/>      block = lb.getBlock();<br/>     
+nodes = lb.getLocations();</li></ul>@@ -2755,6 +2756,19 @@<br/>success =
+createBlockOutputStream(nodes, clientName, false);if (!success) {<br/>+<br/>+
+LOG.info("Excluding node: " + nodes<span class="error">&#91;errorIndex&#93;</span>);<br/>+
+// Mark datanode as excluded<br/>+ DatanodeInfo errorNode = nodes<span
+class="error">&#91;errorIndex&#93;</span>;<br/>+ if (exludedNodes != null) { +
+DatanodeInfo[] newExcludedNodes = new DatanodeInfo[exludedNodes.length + 1]; +
+System.arraycopy(exludedNodes, 0, newExcludedNodes, 0, exludedNodes.length); +
+newExcludedNodes[exludedNodes.length] = errorNode; + exludedNodes = newExcludedNodes; + }
+else {<br/>+ exludedNodes = new DatanodeInfo[] { errorNode };<br/>+
+}<br/>+<br/>LOG.info("Abandoning block " + block);<br/>namenode.abandonBlock(block, src,
+clientName);<br/>[ Show » ]<br/>Ruyue Ma added a comment - 20/Jul/09 11:32 PM to: dhruba
+borthakur &gt; This is not related to <a
+href="https://issues.apache.org/jira/browse/HDFS-4379" title="DN block reports should
+include a sequence number" class="issue-link" data-issue-key="HDFS-4379">HDFS-4379</a>.
+let me explain why. &gt; The problem is actually related to HDFS-xxx. The namenode waits
+for 10 minutes after losing heartbeats from a datanode to declare it dead. During this 10
+minutes, the NN is free to choose the dead datanode as a possible replica for a newly
+allocated block. &gt; If during a write, the dfsclient sees that a block replica location
+for a newly allocated block is not-connectable, it re-requests the NN to get a fresh set
+of replica locations of the block. It tries this dfs.client.block.write.retries times
+(default 3), sleeping 6 seconds between each retry ( see DFSClient.nextBlockOutputStream).
+&gt; This setting works well when you have a reasonable size cluster; if u have only 4
+datanodes in the cluster, every retry picks the dead-datanode and the above logic bails
+out. &gt; One solution is to change the value of dfs.client.block.write.retries to a much
+much larger value, say 200 or so. Better still, increase the number of nodes in ur
+cluster. Our modification: when getting block location from namenode, we give nn the
+excluded datanodes. The list of dead datanodes is only for one block allocation. +++
+hadoop-new/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java 2009-07-20 00:19:03.000000000
++0800 @@ -2734,6 +2734,7 @@ LocatedBlock lb = null; boolean retry = false; DatanodeInfo[]
+nodes; + DatanodeInfo[] exludedNodes = null; int count =
+conf.getInt("dfs.client.block.write.retries", 3); boolean success; do { @@ -2745,7 +2746,7
+@@ success = false; long startTime = System.currentTimeMillis();<br/><br/>    * lb =
+locateFollowingBlock(startTime); + lb = locateFollowingBlock(startTime, exludedNodes);
+block = lb.getBlock(); nodes = lb.getLocations();<br/><br/>@@ -2755,6 +2756,19 @@ success
+= createBlockOutputStream(nodes, clientName, false); if (!success) { + +
+LOG.info("Excluding node: " + nodes<span class="error">&#91;errorIndex&#93;</span>); + //
+Mark datanode as excluded + DatanodeInfo errorNode = nodes<span
+class="error">&#91;errorIndex&#93;</span>; + if (exludedNodes != null) { + DatanodeInfo[]
+newExcludedNodes = new DatanodeInfo[exludedNodes.length + 1]; +
+System.arraycopy(exludedNodes, 0, newExcludedNodes, 0, exludedNodes.length); +
+newExcludedNodes[exludedNodes.length] = errorNode; + exludedNodes = newExcludedNodes; + }
+else { + exludedNodes = new DatanodeInfo[] { errorNode }; + } + LOG.info("Abandoning block
+" + block); namenode.abandonBlock(block, src, clientName);[ Permlink | « Hide ]<br/>dhruba
+borthakur added a comment - 22/Jul/09 07:14 AM<br/>Hi Ruyue, your option of excluding
+specific datanodes (specified by the client) sounds reasonable. This might help in the
+case of network partitioning where a specific client loses access to a set of datanodes
+while the datanode is alive and well and is able to send heartbeats to the namenode. Can
+you pl create a separate JIRA for your prosposed fix and attach your patch there?
+Thanks.<br/>[ Show » ]<br/>dhruba borthakur added a comment - 22/Jul/09 07:14 AM Hi Ruyue,
+your option of excluding specific datanodes (specified by the client) sounds reasonable.
+This might help in the case of network partitioning where a specific client loses access
+to a set of datanodes while the datanode is alive and well and is able to send heartbeats
+to the namenode. Can you pl create a separate JIRA for your prosposed fix and attach your
+patch there? Thanks. 
+
+
+New Comment: 
+Patch for 0.20 branch. Added <br/>public LocatedBlock addBlock(String src, String
+clientName, DatanodeInfo[] excludedNodes) throws IOException;to ClientProtocol and
+implemented methods in both DFSClient and NameNodeAdded method to FSNameSystem too
+DFSClient will <br/>keep track of nodes that timeout when creating a new block and pass
+that list when retrying.  NameNode will pass the excludedNodes list to FSNameSystem and so
+on. Fixed /src/test/org/apache/hadoop/hdfs/TestDFSClientRetries.java to reflect changes in
+DFSClientKept the old interface as well on server side. We've tested on a cluster with
+HBase on top and it worked fine. 
+
+
+New Comment: 
+The code looks good. But as you might be knowing, only regression fixes go into
+pre-existing release branches. We can target this fix for trunk. If you can merge this
+path with hadoop trunk and resubmit your patch, that will be great. Also, most patch
+submissions require an associated junit test. You can find many existing junit tests in
+the src/test directory of the svn repository. Thanks. 
+
+
+New Comment: 
+I'll try to submit the patch for trunk including unit tests. This fix is important to have
+HBase running correctly in case of datanode failures (<a
+href="http://issues.apache.org/jira/browse/HBASE-1876" class="external-link"
+rel="nofollow">http://issues.apache.org/jira/browse/HBASE-1876</a>) so we'll probably have
+to maintain the patch for 0.20.x as well. 
+
+
+New Comment: 
+Adapted for 0.21 branch. Added excludedNodes back to BlockPlacementPolicy. <br/>Adapted to
+use HashMap&lt;Node, Node&gt; instead of List&lt;Node&gt; since
+BlockPlacementPolicyDefault was changed to use HashMap. However I'm not sure if it's
+supposed to be a HashMap... <br/>Luckily, Dhruba didn't removed the code that dealt with
+excludedNodes from BlockPlacementPolicyDefault so I only had to wire up the methods.I also
+added a "unit" test - it's practically a functional test that spins up a DFSMiniCluster
+with 3 DataNodes and kills one before creating the file. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422242/0001-Fix-HDFS-630-for-0.21.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422242/0001-Fix-HDFS-630-for-0.21.patch</a><br/>
+ against trunk revision 825689.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 9 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/69/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/69/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Hi there, the patch failed to apply to current trunk. Can you pl merge the patch with the
+latest trunk and resubmit this one? Thanks a bunch. 
+
+
+New Comment: 
+Cosmin:  I applied your patch but it seems to bring on an issue where I get
+"java.io.IOException: Cannot complete block: block has not been COMMITTED by the client"
+closing a log file. See the hdfs-user mailing list.  Grep for message subject: "Cannot
+complete block: block has not been COMMITTED by the client".  Do you see this?  Thanks. 
+
+
+New Comment: 
+Yeah, retried on branch-21 and the addition of <a
+href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a> brings on the above COMMITTED issue. 
+Tried the patch for 0.20 and that doesn't have this issue. 
+
+
+New Comment: 
+stack: I can't reproduce it on 0.21. I did find it in the NN log before upgrading the
+HBase jar to the patched hdfs. java.io.IOException: Cannot complete block: block has not
+been COMMITTED by the client<br/>        at
+org.apache.hadoop.hdfs.server.namenode.BlockInfoUnderConstruction.convertToCompleteBlock(BlockInfoUnderConstruction.java:158)<br/>
+       at
+org.apache.hadoop.hdfs.server.namenode.BlockManager.completeBlock(BlockManager.java:288)<br/>
+       at
+org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:1243)<br/>
+       at org.apache.hadoop.hdfs.server.namenode.NameNode.addBlock(NameNode.java:637)<br/>
+       at org.apache.hadoop.hdfs.server.namenode.NameNode.addBlock(NameNode.java:621)<br/>
+       at sun.reflect.GeneratedMethodAccessor48.invoke(Unknown Source)<br/>        at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>
+       at java.lang.reflect.Method.invoke(Method.java:597)<br/>        at
+org.apache.hadoop.ipc.RPC$Server.call(RPC.java:516)<br/>        at
+org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:964)<br/>        at
+org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:960)<br/>        at
+java.security.AccessController.doPrivileged(Native Method)<br/>        at
+javax.security.auth.Subject.doAs(Subject.java:396)<br/>        at
+org.apache.hadoop.ipc.Server$Handler.run(Server.java:958)I should point that <br/> at
+org.apache.hadoop.hdfs.server.namenode.NameNode.addBlock(NameNode.java:621)line 621 in the
+NameNode means it was called from an unpached DFSClient that calls the old NameNode
+interface<br/>line 621: return addBlock(src, clientName, null, null); This is part of 
+public LocatedBlock addBlock(String src, String clientName, Block previous) 
+@Override<br/>  public LocatedBlock addBlock(String src, String clientName,<br/>          
+                    Block previous)<br/>    throws IOException {    return addBlock(src,
+clientName, null, null);  }This is different than your stacktrace <a
+href="http://pastie.org/695936" class="external-link"
+rel="nofollow">http://pastie.org/695936</a> that calls the complete() method. However
+could you search for the same error while adding a new block with addBlock() (like mine)?
+If you find it, you could figure out what's the entry point in NameNode, and if it's line
+621 you might have a an unpatched DFSClient. However, even with an unpatched DFSClient I
+still fail, yet, to figure out why would it cause it. Perhaps I should get a better
+understanding of the cause of the exception. So far, from the code comments in
+BlockInfoUnderConstruction I have that<br/>"the state of the block  (the generation stamp
+and the length) has not been committed by the client or it does not have at least a
+minimal number of replicas reported from data-nodes. " 
+
+
+New Comment: 
+Comin: You are right.  It was mismatched hadoop-hdfs jars on my end causing the problem. 
+I don't see it anymore after ensuring all jars are patched latest around the cluster. 
+Sorry for my wasting your time. 
+
+
+New Comment: 
+I've been playing running loadings against a small hbase cluster of 4 nodes &#8211; a
+usual hbase initial setup &#8211; with and without this patch on the hadoop 0.21 branch. 
+With this patch in place, the loading completes though I kill a regionserver and DN. 
+Without it, the loading fails because more than one regionserver dies complaining that it
+can't allocate a block to write a flush file (NN keeps giving it the dead DN as the home
+for new block and never moves on).+1 on this patch.Cosmin, mind making a version for TRUNK
+as per Dhruba's suggestion?  Thanks. 
+
+
+New Comment: 
+The patch applies on trunk as well. However since it's a git patch I guess it caused some
+confusion. Here is the unified patch. 
+
+
+New Comment: 
+Trying against hudson. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12424983/0001-Fix-HDFS-630-for-0.21-and-trunk-unified.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12424983/0001-Fix-HDFS-630-for-0.21-and-trunk-unified.patch</a><br/>
+ against trunk revision 835958.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 6 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/112/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/112/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+@Cosmin: Make a non-git patch? 
+
+
+New Comment: 
+It would be nice to have a patch for trunk and a unit test. 
+
+
+New Comment: 
+I've <br/>patch <del>p1 &lt; 0001-Fix</del><a
+href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a>-for-0.21-and-trunk-unified.patch<br/>svn
+add src/test/hdfs/org/apache/hadoop/hdfs/TestDFSClientExcludedNodes.java<br/>svn diff &gt;
+0001-Fix-<a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a>-svn.patchI really hope this works. It
+appears there's no easy way to generate a patch from git and have it working in this
+setup. Dhruba: if it still won't work, please run the patch with -p1 and then generate a
+patch that will work. <br/>By the way, a unit test is included with the last 3 patches. 
+
+
+New Comment: 
+Submitting new patch. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425088/0001-Fix-HDFS-630-svn.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425088/0001-Fix-HDFS-630-svn.patch</a><br/>
+ against trunk revision 880630.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    -1 javac.  The
+applied patch generated 21 javac compiler warnings (more than the trunk's current 20
+warnings).    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    -1 core tests.  The patch failed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/114/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+fixed old method in NameNode.addBlock<br/>it returned addBlock(src, clientName, null,
+null); instead of addBlock(src, clientName, previous, null);<br/>and when called it never
+committed previous block. 
+
+
+New Comment: 
+Cancelling so Cosmin can resubmit 
+
+
+New Comment: 
+Fix for 0.21 and trunk. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425270/0001-Fix-HDFS-630-svn.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425270/0001-Fix-HDFS-630-svn.patch</a><br/>
+ against trunk revision 881531.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    -1 javac.  The
+applied patch generated 21 javac compiler warnings (more than the trunk's current 20
+warnings).    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/117/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+last patch doesn't apply on trunk after the commit for <a
+href="https://issues.apache.org/jira/browse/HDFS-764" title="Moving Access Token
+implementation from Common to HDFS" class="issue-link"
+data-issue-key="HDFS-764"><del>HDFS-764</del></a>. Here's a new patch for trunk that also
+fix the previous javac warning 
+
+
+New Comment: 
+submitting latest patch (for trunk only) 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425328/0001-Fix-HDFS-630-trunk-svn-1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425328/0001-Fix-HDFS-630-trunk-svn-1.patch</a><br/>
+ against trunk revision 881695.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/118/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I was going to commit this in a day or so unless objection (The formatting is a little odd
+at times in this patch but Cosmin seems to be doing his best to follow the formatting that
+is already in-place in the files he's patching, at least for the few I checked). 
+
+
+New Comment: 
+I reformatted the code a little, trying to stay close to the files it changes. There's no
+consistent style across files however. 
+
+
+New Comment: 
+New version looks fine.  Retrying against hudson to be sure for sure. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425610/0001-Fix-HDFS-630-trunk-svn-2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425610/0001-Fix-HDFS-630-trunk-svn-2.patch</a><br/>
+ against trunk revision 881695.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/120/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Can't see that build issue locally and can't figure out what caused it on the build
+server. Trying once more time 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12425610/0001-Fix-HDFS-630-trunk-svn-2.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12425610/0001-Fix-HDFS-630-trunk-svn-2.patch</a><br/>
+ against trunk revision 882733.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 7 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/122/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Committed to TRUNK.  Assigned to Cosmin.  He did the work.  Thanks for the patch Cosmin. 
+
+
+New Comment: 
+I have missed this JIRA in the doing, but am going to comment on anyway. The comment is
+about the newly added test which is developed for JUnit v.3<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>+public
+class TestDFSClientExcludedNodes extends TestCase {</pre></div></div>I'd like to ask all
+reviewers to pay attention to the fact that new tests are suppose to be written for JUnit
+v.4.<br/>Here's a <a href="http://wiki.apache.org/hadoop/HowToDevelopUnitTests"
+class="external-link" rel="nofollow">short instruction</a> on how it should be done.Also,
+the commit message has wrong JIRA number in it. It says <a
+href="https://issues.apache.org/jira/browse/HBASE-630" title="Default hbase.rootdir is
+garbage" class="issue-link" data-issue-key="HBASE-630"><del>HBASE-630</del></a> instead of
+<a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a> 
+
+
+New Comment: 
+Thanks Konstantin.  I noticed the incorrect commit message and looked into fixing it but
+seems like I need to talk to svn admin so just let it slide (In CHANGES it has correct
+message).  Would you suggest opening a new issue to change test from junit3 to junit4? 
+
+
+New Comment: 
+The idea sound good.  Some comments on the patch:<ul class="alternate"
+type="square">	<li>Need to update ClientProtocol.versionID since the protocol is
+changed.</li></ul><ul class="alternate" type="square">	<li>DFSClient should not print
+LOG.info messages.  Otherwise, the log messages will be printed on the shell commands like
+"fs -put".</li></ul><ul class="alternate" type="square">	<li>It is better to remove the
+old ClientProtocol.addBlock(..) in order to keep ClientProtocol simple.  Also, we should
+update the javadoc.</li></ul> 
+
+
+New Comment: 
+new patch for 0.21removed previous addBlock method<br/>changed ClientProtocol
+version<br/>changed log level in DFSClient to debug for the node exclusion
+operation<br/>refactored TestDFSClientExcludedNodes to junit4 
+
+
+New Comment: 
+After chatting with Nicholas and Cosmin, was suggested that best way to proceed would be
+to back out 0001-Fix-<a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a>-trunk-svn-2.patch and then run the new
+improved patch via hudson. 
+
+
+New Comment: 
+Reopening so can submit improved patch. 
+
+
+New Comment: 
+Submitting, to hudson. 
+
+
+New Comment: 
++1<br/>0001-Fix-<a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a>-0.21-svn.patch looks good.<br/>Thanks,
+Cosmin. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #151 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/151/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/151/</a>)<br/>
+    In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes
+when locating the next block; back out this patch so can replace w/ improved version 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12428216/0001-Fix-HDFS-630-0.21-svn.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12428216/0001-Fix-HDFS-630-0.21-svn.patch</a><br/>
+ against trunk revision 892941.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/86/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/86/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Any chance of a patch that will apply to TRUNK Cosmin?  The 0.21 patch does the below when
+applied.  Thanks.<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">patching file
+src/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.javaHunk #1 FAILED at 44.Hunk #2
+succeeded at 192 (offset 2 lines).1 out of 2 hunks FAILED -- saving rejects to file
+src/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java.rej</pre></div></div> 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #154 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/154/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/154/</a>)<br/>
+    In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes
+when locating the next block; back out this patch so can replace w/ improved version 
+
+
+New Comment: 
+@stack unfortunately, no. The patch needs to be changed for trunk. <div class="code panel"
+style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width:
+1px;"><b>ClientProtocol.java</b></div><div class="codeContent panelContent"><pre
+class="code-java">Index:
+src/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java===================================================================---
+src/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java	(revision 891402)+++
+src/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java	(working copy)@@ -44,9 +44,9
+@@    * Compared to the previous version the following changes have been introduced:    *
+(Only the latest change is reflected.    * The log of historical changes can be retrieved
+from the svn).-   * 50: change LocatedBlocks to include last block information.+   * 51:
+changed addBlock to include a list of excluded datanodes.    */-  <span
+class="code-keyword">public</span> <span class="code-keyword">static</span> <span
+class="code-keyword">final</span> <span class="code-object">long</span> versionID = 50L;+ 
+<span class="code-keyword">public</span> <span class="code-keyword">static</span> <span
+class="code-keyword">final</span> <span class="code-object">long</span> versionID =
+51L;</pre></div></div>The versionID in 0.21 changes from 50L to 51L. The problem is that
+on trunk is already 52L so it should probably change it from 52L to 53L. This could be,
+however ignored on trunk and changed independently. I'm not sure what's the right
+approach. I could create another patch for trunk, however this would just poise versionID
+meaningless - It's 51L on 0.21, but on trunk 51L is something else. 
+
+
+New Comment: 
+&gt; The versionID in 0.21 changes from 50L to 51L. The problem is that on trunk is
+already 52L so it should probably change it from 52L to 53L. This could be, however
+ignored on trunk and changed independently. I'm not sure what's the right approach. ...We
+usually update versionID to max+1, max+2, etc, for each hadoop version in ascending order.
+ In our case, we probably should update versionID in 0.21 and trunk to 53L and 54L,
+respectively. 
+
+
+New Comment: 
+&gt; update versionID in 0.21 and trunk to 53L and 54L+1 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #182 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/182/</a>) 
+
+
+New Comment: 
+New patches for 0.21 and trunk. ClientProtcol versionID is 53L for 0.21 54L for trunk. 
+
+
+New Comment: 
+Trunk v3 applies for me (with some small slop).  Submitting to hudson. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12428982/0001-Fix-HDFS-630-0.21-svn-1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12428982/0001-Fix-HDFS-630-0.21-svn-1.patch</a><br/>
+ against trunk revision 893650.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    -1
+patch.  The patch command could not apply the patch.Console output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/161/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/161/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Re-attach v3 trunk patch so it becomes last patch uploaded so hudson picks it up instead
+of the 0.21 version. 
+
+
+New Comment: 
+Try hudson again.  Hopefully it picks up the trunk patch this time. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12428986/0001-Fix-HDFS-630-trunk-svn-3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12428986/0001-Fix-HDFS-630-trunk-svn-3.patch</a><br/>
+ against trunk revision 893650.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    -1
+javadoc.  The javadoc tool appears to have generated 1 warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/162/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #94 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/94/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/94/</a>) 
+
+
+New Comment: 
+Here's a patch against branch-0.20 that we are evaluating for inclusion in our distro, in
+case anyone else is interested in applying it on their own. This is a new feature and the
+patch contains a fair amount of hackery, so I don't intend this to be committed to
+Apache's branch-0.20. 
+
+
+New Comment: 
+attaching 0.21 patch with javadoc link fixed 
+
+
+New Comment: 
+patch for trunk with javadoc link fixed. <br/>the TestFiHFlush test that failed previously
+seems to work fine when running tests using ant - so nothing done regarding that. 
+
+
+New Comment: 
+Canceling to restart build 
+
+
+New Comment: 
+Trying the trunk patch one more time. I dont' exactly know how to trigger a 0.21
+patch/build 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch</a><br/>
+ against trunk revision 899747.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/192/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I have an "it runs on my machine" feeling. Trying once more 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch</a><br/>
+ against trunk revision 899747.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/193/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+tests fail erratically canceling again 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch</a><br/>
+ against trunk revision 899747.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/194/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Here is summary of Cosmin's erratic experience running his patch against Hudson where
+every time he ran it different tests failed: <a
+href="http://mail-archives.apache.org/mod_mbox/hadoop-hdfs-dev/201001.mbox/"
+class="external-link"
+rel="nofollow">http://mail-archives.apache.org/mod_mbox/hadoop-hdfs-dev/201001.mbox/</a>&lt;C779EEE1.15AE4%25clehene@adobe.com&gt;I
+ran the Cosmin patch locally using local command against branch-0.21:<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">$ ANT_HOME=/usr/bin/ant ant
+-Dfindbugs.home=/Users/stack/bin/findbugs-1.3.9 -Djava5.home=/<span
+class="code-object">System</span>/Library/Frameworks/JavaVM.framework/Versions/1.5/Home/
+-Dforrest.home=/Users/stack/bin/apache-forrest-0.8 -Dcurl.cmd=/usr/bin/curl
+-Dwget.cmd=<span class="code-quote">"/sw/bin/wget --no-check-certificate"</span>
+-Dpatch.file=/tmp/0001-Fix-HDFS-630-0.21-svn-2.patch test-patch</pre></div></div>... it
+outputs the below:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">...    [exec] There appear to be
+102 release audit warnings before the patch and 102 release audit warnings after applying
+the patch.     [exec]      [exec]      [exec]      [exec]      [exec] +1 overall.      
+[exec]      [exec]     +1 @author.  The patch does not contain any @author tags.    
+[exec]      [exec]     +1 tests included.  The patch appears to include 13 <span
+class="code-keyword">new</span> or modified tests.     [exec]      [exec]     +1 javadoc. 
+The javadoc tool did not generate any warning messages.     [exec]      [exec]     +1
+javac.  The applied patch does not increase the total number of javac compiler warnings.  
+  [exec]      [exec]     +1 findbugs.  The patch does not introduce any <span
+class="code-keyword">new</span> Findbugs warnings.     [exec]      [exec]     +1 release
+audit.  The applied patch does not increase the total number of release audit warnings.   
+ [exec]      [exec]      [exec]      [exec]      [exec]
+======================================================================     [exec]
+======================================================================     [exec]    
+Finished build.     [exec]
+======================================================================     [exec]
+======================================================================</pre></div></div>Let
+me run against TRUNK next... 
+
+
+New Comment: 
+Here's results running test-patch of Cosmin's above trunk patch:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">$
+ANT_HOME=/usr/bin/ant ant -Dfindbugs.home=/Users/stack/bin/findbugs-1.3.9
+-Djava5.home=/<span
+class="code-object">System</span>/Library/Frameworks/JavaVM.framework/Versions/1.5/Home/
+-Dforrest.home=/Users/stack/bin/apache-forrest-0.8 -Dcurl.cmd=/usr/bin/curl
+-Dwget.cmd=<span class="code-quote">"/sw/bin/wget --no-check-certificate"</span>
+-Dpatch.file=/tmp/0001-Fix-HDFS-630-trunk-svn-4.patch test-patch....     [exec] There
+appear to be 117 release audit warnings before the patch and 117 release audit warnings
+after applying the patch.     [exec]      [exec]      [exec]      [exec]      [exec] +1
+overall.       [exec]      [exec]     +1 @author.  The patch does not contain any @author
+tags.     [exec]      [exec]     +1 tests included.  The patch appears to include 13 <span
+class="code-keyword">new</span> or modified tests.     [exec]      [exec]     +1 javadoc. 
+The javadoc tool did not generate any warning messages.     [exec]      [exec]     +1
+javac.  The applied patch does not increase the total number of javac compiler warnings.  
+  [exec]      [exec]     +1 findbugs.  The patch does not introduce any <span
+class="code-keyword">new</span> Findbugs warnings.     [exec]      [exec]     +1 release
+audit.  The applied patch does not increase the total number of release audit warnings.   
+ [exec]      [exec]      [exec]      [exec]      [exec]
+======================================================================     [exec]
+======================================================================     [exec]    
+Finished build.     [exec]
+======================================================================     [exec]
+======================================================================     [exec]     
+[exec] BUILD SUCCESSFULTotal time: 10 minutes 39 seconds</pre></div></div> 
+
+
+New Comment: 
+I agree that the test failure in the previous <a
+href="https://issues.apache.org/jira/browse/HDFS-630?focusedCommentId=12801752&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12801752"
+class="external-link" rel="nofollow">Hudson run</a> is not related since there were some
+classes not found.<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>java.lang.NoClassDefFoundError:
+org/apache/hadoop/ipc/Server$Handler	at
+org.apache.hadoop.ipc.Server.start(Server.java:1112)	...</pre></div></div> 
+
+
+New Comment: 
+Let's try it again. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12430569/0001-Fix-HDFS-630-trunk-svn-4.patch</a><br/>
+ against trunk revision 901316.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 13 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/197/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Got NoClassDefFoundError again.  I bet Hudson has some problems.<div class="preformatted
+panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>java.lang.NoClassDefFoundError: org/apache/hadoop/ipc/Server$Handler	at
+org.apache.hadoop.ipc.Server.start(Server.java:1112)	...</pre></div></div>I ran all tests
+in my machine.  It passed all the tests. 
+
+
+New Comment: 
+Ran another vote up on hdfs-dev as to whether to apply Cosmin's latest to 0.21 branch. 
+Vote passed with 14 +1s and no -1s.  See the thread here: <a
+href="http://www.mail-archive.com/hbase-dev@hadoop.apache.org/msg16804.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/hbase-dev@hadoop.apache.org/msg16804.html</a> 
+
+
+New Comment: 
+Applied 0001-Fix-<a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a><del>0.21-svn-2.patch to branch-21 and
+0001-Fix</del><a href="https://issues.apache.org/jira/browse/HDFS-630" title="In
+DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes when
+locating the next block." class="issue-link"
+data-issue-key="HDFS-630"><del>HDFS-630</del></a>-trunk-svn-4.patch to TRUNK.  Thanks for
+the patch Cosmin Lehene. 
+
+
+New Comment: 
+Resolving. 
+
+
+New Comment: 
+I'm glad it finally got in both 0.21 and trunk. It was a long lived issue. Thanks for the
+support! <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #178 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/178/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/178/</a>)<br/>
+    In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes
+when locating the next block<br/> In DFSOutputStream.nextBlockOutputStream(), the client
+can exclude specific datanodes when locating the next block 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #212 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/212/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/212/</a>)<br/> 
+   In DFSOutputStream.nextBlockOutputStream(), the client can exclude specific datanodes
+when locating the next block<br/> In DFSOutputStream.nextBlockOutputStream(), the client
+can exclude specific datanodes when locating the next block 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #208 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/208/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/208/</a>) 
+
+
+New Comment: 
+This should be pulled into the branch-0.20-append branch. 
+
+
+New Comment: 
+There's a patch for 0.20 adapted by tlipcon. Can we use that? 
+
+
+New Comment: 
+Version of this patch for 0.20-append branch.  Removed dependency on junit 4.5 
+
+
+New Comment: 
+Patch for 20-security branch uploaded. 
+
+
+New Comment: 
++1 for the patch. 
+
+

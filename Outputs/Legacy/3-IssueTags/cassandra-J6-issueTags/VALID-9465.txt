@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 26c65e640cea57e8a2c0e007ab3f5febc7a2f160
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9465.txt 
+
+commit 26c65e640cea57e8a2c0e007ab3f5febc7a2f160
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+     cqlsh: add vertical output option (see EXPAND)

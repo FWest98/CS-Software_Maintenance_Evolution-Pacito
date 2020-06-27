@@ -1,0 +1,144 @@
+Pattern changes caused by commit: 7515ed6e5f9ef9cfde7b83e5ab512226b683725e
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5544.txt 
+
+commit 7515ed6e5f9ef9cfde7b83e5ab512226b683725e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Filter out unavailable cipher suites when using encryption.
+    Patch by Vijay, reviewed by brandonwilliams for CASSANDRA-3278
+
+
+
+==================================
+ Issue CASSANDRA-3278 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3278] SSLFactory should not enable cipher suites that aren't supported
+-----------------
+
+-----------------
+Summary: SSLFactory should not enable cipher suites that aren't supported
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 29 Sep 2011 18:21:23 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 29 Nov 2011 16:42:05 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+The socket creation (server or otherwise) in SSLFactory.java calls <a
+href="http://download.oracle.com/javase/6/docs/api/javax/net/ssl/SSLServerSocket.html#setEnabledCipherSuites(java.lang.String[])"
+class="external-link" rel="nofollow">setEnabledCipherSuites</a> with the values specified
+in EncryptionOptions.java:
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">public</span> <span class="code-object">String</span>[] cipherSuites
+= {    <span class="code-quote">"TLS_RSA_WITH_AES_128_CBC_SHA"</span>,     <span
+class="code-quote">"TLS_RSA_WITH_AES_256_CBC_SHA"</span>};</pre></div></div>
+The call to
+<a
+href="http://download.oracle.com/javase/6/docs/api/javax/net/ssl/SSLServerSocket.html#setEnabledCipherSuites(java.lang.String[])"
+class="external-link" rel="nofollow">setEnabledCipherSuites</a> fails on systems that
+don't have <a
+href="http://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html"
+class="external-link" rel="nofollow">Java Cryptography Extension (JCE) Unlimited Strength
+Jurisdiction Policy Files 6</a> because AES256 is not supported.
+
+To avoid installing the
+unlimited strength policy file the code in SSLFactory.java should call <a
+href="http://download.oracle.com/javase/6/docs/api/javax/net/ssl/SSLServerSocket.html#getSupportedCipherSuites()"
+class="external-link" rel="nofollow">getSupportedCipherSuites</a> to find out which of the
+suites specified are supported.
+
+Thanks,<br/>George
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Thanks for the bug report, George. It sounds like you have a good handle on this, can you
+submit a patch? 
+
+
+New Comment: 
+Sure, I'll try to get the patch to you by EOD tomorrow. Once question: do you see a
+problem with calling getSupportedCipherSuites and doing the filtering for every socket
+creation? Thanks,<br/>George 
+
+
+New Comment: 
+I wasn't happy with reading the keystore/trusstore files and doing the cipher suites'
+filtering for each socket creation so I ended up creating two
+patches:<ul>	<li>cassandra-3278-nocache.txt: Does the filtering, the down side that the
+filtering is done for each socket that's created.</li>	<li>cassandra-3278-cache.txt:
+Caches the SSLContext along with the supported cipher suites for server and non-server
+sockets. The down side is that changing the keystore/truststore requires a restart of the
+node.</li></ul>I don't have enough information to decide which version is preferable, I
+leave that to you.Thanks,<br/>George 
+
+
+New Comment: 
+George,Thanks for the patch,The problem with the cached is that we need to restart the
+whole cluster when we change the KS/TS, instead we will have the flexibility if the new
+connections will just pick it up. We persist the connections untill disconnect hence the
+performance shouldn't be a concern. Also there can be variety of ssl client (example fat
+clients) which may have different sets of supported suits (caching one might not help).1)
+cassandra-3278-nocache isn't a patch by itself (Can you rebase it?)<br/>2) in the non
+cached one, If we can log a info on the filtered suit it will be great,Just a side note...
+I would use Sets.intersection to reduce the amount of code <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+We can also expose some of the available options so the users can choose. 
+
+
+New Comment: 
+Since Cassandra sockets are long-lived I'm fine with having filter-each-socket being the
+only option. 
+
+
+New Comment: 
+This looks good, but one minor nit: instead of cipherSuites in the yaml can we use the
+more idiomatic 'cipher_suites'? 
+
+
+New Comment: 
+Done!, the only change between the v1 is change from cipherSuites to cipher_suites.
+Thanks! 
+
+

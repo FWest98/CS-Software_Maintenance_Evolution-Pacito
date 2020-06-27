@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 5556414c37f565afb01621ddd69527cb3c17ad78
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9584.txt 
+
+commit 5556414c37f565afb01621ddd69527cb3c17ad78
+Merge: 89e792f b1d7405
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.2

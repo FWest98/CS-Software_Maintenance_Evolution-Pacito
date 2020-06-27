@@ -1,0 +1,174 @@
+Pattern changes caused by commit: 267690a140ae7d6dfba169448654f9d15ba2b98e
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6925.txt 
+
+commit 267690a140ae7d6dfba169448654f9d15ba2b98e
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix Summary component and caches to use correct partitioner
+    patch by Sam Tunnicliffe and Pavel Yaskevich; reviewed by Pavel Yaskevich for CASSANDRA-4289
+
+
+
+==================================
+ Issue CASSANDRA-4289 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4289] Secondary Indexes fail following a system restart
+-----------------
+
+-----------------
+Summary: Secondary Indexes fail following a system restart
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 26 May 2012 16:56:20 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 1 Jun 2012 15:57:26 +0000
+-----------------
+
+-----------------
+Assigned to: Sam Tunnicliffe
+-----------------
+
+-----------------
+Description: 
+
+Create a new cf with a secondary index, and queries with indexes predicates work fine
+until the server is restarted, after which they error and the following stacktrace is
+output to the log:
+<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">java.lang.ClassCastException:
+java.math.BigInteger cannot be <span class="code-keyword">cast</span> to
+java.nio.ByteBuffer	at
+org.apache.cassandra.dht.LocalToken.compareTo(LocalToken.java:44)	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:88)	at
+org.apache.cassandra.db.DecoratedKey.compareTo(DecoratedKey.java:1)	at
+org.apache.cassandra.utils.IntervalTree.comparePoints(IntervalTree.java:191)	at
+org.apache.cassandra.utils.IntervalTree.contains(IntervalTree.java:203)	at
+org.apache.cassandra.utils.IntervalTree.access$3(IntervalTree.java:201)	at
+org.apache.cassandra.utils.IntervalTree$IntervalNode.searchInternal(IntervalTree.java:293)	at
+org.apache.cassandra.utils.IntervalTree.search(IntervalTree.java:140)	at
+org.apache.cassandra.utils.IntervalTree.search(IntervalTree.java:146)	at
+org.apache.cassandra.db.ColumnFamilyStore.markReferenced(ColumnFamilyStore.java:1259)	at
+org.apache.cassandra.db.CollationController.collectAllData(CollationController.java:229)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:65)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1300)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1174)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1104)	at
+org.apache.cassandra.db.index.keys.KeysSearcher$1.computeNext(KeysSearcher.java:144)	at
+org.apache.cassandra.db.index.keys.KeysSearcher$1.computeNext(KeysSearcher.java:1)	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)	at
+com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)	at
+org.apache.cassandra.db.ColumnFamilyStore.filter(ColumnFamilyStore.java:1409)	at
+org.apache.cassandra.db.index.keys.KeysSearcher.search(KeysSearcher.java:88)	at
+org.apache.cassandra.db.index.SecondaryIndexManager.search(SecondaryIndexManager.java:595)	at
+org.apache.cassandra.db.ColumnFamilyStore.search(ColumnFamilyStore.java:1398)	at
+org.apache.cassandra.service.RangeSliceVerbHandler.executeLocally(RangeSliceVerbHandler.java:47)	at
+org.apache.cassandra.service.StorageProxy.getRangeSlice(StorageProxy.java:870)	at
+org.apache.cassandra.cql3.statements.SelectStatement.multiRangeSlice(SelectStatement.java:259)	at
+org.apache.cassandra.cql3.statements.SelectStatement.execute(SelectStatement.java:134)	at
+org.apache.cassandra.cql3.QueryProcessor.processStatement(QueryProcessor.java:108)	at
+org.apache.cassandra.cql3.QueryProcessor.process(QueryProcessor.java:121)	at
+org.apache.cassandra.thrift.CassandraServer.execute_cql_query(CassandraServer.java:1236)	at
+org.apache.cassandra.thrift.Cassandra$Processor$execute_cql_query.getResult(Cassandra.java:3542)	at
+org.apache.cassandra.thrift.Cassandra$Processor$execute_cql_query.getResult(Cassandra.java:1)	at
+org.apache.thrift.ProcessFunction.process(ProcessFunction.java:32)	at
+org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:34)	at
+org.apache.cassandra.thrift.CustomTThreadPoolServer$WorkerProcess.run(CustomTThreadPoolServer.java:184)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>
+Tested with a single node
+setup &amp; verified that this behaviour is only present in trunk, cassandra-1.0.10 works
+as expected.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+easily reproducable. The index's column family's IntervalTree's head BigIntegerToken
+compared to the searched against column value. 
+
+
+New Comment: 
+It appears this commit introduced this regressionSave IndexSummary into new SSTable
+'Summary' component for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2392"
+title="Saving IndexSummaries to disk" class="issue-link"
+data-issue-key="CASSANDRA-2392"><del>CASSANDRA-2392</del></a><a
+href="http://git-wip-us.apache.org/repos/asf?p=cassandra.git;a=commit;h=04874186892c86a20181a2f64c5dc24285021b2c"
+class="external-link"
+rel="nofollow">http://git-wip-us.apache.org/repos/asf?p=cassandra.git;a=commit;h=04874186892c86a20181a2f64c5dc24285021b2c</a> 
+
+
+New Comment: 
+The commit you mentioned doesn't touch CFS it merely saves/loads primary index into
+separate component, but anyway - what do you suggest as work around? 
+
+
+New Comment: 
+What am I doing wrong?<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>cqlsh&gt; create schema ks with
+strategy_class ='SimpleStrategy' and strategy_options:replication_factor=1;cqlsh&gt; use
+ks;cqlsh:ks&gt; create table foo(key text primary key, i int);cqlsh:ks&gt; create index
+i_idx on foo(i);cqlsh:ks&gt; insert into foo (key, i) values('asdf', 1);cqlsh:ks&gt;
+select * from foo where i = 1;  KEY | i------+--- asdf | 1[restart Cassandra server and
+cqlsh]cqlsh&gt; use ks;cqlsh:ks&gt; select * from foo where i = 1; KEY  | i ------+---
+asdf | 1</pre></div></div> 
+
+
+New Comment: 
+before stopping the server donodetool flush 
+
+
+New Comment: 
+Still works for me.I did fix a bug in the key cache for index CFs (attached) but I don't
+think that's what you're seeing. 
+
+
+New Comment: 
+SSTableReader.loadSummary wasn't taking the specific IPartitioner for the sstable into
+consideration, so when the IndexSummary for a secondary index cf was loaded from disk, the
+keys in the summary and the first &amp; last keys of the sstable were decorated
+incorrectly. jbellis: I guess you weren't seeing this as the IndexSummary wasn't being
+written down to disk, but I don't why that would be 
+
+

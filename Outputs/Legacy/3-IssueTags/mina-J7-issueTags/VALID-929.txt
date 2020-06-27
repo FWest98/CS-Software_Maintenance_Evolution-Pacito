@@ -1,0 +1,24 @@
+Pattern changes caused by commit: c004d60944625df21a47cbaab027c3d730eb491f
+
+From: Adapter-2
+To:   Adapter-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Flyweight-3
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-929.txt 
+
+commit c004d60944625df21a47cbaab027c3d730eb491f
+Author: Trustin Lee <trustin@apache.org>
+
+    Resolved issue: DIRMINA-428 (MessagePriorities)
+    * Renamed IoSessionAttributeMapFactory to IoSessionDataStructureFactory
+    ** IoSessionDataStructure has additional method 'getWriteRequestQueue' which allows a user to provide his or her own queue implementation, possibly prioritized queue.

@@ -1,0 +1,152 @@
+Pattern changes caused by commit: 118513ad9db5de929d450b40d73971a3dd30ff63
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5281.txt 
+
+commit 118513ad9db5de929d450b40d73971a3dd30ff63
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    fix assertion error during repair with ordered partitioners
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3369
+
+
+
+==================================
+ Issue CASSANDRA-3369 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3369] AssertionError when adding a node and doing repair, repair hangs
+-----------------
+
+-----------------
+Summary: AssertionError when adding a node and doing repair, repair hangs
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 16 Oct 2011 16:35:01 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 21 Oct 2011 13:33:30 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+Hi again,
+
+I was playing aroung with Cassandra 1.0.0-rc2 and got an AssertionError. The
+cluster I set up was two cassandra nodes on one laptop using different 127.0.0.* loopback
+devices. Both nodes have separate folders on the harddisk.
+
+Here is what I did:
+
+1.
+Started node1 and inserted some data into it using a simple singlethreaded testprogram
+(uses hector 0.8.0-2):<br/>127.0.0.1       datacenter1 rack1       Up     Normal  583.55
+MB       100.00% Token(bytes<span
+class="error">&#91;63e5b6995466cd3221cba16646ae19ed&#93;</span>)
+
+2. I started another
+node, node 2 = 127.0.0.2:<br/>127.0.0.2       datacenter1 rack1       Up     Normal 
+147.57 KB       50.00%  Token(bytes<span
+class="error">&#91;4d6ccfeaa8bb59551751a2816fde9343&#93;</span>)<br/>127.0.0.1      
+datacenter1 rack1       Up     Normal  583.55 MB       50.00%  Token(bytes<span
+class="error">&#91;63e5b6995466cd3221cba16646ae19ed&#93;</span>)
+
+3. I triggered a
+"nodetool -h 127.0.0.1  repair" on the first node that had the data from my test.
+
+This
+repair does not seem to ever end. The nodetool is hanging now but my computer is idle. I
+get an AssertionError on the first node:<br/>java.lang.AssertionError<br/>	at
+org.apache.cassandra.service.AntiEntropyService$Validator.prepare(AntiEntropyService.java:283)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.doValidationCompaction(CompactionManager.java:825)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.access$600(CompactionManager.java:63)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$6.call(CompactionManager.java:432)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:662)
+
+Update: I dont know if it is important but here is
+the schema of my test:<br/>create keyspace Test with placement_strategy =
+'org.apache.cassandra.locator.SimpleStrategy' and strategy_options =
+
+{replication_factor:2}
+;<br/>CREATE COLUMN FAMILY Response WITH
+key_validation_class=BytesType AND
+compression_options=
+{sstable_compression:DeflateCompressor}
+;
+
+kind
+regards,<br/>Christian
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Added config and log files from both cassandra nodes. 
+
+
+New Comment: 
+Update: I also had problems because I was using Defalte compression, which seems to be
+broken. The AssertionError during repair still occurs with Snappy Compression. 
+
+
+New Comment: 
+This is due to the code not handling correctly a case of having no sample keys for one of
+it's token range.Let's not that:<ul>	<li>this is not specific to 1.0.0, 0.8 is affected
+too.</li>	<li>this only affect order preserving partitioner (not because the order matter
+but because this code path is not taken with RandomPartitioner since a few releases now,
+at least as far as repair is concerned).</li>	<li>this would be unlikely to show in any
+serious production setting, since having no sample for a given range means that either you
+have almost no rows in the cluster or that the cluster is extremely badly
+balanced.</li></ul>Patch attached to fix (against 0.8). 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed 
+
+

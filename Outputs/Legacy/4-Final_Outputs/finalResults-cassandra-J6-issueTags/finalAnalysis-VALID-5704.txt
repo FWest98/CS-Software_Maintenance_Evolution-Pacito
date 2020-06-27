@@ -1,0 +1,109 @@
+Pattern changes caused by commit: 6ea00a304733d851759c7c788e66951d26592451
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5704.txt 
+
+commit 6ea00a304733d851759c7c788e66951d26592451
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix minor issues reported by FindBugs
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3658
+
+
+
+==================================
+ Issue CASSANDRA-3658 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3658] Fix smallish problems find by FindBugs
+-----------------
+
+-----------------
+Summary: Fix smallish problems find by FindBugs
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 22 Dec 2011 11:28:52 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 22 Dec 2011 21:56:06 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+I've just run (the newly released) FindBugs 2 out of curiosity. Attaching a number of
+patches related to issue raised by it. There is nothing major at all so all patches are
+against trunk.
+
+I've tried keep each issue to it's own patch with a self describing title.
+It far from covers all FindBugs alerts, but it's a picky tool so I've tried to address
+only what felt at least vaguely useful. Those are still mostly nits (only patch 2 is
+probably an actual bug).
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1 on all but 09; I'd rather leave that assert alone since its point is to catch a bug if
+we change the signature of scanner 
+
+
+New Comment: 
+I'm good with keeping the assert. Committed all except 09. Thanks 
+
+
+New Comment: 
+Integrated in Cassandra #1266 (See <a href="https://builds.apache.org/job/Cassandra/1266/"
+class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra/1266/</a>)<br/>    Fix minor issues
+reported by FindBugs<br/>patch by slebresne; reviewed by jbellis for <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3658" title="Fix smallish problems
+find by FindBugs" class="issue-link"
+data-issue-key="CASSANDRA-3658"><del>CASSANDRA-3658</del></a>slebresne : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1222476"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1222476</a><br/>Files
+:
+<ul>	<li>/cassandra/trunk/CHANGES.txt</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/cli/CliClient.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/config/ReplicationStrategy.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/ArrayBackedSortedColumns.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/ColumnFamily.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/ExpiringColumn.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/RowIteratorFactory.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/compaction/SizeTieredCompactionStrategy.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/filter/QueryFilter.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/marshal/AbstractType.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/marshal/DynamicCompositeType.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/db/marshal/ReversedType.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/dht/LocalToken.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/dht/Token.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/io/compress/CompressionMetadata.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/io/sstable/SSTableLoader.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/locator/PropertyFileSnitch.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/net/ProtocolHeader.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/service/AntiEntropyService.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/streaming/FileStreamTask.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/utils/EstimatedHistogram.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/utils/FBUtilities.java</li>	<li>/cassandra/trunk/src/java/org/apache/cassandra/utils/NodeId.java</li></ul> 
+
+
+New Comment: 
+This breaks a bunch of jmx stuff. A fair amount of jmx methods return Token objects so
+they need to be serializable. I plan on doing <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2805" title="Clean up mbeans that
+return Internal Cassandra types" class="issue-link"
+data-issue-key="CASSANDRA-2805"><del>CASSANDRA-2805</del></a> for 1.1, but jmx will be
+broken in trunk until I get that done unless that specific patch is reverted. 
+
+

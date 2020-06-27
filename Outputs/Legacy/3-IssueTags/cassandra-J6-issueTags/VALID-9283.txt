@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 81e19fc78b321ee37fa0cb79e53a9b0546b3c69d
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9283.txt 
+
+commit 81e19fc78b321ee37fa0cb79e53a9b0546b3c69d
+Author: Aleksey Yeschenko <aleksey@apache.org>
+
+    Ninja-unify 1.1/1.2/2.0 system tests

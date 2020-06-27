@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 4921e6b691b0a0da510b44a6948bfeafb52c632a
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4657.txt 
+
+commit 4921e6b691b0a0da510b44a6948bfeafb52c632a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

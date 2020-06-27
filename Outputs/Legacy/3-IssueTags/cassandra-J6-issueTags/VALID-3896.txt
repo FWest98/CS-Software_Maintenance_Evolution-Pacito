@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 9c51dd422e75c9a0787cf6d23323caeb4883b9b7
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3896.txt 
+
+commit 9c51dd422e75c9a0787cf6d23323caeb4883b9b7
+Merge: 251e24a f05d188
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

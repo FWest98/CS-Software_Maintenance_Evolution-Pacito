@@ -1,0 +1,29 @@
+Pattern changes caused by commit: a846cd659ee1f3f1adcfc9dbf40e63c05ea8cde2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7030.txt 
+
+commit a846cd659ee1f3f1adcfc9dbf40e63c05ea8cde2
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    hsha server may stop responding and will not close selectors
+    patch by Viktor Kuzmin; reviewed by Vijay for CASSANDRA-4370

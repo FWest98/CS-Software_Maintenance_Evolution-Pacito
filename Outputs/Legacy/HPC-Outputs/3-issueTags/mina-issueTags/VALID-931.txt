@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f7e73e1921002382f67f7631895036715e528474
+
+From: Facade-8
+To:   Facade-9
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-931.txt 
+
+commit f7e73e1921002382f67f7631895036715e528474
+Author: Niklas Therning <niklas@apache.org>
+
+    DIRMINA-463: Created MINA specific versions of StateMachineFactory for IoHandler and IoFilter state machines.

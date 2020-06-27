@@ -1,0 +1,394 @@
+Pattern changes caused by commit: 5a2ef13bb1830860d03b6dd802743c9ff395b5b7
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1727.txt 
+
+commit 5a2ef13bb1830860d03b6dd802743c9ff395b5b7
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix for DIRMINA-714: changes default event ordered to be all but the SESSION_CREATED event
+    This allow the filter to behave like it should for basic usage leaving the ability of fine grain control for advanced users
+
+
+
+==================================
+ Issue DIRMINA-714 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-714] Packet sequence is unordered in multi thread.
+-----------------
+
+-----------------
+Summary: Packet sequence is unordered in multi thread.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 27 May 2009 08:02:09 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 12 Oct 2009 10:01:20 +0000
+-----------------
+
+-----------------
+Assigned to: Julien Vermillard
+-----------------
+
+-----------------
+Description: 
+
+Hi.
+
+Packet sequence is unordered.
+
+= Server &amp; Client = <br/>chain.addLast("codec",
+new ProtocolCodecFilter(rcf));<br/>chain.addLast("executor", getExecuteFilter());    =&gt;
+OrderedThreadPoolExecutor c = new OrderedThreadPoolExecutor(20,100);
+
+If server send
+1,2,3,4,5,6 , client receive 1,2,3,4,6  from server.
+
+Clients : 100.
+
+where I am wrong? 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+The issue has been fixed on trunk. The 2.0.0-M6 release is currently being voted (mainly
+to solve this regression) and will be out in 2 days. 
+
+
+New Comment: 
+Thank you for your reply. But I have still something
+bug.===========================================================================After I
+read your reply, received the newest source from svn(mina).But, I still had problem in
+heavy load server. ( about 500 clients )This is server log<br/><span
+class="error">&#91;16:51&#93;</span>-S<span
+class="error">&#91;DemuxRomiDecoder(decodeBody:162)&#93;</span>:Trace Log =MSG Recv
+seq=140, protocol=14<br/><span class="error">&#91;16:51&#93;</span>-S<span
+class="error">&#91;DemuxRomiDecoder(decodeBody:162)&#93;</span>:Trace Log =MSG Recv
+seq=141, protocol=13<br/><span class="error">&#91;16:51&#93;</span>-S<span
+class="error">&#91;DemuxRomiDecoder(decodeBody:162)&#93;</span>:Trace Log =MSG Recv
+seq=142, protocol=14<br/><span class="error">&#91;16:51&#93;</span>-S<span
+class="error">&#91;DemuxRomiDecoder(decodeBody:162)&#93;</span>:Trace Log =MSG Recv
+seq=144, protocol=19This is client log<br/><span class="error">&#91;2009-06-02
+16:51&#93;</span> ERROR <span class="error">&#91;GameEventFilter(close:108)&#93;</span>
+:Trace Log =Really MSG Sent=&gt; protocol=13, seq=141<br/><span
+class="error">&#91;2009-06-02 16:51&#93;</span> ERROR <span
+class="error">&#91;GameEventFilter(close:108)&#93;</span> :Trace Log =Really MSG Sent=&gt;
+protocol=14, seq=142<br/><span class="error">&#91;2009-06-02 16:51&#93;</span> ERROR <span
+class="error">&#91;GameEventFilter(close:108)&#93;</span> :Trace Log =Really MSG Sent=&gt;
+protocol=19, seq=144<br/><span class="error">&#91;2009-06-02 16:51&#93;</span> ERROR <span
+class="error">&#91;GameEventFilter(close:108)&#93;</span> :Trace Log =Really MSG Sent=&gt;
+protocol=14, seq=143in Server.<br/>If I send 141,142,143,144,    I receive 141,142,144,143
+ in messageSent method.<br/>So client can't receive right packet from
+server.=============================================<br/>This is my encoder source..<ul
+class="alternate" type="square">	<li>MessageEncoder<br/>	@Override<br/>	public void
+encode(IoSession session, Object message, ProtocolEncoderOutput out)<br/>			throws
+Exception {		RomiMessage msg = (RomiMessage) message;		IoBuffer buf_in =
+msg.getBuf();		IoBuffer buf_out =
+IoBuffer.allocate(buf_in.limit()+4).sweep();		buf_out.setAutoExpand(true); // Enable
+auto-expand for easier encoding				encodeBody(session,msg,
+buf_out);				buf_out.flip();		out.write(buf_out);		msg =
+null;	}=============================================<br/>This is my decoder
+source..</li>	<li>MessageDecoder<br/>@Override<br/>	public MessageDecoderResult
+decodable(IoSession session, IoBuffer in) {</li></ul>		if
+(in.prefixedDataAvailable(HEADER_SIZE, MAX_LENGTH)) {			return MessageDecoderResult.OK;		}
+else {			return MessageDecoderResult.NEED_DATA;		}		// Return NOT_OK if not
+matches.<br/>		// return MessageDecoderResult.NOT_OK;<br/>	}	@Override<br/>	public
+MessageDecoderResult decode(IoSession session, IoBuffer in,<br/>			ProtocolDecoderOutput
+out) throws Exception {		MessageDecoderResult result =
+decodable(session,in);<br/>		if(result!=MessageDecoderResult.OK) return result;		IoBuffer
+buf = decodeBody(session, in);<br/>		if (buf == null) {			return
+MessageDecoderResult.NOT_OK;		} else {			out.write(buf);		}		return
+MessageDecoderResult.OK;<br/>	} 
+
+
+New Comment: 
+what about moving the executor before the codec ? 
+
+
+New Comment: 
+Ok. I'll test it. 
+
+
+New Comment: 
+I  tested it, but I have still problem .. What should I do?Server sent still strange
+sequence.   example&gt; 1,3,2 
+
+
+New Comment: 
+Can I solve this bug using another version? (ex&gt; 2.0m1 ~ m5) 
+
+
+New Comment: 
+Hav you tested the latest version ? (2.0.0-M6) Binaries are available at :<br/><a
+href="http://people.apache.org/~ngn/mina/2.0.0-M6/org/apache/mina/mina-core/2.0.0-M6/"
+class="external-link"
+rel="nofollow">http://people.apache.org/~ngn/mina/2.0.0-M6/org/apache/mina/mina-core/2.0.0-M6/</a> 
+
+
+New Comment: 
+Yes. I have tested the lastest version. I've still this bug.. 
+
+
+New Comment: 
+I would be very interested in debugging a scenario which exhibit this kind of behavior. So
+far, the only code I have is taken from <a
+href="https://issues.apache.org/jira/browse/DIRMINA-687" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-687</a> and <a
+href="https://issues.apache.org/jira/browse/DIRMINA-675" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/DIRMINA-675</a>, both fixed.Could you
+define a minimal sample, with a client and a server, to demonstrate the problem ? 
+
+
+New Comment: 
+Ok. I'll try to make it. 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>All Logger level set ERROR</li>	<li>When packet
+sequence is wrong, server would close the client session. then saved sequence info logs
+wil be shown on
+console.</li></ul>=========================================================================<br/>I
+made sample program you want.I think this sample has some bugs. sorry about that.but, it
+has same the bug that I talked you.When I run this program..<span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=0<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=1<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=2<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=3<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=4<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=5<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=6<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=8<br/><span
+class="error">&#91;11:1&#93;</span>-S<span
+class="error">&#91;SeqServerHandler(sessionClosed:35)&#93;</span>:Sent Trace log=<span
+class="error">&#91;4&#93;</span> Really MSG Sent=&gt; seq=7 
+
+
+New Comment: 
+please check follow issue number.<a
+href="https://cwiki.apache.org/jira/browse/DIRMINA-653" class="external-link"
+rel="nofollow">https://cwiki.apache.org/jira/browse/DIRMINA-653</a>in my
+case..<br/>Synchronizing on the session.write makes the problem go away for 1 hour.;
+synchronized (session) <br/>{ <br/>  future = session.write(message); <br/>} I think you
+should check <a href="https://issues.apache.org/jira/browse/DIRMINA-653"
+title="IoSession.write not thread-safe? Loosing messages under heavy multi-threaded write
+on same session." class="issue-link"
+data-issue-key="DIRMINA-653"><del>DIRMINA-653</del></a> also.I'll test more for long time
+with (synchronized session.write)Thank you. 
+
+
+New Comment: 
+After I synchronized session.write(), the problem go away for 18 hours.Clients were about
+1200.Is this Thread pool synchronizing issue ? 
+
+
+New Comment: 
+Should definitively have a solid regression unit test for these kind of race conditions
+within MINA. We are very dependent on messages being delivered in a 100% predictable
+order... 
+
+
+New Comment: 
+Reworked the provided test 
+
+
+New Comment: 
+After some hours of debugging, i think the concurrency problem is located in the executor
+filters that need to be place before and after the codec . they must be interested on the
+IoEventType.WRITE using the right constructor which strangely is not the case by default.I
+first thought that an Executor before the codec will be enough but it seems not and i'm
+not totally sure why As long as the IoBuffer or object message isn't queued in the
+OrderedThreadPool you could fall in the following situation :Thread A gets a sequence
+number and then ctx is switched somewhere before write event is queued by the executor
+filter<br/>Thread B gets seq+1 and runs till event is queued this will result in a wrong
+sequencefinally combining the two executor filters with adding a synchronization on the
+session when writing the packet should definetely solve the problem :<br/>synchronized
+(session) {<br/>....<br/>seq =
+generateSeq();<br/>....<br/>session.write(buf);<br/>...<br/>}The OrderedThreadPoolExecutor
+needs many conditions to do it's job correctly so maybe the solution to this issue is just
+a complete doco to avoid misunderstandings until the 3.0 branch which should bring a new
+chain that should allow ordering events more <br/>efficiently.WDYT ? 
+
+
+New Comment: 
+I committed a fix which should solve your issue : basically it makes OrderedThreadPool
+enqueue all events except SESSION_CREATED and prevents the deoredering of writes. I also
+observed that this way as i expected the ExecutorFilter is only needed after the
+codec.Please do a test and let us know if it also works for you. 
+
+
+New Comment: 
+Thank you so much.It worked perfectly for 2 hours.I'll test more for long time. <br/>after
+that I'll comment again. 
+
+
+New Comment: 
+After I patched ExecutorFilter, I got follow
+Exception.=====================================================================================org.apache.mina.filter.codec.ProtocolEncoderException:
+java.lang.NullPointerException<br/>	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:316)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:505)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$7(DefaultIoFilterChain.java:500)<br/>	at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:813)<br/>	at
+org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:79)<br/>	at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:801)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:793)<br/>	at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:735)<br/>	at
+java.lang.Thread.run(Thread.java:619)<br/>Caused by:
+java.lang.NullPointerException<br/>	at
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:301)<br/>	...
+9 more 
+
+
+New Comment: 
+I have question.<br/>I already said, after I received new ExecutorFilter, I got new
+error.But I didn't update like this. I only updated ExecotorFilter.java<br/>Should I
+change my Filters like this:
+?<br/>================================================================<br/>        //
+filter<br/>        RomiProtocolCodecFactory rcf = new RomiProtocolCodecFactory(true);     
+  chain.addLast("executorWrite", new ExecutorFilter(20, 100,<br/>               
+IoEventType.WRITE, IoEventType.CLOSE,<br/>                IoEventType.EXCEPTION_CAUGHT,
+IoEventType.MESSAGE_RECEIVED,<br/>                IoEventType.MESSAGE_SENT));<br/>       
+chain.addLast("codec", new ProtocolCodecFilter(rcf));<br/>       
+chain.addLast("executorAfter", new ExecutorFilter(20, 100,<br/>               
+IoEventType.WRITE, IoEventType.CLOSE,<br/>                IoEventType.EXCEPTION_CAUGHT,
+IoEventType.MESSAGE_RECEIVED,<br/>               
+IoEventType.MESSAGE_SENT));<br/>================================================================ 
+
+
+New Comment: 
+in my last tests i used the following setup:chain.addLast("codec", new
+ProtocolCodecFilter(rcf));<br/>chain.addLast("executor", new ExecutorFilter(20, 100)); 
+
+
+New Comment: 
+I was right..I have still NullPointerException  in DefaultIoFilterChain.java.in my
+source,nothing changed except ExecutorFilter
+class=====================================================================================
+org.apache.mina.filter.codec.ProtocolEncoderException: java.lang.NullPointerException
+<br/>at
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:316)
+<br/>at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.callPreviousFilterWrite(DefaultIoFilterChain.java:505)
+<br/>at
+org.apache.mina.core.filterchain.DefaultIoFilterChain.access$7(DefaultIoFilterChain.java:500)
+<br/>at
+org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.filterWrite(DefaultIoFilterChain.java:813)
+<br/>at org.apache.mina.core.filterchain.IoFilterEvent.fire(IoFilterEvent.java:79) <br/>at
+org.apache.mina.core.session.IoEvent.run(IoEvent.java:63) <br/>at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTask(OrderedThreadPoolExecutor.java:801)
+<br/>at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.runTasks(OrderedThreadPoolExecutor.java:793)
+<br/>at
+org.apache.mina.filter.executor.OrderedThreadPoolExecutor$Worker.run(OrderedThreadPoolExecutor.java:735)
+<br/>at java.lang.Thread.run(Thread.java:619) <br/>Caused by:
+java.lang.NullPointerException <br/>at
+org.apache.mina.filter.codec.ProtocolCodecFilter.filterWrite(ProtocolCodecFilter.java:301)
+<br/>... 9 more 
+
+
+New Comment: 
+I do not agree with you but id should have been more explanatoryas you can see your
+problem is not the same as described in the initial issue<br/>so message ordering has been
+fixedbut on the other hand you now get the same problem as <a
+href="https://issues.apache.org/jira/browse/DIRMINA-679" title="NullPointerException in
+ProtocolCodecFilter.filterWrite" class="issue-link"
+data-issue-key="DIRMINA-679"><del>DIRMINA-679</del></a> (NPE in the
+ProtocolCodecFilter.filterWirte)<br/>I may have a dirty fix ( i'm not 100% sure why for
+the moment) for this one:<br/>in  ProtocolCodecFilter comment the following line in the
+onPostRemove method :<br/>disposeCodec(parent.getSession());After this you may get some
+logs throwing a WriteToClosedSessionException but these are catched logs and they don't
+hurt the logic.Please confirm these assumptions. <br/>If so i will recheck this one as
+fixed and maybe try to investigate <a
+href="https://issues.apache.org/jira/browse/DIRMINA-679" title="NullPointerException in
+ProtocolCodecFilter.filterWrite" class="issue-link"
+data-issue-key="DIRMINA-679"><del>DIRMINA-679</del></a> if i get time to do so.Hint: you
+can also avoid this last problem by introducing a close ack on your protocol:<br/>client
+sends a close command , server acks and closes the connection this would eliminate your
+problem which occurs because there's still some messages to write when server gets the
+session closed signal. 
+
+
+New Comment: 
+Thanks for your reply.I would check <a
+href="https://issues.apache.org/jira/browse/DIRMINA-679" title="NullPointerException in
+ProtocolCodecFilter.filterWrite" class="issue-link"
+data-issue-key="DIRMINA-679"><del>DIRMINA-679</del></a> .. maybe. 
+
+
+New Comment: 
+After much code crawling and testing, i came to the conclusion that the issue is now
+fixed.If using the rewritten sequence test code provided as is it will probably fail
+because of the following tricky sequencethread y / session S2 wants to write a message
+with seq=1 but it is stopped after getting the seq number<br/>thread x / session S1 enter
+the messageReceived method and broadcasts a msg to all sessions (S1 &amp; S2)<br/>when
+writing to S2 it gets the seq=2 sequence number and writes but seq=1 was expected so it
+failsSo the problem is in the logic not in the filter nor in the Executor<br/>Removing the
+broadcast call makes the test run flawlessly 
+
+
+New Comment: 
+I have to reopen this issue, as the patch introduce a failure in the proxy code (see <a
+href="https://issues.apache.org/jira/browse/DIRMINA-734" title="Regression with flushing
+in MINA 2.0.0-M7 trunk" class="issue-link"
+data-issue-key="DIRMINA-734"><del>DIRMINA-734</del></a>).I have started back to M6, and
+applied every patches up to 787043, which was the one introducing the regression...We have
+to find a better way to fix <a href="https://issues.apache.org/jira/browse/DIRMINA-714"
+title="Packet sequence is unordered in multi thread." class="issue-link"
+data-issue-key="DIRMINA-714"><del>DIRMINA-714</del></a> :/ 
+
+
+New Comment: 
+    public static int generateSeq(DemuxRomiEncoder enc, IoSession session) {<br/>       
+AtomicInteger seq = (AtomicInteger) session.getAttribute("send_seq");        int id;<br/> 
+      if (seq == null) {            seq = new AtomicInteger(-1);           
+session.setAttribute("send_seq", seq);        }        id = seq.getAndIncrement();       
+if (enc.server)<br/>            System.out.println("[Thread-" +
+Thread.currentThread().getId()<br/>                    + "]<span class="error">&#91;&quot;
++ session.getId() + &quot;&#93;</span> RESERVED = " + seq);<br/>        return id;<br/>   
+} 
+
+

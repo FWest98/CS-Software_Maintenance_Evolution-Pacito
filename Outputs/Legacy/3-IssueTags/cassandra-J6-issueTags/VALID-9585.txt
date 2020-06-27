@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 7861f1731feb18f8bd0e87963e53c89a2dac45ed
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9585.txt 
+
+commit 7861f1731feb18f8bd0e87963e53c89a2dac45ed
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    we can actually give a ring for system tables that are not LocalStrategy

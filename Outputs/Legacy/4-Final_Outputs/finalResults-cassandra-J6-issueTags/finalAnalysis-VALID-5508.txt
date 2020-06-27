@@ -1,0 +1,160 @@
+Pattern changes caused by commit: 6d183c1a527cf70212dfac81f0d61aa8e6f9a8d4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5508.txt 
+
+commit 6d183c1a527cf70212dfac81f0d61aa8e6f9a8d4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix array out of bounds error in counter shard removal
+    patch by slebresne; reviewed by yukim for CASSANDRA-3514
+
+
+
+==================================
+ Issue CASSANDRA-3514 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3514] CounterColumnFamily Compaction error (ArrayIndexOutOfBoundsException)
+-----------------
+
+-----------------
+Summary: CounterColumnFamily Compaction error (ArrayIndexOutOfBoundsException)
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 21 Nov 2011 19:13:35 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 23 Nov 2011 08:04:43 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+On a single node, I'm seeing the following error when trying to compact a
+CounterColumnFamily. This appears to have started with version 1.0.3.
+
+nodetool -h
+localhost compact TRProd MetricsAllTime<br/>Error occured during
+compaction<br/>java.util.concurrent.ExecutionException:
+java.lang.ArrayIndexOutOfBoundsException<br/>	at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>	at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager.performMaximal(CompactionManager.java:250)<br/>	at
+org.apache.cassandra.db.ColumnFamilyStore.forceMajorCompaction(ColumnFamilyStore.java:1471)<br/>	at
+org.apache.cassandra.service.StorageService.forceTableCompaction(StorageService.java:1523)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br/>	at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>	at
+java.lang.reflect.Method.invoke(Method.java:597)<br/>	at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:93)<br/>	at
+com.sun.jmx.mbeanserver.StandardMBeanIntrospector.invokeM2(StandardMBeanIntrospector.java:27)<br/>	at
+com.sun.jmx.mbeanserver.MBeanIntrospector.invokeM(MBeanIntrospector.java:208)<br/>	at
+com.sun.jmx.mbeanserver.PerInterface.invoke(PerInterface.java:120)<br/>	at
+com.sun.jmx.mbeanserver.MBeanSupport.invoke(MBeanSupport.java:262)<br/>	at
+com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.invoke(DefaultMBeanServerInterceptor.java:836)<br/>	at
+com.sun.jmx.mbeanserver.JmxMBeanServer.invoke(JmxMBeanServer.java:761)<br/>	at
+javax.management.remote.rmi.RMIConnectionImpl.doOperation(RMIConnectionImpl.java:1427)<br/>	at
+javax.management.remote.rmi.RMIConnectionImpl.access$200(RMIConnectionImpl.java:72)<br/>	at
+javax.management.remote.rmi.RMIConnectionImpl$PrivilegedOperation.run(RMIConnectionImpl.java:1265)<br/>	at
+javax.management.remote.rmi.RMIConnectionImpl.doPrivilegedOperation(RMIConnectionImpl.java:1360)<br/>	at
+javax.management.remote.rmi.RMIConnectionImpl.invoke(RMIConnectionImpl.java:788)<br/>	at
+sun.reflect.GeneratedMethodAccessor24.invoke(Unknown Source)<br/>	at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br/>	at
+java.lang.reflect.Method.invoke(Method.java:597)<br/>	at
+sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:305)<br/>	at
+sun.rmi.transport.Transport$1.run(Transport.java:159)<br/>	at
+java.security.AccessController.doPrivileged(Native Method)<br/>	at
+sun.rmi.transport.Transport.serviceCall(Transport.java:155)<br/>	at
+sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:535)<br/>	at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:790)<br/>	at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:649)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:619)<br/>Caused by:
+java.lang.ArrayIndexOutOfBoundsException<br/>	at
+org.apache.cassandra.utils.ByteBufferUtil.arrayCopy(ByteBufferUtil.java:292)<br/>	at
+org.apache.cassandra.db.context.CounterContext$ContextState.copyTo(CounterContext.java:792)<br/>	at
+org.apache.cassandra.db.context.CounterContext.removeOldShards(CounterContext.java:709)<br/>	at
+org.apache.cassandra.db.CounterColumn.removeOldShards(CounterColumn.java:260)<br/>	at
+org.apache.cassandra.db.CounterColumn.mergeAndRemoveOldShards(CounterColumn.java:306)<br/>	at
+org.apache.cassandra.db.CounterColumn.mergeAndRemoveOldShards(CounterColumn.java:271)<br/>	at
+org.apache.cassandra.db.compaction.PrecompactedRow.removeDeletedAndOldShards(PrecompactedRow.java:86)<br/>	at
+org.apache.cassandra.db.compaction.PrecompactedRow.&lt;init&gt;(PrecompactedRow.java:102)<br/>	at
+org.apache.cassandra.db.compaction.CompactionController.getCompactedRow(CompactionController.java:133)<br/>	at
+org.apache.cassandra.db.compaction.CompactionIterable$Reducer.getReduced(CompactionIterable.java:102)<br/>	at
+org.apache.cassandra.db.compaction.CompactionIterable$Reducer.getReduced(CompactionIterable.java:87)<br/>	at
+org.apache.cassandra.utils.MergeIterator$ManyToOne.consume(MergeIterator.java:116)<br/>	at
+org.apache.cassandra.utils.MergeIterator$ManyToOne.computeNext(MergeIterator.java:99)<br/>	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)<br/>	at
+com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)<br/>	at
+com.google.common.collect.Iterators$7.computeNext(Iterators.java:614)<br/>	at
+com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:140)<br/>	at
+com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:135)<br/>	at
+org.apache.cassandra.db.compaction.CompactionTask.execute(CompactionTask.java:172)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$4.call(CompactionManager.java:277)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	... 3 more
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This also just started happening on another node (without user-triggered major
+compaction). Not sure what's causing this (old 0.8.* counter data perhaps?) 
+
+
+New Comment: 
+That is a bug, attaching patch to fix. Note that there is actually two bugs, so the patch
+fix both and adds unit tests for each of them. 
+
+
+New Comment: 
+Note that this is due to <a href="https://issues.apache.org/jira/browse/CASSANDRA-3178"
+title="Counter shard merging is not thread safe" class="issue-link"
+data-issue-key="CASSANDRA-3178"><del>CASSANDRA-3178</del></a> so this affects the 0.8
+branch, but not any released version. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed, thanks 
+
+

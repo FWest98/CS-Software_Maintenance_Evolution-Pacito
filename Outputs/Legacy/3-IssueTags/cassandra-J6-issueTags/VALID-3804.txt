@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 86f6184d0d09f3f3a2c6d080c88e31810f373020
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3804.txt 
+
+commit 86f6184d0d09f3f3a2c6d080c88e31810f373020
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid caching token-only decoratedkeys
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2416

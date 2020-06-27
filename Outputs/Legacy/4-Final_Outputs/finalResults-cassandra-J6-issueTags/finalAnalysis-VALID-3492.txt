@@ -1,0 +1,160 @@
+Pattern changes caused by commit: c7df15da536d239ebadaad68e4ce09ad5db9bf46
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3492.txt 
+
+commit c7df15da536d239ebadaad68e4ce09ad5db9bf46
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix fd leak in sstable2json with non-mmap'd i/o
+    patch by jbellis; reviewed by Pavel Yaskevich for CASSANDRA-2304
+
+
+
+==================================
+ Issue CASSANDRA-2304 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2304] sstable2json dies with "Too many open files", regardless of ulimit
+-----------------
+
+-----------------
+Summary: sstable2json dies with "Too many open files", regardless of ulimit
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 10 Mar 2011 00:54:22 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 10 Mar 2011 17:13:27 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Running sstable2json on the attached sstable eventually results in the following:
+<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Exception in thread <span class="code-quote">"main"</span>
+java.io.IOError: java.io.FileNotFoundException: /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/CommentSortsCache-f-9764-Data.db
+(Too many open files)        at
+org.apache.cassandra.io.util.BufferedSegmentedFile.getSegment(BufferedSegmentedFile.java:68)
+       at
+org.apache.cassandra.io.sstable.SSTableReader.getFileDataInput(SSTableReader.java:567)    
+   at
+org.apache.cassandra.db.columniterator.SSTableSliceIterator.&lt;init&gt;(SSTableSliceIterator.java:49)
+       at
+org.apache.cassandra.db.filter.SliceQueryFilter.getSSTableColumnIterator(SliceQueryFilter.java:68)
+       at
+org.apache.cassandra.db.filter.QueryFilter.getSSTableColumnIterator(QueryFilter.java:80)  
+     at org.apache.cassandra.tools.SSTableExport.serializeRow(SSTableExport.java:187)     
+  at org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:355)        at
+org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:377)        at
+org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:390)        at
+org.apache.cassandra.tools.SSTableExport.main(SSTableExport.java:448)Caused by:
+java.io.FileNotFoundException: /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/CommentSortsCache-f-9764-Data.db
+(Too many open files)        at java.io.RandomAccessFile.open(Native Method)        at
+java.io.RandomAccessFile.&lt;init&gt;(RandomAccessFile.java:233)        at
+org.apache.cassandra.io.util.BufferedRandomAccessFile.&lt;init&gt;(BufferedRandomAccessFile.java:111)
+       at
+org.apache.cassandra.io.util.BufferedRandomAccessFile.&lt;init&gt;(BufferedRandomAccessFile.java:106)
+       at
+org.apache.cassandra.io.util.BufferedRandomAccessFile.&lt;init&gt;(BufferedRandomAccessFile.java:91)
+       at
+org.apache.cassandra.io.util.BufferedSegmentedFile.getSegment(BufferedSegmentedFile.java:62)</pre></div></div>
+Set
+my ulimit -n to 60000 and got the same result. Leaking file descriptors?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Sstable which causes sstable2json to die. Grabbed from an 0.7.3 node. 
+
+
+New Comment: 
+Output from lsof. Thousands of lines of the following:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">java      1766       root 1080r      REG              251,0 11809597  
+32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1081r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1082r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1083r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1084r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1085r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1086r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1087r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1088r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1089r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1090r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1091r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1092r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1093r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1094r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.dbjava      1766
+      root 1095r      REG              251,0 11809597   32374948 /<span
+class="code-keyword">var</span>/lib/cassandra/data/reddit/Hide-f-734-Data.db</pre></div></div> 
+
+
+New Comment: 
+This is a bug with non-mmap'd I/O. 
+
+
+New Comment: 
+patch to close column iterator and only do one pass per row 
+
+
+New Comment: 
+with number of the exported columns properly incremented. LGTM. 
+
+
+New Comment: 
+committed v2 
+
+

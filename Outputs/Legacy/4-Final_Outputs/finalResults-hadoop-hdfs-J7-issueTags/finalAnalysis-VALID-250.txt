@@ -1,0 +1,159 @@
+Pattern changes caused by commit: de0ca02b5b3a4b765ec4795c9e24f4550ef1c2e0
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-250.txt 
+
+commit de0ca02b5b3a4b765ec4795c9e24f4550ef1c2e0
+Author: Tsz-wo Sze <szetszwo@apache.org>
+
+    HDFS-710. Added actions with constraints to the pipeline fault injection tests and changed SleepAction to support uniform random sleeping over an interval.
+
+
+
+==================================
+ Issue HDFS-710 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-710] Add actions with constraints to the pipeline fault injection tests
+-----------------
+
+-----------------
+Summary: Add actions with constraints to the pipeline fault injection tests
+-----------------
+
+-----------------
+Issue type: Test
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 15 Oct 2009 21:33:55 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 16 Oct 2009 21:07:36 +0000
+-----------------
+
+-----------------
+Assigned to: Tsz-wo Sze
+-----------------
+
+-----------------
+Description: 
+
+It is useful to have <em>constraint satisfaction actions</em> so that an action is fired
+if all the constraints are satisfied.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+h710_20091015b.patch:<ul class="alternate" type="square">	<li>Added
+ConstraintSatisfactionAction, Constraint and CountdownConstraint</li>	<li>Changed
+SleepAction to support sleeping randomly over an interval.</li>	<li>Removed some unused
+imports.</li></ul> 
+
+
+New Comment: 
+Patch looks good.Nits: <ul class="alternate" type="square">	<li>public methods do not have
+normally required <tt>@param</tt> nor <tt>@throw</tt> tags. I'm not sure if it is
+required, but I think it's a good style to have them.</li></ul>+1 otherwise. 
+
+
+New Comment: 
+&gt; public methods do not have normally required @param nor @throw tags. I'm not sure if
+it is required, but I think it's a good style to have them.We require javadoc for public
+methods but not requiring @param, @throw, etc.  It will take more development time to add
+and maintain such tags. 
+
+
+New Comment: 
+h710_20091015c.patch: fixed a bug.<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>     [exec] +1 overall.      
+[exec]      [exec]     +1 @author.  The patch does not contain any @author tags.    
+[exec]      [exec]     +1 tests included.  The patch appears to include 12 new or modified
+tests.     [exec]      [exec]     +1 javadoc.  The javadoc tool did not generate any
+warning messages.     [exec]      [exec]     +1 javac.  The applied patch does not
+increase the total number of javac compiler warnings.     [exec]      [exec]     +1
+findbugs.  The patch does not introduce any new Findbugs warnings.     [exec]      [exec] 
+   +1 release audit.  The applied patch does not increase the total number of release
+audit warnings.</pre></div></div>Passed all fault injection tests. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422300/h710_20091015c.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422300/h710_20091015c.patch</a><br/>
+ against trunk revision 825689.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 12 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/28/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The failure of TestFileAppend2 is not related since it is not a fault inject test. 
+
+
+New Comment: 
+I have committed this to 0.21 and above. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #47 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #79 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/</a>) 
+
+

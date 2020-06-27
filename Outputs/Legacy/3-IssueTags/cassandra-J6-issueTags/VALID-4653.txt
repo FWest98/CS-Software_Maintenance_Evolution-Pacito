@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 4deb77971a43cf5a55bd2e2835255ff044137fc5
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4653.txt 
+
+commit 4deb77971a43cf5a55bd2e2835255ff044137fc5
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix missing logging for some exceptions
+    patch by Jonathan Ellis; reviewed by Pavel Yaskevich for CASSANDRA-2061

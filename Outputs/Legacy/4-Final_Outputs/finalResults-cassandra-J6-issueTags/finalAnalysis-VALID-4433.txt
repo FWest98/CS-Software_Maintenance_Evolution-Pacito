@@ -1,0 +1,117 @@
+Pattern changes caused by commit: ed18ee0c728ae069b7e41161bb301c9688491cbf
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4433.txt 
+
+commit ed18ee0c728ae069b7e41161bb301c9688491cbf
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    single-pass streaming
+    patch by Yuki Morishita; reviewed by jbellis for CASSANDRA-2677
+
+
+
+==================================
+ Issue CASSANDRA-2677 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2677] Optimize streaming to be single-pass
+-----------------
+
+-----------------
+Summary: Optimize streaming to be single-pass
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 20 May 2011 19:58:06 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 13 Jul 2011 16:26:38 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+Streaming currently is a two-pass operation: one to write the Data component do disk from
+the socket, then another to build the index and bloom filter from it.  This means we do
+about 2x the i/o we would if we created the index and BF during the original write.
+
+For
+node movement this was not considered to be a Big Deal because the stream target is not a
+member of the ring, so we can be inefficient without hurting live queries.  But optimizing
+node movement to not require un/rebootstrap (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1427" title="Optimize
+loadbalance/move for moves within the current range" class="issue-link"
+data-issue-key="CASSANDRA-1427"><del>CASSANDRA-1427</del></a>) and bulk load (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1278" title="Make bulk loading into
+Cassandra less crappy, more pluggable" class="issue-link"
+data-issue-key="CASSANDRA-1278"><del>CASSANDRA-1278</del></a>) mean we can stream to live
+nodes too.
+
+The main obstacle here is we don't know how many keys will be in the new
+sstable ahead of time, which we need to size the bloom filter correctly. We can solve this
+by including that information (or a close approximation) in the stream setup &#8211; the
+source node can calculate that without hitting disk from the in-memory index summary.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<blockquote>one to write the Data component to disk from the
+socket</blockquote>(IncomingTcpConnection.stream)<blockquote>another to build the <span
+class="error">&#91;row&#93;</span> index and bloom filter from
+it</blockquote>(StreamInSession.finished / CompactionManager.instance.submitSSTableBuild
+&#8211; this is NOT talking about the buildSecondaryIndexes pass for column indexes, which
+we can't optimize away... yet) 
+
+
+New Comment: 
+The javadoc for the StreamOut class has a good overview of the streaming <span
+class="error">&#91;file transfer&#93;</span> process. 
+
+
+New Comment: 
+<blockquote>the source node can calculate that without hitting disk from the in-memory
+index summary</blockquote>(referring to SSTableReader.indexSummary) 
+
+
+New Comment: 
+Moving to 1.0 b/c of <a href="https://issues.apache.org/jira/browse/CASSANDRA-2818"
+title="0.8.0 is unable to participate with nodes using a _newer_ protocol version"
+class="issue-link" data-issue-key="CASSANDRA-2818"><del>CASSANDRA-2818</del></a>. 
+
+
+New Comment: 
+Attached patch let cassandra create sstable with indices and BF directly from
+streaming.<br/>I left the old path to handle the case where older version of node streams
+to the new one.<br/>I don't have test environment with SSL, so testing with encryption
+enabled environment is appreciated. 
+
+

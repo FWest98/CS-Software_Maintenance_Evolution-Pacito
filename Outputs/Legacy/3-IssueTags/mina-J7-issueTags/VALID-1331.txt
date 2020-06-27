@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f685805a791e76c5be1e80c30f7b8818382797bc
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1331.txt 
+
+commit f685805a791e76c5be1e80c30f7b8818382797bc
+Author: Trustin Lee <trustin@apache.org>
+
+    Recovered mistakenly deleted sentence in TextLineDecoder

@@ -1,0 +1,25 @@
+Pattern changes caused by commit: fe6980eb7d2df6cb53fd8a83226f91789beaced8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6109.txt 
+
+commit fe6980eb7d2df6cb53fd8a83226f91789beaced8
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix version, licences and changelog for 1.0.8 release

@@ -1,0 +1,150 @@
+Pattern changes caused by commit: bd2a4aa378dfe9f338e839bbd740dd16641ad9b6
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5080.txt 
+
+commit bd2a4aa378dfe9f338e839bbd740dd16641ad9b6
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig storage handler implements LoadMetadata interface.
+    Patch by brandonwilliams, reviewed by Jeremy Hanna for CASSANDRA-2777
+
+
+
+==================================
+ Issue CASSANDRA-2777 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2777] Pig storage handler should implement LoadMetadata
+-----------------
+
+-----------------
+Summary: Pig storage handler should implement LoadMetadata
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 15 Jun 2011 22:44:07 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 28 Sep 2011 22:01:39 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+The reason for this is many builtin functions like SUM won't work on longs (you can
+workaround using LongSum, but that's lame) because the query planner doesn't know about
+the types beforehand, even though we are casting to native longs.
+
+There is some impact to
+this, though.  With LoadMetadata implemented, existing scripts that specify schema will
+need to remove it (since LM is doing it for them) and they will need to conform to LM's
+terminology (key, columns, name, value) within the script.  This is trivial to change,
+however, and the increased functionality is worth the switch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch implements the LoadMetadata interface.  Doesn't handle supercolumns since we already
+punted on deserializing those. 
+
+
+New Comment: 
+while we're add it can we remove the redundant addMutation call on line 505 and on line
+513 add the e param on:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">throw</span> <span class="code-keyword">new</span> IOException(e +
+<span class="code-quote">" Output must be (key, {(column,value)...}) <span
+class="code-keyword">for</span> ColumnFamily or (key,
+{supercolumn:{(column,value)...}...}) <span class="code-keyword">for</span>
+SuperColumnFamily"</span>, e);</pre></div></div> 
+
+
+New Comment: 
+Sure, will add those on commit. 
+
+
+New Comment: 
+Is that +1 otherwise, Jeremy? 
+
+
+New Comment: 
+Brandon and I were still trying to track down a problem that I was seeing in one of the
+tests I was running.  I'd like to get that resolved before it gets in if possible. 
+
+
+New Comment: 
+v2 rebased. 
+
+
+New Comment: 
+Fixed it for me on Pig <del>0.9</del> 0.8.3 and Cassandra 0.8.6 (Brisk).Pig 0.9
+complains:<br/>2011-10-03 14:41:21,033 <span class="error">&#91;main&#93;</span> ERROR
+org.apache.pig.tools.grunt.Grunt - ERROR 1200: &lt;file test.pig, line 8, column 78&gt; 
+mismatched input ')' expecting IDENTIFIER_L 
+
+
+New Comment: 
++1 - if we find any issues with it in production, we'll submit bug reports. 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #348 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/348/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/348/</a>)<br/>    Pig storage
+handler implements LoadMetadata interface.<br/>Patch by brandonwilliams, reviewed by
+Jeremy Hanna for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2777" title="Pig
+storage handler should implement LoadMetadata" class="issue-link"
+data-issue-key="CASSANDRA-2777"><del>CASSANDRA-2777</del></a>brandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1177083"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1177083</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/contrib/pig/src/java/org/apache/cassandra/hadoop/pig/CassandraStorage.java</li></ul> 
+
+
+New Comment: 
+Please note that this patch doesn't work for Pig 0.9, it doesn't like the AS
+();.<br/>2011-10-03 14:41:21,033 <span class="error">&#91;main&#93;</span> ERROR
+org.apache.pig.tools.grunt.Grunt - ERROR 1200: &lt;file test.pig, line 8, column 78&gt; 
+mismatched input ')' expecting IDENTIFIER_L 
+
+

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: ba65c32347b12607cfa8160088b442e2f56a837e
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-412.txt 
+
+commit ba65c32347b12607cfa8160088b442e2f56a837e
+Author: Mahadev Konar <mahadev@apache.org>
+
+    ZOOKEEPER-383. Asynchronous version of createLedger(). (flavio via mahadev)

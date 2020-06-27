@@ -1,0 +1,136 @@
+Pattern changes caused by commit: 0dc0029e820783f168297bdafd6169d03aa6ea20
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3974.txt 
+
+commit 0dc0029e820783f168297bdafd6169d03aa6ea20
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Avoid race in AdaptiveLatencyTracker between add() and clear()
+    Patch by brandonwilliams, reviewed by tjake for CASSANDRA-2618
+
+
+
+==================================
+ Issue CASSANDRA-2618 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2618] DynamicSnitch race in adding latencies
+-----------------
+
+-----------------
+Summary: DynamicSnitch race in adding latencies
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 6 May 2011 22:27:06 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 7 May 2011 01:43:43 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+ERROR 15:33:48,614 Fatal exception in thread Thread<span
+class="error">&#91;ReadStage:264,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.NoSuchElementException<br/>	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:680)<br/>Caused by:
+java.util.NoSuchElementException<br/>	at
+java.util.concurrent.LinkedBlockingDeque.removeFirst(LinkedBlockingDeque.java:401)<br/>	at
+java.util.concurrent.LinkedBlockingDeque.remove(LinkedBlockingDeque.java:621)<br/>	at
+org.apache.cassandra.locator.AdaptiveLatencyTracker.add(DynamicEndpointSnitch.java:288)<br/>	at
+org.apache.cassandra.locator.DynamicEndpointSnitch.receiveTiming(DynamicEndpointSnitch.java:202)<br/>	at
+org.apache.cassandra.net.MessagingService.addLatency(MessagingService.java:152)<br/>	at
+org.apache.cassandra.service.StorageProxy$LocalReadRunnable.runMayThrow(StorageProxy.java:642)<br/>	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>	... 3
+more<br/>ERROR 15:33:48,615 Fatal exception in thread Thread<span
+class="error">&#91;ReadStage:264,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.NoSuchElementException<br/>	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:680)<br/>Caused by:
+java.util.NoSuchElementException<br/>	at
+java.util.concurrent.LinkedBlockingDeque.removeFirst(LinkedBlockingDeque.java:401)<br/>	at
+java.util.concurrent.LinkedBlockingDeque.remove(LinkedBlockingDeque.java:621)<br/>	at
+org.apache.cassandra.locator.AdaptiveLatencyTracker.add(DynamicEndpointSnitch.java:288)<br/>	at
+org.apache.cassandra.locator.DynamicEndpointSnitch.receiveTiming(DynamicEndpointSnitch.java:202)<br/>	at
+org.apache.cassandra.net.MessagingService.addLatency(MessagingService.java:152)<br/>	at
+org.apache.cassandra.service.StorageProxy$LocalReadRunnable.runMayThrow(StorageProxy.java:642)<br/>	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>	... 3
+more
+
+What is happening that AdaptiveLatencyTracker.add is trying to add a latency, but
+the deque is full, so it makes a second effort to remove an entry from the deque and then
+try to add again.  However, when it tries to remove, the deque has already been emptied by
+DES.reset call clear() on all the ALTs.  This bug has existed for a long time, but it's
+very rare and difficult to trigger.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch to avoid the race between add() and clear(). 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Are we sure this fixes the race? ArrayDeque isn't a concurrent datastructure, so it's
+possible that its internals could race in such a way that it gets into a bad state. The
+size field not matching the index, for example. 
+
+
+New Comment: 
+I can't say for certain since this is terribly difficult to repro (it's been there since
+DES inception and I've only seen it once) but the patch definitely addressed a likely
+cause and is certainly needed either way. 
+
+
+New Comment: 
+Also, we're using LinkedBlockingDeque which is a concurrent structure. 
+
+

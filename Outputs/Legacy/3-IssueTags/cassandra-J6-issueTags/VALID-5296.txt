@@ -1,0 +1,22 @@
+Pattern changes caused by commit: a4602b34433e039f1eda81b555056137aa9e105f
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5296.txt 
+
+commit a4602b34433e039f1eda81b555056137aa9e105f
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge 3351

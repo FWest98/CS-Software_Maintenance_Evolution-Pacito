@@ -1,0 +1,105 @@
+Pattern changes caused by commit: 19d2782c715a0d0f73958edce3f4be3709f92d18
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9468.txt 
+
+commit 19d2782c715a0d0f73958edce3f4be3709f92d18
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Scale hinted_handoff_throttle_in_kb to cluster size
+    patch by jbellis; reviewed by rbranson for CASSANDRA-5272
+
+
+
+==================================
+ Issue CASSANDRA-5272 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5272] Hinted Handoff Throttle based on cluster size
+-----------------
+
+-----------------
+Summary: Hinted Handoff Throttle based on cluster size
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 19 Feb 2013 22:37:56 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 May 2013 20:00:26 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+For a 12-node EC2 m1.xlarge cluster, restarting a node causes it to get completely
+overloaded with the default 2-thread, 1024KB setting in 1.2.x. This seemed to be a smaller
+problem when it was 6-nodes, but still required us to abort handoffs. The old defaults in
+1.1.x were WAY more conservative. I've dropped this way down to 128KB on our production
+cluster which is really conservative, but appears to have solved it. The default seems way
+too high on any cluster that is non-trivial in size.
+
+After putting some thought to this,
+it seems that this should really be based on cluster size, making the throttle a "target"
+for how much write load a single node can swallow. As the cluster grows, the amount of
+hints that can be delivered by each other node in the cluster goes down, so the throttle
+should self-adjust to take that into account.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Makes sense to me.  Patch attached against 1.2. 
+
+
+New Comment: 
+Correction; patch is against trunk but should be trivial to retrofit if necessary. 
+
+
+New Comment: 
+There's a small spelling error "eeach" in the cassandra.yaml. Also, should we add a line
+to NEWS to describe this behavior since it's going to change the setting in place? (i.e.
+we will need to bump our throttle up a bunch when rolling this out). 
+
+
+New Comment: 
+Would it be better perhaps to throttle by the amount of live nodes?  It won't always be
+accurate, but if you lost a WAN link between DCs you'd be throttling a lot more than
+needed at the time. 
+
+
+New Comment: 
+I dunno, then you have to worry about flooding again with edge cases like <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3533" title="TimeoutException when
+there is a firewall issue." class="issue-link"
+data-issue-key="CASSANDRA-3533"><del>CASSANDRA-3533</del></a>.  I'll go ahead and commit
+this and we can try to be more sophisticated later if warranted. 
+
+

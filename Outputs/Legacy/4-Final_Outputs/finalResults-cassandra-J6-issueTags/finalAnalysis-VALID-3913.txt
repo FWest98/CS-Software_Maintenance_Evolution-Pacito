@@ -1,0 +1,238 @@
+Pattern changes caused by commit: 5e6539addbca00d82484a60d0ca574f0223bfe05
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3913.txt 
+
+commit 5e6539addbca00d82484a60d0ca574f0223bfe05
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix incorrect use ofNBHM.size in ReadCallback
+    patch by jbellis; reviewed by stuhood for CASSANDRA-2552
+
+
+
+==================================
+ Issue CASSANDRA-2552 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2552] ReadResponseResolver Race
+-----------------
+
+-----------------
+Summary: ReadResponseResolver Race
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 25 Apr 2011 01:21:21 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 28 Apr 2011 13:26:58 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+When receiving a response, ReadResponseResolver uses a 3 step process to decide whether
+to trigger the condition that enough responses have arrived:
+<ol>	<li>Add new
+response</li>	<li>Check response set size</li>	<li>Check that data is present</li></ol>
+I
+think that these steps must have been reordered by the compiler in some cases, because I
+was able to reproduce a case for a QUORUM read where the condition is not properly
+triggered:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>INFO [RequestResponseStage:15] 2011-04-25
+00:26:53,514 ReadResponseResolver.java (line 87) post append for 1087367065: hasData=false
+in 2 messagesINFO [RequestResponseStage:8] 2011-04-25 00:26:53,514
+ReadResponseResolver.java (line 87) post append for 1087367065: hasData=true in 1
+messagesINFO [pool-1-thread-54] 2011-04-25 00:27:03,516 StorageProxy.java (line 623) Read
+timeout: java.util.concurrent.TimeoutException:
+ReadResponseResolver@1087367065(/10.34.131.109=false,/10.34.132.122=true,)</pre></div></div>
+The
+last line shows that both results were present, and that one of them was holding data.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I have a patch ready that I believe fixes this: testing it out before posting. 
+
+
+New Comment: 
+Hard to tell exactly what's going on here w/o knowing where your logging was added.In
+particular it's important to note that we don't prevent responses from being processed
+after we've already given up and decided to call a timeout (but before we've torn down the
+request callback). 
+
+
+New Comment: 
+Here is a cut down testcase that reproduces the race: it looks like two threads can race
+on step 2 such that neither accounts for the item added by the other, and both think the
+set of responses is too small.I have a patch that makes append + size an atomic operation:
+I'll post it as soon as I clean it up a bit. 
+
+
+New Comment: 
+Chris pointed out that the example passes if you replace NBHM with CHM, but I don't think
+NBHM is necessarily to blame here: each thread views a locally consistent copy, likely due
+to Cliff's use of sun.misc.Unsafe references.It's possible that a similar race applies to
+RangeSliceResponseResolver, but I think changes to LBQ (like CHM) will be broadcast to all
+threads. 
+
+
+New Comment: 
+Attaching a patch that replaces NBHM with an AtomicReferenceArray that is appended to and
+counted atomically. This patch eliminated the timeouts we were seeing.CHM may also be a
+legitimate solution, but it feels a bit like an abuse of a map. 
+
+
+New Comment: 
+That sure sounds like a NBHM bug to me. The javadoc says,<blockquote>Retrievals reflect
+the results of the most recently completed update operations holding upon their onset...
+Similarly, Iterators and Enumerations return elements reflecting the state of the hash
+table at some point at or since the creation of the
+iterator/enumeration.</blockquote>I.e., for at least one thread, <b>both</b> update
+operations will have completed when the iterator is created, so it should see all the
+entries.(Will review the actual patch shortly, I'm just saying I think we should report a
+bug too.) 
+
+
+New Comment: 
+&gt; I.e., for at least one thread, both update operations will have completed when the
+iterator is created<br/>Note that the race I observed via the debug output for that test
+was actually on the size() operation, which doesn't put any such guarantees in its
+javadocs. 
+
+
+New Comment: 
+You're right: size() is implemented as a org.cliffc.high_scale_lib.Counter object, which
+says<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">  <span class="code-comment">// Add the given value
+to current counter value.  Concurrent updates will</span>  <span class="code-comment">//
+not be lost, but addAndGet or getAndAdd are not implemented because but</span>  <span
+class="code-comment">// the total counter value is not atomically updated.</span>  <span
+class="code-comment">//<span class="code-keyword">public</span> void add( <span
+class="code-object">long</span> x );</span>...  <span class="code-comment">// Current
+value of the counter.  Since other threads are updating furiously</span>  <span
+class="code-comment">// the value is only approximate, but it includes all counts made by
+the</span>  <span class="code-comment">// current thread.  Requires a pass over all the
+striped counters.</span>  <span class="code-comment">//<span
+class="code-keyword">public</span> <span class="code-object">long</span>
+get();</span></pre></div></div> 
+
+
+New Comment: 
+I am no expert of the Java Memory Model, but I can't find anything that preclude this
+behavior in the CHM docs either (there really is not much on the size function). So I
+would have liked the CHM solution if we could be sure it always fix that problem (I would
+have liked it because it was a one line change and I think maps are here to be "abused"),
+but as far as I can tell, it may well only make the bug much less frequent or fix it only
+on some architecture (the code of CHM seems to indicate it is safe but it's complicated
+enough that I wouldn't bet my life on it).Note that if that's true, LBQ too could well
+allow for a race here without breaking it's specification (it seems to use a AtomicInteger
+for the size internally so it is trivially ok, but if the spec doesn't force anything, I
+suppose that could change).So I suppose if we want to do right by the spec, we should
+probably update both AbstractRowResolver and RangeSliceResponseResolver (note that using
+an AtomicInteger to count the number of responses could be slightly simpler, but I'm fine
+with an AtomicReferenceArray). 
+
+
+New Comment: 
+is there a reason RSRR can't inherit ARR or does it just predate that refactoring? 
+
+
+New Comment: 
+<blockquote>is there a reason RSRR can't inherit ARR or does it just predate that
+refactoring?</blockquote>To answer my own ARR assumes we're returning Rows, which would be
+easy to fix, and that Messages turn into ReadResponse objects, which would be harder since
+we'd need to have a &lt;T extends ISerializable&gt; interface where ISerializeable gave us
+a Serializer class declaring "void serialize(T, outputstream) and T
+deserialize(inputstream)", i.e., we start to get into fixing ICompactSerializer and all
+the mess that would be. 
+
+
+New Comment: 
+I'm not sure I'm a fan of the ARR solution.  Wouldn't it be similar complexity (one O(N)
+operation per message received) to keep NBHM and implement getMessageCount as an
+iterate-entries operation?  (the O(N) op in ARR is of course the search-for-free-slot in
+append.)I'm -0 on changing RSRR away from LBQ when LBQ is known to work fine in practice. 
+
+
+New Comment: 
+<blockquote>Wouldn't it be similar complexity (one O(N) operation per message received) to
+keep NBHM and implement getMessageCount as an iterate-entries operation?</blockquote>We
+can actually do size-by-iteration for basically free (with a little refactoring), since
+we're already iterating for isDataPresent. We can just push the iteration into the callers
+who care about size-and-data-present and do it with one loop.But if I am honest that is
+premature optimization.  We are already using the AtomicInteger approach in
+DatacenterReadCallback.  I'll submit a patch to standardize on that. 
+
+
+New Comment: 
+v2 w/ AtomicInteger approach 
+
+
+New Comment: 
+updated v2 fixes AsyncRepairCallback and RepairCallback as well 
+
+
+New Comment: 
+and a v2 for 0.7 
+
+
+New Comment: 
+Although I didn't reproduce a race between size() and isDataPresent(), isn't that one
+still possible? IMO, two operations that are atomic independently shouldn't be trusted to
+compose. The point of the ARR wasn't to improve runtime, it was simply to make all three
+steps atomic. 
+
+
+New Comment: 
+the correctness criterion is that once the messages are received, at least one thread
+running response will see that both blockfor and data are satisfied; this meets that
+need.note that received(-messages-that-count-towards-blockfor) is NOT the same as size
+(see: DRC) so you need a separate variable anyway even with ARR. 
+
+
+New Comment: 
++1I still think a Map is overkill here, but I can't reproduce a race with the v2
+algorithm. 
+
+
+New Comment: 
+committed 
+
+

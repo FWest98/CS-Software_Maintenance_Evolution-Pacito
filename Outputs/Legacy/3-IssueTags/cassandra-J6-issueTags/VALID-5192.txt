@@ -1,0 +1,17 @@
+Pattern changes caused by commit: d58020e54a4fba5ae0868ac4536fa56d6542b5b5
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5192.txt 
+
+commit d58020e54a4fba5ae0868ac4536fa56d6542b5b5
+Merge: f99ef33 6f512c6
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 1.0

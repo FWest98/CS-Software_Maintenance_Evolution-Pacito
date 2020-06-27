@@ -1,0 +1,218 @@
+Pattern changes caused by commit: 4460e2865dabb1d11950c04b5a4c9b79a12301e1
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8381.txt 
+
+commit 4460e2865dabb1d11950c04b5a4c9b79a12301e1
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    Add support for SSL sockets to use client certificate authentication.
+    patch by Steven Franklin and Vijay for CASSANDRA-5120
+
+
+
+==================================
+ Issue CASSANDRA-5120 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5120] Add support for SSL sockets to use client certificate authentication.
+-----------------
+
+-----------------
+Summary: Add support for SSL sockets to use client certificate authentication.
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 6 Jan 2013 20:29:08 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 27 Feb 2013 21:59:27 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+Add an option to EncryptionOptions to require client certication authentication.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to add client certificate authentication 
+
+
+New Comment: 
+Not all Thrift ssl socket implementations support this.<br/>Python's TSSLSocket doesn't,
+for example. 
+
+
+New Comment: 
++1Just for the sake of documentation: We are modifying the internode communication ssl
+socket and thrift server ssl socket with this patch<br/>Nit: need_client can be renamed to
+require_client_auth, We need to document this in yaml so that users will know what to
+change if they want to enable it (similar to other settings). 
+
+
+New Comment: 
+Committed with Nit. 
+
+
+New Comment: 
+I've got a feeling that this doesn't actually work.<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>            
+   final ClientEncryptionOptions clientEnc =
+DatabaseDescriptor.getClientEncryptionOptions();                if (clientEnc.enabled)    
+           {                    logger.info("enabling encrypted thrift connections between
+client and server");                    TSSLTransportParameters params = new
+TSSLTransportParameters(clientEnc.protocol, clientEnc.cipher_suites);                   
+params.setKeyStore(clientEnc.keystore, clientEnc.keystore_password);                   
+params.requireClientAuth(clientEnc.require_client_auth);                    TServerSocket
+sslServer = TSSLTransportFactory.getServerSocket(addr.getPort(), 0, addr.getAddress(),
+params);                    serverTransport = new
+TCustomServerSocket(sslServer.getServerSocket(), args.keepAlive, args.sendBufferSize,
+args.recvBufferSize);                }                else                {               
+    serverTransport = new TCustomServerSocket(addr, args.keepAlive, args.sendBufferSize,
+args.recvBufferSize);                }</pre></div></div>At no point do we call
+setTrustStore(). Does requireClientAuth(true) even make any sense without a truststore? 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=enigmacurry"
+class="user-hover" rel="enigmacurry">Ryan McGuire</a> Is there any chance you could look
+at it and see if it actually works? 
+
+
+New Comment: 
+Client encryption was added in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4239" title="Support Thrift SSL
+socket" class="issue-link" data-issue-key="CASSANDRA-4239"><del>CASSANDRA-4239</del></a>,
+wrong ticket?Quoting myself from <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4239" title="Support Thrift SSL
+socket" class="issue-link"
+data-issue-key="CASSANDRA-4239"><del>CASSANDRA-4239</del></a><blockquote>KS is not needed
+in the client, and you can distribute TS without compromising your private keys which is
+stored in KS. KS is in the yaml because the server needs it. </blockquote> 
+
+
+New Comment: 
+It was. But it was not forcing clients to provide certificates (requireClientAuth was
+default - false)<br/>This patch added that requirement, but it seems to me that it is
+completely useless without actual truststore. 
+
+
+New Comment: 
+All that requireClientAuth(true) does is that it requires clients to use their certs when
+connecting. But if Cassandra does nothing with them (doesn't validate or check against the
+truststore or whatever) - then this patch is useless (at least client-to-node part,
+because require_client_auth seems to make a difference for internode ssl). 
+
+
+New Comment: 
+<blockquote>All that requireClientAuth(true) does is that it requires clients to use their
+certs when connecting.</blockquote>Not sure if i understand what you are trying to say...
+but the requireClientAuth still needs a valid cert but wont require auth, am i making
+sense? <a href="http://pastebin.com/sue1dvCA" class="external-link"
+rel="nofollow">http://pastebin.com/sue1dvCA</a> (look for "Failed to create a client SSL
+connection.") 
+
+
+New Comment: 
+I'm trying to say that setting requireClientAuth to true without a truststore is useless
+and changes nothing. Cassandra will require a certificate from the client (cqlsh or cli)
+but will have no way to validate it. 
+
+
+New Comment: 
+I have verified that Cassandra always rejects a client connection when
+<b>require_client_auth = true</b>. It cannot verify a key that it does not know about. If
+there is currently a way of installing my client certificate on the server, I am not aware
+of it.To verify this behaviour, I created my own example SSL server using stunnel so that
+I could see how this would work with a server that does accept client certificates.
+stunnel has the option to verify client certificates with it's verify=3 option:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">cert = server.pemsetuid = ryanpid = /tmp/stunnel.pidsocket =
+l:TCP_NODELAY=1socket = r:TCP_NODELAY=1verify = 3CAfile = certs/myca.crtCApath =
+/home/ryan/stunnel_keys/acceptableforeground = yesdebug = 7[ryan]accept = 9999connect =
+127.0.0.1:9998</pre></div></div>I can connect to this example server using OpenSSL's
+client:<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">openssl s_client -connect 127.0.0.1:9999 -cert
+client.pem</pre></div></div>With the certificate it connects, without it it doesn't.The
+same command on port 9160 can be used to connect to Cassandra over SSL with client
+certificate. With <b>require_client_auth=false</b>, the connection is always allowed
+whether I use a client certificate or not. With <b>require_client_auth=true</b> the
+connection is always terminated, regardless if I specify a client certificate because the
+server does not know about my certificate.If Cassandra were to know about my certificate,
+I suspect this would work. 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=enigmacurry"
+class="user-hover" rel="enigmacurry">Ryan McGuire</a> Looks just like what we expected,
+thanks for verifying it. I'll attach a patch that sets the keystore (ONLY if
+require_client_auth = true, so that it won't disappoint users upgrading from 1.2.0/1). 
+
+
+New Comment: 
+<a href="https://issues.apache.org/jira/secure/ViewProfile.jspa?name=enigmacurry"
+class="user-hover" rel="enigmacurry">Ryan McGuire</a> Can you try the same with <a
+href="https://github.com/iamaleksey/cassandra/compare/5120" class="external-link"
+rel="nofollow">https://github.com/iamaleksey/cassandra/compare/5120</a> ? 
+
+
+New Comment: 
+Yes it works!I took the same key I used prior and imported it into a new trustsstore file,
+configured the <b>truststore</b> and <b>truststore_password</b> options in the yaml and
+was able to make a connection. I tested with another key that I did not import and the
+connections was terminated. I tried connecting without any key and the connection was
+terminated. 
+
+
+New Comment: 
+Committed in ab23afa521327ce5bf46a078e6bbd0591e00e778 
+
+

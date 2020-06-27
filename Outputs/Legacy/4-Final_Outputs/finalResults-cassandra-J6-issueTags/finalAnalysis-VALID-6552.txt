@@ -1,0 +1,105 @@
+Pattern changes caused by commit: c738813098e4306f6e102526121820dbbb3ee648
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6552.txt 
+
+commit c738813098e4306f6e102526121820dbbb3ee648
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    support PropertyFileSnitch in bulk loader
+    patch by Ji Cheng; reviewed by jbellis for CASSANDRA-4145
+
+
+
+==================================
+ Issue CASSANDRA-4145 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4145] NullPointerException when using sstableloader with PropertyFileSnitch configured
+-----------------
+
+-----------------
+Summary: NullPointerException when using sstableloader with PropertyFileSnitch configured
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 13 Apr 2012 07:08:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 13 Apr 2012 15:33:25 +0000
+-----------------
+
+-----------------
+Assigned to: Ji Cheng
+-----------------
+
+-----------------
+Description: 
+
+I got a NullPointerException when using sstableloader on 1.0.6. The cluster is using
+PropertyFileSnitch. The same configuration file is used for sstableloader. 
+
+The problem
+is if StorageService is initialized before DatabaseDescriptor, PropertyFileSnitch will try
+to access StorageService.instance before it finishes initialization.
+<div class="code
+panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"> ERROR 01:14:05,601 Fatal configuration
+errororg.apache.cassandra.config.ConfigurationException: Error instantiating snitch class
+<span class="code-quote">'org.apache.cassandra.locator.PropertyFileSnitch'</span>.       
+at org.apache.cassandra.utils.FBUtilities.construct(FBUtilities.java:607)        at
+org.apache.cassandra.config.DatabaseDescriptor.createEndpointSnitch(DatabaseDescriptor.java:454)
+       at
+org.apache.cassandra.config.DatabaseDescriptor.&lt;clinit&gt;(DatabaseDescriptor.java:306)
+       at
+org.apache.cassandra.service.StorageService.&lt;init&gt;(StorageService.java:187)       
+at org.apache.cassandra.service.StorageService.&lt;clinit&gt;(StorageService.java:190)    
+   at org.apache.cassandra.tools.BulkLoader$ExternalClient.init(BulkLoader.java:183)      
+ at org.apache.cassandra.io.sstable.SSTableLoader.stream(SSTableLoader.java:106)        at
+org.apache.cassandra.tools.BulkLoader.main(BulkLoader.java:62)Caused by:
+java.lang.reflect.InvocationTargetException        at
+sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)        at
+sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)        at
+sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)        at
+java.lang.reflect.Constructor.newInstance(Unknown Source)        at
+org.apache.cassandra.utils.FBUtilities.construct(FBUtilities.java:589)        ... 7
+moreCaused by: java.lang.NullPointerException        at
+org.apache.cassandra.locator.PropertyFileSnitch.reloadConfiguration(PropertyFileSnitch.java:170)
+       at
+org.apache.cassandra.locator.PropertyFileSnitch.&lt;init&gt;(PropertyFileSnitch.java:60)  
+     ... 12 moreError instantiating snitch class <span
+class="code-quote">'org.apache.cassandra.locator.PropertyFileSnitch'</span>.Fatal
+configuration error; unable to start server.  See log <span
+class="code-keyword">for</span> stacktrace.</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+

@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 8b8a928e04bd091a6d774a9d5b9937d2002d7882
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5254.txt 
+
+commit 8b8a928e04bd091a6d774a9d5b9937d2002d7882
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    r/m obsolete CF/KS rename code
+    patch by jbellis; reviewed by pyaskevich for CASSANDRA-3292

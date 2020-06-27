@@ -1,0 +1,96 @@
+Pattern changes caused by commit: 9bf951eb464b3d4c75d6e19ddae20b5e34d9aa3d
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5399.txt 
+
+commit 9bf951eb464b3d4c75d6e19ddae20b5e34d9aa3d
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix invalidate-related test failures
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3437
+
+
+
+==================================
+ Issue CASSANDRA-3437 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3437] invalidate / unregisterSSTables is confused
+-----------------
+
+-----------------
+Summary: invalidate / unregisterSSTables is confused
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 1 Nov 2011 04:07:39 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 7 Nov 2011 17:34:23 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+invalidate doesn't call unregisterSSTables, and vice versa, making it easy to get
+yourself into a situation that "shouldn't happen."  This is causing test failures post-<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3116" title="Compactions can
+(seriously) delay schema migrations" class="issue-link"
+data-issue-key="CASSANDRA-3116"><del>CASSANDRA-3116</del></a>.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch to make invalidate do the equivalent of unregisterSSTables and removes the latter as
+a separate method.  Uses in tests were replaced by calling clearUnsafe.  Did have to
+extract CFS.unregisterMBean as a separate method for KeyCacheTest's benefit.Patch also
+renames IM.unregisterMBean -&gt; IM.invalidate. 
+
+
+New Comment: 
+v2 is against 1.0 branch.  Caught a comment change or two that v1 didn't but otherwise the
+substance is the same. 
+
+
+New Comment: 
+I haven't been to apply v2 cleanly on 1.0, so I haven't checked the unit tests in
+particular, but from reading the patch it lgtm. 
+
+
+New Comment: 
+p0 problem again?  Just updated 1.0 and it applies cleanly. 
+
+
+New Comment: 
+Not a p0 problem this time but somehow I messed up updating my 1.0 branches, not sure how.
+Anyway, it does apply, +1. 
+
+

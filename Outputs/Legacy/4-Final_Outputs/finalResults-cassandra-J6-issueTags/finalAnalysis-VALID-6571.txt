@@ -1,0 +1,277 @@
+Pattern changes caused by commit: 1ef973867f555cc33ccf17a45fc5d67aef081b60
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6571.txt 
+
+commit 1ef973867f555cc33ccf17a45fc5d67aef081b60
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    allow running stress from build classes
+    patch by Vijay; reviewed by jbellis for CASSANDRA-4139
+
+
+
+==================================
+ Issue CASSANDRA-4139 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4139] Add varint encoding to Messaging service
+-----------------
+
+-----------------
+Summary: Add varint encoding to Messaging service
+-----------------
+
+-----------------
+Issue type: Sub-task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 11 Apr 2012 19:30:58 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 22 Jul 2015 17:24:13 +0000
+-----------------
+
+-----------------
+Assigned to: Ariel Weisberg
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+0001 is the main patch, 0002 add's metrics for the measurement.Attachement also has the
+smoke test result, results show 10% saving of the total network bandwidth after this
+patch.Note: Commit log is not versioned hence i made commit log to serialize in 1.1
+format, we can get this done in another ticket. 
+
+
+New Comment: 
+Can you rebase?  Finally got <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3617" title="Clean up and optimize
+Message" class="issue-link" data-issue-key="CASSANDRA-3617"><del>CASSANDRA-3617</del></a>
+committed, which conflicts.(Probably useful: I added TypeSizes.sizeof(String) to
+supplement the raw encodedUTF8Length.) 
+
+
+New Comment: 
+Sorry for the delay, writing the patch was the easy part, fixing the test cases took a
+while <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><br/>In Addition to the patch there is a
+fixes for the sizeof calculations and to TypeSize.sizeof(String) does constant 2 bytes
+instead of short.Plz note we have to regenerate the SearalizationTest's files. 
+
+
+New Comment: 
+I skimmed the serializer changes.  Is there any other "core" to the change?Do we really
+need to change IVS.getSerializedSize signatures?  If we're just going to derive it from
+the version anyway, might as well just let it call FBUtilities.getTypeSizes itself (nit:
+would prefer to have that a TS method, maybe just TS.get(int)). 
+
+
+New Comment: 
+<blockquote>Do we really need to change IVS.getSerializedSize signatures?</blockquote>I
+initially thought of doing this because we call getSerializedSize recursively in some
+cases like in ReadCommandSerializer, RangeSliceReplySerializer etc, so thought of just
+checking it once and reusing the TypeSize... looking back it looks like a pre-matured
+optimization i can fix it in the next version which i am working on as I speak.... with
+TS.get(int) changes. 
+
+
+New Comment: 
+ 
+
+
+New Comment: 
+<blockquote>we call getSerializedSize recursively in some cases like in
+ReadCommandSerializer, RangeSliceReplySerializer etc, so thought of just checking it once
+and reusing the TypeSize</blockquote>You could have a private overload for those, it
+doesn't need to be part of the interface. 
+
+
+New Comment: 
+Sorry, didn't think of this the first time around...What if we do the EncodedDataOutput
+wrapping in OutboundTcpConnection?  That way we wouldn't need to re-wrap for every object
+we serialize.  And the encoding does feel more like a connection-level thing than
+object-level. 
+
+
+New Comment: 
+Hi Jonathan, <br/>The problem is the backward compatibility part of it... <br/>We do
+out.writeInt(header) which is used IncomingTcpConnection (header = input.readInt()) for
+the older versions the header will be corrupted...the other option is to write constant 4
+bytes just for the header, If it sounds reasonable i can rewrite it? 
+
+
+New Comment: 
+<blockquote>the other option is to write constant 4 bytes just for the header, If it
+sounds reasonable i can rewrite it? </blockquote>That would basically entail adding a
+writeFixedWidth(int) method to EDO, right?  That sounds reasonable to me. 
+
+
+New Comment: 
+<ul>	<li>Tried the implementation, We cannot have it in the socket level because of the
+backward compatibility, we should wrap the connection only if the version is &gt; 1.2
+(which will change over the period of a connection).</li>	<li>One thing which we can do is
+to cache the object which wrapped around but the wrapper is light weight so it should'nt
+be a lot of over head.</li>	<li>In addition to this I noticed some wired problem
+(connection disconnects while reading, which is not the case when we are not caching)
+which some how breaks if i cache the objects and while communicating via SSL (i pushed the
+code to <a
+href="https://github.com/Vijay2win/cassandra/commit/ebf54b3df0419d6a4305aa4b8813e351d4ba7188#L1R176"
+class="external-link"
+rel="nofollow">https://github.com/Vijay2win/cassandra/commit/ebf54b3df0419d6a4305aa4b8813e351d4ba7188#L1R176</a>
+to reproduce change FBUtilities.getDataOutput to getCachedDataOut)</li></ul> 
+
+
+New Comment: 
+<blockquote>which will change over the period of a connection</blockquote>how's that? 
+
+
+New Comment: 
+Trunk: we start with the latest version (OTCPC) and the lower versions in ITCPC (will
+start ignoring messages). Once we detect the right version we change the version of the
+message sent.OutputTCPConnection<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> void write(MessageOut&lt;?&gt; message, <span
+class="code-object">String</span> id, DataOutputStream out) <span
+class="code-keyword">throws</span> IOException    {        write(message, id, out,
+Gossiper.instance.getVersion(poolReference.endPoint()));   
+}</pre></div></div>IncomingTcpConnection<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java">               
+MessagingService.validateMagic(input.readInt());                header = input.readInt(); 
+              <span class="code-keyword">assert</span> isStream ==
+(MessagingService.getBits(header, 3, 1) == 1) : <span class="code-quote">"Connections
+cannot change type: "</span> + isStream;                version =
+MessagingService.getBits(header, 15, 8);                logger.trace(<span
+class="code-quote">"Version is now {}"</span>, version);               
+receiveMessage(input, version);</pre></div></div> 
+
+
+New Comment: 
+Why not just reconnect on version change?  (Only new-version nodes need to worry about
+this, since old-version nodes always send the same version.) 
+
+
+New Comment: 
+Sure we can (Even better we can let the new version disconnect the old connection in that
+way we dont need to do ConcurrentMap.get for every message), but we still have that wired
+problem mentioned above <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/sad.png" height="16" width="16"
+align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+Rebased, Unit and functional tests passes and i have pushed the regenerated test binaries
+to <a href="https://github.com/Vijay2win/cassandra/tree/4139-v4" class="external-link"
+rel="nofollow">https://github.com/Vijay2win/cassandra/tree/4139-v4</a>I have also created
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4357" title="Add Commitlog
+Versioning" class="issue-link"
+data-issue-key="CASSANDRA-4357"><del>CASSANDRA-4357</del></a> to add commit log versioning
+to handle the unencoded data in the commit logs. 
+
+
+New Comment: 
+rebased and added some modifications at <a
+href="https://github.com/jbellis/cassandra/tree/4139-5" class="external-link"
+rel="nofollow">https://github.com/jbellis/cassandra/tree/4139-5</a>.  untested but
+hopefully shows a reasonable approach. 
+
+
+New Comment: 
+(Vijay reports that he still has problems getting my branch to work over SSL.) 
+
+
+New Comment: 
+I think variable length integer encoding could be a big space saving in several contexts,
+but there is an argument against varints.If you want to do zero deserialization/copy
+varints will fight you because you can't random access fields by offset. What you can do
+instead is use generic compression. Counter-intuitive but think of the two use cases. I
+care about bandwidth therefore I need compression anyways for non-integer fields, or I
+don't care about bandwidth so why not maximize performance.Where this becomes important is
+in handling large messages where you don't want parse all of it because you are forwarding
+or may not consume the entire contents. If you have varints and want to be lazy it gets
+tricky.I am up for trying it and out and measuring.. 
+
+
+New Comment: 
+We aren't bandwidth constrained for any workloads I'm aware of, so what are we hoping to
+achieve here? We already apply compression to the stream, so this will likely only help
+bandwidth consumption for individual small payloads where compression cannot be expected
+to yield much. In such scenarios bandwidth is especially unlikely to be a constraint. 
+
+
+New Comment: 
+Is bandwidth a constraint for WAN replication? In practice is the default for messaging to
+have compression on? What are people doing in the wild?I could imagine varint encoding
+being a win for Cells where the names and values are integers and queries are bulk loading
+or selecting ranges. At the storage level it seems like the kind of thing that could beat
+general purpose compression if you know what data type you are dealing with and have a lot
+of 0 padded values.I have heard talk about using a column store and run length encoding
+approach for storage which makes it seem like varint encoding wouldn't be the tool of
+choice for storage either.The code changes don't look bad. It's mostly swapping types for
+streams and changes to calculating serialized size so that it is aware of the impact of
+variable length encoded integers. It could save bandwidth, but it could also be slower
+since you spend more cycles calculating serialized size and encoding/decoding integers. If
+you end up using compression in bandwidth sensitive scenarios you may not win much.Not
+varint encoding the data going in/out of the database means you only save real space
+proportionally when you have small operations going in/out. The flip side is that you
+can't do that many small ops anyways so you aren't bandwidth constrained. 
+
+
+New Comment: 
+<blockquote>Is bandwidth a constraint for WAN replication? In practice is the default for
+messaging to have compression on?</blockquote>Often, yes.  internode_compression has
+defaulted to "all" for a while now.  Most people probably leave it at that; the rest
+change it to "dc". 
+
+
+New Comment: 
+To offer some kind of counter-point, I don't think this ticket would require lots of
+effort since we already have code to do the vint encoding/decoding. I might be missing
+something, but from what I can tell, it should be enough to pass the <tt>TypeSizes</tt> in
+<tt>IVersionedSerializer.serializedSize</tt> plus make sure both sides agree on whether
+vint is enabled or not, none of which is terribly involved (nor would add much complexity
+to the code). And since the investissement is not that big, I do think it's not completely
+worthless to evaluate it. It will probably not help in all cases or even with the default
+configuration, but I suspect it's faster than generic compression and so it could be
+interesting when you want a middle-ground between no compression at all and full messages
+compression.Anyway, not trying to convince anyone to prioritize this in any way, but just
+to say that unless someone beats me to it, I do intend to give this a shot at some point
+in the future (especially because some parts I made in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-8099" title="Refactor and modernize
+the storage engine" class="issue-link"
+data-issue-key="CASSANDRA-8099"><del>CASSANDRA-8099</del></a> would benefit more from vint
+that what the current format probaby do). 
+
+

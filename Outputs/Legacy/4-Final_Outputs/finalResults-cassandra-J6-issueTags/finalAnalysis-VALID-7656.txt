@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 6407cbcaccc0de664fcc0f1e722ebe431bf4db49
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7656.txt 
+
+commit 6407cbcaccc0de664fcc0f1e722ebe431bf4db49
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: fix widerow/secondary env toggles
+    Patch by brandonwilliams reviewed by Jeremy Hanna for CASSANDRA-4749
+
+
+
+==================================
+ Issue CASSANDRA-4749 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4749] Possible problem with widerow in Pig URI
+-----------------
+
+-----------------
+Summary: Possible problem with widerow in Pig URI
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 2 Oct 2012 14:30:07 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 12 Oct 2012 03:03:51 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+I don't have a good way to test this directly, but I'm concerned the Uri parsing for
+widerows isn't going to work.  setLocation <br/>1.) calls setLocationFromUri (which sets
+widerows to the Uri value)<br/>2.) sets widerows to a static value (which is defined as
+false)<br/>3.) sets widerows to the system setting if it exists.  <br/>That doesn't seem
+right...
+
+But setLocationFromUri also gets called from setStoreLocation, and I don't
+really know the difference between setLocation and setStoreLocation in terms of what is
+going on in terms of the integration between cassandra/pig/hadoop.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+You're right.  Patch attached to instead init the vars as default, then parse from the
+uri, and finally allow overriding with env vars. 
+
+
+New Comment: 
++1 to the changes, though don't we want to expose a way for them to set those variables
+with standard hadoop config, possibly namespaced with pig?  e.g. cassandra.pig.wide.row? 
+
+
+New Comment: 
+I was looking at 1.1.5 that didn't yet have the URL location for Cassandra accepting the
+widerows or use_secondary flags.  That's in there in the 1.1 branch.in other words +1 <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+

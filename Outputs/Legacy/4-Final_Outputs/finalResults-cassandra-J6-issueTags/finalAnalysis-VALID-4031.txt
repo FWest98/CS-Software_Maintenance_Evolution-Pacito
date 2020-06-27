@@ -1,0 +1,91 @@
+Pattern changes caused by commit: c5bb46756a2a2b5d89a9e58cf438f52a00892687
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4031.txt 
+
+commit c5bb46756a2a2b5d89a9e58cf438f52a00892687
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Allow removing LocationInfo sstables (to allow cluster rename)
+    patch by amorton; reviewed by slebresne for CASSANDRA-2632
+
+
+
+==================================
+ Issue CASSANDRA-2632 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2632] ConfigurationException when starting a node after deleting LocationInfo SStables
+-----------------
+
+-----------------
+Summary: ConfigurationException when starting a node after deleting LocationInfo SStables
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 11 May 2011 01:19:29 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 May 2011 09:10:51 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+from <a href="http://www.mail-archive.com/user@cassandra.apache.org/msg13170.html"
+class="external-link"
+rel="nofollow">http://www.mail-archive.com/user@cassandra.apache.org/msg13170.html</a>
+
+SystemTable.checkHealth()
+assumes that if the LOCATION_KEY row is not in the STATUS system CF their should be no
+other files in the system data directory. If it's safe to delete the LocationInfo sstables
+this stops the server restarting.
+
+I think the intention of the check is to assert that
+the reason the row was not found is that there is no data in the STATUS CF. 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached patch checks the SSTable count for the STATUS CF to determine if the reason the
+location info was not found was because the partitioner changed. 
+
+
+New Comment: 
++1, committed. Thanks. 
+
+

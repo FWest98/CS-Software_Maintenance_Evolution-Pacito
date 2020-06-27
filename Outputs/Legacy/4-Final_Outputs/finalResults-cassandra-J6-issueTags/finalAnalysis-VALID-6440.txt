@@ -1,0 +1,105 @@
+Pattern changes caused by commit: 03c3fec4c13e6c3214619efd6263dbd38a77ea90
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6440.txt 
+
+commit 03c3fec4c13e6c3214619efd6263dbd38a77ea90
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    CASSANDRA-4099-reopened
+    patch by Vijay; reviewed by Brandon Williams for CASSANDRA-4098
+    Conflicts:
+    	src/java/org/apache/cassandra/net/IncomingTcpConnection.java
+
+
+
+==================================
+ Issue CASSANDRA-4098 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4098] Listing wide-rows from CLI crashes Cassandra
+-----------------
+
+-----------------
+Summary: Listing wide-rows from CLI crashes Cassandra
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 28 Mar 2012 13:16:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 2 Apr 2012 17:22:25 +0000
+-----------------
+
+-----------------
+Assigned to: Brian ONeill
+-----------------
+
+-----------------
+Description: 
+
+If a user attempts to list a column family from the CLI that contains a wide-row (e.g. 10
+million columns).  It crashes hangs the CLI and then Cassandra eventually crashes with an
+OoM.  We should introduce a default limit on columns when listing a column family.
+
+(patch
+on its way)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here is a patch that does for column limit what we already had in place for limitCount
+(rows). 
+
+
+New Comment: 
+You can use the test_data.cl file to test the patch.  Run it:<br/>bin/cassandra-cli -h
+localhost &lt; bin/data.cdl The list column family
+foo:bone@zen:~/git/boneill42/cassandra-&gt; echo -e "use test;\r\n list foo;" |
+bin/cassandra-cli -h localhost | wc -l<br/>     117It should be &lt; 150. 
+
+
+New Comment: 
+thanks. my boneheaded mistake... looks good to me. 
+
+
+New Comment: 
+What version did we add the column limit code in? 
+
+
+New Comment: 
+answer is 1.1.1 (<a href="https://issues.apache.org/jira/browse/CASSANDRA-3012"
+title="cassandra-cli list &lt;CF&gt; limit number of columns returned" class="issue-link"
+data-issue-key="CASSANDRA-3012"><del>CASSANDRA-3012</del></a>) 
+
+

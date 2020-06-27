@@ -1,0 +1,149 @@
+Pattern changes caused by commit: 03d3669bc656bfe09367ad51e99326b811149046
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5027.txt 
+
+commit 03d3669bc656bfe09367ad51e99326b811149046
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Don't allow any cache loading exceptions to halt startup
+    patch by Eldon Stegall; reviewed by jbellis for CASSANDRA-3218
+
+
+
+==================================
+ Issue CASSANDRA-3218 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3218] Failure reading a erroneous/spurious AutoSavingCache file can result in a failed application of a migration, which can prevent a node from reaching schema agreement.
+-----------------
+
+-----------------
+Summary: Failure reading a erroneous/spurious AutoSavingCache file can result in a failed application of a migration, which can prevent a node from reaching schema agreement.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 16 Sep 2011 16:58:37 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 22 Sep 2011 21:09:02 +0000
+-----------------
+
+-----------------
+Assigned to: Eldon Stegall
+-----------------
+
+-----------------
+Description: 
+
+Failure reading a erroneous/spurious AutoSavingCache file can result in a failed
+application of a migration, which can prevent a node from reaching schema agreement. This
+is distinctly possible when a machine loses it's data partition, and attempts to recover
+the schema upon restart, and so has to apply all the migrations. The initial stack traces
+look like this:
+
+Add column family:
+org.apache.cassandra.config.CFMetaData@38bcfee6[cfId=1000,ksName=someks,cfName=somecf,cfType=Standard,comparat<br/>or=org.apache.cassandra.db.marshal.UTF8Type,subcolumncomparator=&lt;null&gt;,
+...
+
+Followed by:
+
+ERROR 00:56:47,974 Fatal exception in thread Thread<span
+class="error">&#91;MigrationStage:1,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.lang.NegativeArraySizeException<br/>        at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>        at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by:
+java.lang.NegativeArraySizeException<br/>        at
+org.apache.cassandra.cache.AutoSavingCache.readSaved(AutoSavingCache.java:130)<br/>       
+at org.apache.cassandra.db.ColumnFamilyStore.&lt;init&gt;(ColumnFamilyStore.java:273)<br/>
+       at
+org.apache.cassandra.db.ColumnFamilyStore.createColumnFamilyStore(ColumnFamilyStore.java:465)<br/>
+       at
+org.apache.cassandra.db.ColumnFamilyStore.createColumnFamilyStore(ColumnFamilyStore.java:435)<br/>
+       at org.apache.cassandra.db.Table.initCf(Table.java:369)<br/>        at
+org.apache.cassandra.db.migration.AddColumnFamily.applyModels(AddColumnFamily.java:93)<br/>
+       at org.apache.cassandra.db.migration.Migration.apply(Migration.java:153)<br/>      
+ at
+org.apache.cassandra.db.DefinitionsUpdateVerbHandler$1.runMayThrow(DefinitionsUpdateVerbHandler.java:73)<br/>
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>    
+   ... 6 more
+
+Ultimately, attempted changes to this keyspace/cf will fail like
+this:
+
+ERROR 13:07:51,006 Fatal exception in thread Thread<span
+class="error">&#91;MigrationStage:1,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.lang.IllegalArgumentException: Unknown CF 1000<br/>        at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>        at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by:
+java.lang.IllegalArgumentException: Unknown CF 1000<br/>        at
+org.apache.cassandra.db.Table.getColumnFamilyStore(Table.java:155)<br/>        at
+org.apache.cassandra.db.Table.getColumnFamilyStore(Table.java:148)<br/>        at
+org.apache.cassandra.db.migration.DropKeyspace.applyModels(DropKeyspace.java:63)<br/>     
+  at org.apache.cassandra.db.migration.Migration.apply(Migration.java:153)<br/>        at
+org.apache.cassandra.db.DefinitionsUpdateVerbHandler$1.runMayThrow(DefinitionsUpdateVerbHandler.java:73)<br/>
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>    
+   ... 6 more
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+First pass at a patch that fixes this 
+
+
+New Comment: 
+Maybe we should just extend the existing IOException to Exception.  Basically our attitude
+should be "I don't care what went wrong loading the cache, it's optional, let me
+continue." 
+
+
+New Comment: 
+Sounds good to me. 
+
+
+New Comment: 
+committed, thanks! 
+
+

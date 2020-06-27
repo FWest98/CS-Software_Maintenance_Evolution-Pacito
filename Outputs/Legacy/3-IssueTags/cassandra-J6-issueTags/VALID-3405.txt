@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 634eea2c0c0448125105147d53e1f82ed20f449d
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3405.txt 
+
+commit 634eea2c0c0448125105147d53e1f82ed20f449d
+Merge: fad6615 c5f4f3b
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: f84aed6d44976b1017b5139e151ac1ed701a0ca7
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3535.txt 
+
+commit f84aed6d44976b1017b5139e151ac1ed701a0ca7
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Queue secondary indexes for flush before the parent.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-2330

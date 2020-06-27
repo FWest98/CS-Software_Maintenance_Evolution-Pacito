@@ -1,0 +1,149 @@
+Pattern changes caused by commit: 5d6c1bdad7107618fc165bec74fc0444078910f8
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6073.txt 
+
+commit 5d6c1bdad7107618fc165bec74fc0444078910f8
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Pig: require deletes to be explicitly enabled.
+    Patch by brandonwilliams, reviewed by xedin for CASSANDRA-3628
+
+
+
+==================================
+ Issue CASSANDRA-3628 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3628] Make Pig/CassandraStorage delete functionality disabled by default and configurable
+-----------------
+
+-----------------
+Summary: Make Pig/CassandraStorage delete functionality disabled by default and configurable
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 13 Dec 2011 23:28:56 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 17 Feb 2012 11:29:47 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Right now, there is a way to delete column with the CassandraStorage loadstorefunc.  In
+practice it is a bad idea to have that enabled by default.  A scenario: do an outer join
+and you don't have a value for something and then you write out to cassandra all of the
+attributes of that relation.  You've just inadvertently deleted a column for all the rows
+that didn't have that value as a result of the outer join.  It can be argued that you want
+to be careful with how you project after the join.  However, I would think disabling by
+default and having a configurable property to enable it for the instances when you
+explicitly want to use it is the right plan.
+
+Fwiw, we had a bug in one of our scripts
+that did exactly as described above.  It's good to fix the bug.  It's bad to implicitly
+delete data.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Simple patch to disable delete functionality by default and enable it through a URL
+parameter. 
+
+
+New Comment: 
+Updated it so you can set it to true or false with the url param. 
+
+
+New Comment: 
+It really is dangerous for people to be using enabled by default.  We're going to compile
+it into our version because of that.  Personally, I think it should be in the next 0.8.x
+release and 1.0.x release. 
+
+
+New Comment: 
+If we're going to flip a default and potentially break behavior people are depending on,
+then let's push this to 1.1 and add a note for them in NEWS.  For a point release we can
+add the safety switch, but leave the default. 
+
+
+New Comment: 
+Will post a new patch tomorrow that doesn't check for empty/nulls and enableDeletes in the
+same if condition.  Otherwise there are NPEs. 
+
+
+New Comment: 
+Split out the conditions so it can do a noop for null values.  Not 100% certain that's the
+desired behavior - do we want to do that or do we want to just write an empty value. 
+However, if we want to write an empty value, we have to modify the null to an empty value
+because of the NPEs that happen if we don't change it.For our purposes, we want to skip
+them if the values are null.  In our code we also log the column family name and the
+column name, but that might be up to the user who wants to do that - adds a lot of
+logging.  Maybe people want that though. 
+
+
+New Comment: 
+It seems like 'glossing over nulls when deletes are disabled' might be a bad idea, and
+make for very difficult to debug problems later. 
+
+
+New Comment: 
+What are you suggesting - converting the columns written to blank values? 
+
+
+New Comment: 
+I'm suggesting that passing null values when you don't intend to delete is invalid and
+should be reported as such, rather than silently accepting them. NPE isn't the clearest
+way to convey this obviously, but seems more correct than silent acceptance. 
+
+
+New Comment: 
+v2 throws an error when a delete attempt is encountered but not explicitly enabled. 
+
+
+New Comment: 
++1 on v2 with nit - would be better to change the error messages to something like<ul
+class="alternate" type="square">	<li>"null found, but deletes are disabled, to enable
+deletes use " + PIG_ALLOW_DELETES + "=true"</li>	<li>"SuperColumn deletion attempted with
+empty bag, but deletes are disabled, to enable deletes use " + PIG_ALLOW_DELETES +
+"=true"</li></ul> 
+
+

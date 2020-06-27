@@ -1,0 +1,237 @@
+Pattern changes caused by commit: dcd94976b6c6f7db11f1dc03624b16c4d750e5a0
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5210.txt 
+
+commit dcd94976b6c6f7db11f1dc03624b16c4d750e5a0
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Skip empty rows when slicing the entire row.
+    Patch by Jeremy Hanna and brandonwilliams, reviewed by Jeremy Hanna for
+    CASSANDRA-2855
+
+
+
+==================================
+ Issue CASSANDRA-2855 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2855] Skip rows with empty columns when slicing entire row
+-----------------
+
+-----------------
+Summary: Skip rows with empty columns when slicing entire row
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 4 Jul 2011 15:54:03 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 10 Nov 2011 18:38:53 +0000
+-----------------
+
+-----------------
+Assigned to: T Jake Luciani
+-----------------
+
+-----------------
+Description: 
+
+We have been finding that range ghosts appear in results from Hadoop via Pig.  This could
+also happen if rows don't have data for the slice predicate that is given.  This leads to
+having to do a painful amount of defensive checking on the Pig side, especially in the
+case of range ghosts.
+
+We would like to add an option to skip rows that have no column
+values in it.  That functionality existed before in core Cassandra but was removed because
+of the performance penalty of that checking.  However with Hadoop support in the
+RecordReader, that is batch oriented anyway, so individual row reading performance isn't
+as much of an issue.  Also we would make it an optional config parameter for each job
+anyway, so people wouldn't have to incur that penalty if they are confident that there
+won't be those empty rows or they don't care.
+
+It could be parameter
+cassandra.skip.empty.rows and be true/false.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I don't like the idea of adding flags to change behavior.What I think we <b>could</b> do
+is not bother including empty rows in the resultset, IF we are doing a slice query for the
+entire row.  (Since, as soon as the tombstones expire, they will be gone anyway.) 
+
+
+New Comment: 
+<blockquote>What I think we could do is not bother including empty rows in the resultset,
+IF we are doing a slice query for the entire row. (Since, as soon as the tombstones
+expire, they will be gone anyway.)</blockquote>Yeah - our primary concern is tombstones. 
+Would be great to get that done at a lower level. 
+
+
+New Comment: 
+is it more expensive/complicated to do it for an empty slice or is that just orthogonal to
+this since that is handled in a different place? 
+
+
+New Comment: 
+sylvain points out that doing this at the Thrift layer would break the row count contract.
+ We could still do this at the CFRR level. 
+
+
+New Comment: 
+<blockquote>is it more expensive/complicated to do it for an empty slice</blockquote>empty
+result for entire row slice means it really will be gone when tombstone expires, so the
+two are semantically equivalent.  this is not the case for a smaller slice; an empty
+result for that could mean "there is data in the row, just not in the slice you
+requested."  so leaving that out would be an error. 
+
+
+New Comment: 
+Simple patch to skip results that have no values for the key. 
+
+
+New Comment: 
+Brandon was saying that empty slice comment only referred to core Cassandra, so in the
+CFRR I just skipped any key didn't have values - hoping that isSetColumns handles all
+cases for that. 
+
+
+New Comment: 
+v2 is tested to skip results with no columns and tombstones.  Also fixed where an
+exception would occur because lastRow looked at the altered set of rows. 
+
+
+New Comment: 
+Added a configuration property cassandra.skip.empty.results which defaults to false.  We
+can't skip just complete empty rows because there is no way to tell if the complete row is
+empty based on a result from a slice predicate. 
+
+
+New Comment: 
+skip.empty.results should probably be 'skip.empty.rows' or 'skip.tombstones' and there
+needs to be a check on the predicate to see if it covers the entire row, and if so
+suppress the tombstone, but if not return the empty slice. 
+
+
+New Comment: 
+v4 updates the config var to cassandra.skip.empty.rows and only does so if the slice
+predicate is empty. 
+
+
+New Comment: 
+If we are only only skipping when it the predicate covers the entire row (which is the
+Right Thing imo), why do we need the configuration setting?  Can't we make it just always
+skip?  Look at it this way: you're giving the same result that the user would see anyway
+if he had a lower tombstone grace. 
+
+
+New Comment: 
+True - wouldn't matter. 
+
+
+New Comment: 
+v5 removes the skip.empty.rows option making this behavior always-on. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #368 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/368/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/368/</a>)<br/>    Skip empty
+rows when slicing the entire row.<br/>Patch by Jeremy Hanna and brandonwilliams, reviewed
+by Jeremy Hanna for<br/><a href="https://issues.apache.org/jira/browse/CASSANDRA-2855"
+title="Skip rows with empty columns when slicing entire row" class="issue-link"
+data-issue-key="CASSANDRA-2855"><del>CASSANDRA-2855</del></a>brandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1182463"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1182463</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/hadoop/ColumnFamilyRecordReader.java</li></ul> 
+
+
+New Comment: 
+Reverted will submit a new patch 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #395 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/395/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/395/</a>)<br/>    Revert <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2855" title="Skip rows with empty
+columns when slicing entire row" class="issue-link"
+data-issue-key="CASSANDRA-2855"><del>CASSANDRA-2855</del></a>jake : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1199245"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1199245</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/hadoop/ColumnFamilyRecordReader.java</li></ul> 
+
+
+New Comment: 
+next attempt 
+
+
+New Comment: 
+marking re-opened 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+
+New Comment: 
+Integrated in Cassandra-0.8 #398 (See <a
+href="https://builds.apache.org/job/Cassandra-0.8/398/" class="external-link"
+rel="nofollow">https://builds.apache.org/job/Cassandra-0.8/398/</a>)<br/>    Skip empty
+rows when entire row is requested, redux.<br/>Patch by tjake, reviewed by brandonwilliams
+for <a href="https://issues.apache.org/jira/browse/CASSANDRA-2855" title="Skip rows with
+empty columns when slicing entire row" class="issue-link"
+data-issue-key="CASSANDRA-2855"><del>CASSANDRA-2855</del></a>brandonwilliams : <a
+href="http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1200471"
+class="external-link"
+rel="nofollow">http://svn.apache.org/viewcvs.cgi/?root=Apache-SVN&amp;view=rev&amp;rev=1200471</a><br/>Files
+:
+<ul>	<li>/cassandra/branches/cassandra-0.8/CHANGES.txt</li>	<li>/cassandra/branches/cassandra-0.8/src/java/org/apache/cassandra/hadoop/ColumnFamilyRecordReader.java</li></ul> 
+
+

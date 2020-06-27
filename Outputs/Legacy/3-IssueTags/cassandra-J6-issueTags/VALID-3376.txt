@@ -1,0 +1,21 @@
+Pattern changes caused by commit: 96d0a86fd983d840dee7c88b998f6ae80c847b89
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3376.txt 
+
+commit 96d0a86fd983d840dee7c88b998f6ae80c847b89
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    CFRW no longer loses mutations.
+    Patch by Eldon Stegall, reviewed by Stu Hood and brandonwilliams for
+    CASSANDRA-2255

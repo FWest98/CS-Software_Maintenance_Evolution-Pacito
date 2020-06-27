@@ -1,0 +1,71 @@
+Pattern changes caused by commit: 9b623dc37a876f5a48d647dbd91a2c4e5e82c57f
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5576.txt 
+
+commit 9b623dc37a876f5a48d647dbd91a2c4e5e82c57f
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (CQL) Proper ColumnFamily metadata validation on CREATE COLUMNFAMILY
+    patch by Jonathan Ellis; reviewed by Pavel Yaskevich for CASSANDRA-3565
+
+
+
+==================================
+ Issue CASSANDRA-3565 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3565] CQL CF creation skips most of the validation code
+-----------------
+
+-----------------
+Summary: CQL CF creation skips most of the validation code
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 2 Dec 2011 23:08:30 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 2 Dec 2011 23:42:45 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+Most validation is done by ThriftValidation.validateCfDef, which we call from QP when
+creating an index but not on CF creation.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch adds validateCfDef to QP CF creation. 
+
+

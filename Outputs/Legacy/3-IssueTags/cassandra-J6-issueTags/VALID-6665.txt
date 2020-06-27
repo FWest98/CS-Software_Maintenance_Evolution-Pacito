@@ -1,0 +1,22 @@
+Pattern changes caused by commit: eb9f96146efb2611ce75739ecf5e2c2607650d7b
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6665.txt 
+
+commit eb9f96146efb2611ce75739ecf5e2c2607650d7b
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Fix bug with super columns where row cache is not updated

@@ -1,0 +1,84 @@
+Pattern changes caused by commit: 2d83cfc2bb51660d484ca02cb4343d0a3e8f2daa
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7669.txt 
+
+commit 2d83cfc2bb51660d484ca02cb4343d0a3e8f2daa
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: use libedit when readline is not available, if possible
+    Patch by Aleksey Yeschenko, reviewed by brandonwilliams for
+    CASSANDRA-3597
+
+
+
+==================================
+ Issue CASSANDRA-3597 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3597] cqlsh: use libedit when readline isn't available, if possible
+-----------------
+
+-----------------
+Summary: cqlsh: use libedit when readline isn't available, if possible
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 8 Dec 2011 21:14:57 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 15 Oct 2012 17:32:50 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+Cqlsh provides context-sensitive tab-completion functionality, but it's only available
+when the readline library is available, and this is not the case where readline's GPL
+license proves problematic. <a href="http://www.thrysoee.dk/editline/"
+class="external-link" rel="nofollow">libedit</a> is a common replacement, which would be
+available to Mac OS X-bundled Python users, and the Python readline module makes libedit
+almost a drop-in replacement.
+
+If possible, fallback to libedit functionality when
+providing tab completion.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

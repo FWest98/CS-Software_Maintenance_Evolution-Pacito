@@ -1,0 +1,107 @@
+Pattern changes caused by commit: 8a8e1746dd4b4cebadd1543371bfef013233324d
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4671.txt 
+
+commit 8a8e1746dd4b4cebadd1543371bfef013233324d
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix of numeric-only and string column names handling in CLI "drop index"
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3054
+
+
+
+==================================
+ Issue CASSANDRA-3054 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3054] CLI "drop index" doesn't handle numeric-only hex column identifiers properly
+-----------------
+
+-----------------
+Summary: CLI "drop index" doesn't handle numeric-only hex column identifiers properly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 18 Aug 2011 15:39:28 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 19 Aug 2011 15:03:20 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+CLI drop index doesn't accept requests to drop columns whose hex names include only
+numeric characters.  The 617070 column name below is col2.
+
+<span
+class="error">&#91;default@Host&#93;</span> use MyKeyspace;<br/>Authenticated to keyspace:
+MyKeyspace<br/><span class="error">&#91;default@Host&#93;</span> drop index on
+MyCF.617070; <br/>Syntax error at position 22: mismatched input '617070' expecting
+Identifier
+
+While drop index seems to parse correctly with alpha chars included:
+
+<span
+class="error">&#91;default@Host&#93;</span> drop index on MyCF.617070x;<br/>Column
+'617070x' definition was not found in ColumnFamily 'MyCF'.<br/><span
+class="error">&#91;default@Host&#93;</span> drop index on MyCF.col2;<br/>Column 'col2'
+definition was not found in ColumnFamily 'MyCF'.
+
+cassandra-user thread: <a
+href="http://mail-archives.apache.org/mod_mbox/cassandra-user/201108.mbox/%3CB2D1533B-C69E-467A-9653-1D086E33227C@thelastpickle.com%3E"
+class="external-link"
+rel="nofollow">http://mail-archives.apache.org/mod_mbox/cassandra-user/201108.mbox/%3CB2D1533B-C69E-467A-9653-1D086E33227C@thelastpickle.com%3E</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+does allowing those different terms for columnName cause problems elsewhere?  I'm fine
+requiring quoting for non-Identifier. 
+
+
+New Comment: 
+it's used only by drop index statement (because other commands should support function
+calls too) so it would not affect other statements. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

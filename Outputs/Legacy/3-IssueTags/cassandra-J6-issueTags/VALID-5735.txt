@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 6eac35cfd0bfdf67e96f9147b4aad3ddd24c99c2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5735.txt 
+
+commit 6eac35cfd0bfdf67e96f9147b4aad3ddd24c99c2
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Don't ignore IOException during compaction

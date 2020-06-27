@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 282bd51f64772e9208c2bcc1751b8e1abe321ad0
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3959.txt 
+
+commit 282bd51f64772e9208c2bcc1751b8e1abe321ad0
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    include indexes in snapshot
+    patch by jbellis; reviewed by slebresne for CASSANDRA-2596

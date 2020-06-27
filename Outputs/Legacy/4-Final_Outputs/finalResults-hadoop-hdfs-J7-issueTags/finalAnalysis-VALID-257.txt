@@ -1,0 +1,148 @@
+Pattern changes caused by commit: f46fd3503744b580059ef9aa1710c4b4011e1044
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-257.txt 
+
+commit f46fd3503744b580059ef9aa1710c4b4011e1044
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-695. RaidNode should read in configuration from hdfs-site.xml.
+    (dhruba)
+
+
+
+==================================
+ Issue HDFS-695 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-695] RaidNode should read in configuration from hdfs-site.xml
+-----------------
+
+-----------------
+Summary: RaidNode should read in configuration from hdfs-site.xml
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Mon, 12 Oct 2009 20:13:56 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 21 Oct 2009 08:58:17 +0000
+-----------------
+
+-----------------
+Assigned to: Dhruba Borthakur
+-----------------
+
+-----------------
+Description: 
+
+The RaidNode currently reads in the configuration from hadoop-*.xml. It should read in
+its config parameters from hdfs-site.xml as well.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Look at configuration values from hdfs-site.xml and mapred-site.xml 
+
+
+New Comment: 
+Simple and useful changes.<br/>+1 
+
+
+New Comment: 
+triggering hadop QA tests again... 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12421911/raidConfig.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12421911/raidConfig.txt</a><br/>
+ against trunk revision 825689.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    +1 contrib tests.  The patch passed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/71/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+The failed test TestComplexAppend is not related to this contrib module at all. This patch
+is ready for commit. 
+
+
+New Comment: 
+I just committed this. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #47 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/</a>)<br/>
+   . RaidNode should read in configuration from hdfs-site.xml.<br/>(dhruba) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #79 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/</a>) 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h5.grid.sp2.yahoo.net #78 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/78/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/78/</a>) 
+
+

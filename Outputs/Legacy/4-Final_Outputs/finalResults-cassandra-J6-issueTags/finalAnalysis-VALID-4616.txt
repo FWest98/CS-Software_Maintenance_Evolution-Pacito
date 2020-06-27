@@ -1,0 +1,179 @@
+Pattern changes caused by commit: daf3b012c77483480e4df0970126186e5dbff483
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4616.txt 
+
+commit daf3b012c77483480e4df0970126186e5dbff483
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Use broadcastAddress instead of localAddress.
+    Patch by Vijay, reviewed by brandonwilliams for CASSANDRA-3000
+
+
+
+==================================
+ Issue CASSANDRA-3000 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3000] Ec2MultiRegionSnitch throws AssertionError on EC2
+-----------------
+
+-----------------
+Summary: Ec2MultiRegionSnitch throws AssertionError on EC2
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sun, 7 Aug 2011 14:47:41 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 10 Aug 2011 16:28:49 +0000
+-----------------
+
+-----------------
+Assigned to: Vijay
+-----------------
+
+-----------------
+Description: 
+
+I found Ec2MultiRegionSnitch patch at <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2452" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-2452</a> 
+
+However, I could
+not find any documentation on how to get it working, which address to use as seed, listen
+and thrift addresses. I used the following, 
+
+seed_address     = Public DNS of the seed
+node <br/>listen_address   = Public DNS of the cluster node<br/>rpc_address      =
+0.0.0.0<br/>endpoint_snitch: org.apache.cassandra.locator.Ec2MultiRegionSnitch
+
+When I try
+to start cassandra, I get the following error: 
+
+ INFO 14:44:19,822 Ec2Snitch adding
+ApplicationState ec2region=eu-west ec2zone=1c<br/> INFO 14:44:19,831 Starting Messaging
+Service on ec2-46-137-139-124.eu-west-1.compute.amazonaws.com/10.227.143.202:7000<br/>
+INFO 14:44:19,851 Using saved token 162732122844140653649170199706439942449<br/> INFO
+14:44:19,852 Enqueuing flush of Memtable-LocationInfo@550579946(53/66 serialized/live
+bytes, 2 ops)<br/> INFO 14:44:19,852 Writing Memtable-LocationInfo@550579946(53/66
+serialized/live bytes, 2 ops)<br/> INFO 14:44:19,908 Completed flushing
+/var/lib/cassandra/data/system/LocationInfo-h-20-Data.db (163 bytes)<br/> INFO
+14:44:19,913 Compacting Major: <span
+class="error">&#91;SSTableReader(path=&#39;/var/lib/cassandra/data/system/LocationInfo-h-20-Data.db&#39;),
+SSTableReader(path=&#39;/var/lib/cassandra/data/system/LocationInfo-h-19-Data.db&#39;),
+SSTableReader(path=&#39;/var/lib/cassandra/data/system/LocationInfo-h-17-Data.db&#39;),
+SSTableReader(path=&#39;/var/lib/cassandra/data/system/LocationInfo-h-18-Data.db&#39;)&#93;</span><br/>ERROR
+14:44:19,922 Exception encountered during startup.<br/>java.lang.AssertionError<br/>      
+ at org.apache.cassandra.gms.Gossiper.compareEndpointStartup(Gossiper.java:620)<br/>      
+ at
+org.apache.cassandra.service.StorageService.handleStateNormal(StorageService.java:803)<br/>
+       at
+org.apache.cassandra.service.StorageService.onChange(StorageService.java:706)<br/>       
+at org.apache.cassandra.gms.Gossiper.doNotifications(Gossiper.java:839)<br/>        at
+org.apache.cassandra.gms.Gossiper.addLocalApplicationState(Gossiper.java:986)<br/>       
+at org.apache.cassandra.service.StorageService.setToken(StorageService.java:219)<br/>     
+  at
+org.apache.cassandra.service.StorageService.joinTokenRing(StorageService.java:520)<br/>   
+    at
+org.apache.cassandra.service.StorageService.initServer(StorageService.java:434)<br/>      
+ at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:213)<br/>
+       at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:335)<br/>
+       at
+org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:91)<br/>Exception
+encountered during startup.<br/>java.lang.AssertionError<br/>        at
+org.apache.cassandra.gms.Gossiper.compareEndpointStartup(Gossiper.java:620)<br/>        at
+org.apache.cassandra.service.StorageService.handleStateNormal(StorageService.java:803)<br/>
+       at
+org.apache.cassandra.service.StorageService.onChange(StorageService.java:706)<br/>       
+at org.apache.cassandra.gms.Gossiper.doNotifications(Gossiper.java:839)<br/>        at
+org.apache.cassandra.gms.Gossiper.addLocalApplicationState(Gossiper.java:986)<br/>       
+at org.apache.cassandra.service.StorageService.setToken(StorageService.java:219)<br/>     
+  at
+org.apache.cassandra.service.StorageService.joinTokenRing(StorageService.java:520)<br/>   
+    at
+org.apache.cassandra.service.StorageService.initServer(StorageService.java:434)<br/>      
+ at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:213)<br/>
+       at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:335)<br/>
+       at org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:91)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+"listen_address = Public DNS of the cluster node"<br/>the idea is to use broadcast address
+as the AWS public ip and Listen address to use AWS private IP. it is done
+automatically.... I will add additional checks to look for user error like this... 
+
+
+New Comment: 
+&gt;"listen_address = Public DNS of the cluster node"<br/>&gt;the idea is to use broadcast
+address as the AWS public ip and Listen address to use AWS private IP. it is done
+&gt;automatically.... I will add additional checks to look for user error like
+this...Vijay, I still dont get this. What do you mean when you say "it is done
+automatically" ?  Does it mean that I do not need to configure listen address at all in
+cassandra.yaml and it will automatically be set?Also, the reason I set listen_address to
+public dns on the cluster node is because it will automatically get resolved to private ip
+for the instances within the same region. Only the tnstances in other ec2 regions will
+route to its public IP. So it should do the right thing while setting up the listen
+address. 
+
+
+New Comment: 
+Does it mean that I do not need to configure listen address at all in cassandra.yaml and
+it will automatically be set?Yes. And the private and public ip's are quried @ amazon.
+broadcast ip will be set to public ip and the private ip will be used for inter node
+communication within the region. (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2452" class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-2452</a>)I couldn't
+reproduce this issue, do you have an existing cluster which you are trying to update the
+snitch? 
+
+
+New Comment: 
+Vijay, Here is the cassandra.yaml config I am using  <a
+href="http://pastebin.com/7rBH45S8" class="external-link"
+rel="nofollow">http://pastebin.com/7rBH45S8</a>I am not updating snitch on a existing
+cluster, but building one from scratch. Could you have a look at the config and see if I
+am doing anything wrong? 
+
+
+New Comment: 
+Issue seems to be caused by LocalAddress to broadcast address changes... but shows up when
+using broad cast address like in EC2MRS... Attached patch adds some comments and fixes. 
+
+
+New Comment: 
+Committed. 
+
+

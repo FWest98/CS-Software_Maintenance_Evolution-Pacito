@@ -1,0 +1,19 @@
+Pattern changes caused by commit: bb7196312dae9807f42324ec36707b07fba4ad12
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Mediator-2
+To:   Mediator-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4725.txt 
+
+commit bb7196312dae9807f42324ec36707b07fba4ad12
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    merge from 0.8

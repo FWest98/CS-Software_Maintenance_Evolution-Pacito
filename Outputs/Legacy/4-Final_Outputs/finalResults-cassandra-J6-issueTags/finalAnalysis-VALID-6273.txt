@@ -1,0 +1,128 @@
+Pattern changes caused by commit: d0964715d4d5f6d71c1139bd247962d278aa167c
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6273.txt 
+
+commit d0964715d4d5f6d71c1139bd247962d278aa167c
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Make BoundedStatsDeque threadsafe.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-4019
+
+
+
+==================================
+ Issue CASSANDRA-4019 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4019] java.util.ConcurrentModificationException in Gossiper
+-----------------
+
+-----------------
+Summary: java.util.ConcurrentModificationException in Gossiper
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 8 Mar 2012 10:46:56 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Mar 2012 23:49:28 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+I have never seen this one before. Might be triggered by a race condition under heavy
+load. This error was triggered on 0.8.9
+
+ERROR <span
+class="error">&#91;GossipTasks:1&#93;</span> 2012-03-05 04:16:55,263 Gossiper.java (line
+162) Gossip error<br/>java.util.ConcurrentModificationException<br/>        at
+java.util.ArrayDeque$DeqIterator.next(ArrayDeque.java:605)<br/>        at
+org.apache.cassandra.utils.AbstractStatsDeque.sum(AbstractStatsDeque.java:37)<br/>       
+at org.apache.cassandra.utils.AbstractStatsDeque.mean(AbstractStatsDeque.java:60)<br/>    
+   at org.apache.cassandra.gms.ArrivalWindow.mean(FailureDetector.java:259)<br/>        at
+org.apache.cassandra.gms.ArrivalWindow.phi(FailureDetector.java:282)<br/>        at
+org.apache.cassandra.gms.FailureDetector.interpret(FailureDetector.java:155)<br/>       
+at org.apache.cassandra.gms.Gossiper.doStatusCheck(Gossiper.java:538)<br/>        at
+org.apache.cassandra.gms.Gossiper.access$700(Gossiper.java:57)<br/>        at
+org.apache.cassandra.gms.Gossiper$GossipTask.run(Gossiper.java:157)<br/>        at
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>        at
+java.util.concurrent.FutureTask$Sync.innerRunAndReset(FutureTask.java:317)<br/>        at
+java.util.concurrent.FutureTask.runAndReset(FutureTask.java:150)<br/>        at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$101(ScheduledThreadPoolExecutor.java:98)<br/>
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.runPeriodic(ScheduledThreadPoolExecutor.java:180)<br/>
+       at
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:204)<br/>
+       at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/> INFO <span
+class="error">&#91;GossipStage:1&#93;</span> 2012-03-05 04:16:55,263 Gossiper.java (line
+737) Node /192.168.3.18 has restarted, now UP again<br/> INFO <span
+class="error">&#91;GossipStage:1&#93;</span> 2012-03-05 04:16:55,264 Gossiper.java (line
+705) InetAddress /192.168.3.18 is now UP
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+It seems like the Right Way to solve this is to refactor BoundedStatsDeque to operate like
+the dsnitch's AdapativeLatencyTracker, which <b>is</b> threadsafe, and then have ALT
+extend BSD.  BSD isn't used anywhere else except the FD. 
+
+
+New Comment: 
+For 0.8/1.0, do the simplest thing and switch BDS from ArrayDeque to LinkedBlockingDeque,
+imitating the ALT behavior (which is well tested.)  For trunk I'll do the aforementioned
+refator. 
+
+
+New Comment: 
+Patch for trunk which removes ASD since all we actually use is sum and mean and
+consolidates it into BDS.  Dsnitch's ALT is also removed since BDS itself contains all the
+functionality it had before. 
+
+
+New Comment: 
++1 on both 
+
+

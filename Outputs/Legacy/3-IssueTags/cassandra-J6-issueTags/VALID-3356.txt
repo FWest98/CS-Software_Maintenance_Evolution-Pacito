@@ -1,0 +1,19 @@
+Pattern changes caused by commit: f65cf20a544df472e3ed1f7f81b4c6b32936a837
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3356.txt 
+
+commit f65cf20a544df472e3ed1f7f81b4c6b32936a837
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add some debug logging to scrub

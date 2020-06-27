@@ -1,0 +1,100 @@
+Pattern changes caused by commit: 54528835775460f427989138529624f8a6b6e34c
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5956.txt 
+
+commit 54528835775460f427989138529624f8a6b6e34c
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix truncate not to leave behind non-CFS backed secondary indexes
+    patch by Pavel Yaskevich; reviewed by Jake Luciani for CASSANDRA-3844
+
+
+
+==================================
+ Issue CASSANDRA-3844 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3844] Truncate leaves behind non-CFS backed secondary indexes
+-----------------
+
+-----------------
+Summary: Truncate leaves behind non-CFS backed secondary indexes
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 3 Feb 2012 14:28:11 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 7 Feb 2012 15:25:24 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+If you setup a CF with a non-cfs backed secondary index then trucate it, nothing happens
+to the secondary index. we need a hook for CFStore to clean these up.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This patch encapsulates truncate logic into SecondaryIndex.truncate(long) abstract method
+so every type of indices would be able to implement desired logic (currently implemented
+for KeysIndex), which also removes a good bit of code from
+CompactionManager.submitTruncate(...). 
+
+
+New Comment: 
+renamed CFS.truncateSSTables(long) to CFS.discardSSTables(long). 
+
+
+New Comment: 
+SIM.getIndexes() should use a IdenenityHashMap since PerRowSecondaryIndexes share the same
+instance across rows. 
+
+
+New Comment: 
+uses IdentityHashMap in SecondaryIndexManager.getIndexes() 
+
+
+New Comment: 
++1 
+
+

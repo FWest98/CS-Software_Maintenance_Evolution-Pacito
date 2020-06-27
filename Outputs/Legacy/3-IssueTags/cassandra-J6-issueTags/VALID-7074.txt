@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 8674784932ee80d06d3df6526fabe74e1bba4dcc
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7074.txt 
+
+commit 8674784932ee80d06d3df6526fabe74e1bba4dcc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add missing import

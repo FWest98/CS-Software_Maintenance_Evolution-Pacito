@@ -1,0 +1,20 @@
+Pattern changes caused by commit: c641acca709c17a18d29adffa47bc9275d3854cb
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5820.txt 
+
+commit c641acca709c17a18d29adffa47bc9275d3854cb
+Merge: e86469e 5850178
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.0

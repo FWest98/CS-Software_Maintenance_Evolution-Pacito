@@ -1,0 +1,23 @@
+Pattern changes caused by commit: c473679a233ba60e18be3daeb327becc439939cd
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3955.txt 
+
+commit c473679a233ba60e18be3daeb327becc439939cd
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add liveOnly flag to SSTable.componentsFor
+    patch by Aaron Morton; reviewed by jbellis for CASSANDRA-2602

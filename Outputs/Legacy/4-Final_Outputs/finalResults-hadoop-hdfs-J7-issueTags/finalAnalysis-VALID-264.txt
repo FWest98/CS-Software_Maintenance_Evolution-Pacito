@@ -1,0 +1,237 @@
+Pattern changes caused by commit: 335ca495bde6976cc0fe6f48727128dd964e0730
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-264.txt 
+
+commit 335ca495bde6976cc0fe6f48727128dd964e0730
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-690. TestAppend2#testComplexAppend failed on "Too many open files". Contributed by Hairong Kuang.
+
+
+
+==================================
+ Issue HDFS-690 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-690] TestAppend2#testComplexAppend failed on "Too many open files"
+-----------------
+
+-----------------
+Summary: TestAppend2#testComplexAppend failed on "Too many open files"
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 9 Oct 2009 21:14:32 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 23 Oct 2009 04:09:59 +0000
+-----------------
+
+-----------------
+Assigned to: Hairong Kuang
+-----------------
+
+-----------------
+Description: 
+
+the append write failed on "Too many open files":<br/>Some bytes were failed to append to
+a file on the following error:<br/>java.io.IOException: Cannot run program "stat":
+java.io.IOException: error=24, Too many open files<br/>	at
+java.lang.ProcessBuilder.start(ProcessBuilder.java:459)<br/>	at
+java.lang.Runtime.exec(Runtime.java:593)<br/>	at
+java.lang.Runtime.exec(Runtime.java:466)<br/>	at
+org.apache.hadoop.fs.FileUtil$HardLink.getLinkCount(FileUtil.java:644)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.ReplicaInfo.unlinkBlock(ReplicaInfo.java:205)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.FSDataset.append(FSDataset.java:1075)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.FSDataset.append(FSDataset.java:1058)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.BlockReceiver.&lt;init&gt;(BlockReceiver.java:110)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.DataXceiver.opWriteBlock(DataXceiver.java:258)<br/>	at
+org.apache.hadoop.hdfs.protocol.DataTransferProtocol$Receiver.opWriteBlock(DataTransferProtocol.java:382)<br/>	at
+org.apache.hadoop.hdfs.protocol.DataTransferProtocol$Receiver.processOp(DataTransferProtocol.java:323)<br/>	at
+org.apache.hadoop.hdfs.server.datanode.DataXceiver.run(DataXceiver.java:111)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This bug seemed to be caused by <a href="https://issues.apache.org/jira/browse/HDFS-673"
+title="BlockReceiver#PacketResponder should not remove a packet from the ack queue before
+its ack is sent" class="issue-link" data-issue-key="HDFS-673"><del>HDFS-673</del></a>. The
+change made by 673 sometimes causes the main write thread not able to exit, therefore, not
+releasing the resources it holds, causing too many open files error. 
+
+
+New Comment: 
+This patch fixes the bug. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422824/leakingThreads.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422824/leakingThreads.patch</a><br/>
+ against trunk revision 828116.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/47/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Unit test is not included because it is supposed to make TestAppend2#testComplexAppend
+work. 
+
+
+New Comment: 
++1 patch looks good<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre
+class="code-java">ackQueue.removeFirst();notifyAll();</pre></div></div>Two statements
+above have to go together by design.  I would make to the same mistake if I changed the
+codes.  How about adding some comments to make it clear? 
+
+
+New Comment: 
+How about moving them to a separate private method instead? Then it'd clear how they are
+suppose to be called. 
+
+
+New Comment: 
+This patch creates a private method as Cos suggested. 
+
+
+New Comment: 
++1 patch looks good! 
+
+
+New Comment: 
+Does this patch do enough?  It synchronizes the remove but not the puts to ackQueue nor
+the tests for empty ackQueue. 
+
+
+New Comment: 
+Puts are already synced. There is no need for checking empty ackQueue because the packet
+responder is the only thread that removes a packet from the queue. It already checks the
+queue is not empty, get the packet, send its ack, then removes it from the queue. The
+unsync/notification problem was introduced by <a
+href="https://issues.apache.org/jira/browse/HDFS-673" title="BlockReceiver#PacketResponder
+should not remove a packet from the ack queue before its ack is sent" class="issue-link"
+data-issue-key="HDFS-673"><del>HDFS-673</del></a>. I was not well thought when working on
+the jira. 
+
+
+New Comment: 
++1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12422943/leakingThreads1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12422943/leakingThreads1.patch</a><br/>
+ against trunk revision 828846.    +1 @author.  The patch does not contain any @author
+tags.    -1 tests included.  The patch doesn't appear to include any new or modified
+tests.<br/>                        Please justify why no new tests are needed for this
+patch.<br/>                        Also please list what manual steps were performed to
+verify this patch.    +1 javadoc.  The javadoc tool did not generate any warning messages.
+   +1 javac.  The applied patch does not increase the total number of javac compiler
+warnings.    +1 findbugs.  The patch does not introduce any new Findbugs warnings.    +1
+release audit.  The applied patch does not increase the total number of release audit
+warnings.    +1 core tests.  The patch passed core unit tests.    +1 contrib tests.  The
+patch passed contrib unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/52/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+I've committed this!Stack, I committed this because this bug sometimes broke our build so
+it was very annoying. Please continue to discuss the synchronization problem at <a
+href="https://issues.apache.org/jira/browse/HDFS-720" title="NPE in
+BlockReceiver$PacketResponder.run(BlockReceiver.java:923)" class="issue-link"
+data-issue-key="HDFS-720"><del>HDFS-720</del></a>. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #79 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/79/</a>)<br/>
+   . TestAppend2#testComplexAppend failed on "Too many open files". Contributed by Hairong
+Kuang. 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #54 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/54/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/54/</a>)<br/>
+   . TestAppend2#testComplexAppend failed on "Too many open files". Contributed by Hairong
+Kuang. 
+
+
+New Comment: 
+@Hairong np.  I see now that puts and check for empty are inside blocks that synchronize
+on this.   Running tests to see if this patch fixes hadoop-720 now. 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk #120 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk/120/</a>) 
+
+

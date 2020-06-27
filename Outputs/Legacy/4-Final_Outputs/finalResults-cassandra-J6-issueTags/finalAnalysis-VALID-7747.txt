@@ -1,0 +1,86 @@
+Pattern changes caused by commit: 0712c66f5bbf7cd96524bf8b961cca057045bdae
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7747.txt 
+
+commit 0712c66f5bbf7cd96524bf8b961cca057045bdae
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add log4j reloading to debian init.
+    Patch by brandonwilliams reviewed by Rick Branson for CASSANDRA-4855
+
+
+
+==================================
+ Issue CASSANDRA-4855 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4855] Debian packaging doesn't do auto-reloading of log4j properties file
+-----------------
+
+-----------------
+Summary: Debian packaging doesn't do auto-reloading of log4j properties file
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 24 Oct 2012 19:16:33 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 25 Oct 2012 16:11:48 +0000
+-----------------
+
+-----------------
+Assigned to: Brandon Williams
+-----------------
+
+-----------------
+Description: 
+
+Cassandra isn't starting the log4j auto-reload thread because it requires
+-Dlog4j.defaultInitOverride=true on initialization. Is there a reason to not do this when
+installed from the Debian package?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I don't see why not.  I guess when we added the reloading to bin/cassandra we neglected to
+also add it to the init. 
+
+
+New Comment: 
+Looks good to me, +1 
+
+

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 6bd56cf04a0071ecd490b34aa004630b969830ff
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8111.txt 
+
+commit 6bd56cf04a0071ecd490b34aa004630b969830ff
+Merge: d25182f ffb2eba
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

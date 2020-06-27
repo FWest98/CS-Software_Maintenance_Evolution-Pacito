@@ -1,0 +1,79 @@
+Pattern changes caused by commit: 9ba0ff03e211554df6b01fd860159cc74bf95026
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9596.txt 
+
+commit 9ba0ff03e211554df6b01fd860159cc74bf95026
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    simplify initClient gossip loop
+    patch by Adrian Nistor and jbellis for CASSANDRA-5662
+
+
+
+==================================
+ Issue CASSANDRA-5662 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5662] Wasted work in StorageService.initClient()
+-----------------
+
+-----------------
+Summary: Wasted work in StorageService.initClient()
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 19 Jun 2013 14:31:41 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 19 Jun 2013 21:32:01 +0000
+-----------------
+
+-----------------
+Assigned to: Adrian Nistor
+-----------------
+
+-----------------
+Description: 
+
+The problem appears in version 1.2.5 and in revision 26018be2..  I<br/>attached a
+one-line patch that fixes it.
+
+In method "StorageService.initClient", the loop
+over<br/>"Gossiper.instance.getLiveMembers()" should break immediately after<br/>"isUp" is
+set to "true".  All the iterations after "isUp" is set to<br/>"true" do not perform any
+useful work, at best they just set "isUp"<br/>again to "true".
+
+Method "getCompactedRow"
+in class "ParallelCompactionIterable.Reducer"<br/>has a similar loop (over "rows"), and
+this loop breaks immediately<br/>after "inMemory" is set to "false", just like in the
+proposed patch.<br/>Other methods (e.g.,
+"GroupByPrefix.count",<br/>"SecondaryIndex.buildIndexAsync") also have similar loops with
+similar<br/>breaks, just like in the proposed patch.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+

@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 63b6c029f0e853e1e9977be5daa3942b50aa937c
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6950.txt 
+
+commit 63b6c029f0e853e1e9977be5daa3942b50aa937c
+Merge: 72a74c3 8fd3f49
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Merge branch 'cassandra-1.1' into trunk

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 353fadd73c527089a7a26da7635dd2aced07cbbe
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5520.txt 
+
+commit 353fadd73c527089a7a26da7635dd2aced07cbbe
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    fix ConcurrentModificationException in Table.all()
+    patch by Jonathan Ellis; reviewed by Pavel Yaskevich for CASSANDRA-3529

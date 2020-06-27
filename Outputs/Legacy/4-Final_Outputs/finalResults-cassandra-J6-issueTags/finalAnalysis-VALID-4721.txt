@@ -1,0 +1,160 @@
+Pattern changes caused by commit: bfac864064d19562ed9b50a94af8133fde075ac3
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4721.txt 
+
+commit bfac864064d19562ed9b50a94af8133fde075ac3
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    Fix parsing of the Keyspace and ColumnFamily names in numeric and string representations in CLI
+    patch by Pavel Yaskevich; reviewed by Jonathan Ellis for CASSANDRA-3075
+
+
+
+==================================
+ Issue CASSANDRA-3075 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3075] Cassandra CLI unable to use list command with INTEGER column names, resulting in syntax error
+-----------------
+
+-----------------
+Summary: Cassandra CLI unable to use list command with INTEGER column names, resulting in syntax error
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 25 Aug 2011 08:05:40 +0000
+-----------------
+
+-----------------
+Resolved at: Sun, 28 Aug 2011 11:26:53 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+I have a Column Family named 1105115.
+
+I have inserted the CF with Hector, and it did
+not<br/>throw any exception concerning the name of the<br/>column.
+
+If I am issuing the
+command
+
+list 1105115;
+
+I incur the following error:
+
+<span
+class="error">&#91;default@unknown&#93;</span> list 1105115;<br/>Syntax error at position
+5: mismatched input '1105115' expecting Identifier
+
+I presume we are not to name CFs as
+integers?
+
+ Or is there something I am missing from<br/>the bellow help content:
+
+<span
+class="error">&#91;default@unknown&#93;</span> help list;<br/>list &lt;cf&gt;;<br/>list
+&lt;cf&gt;<span class="error">&#91;&lt;startKey&gt;:&#93;</span>;<br/>list &lt;cf&gt;<span
+class="error">&#91;&lt;startKey&gt;:&lt;endKey&gt;&#93;</span>;<br/>list &lt;cf&gt;<span
+class="error">&#91;&lt;startKey&gt;:&lt;endKey&gt;&#93;</span> limit &lt;limit&gt;;
+
+List
+a range of rows, and all of their columns, in the specified column<br/>family.
+
+The order
+of rows returned is dependant on the Partitioner in use.
+
+Required Parameters:
+<ul
+class="alternate" type="square">	<li>cf: Name of the column family to list rows
+from.</li></ul>
+Optional Parameters:
+<ul class="alternate" type="square">	<li>endKey: Key
+to end the range at. The end key will be included<br/>in the result. Defaults to an empty
+byte array.</li></ul><ul class="alternate" type="square">	<li>limit: Number of rows to
+return. Default is 100.</li></ul><ul class="alternate" type="square">	<li>startKey: Key
+start the range from. The start key will be<br/>included in the result. Defaults to an
+empty byte array.</li></ul>
+Examples:<br/>list Standard1;<br/>list Super1<span
+class="error">&#91;j:&#93;</span>;<br/>list Standard1<span
+class="error">&#91;j:k&#93;</span> limit
+40;
+
+================================================
+
+Column Family Info:
+
+   
+ColumnFamily: 1105115<br/>      Key Validation Class:
+org.apache.cassandra.db.marshal.BytesType<br/>      Default column value validator:
+org.apache.cassandra.db.marshal.BytesType<br/>      Columns sorted by:
+org.apache.cassandra.db.marshal.AsciiType<br/>      Row cache size / save period in
+seconds: 0.0/0<br/>      Key cache size / save period in seconds: 200000.0/14400<br/>     
+Memtable thresholds: 0.5203125/111/1440 (millions of ops/MB/minutes)<br/>      GC grace
+seconds: 864000<br/>      Compaction min/max thresholds: 4/32<br/>      Read repair
+chance: 1.0<br/>      Replicate on write: true<br/>      Built indexes: []
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Column Family name edit on the extra info... sorry 
+
+
+New Comment: 
+Issue with Column Families containing INTIGER names, where integer named column families
+cannot be listed due to Syntax error, withing Cassandra-cli, Cassandra ver 0.8.0. 
+
+
+New Comment: 
+One possible solution would be to allow quoting CF names. 
+
+
+New Comment: 
+Made column family (and keyspace) support integer representation in all statements
+(create/update/set/get/list/drop/drop index/truncate/assume), only one limitation in here
+- when you use "drop index on &lt;cf&gt;.&lt;column&gt;" command if &lt;cf&gt; is numeric
+it should be put in quotes. Tests are updated to check if everything works
+correctly.Rebased with cassandra-0.8 branch (last commit
+d9091c5aa88927ee2daa31ec69d865946b975fd9) 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Committed. 
+
+

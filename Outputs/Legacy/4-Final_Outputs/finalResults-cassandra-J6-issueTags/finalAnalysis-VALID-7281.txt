@@ -1,0 +1,81 @@
+Pattern changes caused by commit: 197511f0b1b10b67fdd4942fe6f9c88adcad6f57
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-1
+To:   Flyweight-4
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7281.txt 
+
+commit 197511f0b1b10b67fdd4942fe6f9c88adcad6f57
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix setting key length for old-style mapred api
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-4534
+
+
+
+==================================
+ Issue CASSANDRA-4534 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4534] old-style mapred interface doesn't set key limit correctly
+-----------------
+
+-----------------
+Summary: old-style mapred interface doesn't set key limit correctly
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 13 Aug 2012 14:54:40 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 14 Aug 2012 21:02:38 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+<tt>next(ByteBuffer key, SortedMap&lt;ByteBuffer, IColumn&gt; value)</tt> calls
+clear/put/rewind, but not flip or limit.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+fix attached 
+
+
+New Comment: 
++1 
+
+

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 61f78ca936768aea56764dee2fdb21bd59ecdf0b
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-470.txt 
+
+commit 61f78ca936768aea56764dee2fdb21bd59ecdf0b
+Author: Dhruba Borthakur <dhruba@apache.org>
+
+    HDFS-1109. HFTP supports filenames that contains the character "+".
+    (Dmytro Molkov via dhruba)

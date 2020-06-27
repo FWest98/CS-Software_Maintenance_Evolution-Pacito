@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 1e5f900646ab3e30de807e2f512cc6eec3ad4ae0
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3746.txt 
+
+commit 1e5f900646ab3e30de807e2f512cc6eec3ad4ae0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    re-set bootstrapped flag after move finishes
+    patch by jbellis; reviewed by Peter Schuller and Nick Bailey for CASSANDRA-2435

@@ -1,0 +1,20 @@
+Pattern changes caused by commit: be44f37e27b5286123383afc42248977d3036580
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3540.txt 
+
+commit be44f37e27b5286123383afc42248977d3036580
+Merge: c49a01b f245882
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

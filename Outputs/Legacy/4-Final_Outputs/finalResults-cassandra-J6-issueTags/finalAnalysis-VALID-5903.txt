@@ -1,0 +1,112 @@
+Pattern changes caused by commit: dbd8ced107fad720c416d7e4919cb33884378a02
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5903.txt 
+
+commit dbd8ced107fad720c416d7e4919cb33884378a02
+Author: Pavel Yaskevich <xedin@apache.org>
+
+    (Pig) fix CassandraStorage to use correct comparator in Super ColumnFamily case
+    patch by Pavel Yaskevich; reviewed by Brandon Williams for CASSANDRA-3251
+
+
+
+==================================
+ Issue CASSANDRA-3251 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3251] CassandraStorage uses comparator for both super column names and sub column names.
+-----------------
+
+-----------------
+Summary: CassandraStorage uses comparator for both super column names and sub column names.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 23 Sep 2011 16:18:07 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 31 Jan 2012 21:42:10 +0000
+-----------------
+
+-----------------
+Assigned to: Pavel Yaskevich
+-----------------
+
+-----------------
+Description: 
+
+The CassandraStorage class uses the same comparator for super and sub column names.
+
+This
+is because it calls columnsToTuple recursively without any indication that the subsequent
+call is for sub columns.  Also, the getDefaultMarshallers method does not return the sub
+column name comparator.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This is a small fix for the super column issues. 
+
+
+New Comment: 
+Dana, can you rebase?  I can't get this to apply. 
+
+
+New Comment: 
+v2 with a slightly different approach. 
+
+
+New Comment: 
+isSub = 2 lead to key_validator, it should be changed to 3. Wouldn't it be a good idea to
+set 'AbstractType comparator' instead of 'boolean isSub' in columnToTuple(...)? 
+
+
+New Comment: 
+v3 with implements proposed parameter change to AbstractType comparator and removes
+unnecessary 'ByteBuffer name' parameter. 
+
+
+New Comment: 
++1 
+
+

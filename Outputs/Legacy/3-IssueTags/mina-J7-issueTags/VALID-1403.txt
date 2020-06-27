@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 2e6680319c5d55b39eeb7e5790f3807ff719a595
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1403.txt 
+
+commit 2e6680319c5d55b39eeb7e5790f3807ff719a595
+Author: Sangjin Lee <sjlee@apache.org>
+
+    DIRMINA-571

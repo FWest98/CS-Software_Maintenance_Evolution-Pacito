@@ -1,0 +1,115 @@
+Pattern changes caused by commit: 28414b198c579cdda7f1af47eda33108315afd81
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3946.txt 
+
+commit 28414b198c579cdda7f1af47eda33108315afd81
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix excessively pessimistic rebuffering in BRAF writes
+    patch by goffinet; reviewed by jbellis and Pavel Yaskevich for CASSANDRA-2581
+
+
+
+==================================
+ Issue CASSANDRA-2581 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2581] Rebuffer called excessively during seeks
+-----------------
+
+-----------------
+Summary: Rebuffer called excessively during seeks
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 29 Apr 2011 04:34:04 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 3 May 2011 15:50:48 +0000
+-----------------
+
+-----------------
+Assigned to: Chris Goffinet
+-----------------
+
+-----------------
+Description: 
+
+When doing an strace tonight, I noticed during memtable flushes that we were only writing
+1KB per every write() system call...After diving more into it, it's because of a bug in
+the seek() code. 
+
+if (newPosition &gt;= bufferOffset + validBufferBytes || newPosition
+&lt; bufferOffset)
+
+vs.
+
+if (newPosition &gt; (bufferOffset + validBufferBytes) ||
+newPosition &lt; bufferOffset)
+
+Two things I noticed, we shouldn't need to rebuffer if
+newPosition is equal to bufferOffset + validBufferBytes, second the evaluation was doing
+(newPosition &gt;= bufferOffset) + validBufferBytes which always seemed to be true.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+<blockquote>we shouldn't need to rebuffer if newPosition is equal to bufferOffset +
+validBufferBytes</blockquote>I think that is correct, patch attached. I will ask Pavel to
+also review since this is extremely important not to break.<blockquote>second the
+evaluation was doing (newPosition &gt;= bufferOffset) + validBufferBytes</blockquote>No,
+addition is higher precedence than comparison (or the logical operations). In fact if you
+force the grouping you suggest, javac will reject it since you cannot add a boolean and an
+int. 
+
+
+New Comment: 
++1, we can just change "current" if we point on the last byte of the the buffer. 
+
+
+New Comment: 
+<blockquote>we can just change "current" if we point on the last byte of the the
+buffer</blockquote>Meaning you suggest an additional code change? 
+
+
+New Comment: 
+No, I mean that the patch is correct, sorry <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+committed goffinet's patch with the additional parentheses for clarity 
+
+

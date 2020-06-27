@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 3c90be1d63a1c29c3cc8d952a9ae22b982ee0550
+
+From: Decorator-1
+To:   Decorator-2
+
+From: Flyweight-1
+To:   Flyweight-2
+
+From: Mediator-1
+To:   Mediator-3
+
+From: Strategy-1
+To:   Strategy-0
+
+From: Template Method-2
+To:   Template Method-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7114.txt 
+
+commit 3c90be1d63a1c29c3cc8d952a9ae22b982ee0550
+Merge: 19a4537 485c878
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 1.1

@@ -1,0 +1,115 @@
+Pattern changes caused by commit: 68d4e28d94a69bfa954a04c4e2fbdb75252db47b
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5872.txt 
+
+commit 68d4e28d94a69bfa954a04c4e2fbdb75252db47b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Log active compactions in StatusLogger
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3703
+
+
+
+==================================
+ Issue CASSANDRA-3703 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3703] log Compaction Active tasks in StatusLogger instead of n/a
+-----------------
+
+-----------------
+Summary: log Compaction Active tasks in StatusLogger instead of n/a
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 5 Jan 2012 22:43:06 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 26 Jan 2012 22:59:06 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+currently StatusLogger log:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent
+panelContent"><pre>logger.info(String.format("%-25s%10s%10s",                             
+    "CompactionManager", "n/a",
+CompactionManager.instance.getPendingTasks()));</pre></div></div>
+It'd be great if it
+could actually log the number of active tasks being processed. Without looking into the
+code, I thought there was no compaction running when reading the log.
+<div class="code
+panel" style="border-width: 1px;"><div class="codeHeader panelHeader"
+style="border-bottom-width: 1px;"><b>CompactionManager.java</b></div><div
+class="codeContent panelContent"><pre class="code-java">    <span
+class="code-keyword">public</span> <span class="code-object">int</span>
+getActiveCompactions()    {        <span class="code-keyword">return</span>
+CompactionExecutor.compactions.size();    }</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch attached 
+
+
+New Comment: 
+I believe we should add the tasks of the validationExecutor to the active tasks too. 
+
+
+New Comment: 
+validationexecutor extends compactionexecutor and inherits the behavior we want.  (note
+that CE.compactions is static for just this reason.) 
+
+
+New Comment: 
+Yeah but in CompactionManager, executor refers only to the compactionExecutor. And
+getActiveCount() is a method from ThreadPoolExecutor, so it'll reference the tasks on the
+compaction executor only. Basically what I'm saying is that we should have:<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>public int getActiveTasks(){    return executor.getActiveCount() +
+validationExecutor.getActiveCount();}</pre></div></div>That being said, it could make some
+sense to log CM.getActiveCompactions() instead (which does uses CE.compactions and thus
+relate to both compaction and validation). The difference being that getActiveCompactions
+will return tasks actively compacting (by opposition to including those waiting on the
+compaction lock). 
+
+

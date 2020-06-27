@@ -1,0 +1,115 @@
+Pattern changes caused by commit: 37326e75f1541f6f7b6ab1a60338666df30ab0f5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4477.txt 
+
+commit 37326e75f1541f6f7b6ab1a60338666df30ab0f5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Use a UDF-specific context signature.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2869
+
+
+
+==================================
+ Issue CASSANDRA-2869 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2869] CassandraStorage does not function properly when used multiple times in a single pig script due to UDFContext sharing issues
+-----------------
+
+-----------------
+Summary: CassandraStorage does not function properly when used multiple times in a single pig script due to UDFContext sharing issues
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 7 Jul 2011 18:26:45 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 21 Jul 2011 20:11:29 +0000
+-----------------
+
+-----------------
+Assigned to: Jeremy Hanna
+-----------------
+
+-----------------
+Description: 
+
+CassandraStorage appears to have threading issues along the lines of those described at
+<a href="http://pig.markmail.org/message/oz7oz2x2dwp66eoz" class="external-link"
+rel="nofollow">http://pig.markmail.org/message/oz7oz2x2dwp66eoz</a> due to the sharing of
+the UDFContext.
+
+I believe the fix lies in implementing
+<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java"><span class="code-keyword">public</span> void
+setStoreFuncUDFContextSignature(<span class="code-object">String</span> signature)    {   
+}</pre></div></div>
+and then using that signature when getting the UDFContext.
+
+From the
+Pig manual:
+<blockquote>
+setStoreFunc!UDFContextSignature(): This method will be called by
+Pig both in the front end and back end to pass a unique signature to the Storer. The
+signature can be used to store into the UDFContext any information which the Storer needs
+to store between various method invocations in the front end and back end. The default
+implementation in StoreFunc has an empty body. This method will be called before other
+methods.
+</blockquote> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Simple patch to use the load and store signatures instead of the udf context property keys
+we had been using.  We're running this in our data pipeline and appears to work correctly.
+ However, I haven't found evidence that the old way wasn't working - that seems to be more
+related to read consistency level we were using.  But, this is probably the way we should
+be doing it, as it appears to be the Pig approach.  Also there could be some corner cases
+that might trip up the current approach. 
+
+
+New Comment: 
+Looks like we can remove UDFCONTEXT_SCHEMA_KEY_PREFIX now too, no? 
+
+
+New Comment: 
+Yes. I was about to post an updated patch last night but got sidetracked. Do you mind
+removing that if it's otherwise good to go? Otherwise I can do that later today. 
+
+
+New Comment: 
+Removed that String.  Also removed adding mutation twice and put in the nested exception
+in putNext into the IOException.  We've been meaning to add those last two items to one of
+these tickets. 
+
+
+New Comment: 
+Committed 
+
+

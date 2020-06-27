@@ -1,0 +1,129 @@
+Pattern changes caused by commit: 24a70804086a07409fef1303f7c53327661806bc
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6195.txt 
+
+commit 24a70804086a07409fef1303f7c53327661806bc
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    delete hints from dropped ColumnFamilies on handoff instead of erroring out
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3975
+
+
+
+==================================
+ Issue CASSANDRA-3975 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3975] Hints Should Be Dropped When Missing CFid Implies Deleted ColumnFamily
+-----------------
+
+-----------------
+Summary: Hints Should Be Dropped When Missing CFid Implies Deleted ColumnFamily
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 28 Feb 2012 16:51:15 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 29 Feb 2012 03:16:09 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+If hints have accumulated for a CF that has been deleted, Hinted Handoff repeatedly fails
+until manual intervention removes those hints. For 1.0.7,
+UnserializableColumnFamilyException is thrown only when a CFid is unknown on the sending
+node. As discussed on #cassandra-dev, if the schema is in agreement, the affected hint(s)
+should be deleted to avoid indefinite repeat failures.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Stack trace from 1.0.7: INFO <span class="error">&#91;HintedHandoff:854&#93;</span>
+2012-02-27 22:39:51,183 org.apache.cassandra.db.HintedHandOffManager Started hinted
+handoff for token: Token(bytes<span class="error">&#91;7f&#93;</span>) with IP:
+/XX.XX.XX.XXX<br/>ERROR <span class="error">&#91;HintedHandoff:854&#93;</span> 2012-02-27
+22:39:51,186 org.apache.cassandra.service.AbstractCassandraDaemon Fatal exception in
+thread Thread<span
+class="error">&#91;HintedHandoff:854,1,main&#93;</span><br/>java.lang.RuntimeException:
+org.apache.cassandra.db.UnserializableColumnFamilyException: Couldn't find cfId=2391<br/> 
+      at org.apache.cassandra.utils.FBUtilities.unchecked(FBUtilities.java:689)<br/>      
+ at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>Caused by:
+org.apache.cassandra.db.UnserializableColumnFamilyException: Couldn't find cfId=2391<br/> 
+      at
+org.apache.cassandra.db.ColumnFamilySerializer.deserialize(ColumnFamilySerializer.java:129)<br/>
+       at
+org.apache.cassandra.db.RowMutation$RowMutationSerializer.deserialize(RowMutation.java:401)<br/>
+       at
+org.apache.cassandra.db.RowMutation$RowMutationSerializer.deserialize(RowMutation.java:409)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpointInternal(HintedHandOffManager.java:344)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpoint(HintedHandOffManager.java:248)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager.access$200(HintedHandOffManager.java:84)<br/>
+       at
+org.apache.cassandra.db.HintedHandOffManager$3.runMayThrow(HintedHandOffManager.java:416)<br/>
+       at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30) 
+
+
+New Comment: 
+Suggest that for 1.0.x, UnserializableColumnFamilyException might be better named
+UnknownColumnFamilyException (since unknown cfId is the only time its ever thrown. It
+could then be caught within HHOM.deliverHintsToEndpointInternal and the affected hint
+deleted. Its unclear to me if this needs to be tackled differently for 1.1. 
+
+
+New Comment: 
+Patch posted to <a href="https://github.com/jbellis/cassandra/branches/3975"
+class="external-link"
+rel="nofollow">https://github.com/jbellis/cassandra/branches/3975</a> 
+
+
+New Comment: 
++1 
+
+

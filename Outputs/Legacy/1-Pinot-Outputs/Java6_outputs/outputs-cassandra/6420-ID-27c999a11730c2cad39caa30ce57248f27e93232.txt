@@ -1,0 +1,123 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+BytesReadTracker is a Decorator class
+readFully is a decorate operation
+source of type DataInput is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/BytesReadTracker.java
+
+Decorator Pattern
+BytesReadTracker is a Decorator class
+readFully is a decorate operation
+source of type DataInput is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/BytesReadTracker.java
+
+
+ DataInput
+Strategy Pattern.
+CallbackInfo is the Context class.
+IMessageCallback is the Strategy interface.
+Concrete Strategy classes:  IAsyncResult IAsyncCallback
+Delegation through callback of type IMessageCallback
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/CallbackInfo.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/IMessageCallback.java
+
+Flyweight Pattern.
+HeaderTypes is a flyweight factory.
+TASK_PROFILE_CHAIN is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/net/HeaderTypes.java
+
+Template Method Found.
+WrappedRunnable is the template class
+run is the template method
+runMayThrow is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/utils/WrappedRunnable.java
+
+Template Method Found.
+AbstractDataInput is the template class
+readLine is the template method
+seekInternal is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/AbstractDataInput.java
+
+Factory Method pattern.
+SegmentedFile is a Factory Method class.
+BufferedSegmentedFile is a concrete Factory Method class.
+getSegment is a factory method returns  RandomAccessReader
+ which extends FileDataInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+Factory Method pattern.
+Builder is a Factory Method class.
+Builder is a concrete Factory Method class.
+complete is a factory method returns  BufferedSegmentedFile
+ which extends SegmentedFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/BufferedSegmentedFile.java
+
+Factory Method pattern.
+SegmentedFile is a Factory Method class.
+CompressedSegmentedFile is a concrete Factory Method class.
+getSegment is a factory method returns  CompressedRandomAccessReader
+ which extends FileDataInput
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/CompressedSegmentedFile.java
+
+Factory Method pattern.
+Builder is a Factory Method class.
+Builder is a concrete Factory Method class.
+complete is a factory method returns  CompressedSegmentedFile
+ which extends SegmentedFile
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/CompressedSegmentedFile.java
+
+Mediator Pattern.
+Mediator: MemoryInputStream
+Colleagues:  AbstractDataInput FreeableMemory Memory
+FileLocation: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/MemoryInputStream.java
+
+Facade Pattern.
+MemoryInputStream is a facade class.
+Hidden types: FreeableMemory Memory
+Facade access types: MemoryInputStream
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/cassandra/src/java/org/apache/cassandra/io/util/MemoryInputStream.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            2
+Factory Method              2
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      1
+Flyweight                   1
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    1
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             2
+Visitor                     0
+------------------------------
+
+Number of classes processed: 77
+Number of files processed: 741
+Size of DelegationTable: 240
+Size of concrete class nodes: 41
+Size of undirected invocation edges: 18
+
+
+nMediatorFacadeDual/nMediator = 1/1
+nImmutable/nFlyweight = 0/1
+nFlyweightGoFVersion = 0

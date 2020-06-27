@@ -1,0 +1,108 @@
+Pattern changes caused by commit: 92da3e2d60a37999110648528fc7cb7659dd66e6
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3636.txt 
+
+commit 92da3e2d60a37999110648528fc7cb7659dd66e6
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add actual dropped check to Memtable.flush for CASSANDRA-2381
+    patch by jbellis
+
+
+
+==================================
+ Issue CASSANDRA-2381 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2381] orphaned data files may be created during migration race
+-----------------
+
+-----------------
+Summary: orphaned data files may be created during migration race
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 24 Mar 2011 20:55:56 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 28 Mar 2011 19:07:03 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+We try to prevent creating orphans by locking Table.flusherLock in maybeSwitchMemtable
+and the Migration process, but since the actual writing is done asynchronously in
+Memtable.writeSortedContents there is a race window, where we acquire lock in maybeSwitch,
+we're not dropped so we queue the flush and release the lock, Migration does the drop,
+then Memtable writes itself out.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch against 0.8:<ul class="alternate" type="square">	<li>moves Table.flusherLock to
+Memtable.flushLock; acquire during memtable writing</li>	<li>replaces flushLock use in
+Table.maybeSwitchMemtables with a synchronized block</li>	<li>removes beforeApplyModel;
+snapshotting is moved into applyModel for drops and removed entirely for updates</li></ul> 
+
+
+New Comment: 
+Is it necessary to make the MT lock static?  I do not think there would be a problem with
+concurrently flushing two memtables of different column families (the CL serialization is
+still preserved by the synchronization in CFS). 
+
+
+New Comment: 
+You're right. v2 attached and rebased. Had to make lock/unlock responsibility of
+individual Migration classes since lock is no longer global. 
+
+
+New Comment: 
+I'm seeing unit test failures in CliTest and DefsTest with v2 applied (never ran them on
+v1). 
+
+
+New Comment: 
+v3 grabs CF reference before removing it from CFMetadata map.  tests pass. 
+
+
+New Comment: 
++1. 
+
+
+New Comment: 
+committed 
+
+

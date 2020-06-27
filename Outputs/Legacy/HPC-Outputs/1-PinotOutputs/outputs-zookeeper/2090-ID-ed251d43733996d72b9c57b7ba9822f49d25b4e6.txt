@@ -1,0 +1,82 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+JMap is a Decorator class
+getSignature is a decorate operation
+mKey of type JType is the Decoratee class
+File Location: /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JMap.java
+
+Decorator Pattern
+JVector is a Decorator class
+getSignature is a decorate operation
+mElement of type JType is the Decoratee class
+File Location: /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JVector.java
+
+
+ JType
+Strategy Pattern.
+JField is the Context class.
+JType is the Strategy interface.
+Concrete Strategy classes:  JBoolean JByte JCompType JLong JInt JDouble JFloat JMap JString JBuffer JVector
+Delegation through mType of type JType
+File Location: /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JField.java,
+               /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JType.java
+
+Flyweight Pattern.
+Quotas is a flyweight factory.
+procZookeeper is a flyweight object (declared public-static-final).
+File location: /data/s4040112/sourcecodes/zookeeper/zookeeper-server/src/main/java/org/apache/zookeeper/Quotas.java
+
+Mediator Pattern.
+Mediator: JMap
+Colleagues:  JField JBuffer JVector
+FileLocation: /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JMap.java
+
+Mediator Pattern.
+Mediator: JVector
+Colleagues:  JMap JBuffer JField
+FileLocation: /data/s4040112/sourcecodes/zookeeper/zookeeper-jute/src/main/java/org/apache/jute/compiler/JVector.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            0
+Factory Method              0
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     0
+Bridge                      0
+Composite                   0
+Decorator                   1
+Facade                      0
+Flyweight                   1
+Proxy                       0
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    2
+Observer                    0
+State                       0
+Strategy                    1
+Template Method             0
+Visitor                     0
+------------------------------
+
+Number of classes processed: 69
+Number of files processed: 827
+Size of DelegationTable: 372
+Size of concrete class nodes: 31
+Size of undirected invocation edges: 5
+
+
+nMediatorFacadeDual/nMediator = 0/2
+nImmutable/nFlyweight = 0/1
+nFlyweightGoFVersion = 0

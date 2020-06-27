@@ -1,0 +1,17 @@
+Pattern changes caused by commit: fc0550ece77101c0b81a2f16b901c1a85dfe5af6
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5689.txt 
+
+commit fc0550ece77101c0b81a2f16b901c1a85dfe5af6
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Truncate throws TOE on timeout instead of UA.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3651

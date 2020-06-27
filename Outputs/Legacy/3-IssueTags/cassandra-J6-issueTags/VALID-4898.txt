@@ -1,0 +1,26 @@
+Pattern changes caused by commit: abd78259e11305ffed0ae0391ef8da2a16d68210
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4898.txt 
+
+commit abd78259e11305ffed0ae0391ef8da2a16d68210
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Retry upload to central repository
+    patch by stephenc; reviewed by slebresne for CASSANDRA-2691

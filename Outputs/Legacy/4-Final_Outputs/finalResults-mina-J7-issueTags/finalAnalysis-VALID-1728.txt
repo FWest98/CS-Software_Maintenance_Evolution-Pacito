@@ -1,0 +1,103 @@
+Pattern changes caused by commit: ec3e0708d91cfd636781d345482be6029dd32be8
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1728.txt 
+
+commit ec3e0708d91cfd636781d345482be6029dd32be8
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix DIRMINA-632
+
+
+
+==================================
+ Issue DIRMINA-632 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-632] WriteFuture.awaitUninterruptibly() or .join() hangs if write() throws Exceptions
+-----------------
+
+-----------------
+Summary: WriteFuture.awaitUninterruptibly() or .join() hangs if write() throws Exceptions
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 24 Oct 2008 06:09:27 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 22 Jun 2009 17:55:42 +0000
+-----------------
+
+-----------------
+Assigned to: Edouard De Oliveira
+-----------------
+
+-----------------
+Description: 
+
+This is best shown with UDP since TCP will cause a close session to occur.
+
+If
+channel.write() throws an exception, e.g. the host becomes unreachable because of network
+connection is removed, then WriteFuture.awaitUninterruptibly() will hang - as it will
+never have setWritten(false) or setException() called.
+
+I have modified the MemoryMonitor
+example to show this happening.<br/>You must manually pull your network cable (or disable
+your Network Adapter) while the client is running to see this happen.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Workaround is to use WriteFutureExceptionNotifier which is attached to the session prior
+to writing, and binding the WriteFuture into the notifier after the write() and before the
+awaitUninterruptibly().There should be a more elegant solution than this.I think it should
+be in core perhaps in AbstractPollingIoProcessor.flushNow() as per
+mina-2.0-handle-write-exceptions.txt 
+
+
+New Comment: 
+This needs back porting as well. 
+
+
+New Comment: 
+(I've had to manually hack the mina-2.0-handle-write-exceptions-test.txt file to remove
+the non-relevant changes) 
+
+
+New Comment: 
+I haven't created a unit test and patch for mina-1.0 because migrating the test scripts
+from EasyMock 2.4/Junit 4 didn't seem worth the effort. Sorry. 
+
+
+New Comment: 
+I agree there is a big issue in the way the WriteFuture is handled. The problem is that
+the Future update is done when you exit from the chain correctly, ie without an
+exception.Le'ts try to see if we can find a more elegant solution, but I'm afraid that
+would be difficult without a complete redesign of the chain handling... 
+
+

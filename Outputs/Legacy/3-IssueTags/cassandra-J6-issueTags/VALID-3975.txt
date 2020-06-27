@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 36d8fffcd0dc52802b62a8febdeb020edb78588b
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3975.txt 
+
+commit 36d8fffcd0dc52802b62a8febdeb020edb78588b
+Merge: 5efc745 0dc0029
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge from 0.7

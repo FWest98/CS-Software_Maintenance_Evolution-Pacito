@@ -1,0 +1,92 @@
+Pattern changes caused by commit: c3a0c7444dc12a1ae6c0d8099d564538a773c892
+
+From: Bridge-2
+To:   Bridge-4
+
+From: Facade-2
+To:   Facade-5
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1291.txt 
+
+commit c3a0c7444dc12a1ae6c0d8099d564538a773c892
+Author: Mike Heath <mheath@apache.org>
+
+    Fixed DIRMINA-525 and added tests for patch.
+
+
+
+==================================
+ Issue DIRMINA-525 Description 
+=======================================
+
+Project: MINA
+-----------------
+
+-----------------
+Title: [DIRMINA-525] AbstractIoSession.increaseWrittenBytesAndMessages does not update writtenBytes for FileRegion
+-----------------
+
+-----------------
+Summary: AbstractIoSession.increaseWrittenBytesAndMessages does not update writtenBytes for FileRegion
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Fri, 1 Feb 2008 21:29:59 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Feb 2008 17:17:54 +0000
+-----------------
+
+-----------------
+Assigned to: Mike Heath
+-----------------
+
+-----------------
+Description: 
+
+AbstractIoSession.increaseWrittenBytesAndMessages only updates writtenMessages and not
+writtenBytes for a FileRegion.  <br/>Below is a patch that fixes the problem but I'm not
+sure if it is correct.  When the WriteRequest contains an IoBuffer a check is made to see
+if the IoBuffer has any remaining bytes and only updates writtenBytes if it does.  I've
+never seen this method called when only part of a FileRegion is sent and I'm sure how it
+could be because it seems that increaseWrittenBytesAndMessages is only called from
+fireMessageSent.
+
+Index:
+AbstractIoSession.java<br/>===================================================================<br/>&#8212;
+AbstractIoSession.java      (revision 616815)<br/>+++ AbstractIoSession.java      (working
+copy)<br/>@@ -541,6 +541,12 @@<br/>             } else 
+{                
+increaseWrittenMessages(currentTime);             }
++        } else if (message instanceof
+FileRegion) {<br/>+            FileRegion region = (FileRegion) message;<br/>+           
+if (region.getCount() == 0) 
+{+               
+increaseWrittenBytes(region.getWrittenBytes(), currentTime);+               
+increaseWrittenMessages(currentTime);+            }
+ <br/>         } else 
+{            
+increaseWrittenMessages(currentTime);         } 
+
+-----------------
+
+-----------------
+Comments: 
+

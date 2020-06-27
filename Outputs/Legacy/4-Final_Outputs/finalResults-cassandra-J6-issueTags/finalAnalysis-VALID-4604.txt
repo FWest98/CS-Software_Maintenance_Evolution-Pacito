@@ -1,0 +1,110 @@
+Pattern changes caused by commit: c9ff755776931c8d999699401b3a73bc796fcf3c
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Mediator-3
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4604.txt 
+
+commit c9ff755776931c8d999699401b3a73bc796fcf3c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    avoid doing read forno-op replicate-on-write at CL=1
+    patch by slebresne and jbellis for CASSANDRA-2892
+
+
+
+==================================
+ Issue CASSANDRA-2892 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2892] Don't "replicate_on_write" with RF=1
+-----------------
+
+-----------------
+Summary: Don't "replicate_on_write" with RF=1
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 12 Jul 2011 22:04:36 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 9 Aug 2011 18:37:32 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+For counters with RF=1, we still do a read to replicate, even though there is nothing to
+replicate it too.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+That's a super easy one and it removes some nasty boolean flag from
+SP.sendToHintedEndpoints so let's do it. 
+
+
+New Comment: 
+can you spell out what's going on with this part?<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">- 
+              <span class="code-keyword">if</span> (cm.shouldReplicateOnWrite())+         
+      hintedEndpoints.removeAll(FBUtilities.getLocalAddress());++                <span
+class="code-keyword">if</span> (cm.shouldReplicateOnWrite() &amp;&amp;
+!hintedEndpoints.isEmpty())</pre></div></div> 
+
+
+New Comment: 
+Sure. Applying a counter update on the first replica has two parts: we apply locally (we
+know we are on a replica at that point), we read back (in cm.makeReplicationMutation, not
+showed in that diff) and finally we use sendToHintedEndpoint to send what was read to the
+remaining replica. To avoid reapplying locally in sendToHintedEndpoint, we used to give it
+the 'applyMutationLocally' flag to false.Instead, this patch remove the local node from
+hintedEndpoints (since we just applied locally already) before calling
+sendToHintedEndpoint. We can then just check if hintedEndpoints is empty as a synonym of
+'is it RF=1'. 
+
+
+New Comment: 
+v1.5 attached.  I thought I could improve it more, but couldn't. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>Ended up just extracting
+counterWriteTask() to remove the executeOnMutationStage flag. 
+
+
+New Comment: 
+v1.5 lgtm 
+
+
+New Comment: 
+committed 
+
+

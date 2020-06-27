@@ -1,0 +1,138 @@
+Pattern changes caused by commit: e1491f3f24ef0a1898dfa598956d6781f55d0957
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7674.txt 
+
+commit e1491f3f24ef0a1898dfa598956d6781f55d0957
+Author: Yuki Morishita <yukim@apache.org>
+
+    Fix test setup and repair/LCS edge case for CASSANDRA-4799
+
+
+
+==================================
+ Issue CASSANDRA-4799 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4799] assertion failure in leveled compaction test
+-----------------
+
+-----------------
+Summary: assertion failure in leveled compaction test
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 12 Oct 2012 14:47:04 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Oct 2012 14:41:51 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+It's somewhat rare, but I'm regularly seeing this failure on trunk:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>    [junit] Testcase:
+testValidationMultipleSSTablePerLevel(org.apache.cassandra.db.compaction.LeveledCompactionStrategyTest):	FAILED
+   [junit] null    [junit] junit.framework.AssertionFailedError    [junit] 	at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategyTest.testValidationMultipleSSTablePerLevel(LeveledCompactionStrategyTest.java:78)
+   [junit]     [junit]     [junit] Test
+org.apache.cassandra.db.compaction.LeveledCompactionStrategyTest
+FAILED</pre></div></div>
+I suspect there's a deeper problem, since this is a pretty
+fundamental assertion.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I found two problems here.1) Test does not completely setup necessary SSTables and causes
+above AssertionError.LCS test uses CFS#forceFlush to generate enough SSTables at the
+beginning of the test, but since the method is asynchronous call, there is a chance that
+test proceeds without sufficient SSTables to fill up L2 and causes AE at
+strat.getLevelSize(2) &gt; 0.Fix for this is to change forceFlush to
+forceBlockingFlush.<br/>(diff: <a
+href="https://github.com/yukim/cassandra/commit/0d16efc6d7592e61f15598d5a4e3cc81d2760007"
+class="external-link"
+rel="nofollow">https://github.com/yukim/cassandra/commit/0d16efc6d7592e61f15598d5a4e3cc81d2760007</a>)2)
+Repair sometimes causes AssertionError with LCSDuring the test, I encountered below error
+several times.<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">ERROR [ValidationExecutor:1] 2012-10-12 14:39:18,660
+SchemaLoader.java (line 73) Fatal exception in thread <span
+class="code-object">Thread</span>[ValidationExecutor:1,1,main]java.lang.AssertionError    
+   at
+org.apache.cassandra.db.compaction.LeveledCompactionStrategy.getScanners(LeveledCompactionStrategy.java:183)
+       at
+org.apache.cassandra.db.compaction.CompactionManager$ValidationCompactionIterable.&lt;init&gt;(CompactionManager.java:879)
+       at
+org.apache.cassandra.db.compaction.CompactionManager.doValidationCompaction(CompactionManager.java:743)
+       at
+org.apache.cassandra.db.compaction.CompactionManager.access$700(CompactionManager.java:71)
+       at
+org.apache.cassandra.db.compaction.CompactionManager$7.call(CompactionManager.java:481)   
+    at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div>AssertionError comes from
+following assert code in LCS#getScanners:<div class="code panel" style="border-width:
+1px;"><div class="codeContent panelContent"><pre class="code-java"><span
+class="code-keyword">for</span> (SSTableReader sstable : sstables){    <span
+class="code-object">int</span> level = manifest.levelOf(sstable);    <span
+class="code-keyword">assert</span> level &gt;= 0;   
+byLevel.get(level).add(sstable);}</pre></div></div>LeveledManifest#levelOf method returns
+level of SSTable or -1 if SSTable is not yet added to LeveledManifest. Here, each SSTable
+comes from CF's DataTracker.<br/>Every time SSTable is written by flush/compaction, it
+gets added to DataTracker and  after that, added to LeveledManifest if you are using
+LCS.<br/>If above repair code is executed between those two, you will get
+AssertionError.My proposed fix is to remove assertion and treat SSTables that do not
+belong LeveledManifest yet as L0 SSTables.<br/>(diff: <a
+href="https://github.com/yukim/cassandra/commit/c8a0fb9a9128e47ec3d07926eb26f6fd93664f52"
+class="external-link"
+rel="nofollow">https://github.com/yukim/cassandra/commit/c8a0fb9a9128e47ec3d07926eb26f6fd93664f52</a>)Problem
+(2) also exists in 1.1 branch, but without assertion. We may want to fix this in 1.1 too. 
+
+
+New Comment: 
++1(I wish we could keep that assert but I don't have a better solution.) 
+
+

@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 7e4571d5e7ba8d3abe18b171628474ac28509182
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1729.txt 
+
+commit 7e4571d5e7ba8d3abe18b171628474ac28509182
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Junit regression test for DIRMINA-632

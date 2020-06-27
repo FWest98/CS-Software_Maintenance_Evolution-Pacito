@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2d8ef13cce98c166aa175508b6c127efb7f6e9ae
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5915.txt 
+
+commit 2d8ef13cce98c166aa175508b6c127efb7f6e9ae
+Merge: 505e196 359391f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.8

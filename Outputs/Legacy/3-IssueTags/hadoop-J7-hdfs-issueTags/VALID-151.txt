@@ -1,0 +1,16 @@
+Pattern changes caused by commit: ceb1c08a784b22fd0b1eb25cc303458b37de74a9
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-151.txt 
+
+commit ceb1c08a784b22fd0b1eb25cc303458b37de74a9
+Author: Konstantin Shvachko <shv@apache.org>
+
+    HDFS-576. Block report includes under-construction replicas. Contributed by Konstantin Shvachko.

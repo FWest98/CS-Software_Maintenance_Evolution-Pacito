@@ -1,0 +1,16 @@
+Pattern changes caused by commit: b59ca1fc8944f4d8cf81b21041be4a7ab722419e
+
+From: Flyweight-3
+To:   Flyweight-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9167.txt 
+
+commit b59ca1fc8944f4d8cf81b21041be4a7ab722419e
+Author: Dave Brosius <dbrosius@apache.org>
+
+    make sure locks index is positive

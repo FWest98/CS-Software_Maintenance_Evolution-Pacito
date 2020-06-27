@@ -1,0 +1,82 @@
+Pattern changes caused by commit: ee1bb5aa95b1975981b31c13a08df069d520894f
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3690.txt 
+
+commit ee1bb5aa95b1975981b31c13a08df069d520894f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    halve default memtable thresholds
+    patch by jbellis; reviewed by bcoverston for CASSANDRA-2413
+
+
+
+==================================
+ Issue CASSANDRA-2413 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2413] Reduce default memtable size
+-----------------
+
+-----------------
+Summary: Reduce default memtable size
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 1 Apr 2011 16:51:04 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 5 Apr 2011 15:30:22 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+I'm going to wimp out on targeting <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2006" title="Serverwide caps on
+memtable thresholds" class="issue-link"
+data-issue-key="CASSANDRA-2006"><del>CASSANDRA-2006</del></a> for 0.7.5 so to mitigate
+OOMing by newcomers let's reduce the default memtable size &#8211; what we have now
+predates indexes, which can dramatically increase memory requirements.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
++1, patch is good. 
+
+
+New Comment: 
+committed 
+
+

@@ -1,0 +1,17 @@
+Pattern changes caused by commit: e771b07952ef3643ede5cf90226093de95397a41
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9447.txt 
+
+commit e771b07952ef3643ede5cf90226093de95397a41
+Merge: 1b5edee 2dd73d1
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Merge branch 'cassandra-1.1' into cassandra-1.2

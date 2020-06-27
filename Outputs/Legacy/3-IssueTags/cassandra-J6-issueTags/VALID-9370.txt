@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 25ae349c67f8405c718b12583978f11b2a0cc177
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9370.txt 
+
+commit 25ae349c67f8405c718b12583978f11b2a0cc177
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    update CHANGES, NEWS for triggers

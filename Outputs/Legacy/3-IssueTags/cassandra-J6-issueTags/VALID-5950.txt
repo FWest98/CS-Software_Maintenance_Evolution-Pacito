@@ -1,0 +1,26 @@
+Pattern changes caused by commit: 0f3ff051ef17871490cbdc966108a6f46f5bcaf1
+
+From: Abstract Factory-2
+To:   Abstract Factory-3
+
+From: Factory Method-2
+To:   Factory Method-3
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5950.txt 
+
+commit 0f3ff051ef17871490cbdc966108a6f46f5bcaf1
+Merge: fdd3721 3df7040
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Merge branch 'cassandra-1.0' into cassandra-1.1

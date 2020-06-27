@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 2764c02d518e960bc0eb83cab3c493a088b9ab64
+
+From: Facade-2
+To:   Facade-4
+
+From: Flyweight-3
+To:   Flyweight-5
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-8
+To:   Strategy-10
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1524.txt 
+
+commit 2764c02d518e960bc0eb83cab3c493a088b9ab64
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    DIRMINA-415 initial commit

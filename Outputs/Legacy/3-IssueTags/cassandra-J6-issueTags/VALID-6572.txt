@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 7dc6acafbeb7c9ac20788a80b00bbbbcab6bebd3
+
+From: Flyweight-1
+To:   Flyweight-3
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6572.txt 
+
+commit 7dc6acafbeb7c9ac20788a80b00bbbbcab6bebd3
+Author: Vijay Parthasarathy <vijay2win@gmail.com>
+
+    allow running stress from build classes
+    patch by Vijay; reviewed by jbellis for CASSANDRA-4139

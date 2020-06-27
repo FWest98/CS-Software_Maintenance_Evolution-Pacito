@@ -1,0 +1,197 @@
+Pattern changes caused by commit: 609bc4e123f08b8f65dbb45da3243719b7ccfdde
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5340.txt 
+
+commit 609bc4e123f08b8f65dbb45da3243719b7ccfdde
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    replace compactionlock use in schema migration by checking CFS.isInvalidD
+    patch by jbellis; reviewed by slebresne for CASSANDRA-3116
+
+
+
+==================================
+ Issue CASSANDRA-3116 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3116] Compactions can (seriously) delay schema migrations
+-----------------
+
+-----------------
+Summary: Compactions can (seriously) delay schema migrations
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 1 Sep 2011 02:42:09 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 31 Oct 2011 13:32:39 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+A compaction lock is acquired when dropping keyspaces or column families which will cause
+the schema migration to block if a compaction is in progress.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+agreed that this sucks.  would like to switch to some kind of test-and-set safety for
+compaction vs migration instead.  not immediately obvious to me how to do this. 
+
+
+New Comment: 
+Its worse than this too; a migration tried to get the write lock, which gets blocked on a
+big compaction (holding the read lock).  This migration waiting on the write lock then
+blocks all other compactions waiting on the read lock.  So you only get one compaction
+going on and thousands backing up.A really hacky temporary fix would be to use a
+tryLock(timeout) and short sleep in a loop in the migration.  This would at least not
+starve the merges, but would starve the migrations quite badly. 
+
+
+New Comment: 
+I think the <em>raison d'être</em> of the lock is because we need to mark all sstables
+compacted for them to be removed when dropping, but that cannot be done correctly if some
+sstable are being compacted. But couldn't we just "delay" the compacted marking ? For
+instance, we could have a 'isDropped' switch in DataTracker such that when that switch is
+on the replace() method just remove the 'replacements' sstables. So the drop keyspace/cf
+would set the isDropped flag first, then grab any sstable files that is not being
+compacted and mark those right away. It may be a bit tricky to do that atomically but
+<em>à priori</em> it sounds doable. We'll probably want to add a call to some
+checkForDropped() method in case a compaction fails to be sure we don't leave sstables
+behind in that case.Another option may be to just stop the running compactions (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-1740" title="Nodetool commands to
+query and stop compaction, repair, cleanup and scrub" class="issue-link"
+data-issue-key="CASSANDRA-1740"><del>CASSANDRA-1740</del></a>) so that we can mark
+everything compacted at once. I may be harder to make that thread safe though, not sure,
+and <a href="https://issues.apache.org/jira/browse/CASSANDRA-1740" title="Nodetool
+commands to query and stop compaction, repair, cleanup and scrub" class="issue-link"
+data-issue-key="CASSANDRA-1740"><del>CASSANDRA-1740</del></a> is not in yet. 
+
+
+New Comment: 
+Patch to replace locking in migrations + valid checks in CompactionManager with isValid
+checks in DataTracker.compactionLock is still used but only for major compaction.  should
+we get rid of that too and say "if you want to be absolutely sure you're compacting
+everything, disable minor compactions before invoking major?" 
+
+
+New Comment: 
+Note: applies after the Rename migration removal in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3292" title="creating column family
+sets durable_writes to true" class="issue-link"
+data-issue-key="CASSANDRA-3292"><del>CASSANDRA-3292</del></a>. 
+
+
+New Comment: 
+Not sure this work correctly. I believe we first have a problem with
+DT.removeAllSSTables(), because this is during the drop and really do remove <b>all</b>
+sstables, including the ones that are being compacted (and thus it will unreference those
+while they are being compacted, which is bad). So we should first change that to only
+remove the one that are not compacting. Then we must make sure that anything that was not
+removed by that gets removed later. Which involves removing any flushed memtable (though
+that doesn't really matter since a dropped CF is flushed before being invalidated) and we
+must make sure that compacted sstable do are marked compacted but also that replacements
+are directly marked as compacted too (which mainly involve that we call
+removeOldSSTablesSize() on them). And I suppose we could make sure no new compaction is
+automatically triggered on an invalidated CF so we don't have a race or
+something.<blockquote>compactionLock is still used but only for major compaction. should
+we get rid of that too and say "if you want to be absolutely sure you're compacting
+everything, disable minor compactions before invoking major?"</blockquote>I think there is
+really no much cost to keeping the lock in there if the write lock is only acquired by
+events triggered by a user and I would prefer having major compaction do what it pretend
+by default rather that having a "complicated" procedure. That being said, I would be for
+replacing the global compactionLock by one lock per CF (which should be easy). 
+
+
+New Comment: 
+<blockquote>only remove the one that are not compacting</blockquote>done.  (renamed
+removeAllSSTables to unreferenceSSTables, which could still stand
+improvement...)<blockquote>removing any flushed memtable ... also that replacements are
+directly marked as compacted too </blockquote>done (both by ultimately funneling through
+the replace method)<blockquote>we could make sure no new compaction is automatically
+triggered on an invalidated CF </blockquote>this shouldn't be a problem, if it happens. 
+I'd rather not go to extra effort to prevent something harmless.v2 also gets rid of
+CFS.flushlock (we already flush for the drop snapshot) and removes CFS.isDropped in favor
+of isValid. 
+
+
+New Comment: 
+The patch already needs rebase, but based on the diff a few comments:<ul>	<li>In
+unmarkCompacting, calling twice markCompacted is not so harmless has it will trigger an
+assertion. What we could do is checked the sstableReader isCompacted
+flag.</li>	<li>attemptUpdate breaks atomicity for unreferenceSSTable. We should make sure
+the compareAndSet is done on the view we used to compute notCompacting, otherwise we could
+have bug in View.replace (like in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3306" title="Failed streaming may
+cause duplicate SSTable reference" class="issue-link"
+data-issue-key="CASSANDRA-3306"><del>CASSANDRA-3306</del></a>). It's probably simpler to
+move back the compareAndSet in both unreferenceSSTable and replace, and call a
+'finalizeReplace' for the addNewSSTableSize and following methods.</li>	<li>We could
+rename the unregisterMBean method in KeysIndex to invalidate.</li>	<li>We may still want
+to check for isValid before doing a validation compaction because it doesn't call
+markCompacting, so it could still run after it's invalidated on some sstable that have not
+yet be removed because are being compacted.</li></ul> 
+
+
+New Comment: 
+<blockquote>What we could do is checked the sstableReader isCompacted flag</blockquote>I
+think I like moving the check into removeOldSSTables instead, since it's clearly
+threadsafe (even though there are no existing thread safety issues, why take chances with
+future complications).  The new version also allows markCompacted to "work" when called
+multiple times with asserts turned off; before, the file create IOException would blow up
+anyway.<blockquote>attemptUpdate breaks atomicity for unreferenceSSTable</blockquote>Damn
+it, you're right.  So many CAS loops feels like we're making this too fragile.  But you're
+right, that's better than passing View references around.<blockquote>rename the
+unregisterMBean method in KeysIndex to invalidate</blockquote>done.<blockquote>We may
+still want to check for isValid before doing a validation compaction </blockquote>Done,
+although I suspect my comment attempting to explain the reason for the check may cause
+more confusion than it's worth. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>v3 attached.  <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3409" title="CFS reloading of the
+compaction strategy is done for every metadata update and is not thread safe"
+class="issue-link" data-issue-key="CASSANDRA-3409"><del>CASSANDRA-3409</del></a> throws a
+bit of a wrench into things since I don't see a good way to avoid the lock; still, that's
+not a frequently used migration. 
+
+
+New Comment: 
++1 on v3. Nit: for the assert in DT.postReplace(), I believe the msg should include the
+sstable, not 'this'. 
+
+
+New Comment: 
+fixed + committed 
+
+

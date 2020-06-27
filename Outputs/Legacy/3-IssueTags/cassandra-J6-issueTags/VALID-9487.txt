@@ -1,0 +1,17 @@
+Pattern changes caused by commit: c0c1492666e44612ec4f3ca5b47ffcd68e85e210
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9487.txt 
+
+commit c0c1492666e44612ec4f3ca5b47ffcd68e85e210
+Author: Dave Brosius <dbrosius@apache.org>
+
+    have BulkLoader ignore snapshot directories
+    patch by jaymé reviewed by dbrosius for cassandra-5587

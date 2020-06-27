@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 5ae93209f29aab470dbe159eadc040bee073c5f5
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5554.txt 
+
+commit 5ae93209f29aab470dbe159eadc040bee073c5f5
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Prevent NPE when encryption options are missing.
+    Patch by brandonwilliams, reviewed by jbellis for CASSANDRA-3489

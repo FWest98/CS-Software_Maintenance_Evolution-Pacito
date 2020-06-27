@@ -1,0 +1,160 @@
+Pattern changes caused by commit: 10372c20dfe5af0dc0ab7ed77370cd785c78e82e
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-4
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7202.txt 
+
+commit 10372c20dfe5af0dc0ab7ed77370cd785c78e82e
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    cqlsh: fix problem describing pre-cql3 CFs that are case-sensitive
+    Patch by paul cannon reviewed by brandonwilliams for CASSANDRA-4385
+
+
+
+==================================
+ Issue CASSANDRA-4385 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4385] bug when trying to describe a cf in a pre cql3 case sensitive keyspace
+-----------------
+
+-----------------
+Summary: bug when trying to describe a cf in a pre cql3 case sensitive keyspace
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 27 Jun 2012 21:36:16 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 26 Jul 2012 17:40:12 +0000
+-----------------
+
+-----------------
+Assigned to: paul cannon
+-----------------
+
+-----------------
+Description: 
+
+I can't describe column families in my schema defined via cassandra-cli. Update also
+seems to fail for the same CF's.
+
+CREATE KEYSPACE Hastur<br/>  with placement_strategy =
+'org.apache.cassandra.locator.SimpleStrategy'<br/>  and strategy_options =
+
+{replication_factor:2}
+;
+
+CREATE COLUMN FAMILY LookupByKey<br/>  with compaction_strategy
+= 'LeveledCompactionStrategy'<br/>  and compression_options = null;
+
+Then later, <a
+href="https://gist.github.com/3006886" class="external-link"
+rel="nofollow">https://gist.github.com/3006886</a>
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Recreating the keyspace and CF via cqlsh instead of cassandra-cli resolves the issue. This
+isn't really practical on my production systems. 
+
+
+New Comment: 
+You need to quote the cf/ks in cql3 since it is case insensitive. 
+
+
+New Comment: 
+Quoted is also broken. 
+
+
+New Comment: 
+(Pasting the contents of the gist for posterity.)<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>cqlsh:system&gt; use Hastur;Bad Request: Keyspace 'hastur' does not
+existcqlsh:system&gt; use "Hastur";cqlsh:"Hastur"&gt; describe columnfamily
+lookupbykey;Keyspace NotFoundException() not found.cqlsh:"Hastur"&gt; describe
+columnfamily LookupByKey;Keyspace NotFoundException() not found.cqlsh:"Hastur"&gt;
+describe columnfamily "LookupByKey";Keyspace NotFoundException() not
+found.cqlsh:system&gt; use system;cqlsh:system&gt; desc columnfamily NodeIdInfo;CREATE
+COLUMNFAMILY NodeIdInfo (  KEY blob PRIMARY KEY) WITH  comment='nodeId and their metadata'
+AND  comparator='TimeUUIDType' AND  read_repair_chance=0.000000 AND  gc_grace_seconds=0
+AND  default_validation=blob AND  min_compaction_threshold=4 AND 
+max_compaction_threshold=32 AND  replicate_on_write=True AND 
+compaction_strategy_class='SizeTieredCompactionStrategy';</pre></div></div> 
+
+
+New Comment: 
+The root cause of this should be fixed in the 1.1 branch already by <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4173" title="cqlsh: in cql3 mode,
+use cql3 quoting when outputting cql" class="issue-link"
+data-issue-key="CASSANDRA-4173"><del>CASSANDRA-4173</del></a> and <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4198" title="cqlsh: update
+recognized syntax for cql3" class="issue-link"
+data-issue-key="CASSANDRA-4198"><del>CASSANDRA-4198</del></a>, but the error reporting is
+clearly also broken here. "<tt>Keyspace NotFoundException() not found.</tt>" is messed
+up.Al, you can safely use a more recent cqlsh from the 1.1 branch if you'd like.I'll put
+up a fix for the error reporting. 
+
+
+New Comment: 
+Attached patch fixes error reporting when a columnfamily is not found.Also available in my
+github, in the 4385 branch; current version tagged pending/4385.<a
+href="https://github.com/thepaul/cassandra/tree/pending/4385" class="external-link"
+rel="nofollow">https://github.com/thepaul/cassandra/tree/pending/4385</a> 
+
+
+New Comment: 
+If I 'desc schema' in cqlsh --cql3 using a build of either HEAD or 4385 from your tree, I
+still can't see my application keyspace, likely because it's called "Hastur". If I run
+cqlsh --cql2 everything shows up.It could be that the answer is, "rebuild your schema
+using CQL 3" ... 
+
+
+New Comment: 
+The "Hastur" schema was created with this file: <a
+href="https://github.com/ooyala/hastur-server/blob/master/tools/cassandra/create_keyspace.cass"
+class="external-link"
+rel="nofollow">https://github.com/ooyala/hastur-server/blob/master/tools/cassandra/create_keyspace.cass</a>Weirdly,
+the "HasturTrigger" keyspace shows up in CQL3 but "Hastur" does not. 
+
+
+New Comment: 
+Interesting. Do you see any errors, or does it just not show up?There are some related
+issues with DESC that are fixed in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4380" title="CQLSH: describe command
+doesn&#39;t output valid CQL command." class="issue-link"
+data-issue-key="CASSANDRA-4380"><del>CASSANDRA-4380</del></a>, which will probably help
+too. I've merged the 4380 branch into the 4385 one in my github (new tag is
+pending/4385-2). Give that a try. 
+
+

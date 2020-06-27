@@ -1,0 +1,88 @@
+Pattern changes caused by commit: b63db2215d4f851c7aaa0ff0de6348b39844ced2
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5636.txt 
+
+commit b63db2215d4f851c7aaa0ff0de6348b39844ced2
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    add support for JVM_EXTRA_OPTS env variable to cassandra-env.sh
+    patch by Radim Kolar; reviewed by Paul Cannon for CASSANDRA-3476
+
+
+
+==================================
+ Issue CASSANDRA-3476 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3476] Allow user to override jvm options picked by cassandra-env.sh
+-----------------
+
+-----------------
+Summary: Allow user to override jvm options picked by cassandra-env.sh
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 9 Nov 2011 16:03:18 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 10 Dec 2011 18:51:15 +0000
+-----------------
+
+-----------------
+Assigned to: Radim Kolar
+-----------------
+
+-----------------
+Description: 
+
+currently user have $JVM_OPTS - they are used before automagically generated ops.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch attached 
+
+
+New Comment: 
++1, although as a nitpick I'd prefer the variable be named <tt>JVM_EXTRA_OPTS</tt> instead
+of <tt>JVM_OVERRIDE_OPTS</tt>, since its value won't actually override the other
+<tt>JVM_OPTS</tt>. 
+
+
+New Comment: 
+Adjusted patch according to my last comment. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+committed 
+
+

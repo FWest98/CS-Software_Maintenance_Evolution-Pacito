@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 3683d621b11efee78f37e31ea7145488b46488e6
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9327.txt 
+
+commit 3683d621b11efee78f37e31ea7145488b46488e6
+Merge: 2effc40 5692797
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

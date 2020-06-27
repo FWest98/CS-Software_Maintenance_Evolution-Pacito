@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 16d4c6c320cd98e3e7628a68bd6b4f20f9a365f4
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6765.txt 
+
+commit 16d4c6c320cd98e3e7628a68bd6b4f20f9a365f4
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    enable keys cache and rows cache on index CFs based on setting in data CF
+    patch by yukim; reviewed by jbellis for CASSANDRA-4197

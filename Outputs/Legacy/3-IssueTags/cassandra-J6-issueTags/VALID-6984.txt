@@ -1,0 +1,28 @@
+Pattern changes caused by commit: 6dddf360e0fb58cb0a64067e48fa98afccb8a379
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6984.txt 
+
+commit 6dddf360e0fb58cb0a64067e48fa98afccb8a379
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    split out uptodate checks for cql2 and cql3 so they actually work

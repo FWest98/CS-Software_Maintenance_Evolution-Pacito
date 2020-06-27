@@ -1,0 +1,272 @@
+Pattern changes caused by commit: f32110c6c3ad53aa18aff02565722af82f68533a
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7841.txt 
+
+commit f32110c6c3ad53aa18aff02565722af82f68533a
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    remove IAuthority2
+    patch by Aleksey Yeschenko; reviewed by jbellis for CASSANDRA-4875
+
+
+
+==================================
+ Issue CASSANDRA-4875 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4875] Revert IAuthority2 interface
+-----------------
+
+-----------------
+Summary: Revert IAuthority2 interface
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 30 Oct 2012 04:05:37 +0000
+-----------------
+
+-----------------
+Resolved at: Sat, 17 Nov 2012 14:35:31 +0000
+-----------------
+
+-----------------
+Assigned to: Aleksey Yeschenko
+-----------------
+
+-----------------
+Description: 
+
+<a href="https://issues.apache.org/jira/browse/CASSANDRA-4874" title="Possible
+authorizaton handling impovements" class="issue-link"
+data-issue-key="CASSANDRA-4874"><del>CASSANDRA-4874</del></a> is about general
+improvements to authorization handling, this one is about IAuthority<span
+class="error">&#91;2&#93;</span> in particular.
+<ul class="alternate"
+type="square">	<li>'LIST GRANTS OF user should' become 'LIST PERMISSIONS <span
+class="error">&#91;on resource&#93;</span> <span class="error">&#91;of
+user&#93;</span>'.<br/>Currently there is no way to see all the permissions on the
+resource, only all the permissions of a particular
+user.</li>	<li>IAuthority2.listPermissions() should return a generic collection of
+ResoucePermission or something, not CQLResult or ResultMessage.<br/>That's a wrong level
+of abstraction. I know this issue has been raised here - <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4490?focusedCommentId=13449732&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13449732com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13449732"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-4490?focusedCommentId=13449732&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13449732com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13449732</a>,
+but I think it's possible to change this. Returning a list of {resource, user, permission,
+grant_option}
+ tuples should be possible.
+</li>	<li>We should get rid of
+Permission.NO_ACCESS. An empty list of permissions should mean absence of any permission,
+not some magical Permission.NO_ACCESS value.<br/>It's insecure and error-prone and also
+ambiguous (what if a user has both FULL_ACCESS and NO_ACCESS permissions? If it's meant to
+be a way to strip a user<br/>of all permissions on the resource, then it should be
+replaced with some form of REVOKE statement. Something like 'REVOKE ALL PERMISSIONS'
+sounds more logical than GRANT NO_ACCESS to me.</li>	<li>Previous point will probably
+require adding revokeAllPermissions() method to make it explicit, special-casing
+IAuthority2.revoke() won't do</li>	<li>IAuthorize2.grant() and IAuthorize2.revoke() accept
+CFName instance for a resource, which has its ks and cf fields swapped if cf is omitted.
+This may cause a real security issue if IAuthorize2 implementer doesn't know about the
+issue. We must pass the resouce as a collection of strings ([cassandra, keyspaces<span
+class="error">&#91;, ks_name&#93;</span><span class="error">&#91;, cf_name&#93;</span>])
+instead, the way we pass it to IAuthorize.authorize().</li>	<li>We should probably get rid
+of FULL_ACCESS as well, at least as a valid permission value (but maybe allow it in the
+CQL statement) and add an equivalent IAuthority2.grantAllPermissions(), separately. Why?
+Imagine the following sequence: GRANT FULL_ACCESS ON resource FOR user; REVOKE SELECT ON
+resource FROM user; should the user be allowed to SELECT anymore?<br/>I say no, he
+shouldn't. Full access should be represented by a list of all permissions, not by a
+magical special value.</li>	<li>P.DELETE probably should go in favour of P.UPDATE even for
+TRUNCATE. Presence of P.DELETE will definitely confuse users, who might think that it is
+somehow required to delete data, when it isn't. You can overwrite every value if you have
+P.UPDATE with TTL=1 and get the same result. We should also drop P.INSERT. Leave P.UPDATE
+(or rename it to P.MODIFY). P.MODIFY_DATA + P.READ_DATA should replace P.UPDATE, P.SELECT
+and P.DELETE.</li>	<li>I suggest new syntax to allow setting permissions on
+cassandra/keyspaces resource: GRANT &lt;permission&gt; ON * FOR
+&lt;user&gt;.</li></ul>
+The interface has to change because of the CFName argument to
+grant() and revoke(), and since it's going to be broken anyway (and has been introduced
+recently), I think we are in a position to make some other improvements while at it.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Re: 'P.DELETE should probably go in favour of P.UPDATE' and TTL: we should just require
+both P.DELETE and P.UPDATE on inserts/updates with TTL set (discussed in <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4874" title="Possible authorizaton
+handling impovements" class="issue-link"
+data-issue-key="CASSANDRA-4874"><del>CASSANDRA-4874</del></a>) 
+
+
+New Comment: 
+<ul class="alternate" type="square">	<li>'LIST PERMISSIONS <span class="error">&#91;of
+user&#93;</span> <span class="error">&#91;on resource&#93;</span>' is slightly more
+grammatical</li>	<li>Agreed that IAuthority2.listPermissions() should return a generic
+collection (Set?) of ResourcePermission</li>	<li>+1 on removing NO-ACCESS</li>	<li>We do
+want "REVOKE ALL" but "for permission in listPermissions(): revoke(permission)" seems
+adequate to implement that</li>	<li>Agreed that CFName is not a good fit for "a keyspace
+or a columnfamily."  Not a huge fan of the List&lt;String&gt; approach either, though. 
+What about adding an IPermissionable interface that could be either a KS or a CF?  That
+would also allow adding other types of permissionable objects down the road &#8211;
+functions is a likely candidate.</li>	<li>I don't think FULL_ACCESS is problematic if
+hierarchy traversal is done correctly.  In your example, select would indeed be
+disallowed.  The problem with requiring permissions to be enumerated is, you add a new CF
+and now none of your GRANT ALL users have access to it unless you spell it out for each. 
+Painful.  (And not the way other databases work.)</li>	<li>Parenthetically, FULL_ACCESS
+should really be ALL as far as cql is concerned.  Internally it doesn't
+matter.</li>	<li>I'm okay with MODIFY + SELECT.  (Don't see any compelling reason to
+rename SELECT to READ.)</li>	<li>I don't think we need new syntax?</li></ul>Finally,<ul
+class="alternate" type="square">	<li>Committing IAuth2 to 1.1.6 was a mistake.  Should we
+rip it out in 1.1.7?  If we do not, how sure are we that we won't have changes for
+1.1.8?</li></ul> 
+
+
+New Comment: 
+<blockquote>'LIST PERMISSIONS <span class="error">&#91;of user&#93;</span> <span
+class="error">&#91;on resource&#93;</span>' is slightly more grammatical</blockquote>Is it
+a good thing or a bad thing? In any case, being able to list all the permissions on the
+resource is useful. It's currently impossible to know who has access to a particular
+resource - you need to somehow get the full list of users and then for user in all_users:
+list grants for user.<blockquote>We do want "REVOKE ALL" but "for permission in
+listPermissions(): revoke(permission)" seems adequate to implement that.</blockquote>I see
+now. And agree.<blockquote>What about adding an IPermissionable interface that could be
+either a KS or a CF?</blockquote>Maybe (most likely) a list of strings is not a good idea,
+but something capable of representing the complete hierarchy is needed.<br/>Currently it's
+cassandra/keyspaces[/ks<span class="error">&#91;/cf&#93;</span>], and we don't check or
+have a way to set permissions on the first two levels. I think we should drop 'cassandra'.
+Make it keyspaces[/ks<span class="error">&#91;/cf&#93;</span>] or data[/ks<span
+class="error">&#91;/cf&#93;</span>] or something like that and require specifying the
+whole path when granting/revoking.<br/>'GRANT CREATE ON keyspaces' would allow creating
+keyspaces without explicit permission on the not-yet-existing ks, for example (the issue
+from 4874). 'GRANT CREATE ON keyspaces/test', 'GRANT MODIFY ON keyspaces/test/cf'. This is
+slightly more verbose, but also more flexible - if we add other types of permissionable
+objects, as you said, we won't have to change grant/revoke syntax. 
+
+
+New Comment: 
+<blockquote>The problem with requiring permissions to be enumerated is, you add a new CF
+and now none of your GRANT ALL users have access to it unless you spell it out for each.
+Painful. (And not the way other databases work.)</blockquote>I don't see how this is true.
+All I'm proposing is to make FULL_ACCESS the opposite of NO_ACCESS.<br/>REVOKE ALL ON ..:
+"for permission in listPermissions(): revoke(permission)"<br/>GRANT ALL ON ..: "for
+permission in listPermissions(): grant(permission)"<br/>If you create a new CF then your
+(ks level) GRANT ALL users will have complete access to it. As long as we respect the
+hierarchy. It doesn't matter in this case whether the have a single FULL_ACCESS on the KS
+or ALTER, SELECT, MODIFY.. etc. on the KS - the result is the same. 
+
+
+New Comment: 
+<blockquote>I don't think FULL_ACCESS is problematic if hierarchy traversal is done
+correctly. In your example, select would indeed be disallowed.</blockquote>This is the
+problem - it wouldn't be disallowed since FULL_ACCESS is a permission on its own. If you
+grant FULL_ACCESS, then REVOKE SELECT - you still have your FULL_ACCESS. On the other
+hand, if GRANT ALL works as 'for permission in listPermissions(): grant(permission)', then
+GRANT ALL followed by REVOKE SELECT will leave the user with all the permissions except
+SELECT, which is exactly how we want this whole thing to behave. 
+
+
+New Comment: 
+This will also simplify permission checks - no need to check for both the requested
+permission AND FULL_ACCESS. If you need P.CREATE - just look for P.CREATE on every level
+of the hierarchy and that's all. Currently it's really complicated, since we also still
+have NO_ACCESS. 
+
+
+New Comment: 
+Back to representing the resource.. a list of strings is what IAuthority.authorize()
+expects. I think it's fine to break IAuthority2 since it's broken anyway, but can we
+change IAuthority as well? 
+
+
+New Comment: 
+<blockquote>Currently it's cassandra/keyspaces[/ks<span
+class="error">&#91;/cf&#93;</span>], and we don't check or have a way to set permissions
+on the first two levels. I think we should drop 'cassandra'.</blockquote>I'm not sure what
+the goal is here tbh &#8211; i.e. if the "cassandra" prefix makes it easier for some
+external consumer.  I could see making it "clustername/[ks<span
+class="error">&#91;/cf&#93;</span>]' for instance.<blockquote>If you create a new CF then
+your (ks level) GRANT ALL users will have complete access to
+it</blockquote>+1<blockquote>a list of strings is what IAuthority.authorize() expects. I
+think it's fine to break IAuthority2 since it's broken anyway, but can we change
+IAuthority as well?</blockquote>No, would need a new method and translate the old one. 
+
+
+New Comment: 
+<blockquote>No, would need a new method and translate the old one.</blockquote>Right.Any
+thoughts on other points? 
+
+
+New Comment: 
+I think we covered everything? 
+
+
+New Comment: 
+What about requiring the full name of the resource, without the option to omit parts of
+the hierarchy? What about the syntax itself ('fully/qualified/name') ?<br/>Do you agree
+with GRANT ALL ON mapping to "for permission in listPermissions(): grant(permission)" and
+getting rid of P.FULL_ACCESS? And I don't understand whether "'LIST PERMISSIONS <span
+class="error">&#91;of user&#93;</span> <span class="error">&#91;on resource&#93;</span>'
+is slightly more grammatical" is a yes or a no.<br/>Otherwise yes, we covered everything. 
+
+
+New Comment: 
+<blockquote>What about requiring the full name of the
+resource</blockquote>Yes.<blockquote>getting rid of
+P.FULL_ACCESS</blockquote>Yes.<blockquote>'LIST PERMISSIONS <span class="error">&#91;of
+user&#93;</span> <span class="error">&#91;on resource&#93;</span>'</blockquote>I
+misunderstood what you were saying, it's a yes. 
+
+
+New Comment: 
+committed patch to remove IA2 from 1.1 
+
+
+New Comment: 
+The patch for both <a href="https://issues.apache.org/jira/browse/CASSANDRA-4874"
+title="Possible authorizaton handling impovements" class="issue-link"
+data-issue-key="CASSANDRA-4874"><del>CASSANDRA-4874</del></a> and <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4875" title="Revert IAuthority2
+interface" class="issue-link"
+data-issue-key="CASSANDRA-4875"><del>CASSANDRA-4875</del></a> is inside <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-4874" title="Possible authorizaton
+handling impovements" class="issue-link"
+data-issue-key="CASSANDRA-4874"><del>CASSANDRA-4874</del></a> issue (<a
+href="https://issues.apache.org/jira/secure/attachment/12553744/4874-4875.txt"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/secure/attachment/12553744/4874-4875.txt</a>). 
+
+

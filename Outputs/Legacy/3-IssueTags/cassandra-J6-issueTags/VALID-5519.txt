@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8004d2b4456aedc43d788976fe13a5d643f2641a
+
+From: Facade-0
+To:   Facade-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5519.txt 
+
+commit 8004d2b4456aedc43d788976fe13a5d643f2641a
+Merge: d2938d5 48d1284
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge #3440 from 1.0

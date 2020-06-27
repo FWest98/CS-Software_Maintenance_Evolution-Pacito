@@ -1,0 +1,22 @@
+Pattern changes caused by commit: 6e94d79d4f1bd2c51ea6baf5960a315bb618b3c7
+
+From: Adapter-4
+To:   Adapter-2
+
+From: Facade-3
+To:   Facade-2
+
+From: Flyweight-4
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-859.txt 
+
+commit 6e94d79d4f1bd2c51ea6baf5960a315bb618b3c7
+Author: Trustin Lee <trustin@apache.org>
+
+    Changed to use a CopyOnWriteMap

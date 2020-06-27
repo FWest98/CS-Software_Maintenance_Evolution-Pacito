@@ -1,0 +1,25 @@
+Pattern changes caused by commit: bd0cc0be74a14b7d8de339511b5b2ceceff02701
+
+From: Bridge-4
+To:   Bridge-2
+
+From: Facade-7
+To:   Facade-2
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-7
+To:   Strategy-6
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1426.txt 
+
+commit bd0cc0be74a14b7d8de339511b5b2ceceff02701
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Added the missing ASL 2.0 headers

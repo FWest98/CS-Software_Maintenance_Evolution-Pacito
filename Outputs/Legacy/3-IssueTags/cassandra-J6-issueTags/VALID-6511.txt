@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 56dc5df7b435db8ffd468f3add01077527067589
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6511.txt 
+
+commit 56dc5df7b435db8ffd468f3add01077527067589
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Move CF and KS validation out of thrift

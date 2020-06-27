@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2ba21e1fcdd8682d5ce0fd404bc3ab0d3f0f9683
+
+From: Decorator-0
+To:   Decorator-1
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4798.txt 
+
+commit 2ba21e1fcdd8682d5ce0fd404bc3ab0d3f0f9683
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Handle large rows with single-pass streaming
+    patch by yukim; reviewed by slebresne for CASSANDRA-3003

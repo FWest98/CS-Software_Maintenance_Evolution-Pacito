@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 32182f09e115236d391f3d2f86a21ac2d408313e
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4754.txt 
+
+commit 32182f09e115236d391f3d2f86a21ac2d408313e
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Fix handling of the empty byte buffer by ReversedType
+    patch by frousseau; reviewed by slebresne for CASSANDRA-3111

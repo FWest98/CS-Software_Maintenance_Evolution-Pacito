@@ -1,0 +1,126 @@
+Pattern changes caused by commit: 1f996108310009e6c384ed4eae0de80dc47747c4
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5598.txt 
+
+commit 1f996108310009e6c384ed4eae0de80dc47747c4
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Detect misuses of CounterColumnType
+    patch by slebresne; reviewed by jbellis for CASSANDRA-3422
+
+
+
+==================================
+ Issue CASSANDRA-3422 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3422] Can create a Column Family with comparator CounterColumnType which is subsequently unusable
+-----------------
+
+-----------------
+Summary: Can create a Column Family with comparator CounterColumnType which is subsequently unusable
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Sat, 29 Oct 2011 16:46:49 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 7 Dec 2011 16:10:17 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+It's probably the case that this shouldn't be allowed at all but one is currently allowed
+to create a Column Family with comparator CounterColumnType which then appears
+unusable.
+
+CREATE COLUMNFAMILY comparator_cf_counter (id text PRIMARY KEY) WITH
+comparator=CounterColumnType
+<ol>	<li>Fails<br/>UPDATE comparator_cf_counter SET 1=1 + 1
+WHERE id='test_key'</li></ol>
+Error =&gt; invalid operation for non commutative
+columnfamily comparator_cf_counter
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+One can also create a table with CounterColumnType as the row_key type, probably should
+disallow that. 
+
+
+New Comment: 
+Patch is against 1.0. I'll rebase against 0.8 for the commit. 
+
+
+New Comment: 
+Shouldn't this go in ThriftValidation.validateCfDef (which is already called by QP as well
+as the thrift side)? 
+
+
+New Comment: 
+<blockquote>which is already called by QP</blockquote>I don't see that. I see it called
+for CREATE_INDEX but not for CREATE_COLUMNFAMILY, for which it seems we never create a
+thrift CfDef (which is reasonable). I mean, all this is imho a complete mess, between CFM,
+thrift CfDef, avro CfDef, etc... seems there is nothing consistent in there.<br/>I'm happy
+to do this differently but I failed to see the correct place for that. 
+
+
+New Comment: 
+Any opinion related to my previous comment? 
+
+
+New Comment: 
+You're right, it's all over the place.  CFMD is fine.  But it also needs to check that we
+don't use CCT as an individual column type.  (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2614" title="create Column and
+CounterColumn in the same column family" class="issue-link"
+data-issue-key="CASSANDRA-2614"><del>CASSANDRA-2614</del></a>.) 
+
+
+New Comment: 
+Attached v2 checks we don't mix counter and non-counters 
+
+
+New Comment: 
++1 
+
+

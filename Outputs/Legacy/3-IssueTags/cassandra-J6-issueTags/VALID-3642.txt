@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 60a2a8f1f2dd1e76b4bb1dd5253eea5daa6f9a78
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3642.txt 
+
+commit 60a2a8f1f2dd1e76b4bb1dd5253eea5daa6f9a78
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    clean up CHANGES

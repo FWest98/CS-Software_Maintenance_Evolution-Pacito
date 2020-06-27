@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 8becda0810ef47fa354041ce57dbca64bdc27d8d
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4133.txt 
+
+commit 8becda0810ef47fa354041ce57dbca64bdc27d8d
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Make the release build fail if the publish to central repository also fails
+    patch by stephenc; reviewed by slebresne for CASSANDRA-2690

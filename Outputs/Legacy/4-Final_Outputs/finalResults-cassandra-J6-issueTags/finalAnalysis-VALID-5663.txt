@@ -1,0 +1,100 @@
+Pattern changes caused by commit: dd5df19f2e4c30e00f4bd3cd312b1f76f897de02
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5663.txt 
+
+commit dd5df19f2e4c30e00f4bd3cd312b1f76f897de02
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Check for permission problems with directories on startup.
+    Patch by Yuki Morishita, reviewed by brandonwilliams for CASSANDRA-3544
+
+
+
+==================================
+ Issue CASSANDRA-3544 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3544] NPE on startup when there are permissions issues with directories
+-----------------
+
+-----------------
+Summary: NPE on startup when there are permissions issues with directories
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 30 Nov 2011 20:55:03 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 16 Dec 2011 21:31:51 +0000
+-----------------
+
+-----------------
+Assigned to: Yuki Morishita
+-----------------
+
+-----------------
+Description: 
+
+If the directories used by cassandra for data, commitlog, and saved caches aren't
+readable due to permissions, you get an NPE on startup.  In particular, if none of them
+are readable, you'll see something like this:
+<div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>ERROR
+14:50:11,945 Exception encountered during startupjava.lang.NullPointerException	at
+org.apache.cassandra.db.ColumnFamilyStore.scrubDataDirectories(ColumnFamilyStore.java:391)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:147)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:337)	at
+org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:107)java.lang.NullPointerException	at
+org.apache.cassandra.db.ColumnFamilyStore.scrubDataDirectories(ColumnFamilyStore.java:391)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:147)	at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:337)	at
+org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:107)Exception
+encountered during startup: null</pre></div></div>
+This traceback happens when the
+saved_caches directory isn't readable, but you can get different ones if only the data or
+commitlog directories aren't readable.
+
+We should check the permissions of these
+directories before trying to list their contents.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here is my first attempt. It checks all(data, commitlog, saved cache) directories'
+existence and permissions on startup.If check fails, cassandra stops starting. 
+
+
+New Comment: 
+The problem with this patch is it asserts the directories exist, where before we would try
+to create them if they didn't. 
+
+
+New Comment: 
+You're right. I changed to assert only when directory exists. 
+
+

@@ -1,0 +1,180 @@
+Pattern changes caused by commit: d7a09825025374b6a49a250467039dc15f36d053
+
+From: Flyweight-2
+To:   Flyweight-3
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9156.txt 
+
+commit d7a09825025374b6a49a250467039dc15f36d053
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Always record row-level tombstones in index component; this time from the correct feature branch
+    patch by jbellis; reviewed by jasobrown for CASSANDRA-5487
+
+
+
+==================================
+ Issue CASSANDRA-5487 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5487] Promote row-level tombstones to index file
+-----------------
+
+-----------------
+Summary: Promote row-level tombstones to index file
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 17 Apr 2013 19:11:44 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 22 Apr 2013 14:46:37 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+The idea behind promoted indexes (<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2319" title="Promote row index"
+class="issue-link" data-issue-key="CASSANDRA-2319"><del>CASSANDRA-2319</del></a>) was we
+could skip a seek to the row header by keeping the column index in the index file.  But,
+we skip writing the row-level tombstone to the index file unless it also has some column
+data.  So unless we read the tombstone from the data file (where it is guaranteed to
+exist) we can return incorrect results.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Patch attached that adds descriptor version "ic" to fix the problem.All unit tests pass
+except RangeTombstoneTest.  I'm pretty baffled by this.  I have narrowed it down thus
+far:<ol>	<li>If I revert just SSTableNamesIterator, the test fails in the same
+place</li>	<li>If I force SSTNI to take the readSimpleColumns path, the test
+passes</li></ol>Apparently another change is breaking something in the indexed path as a
+side effect but damned if I can see it.  Throwing this up in case I'm missing something
+obvious that another set of eyes would see.Some notes:<ul class="alternate"
+type="square">	<li>IndexedEntry.serializedSize was missing the 8 bytes for the position. 
+Fixed by pulling out promotedSize method.</li>	<li>Removed RowIndexEntry.isIndexed since
+it was difficult to tell whether "hasPromotedIndexes" or "contains enough columns to be
+indexed" was meant.  (This is probably what caused the bug here.)</li>	<li>Updated RIE to
+return sane values when there are no columns instead of UnsupportedOperation.  This allows
+the code calling it to deal with fewer special cases.</li>	<li>I've renamed RIE instances
+to rowEntry which caused a bit of churn in the patch, sorry.  (Easy to confuse with
+IndexInfo when the code deals with both, otherwise.)  I can vouch that intellij diff
+handles it pretty well. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/></li>	<li>I'm pretty sure that checking
+the column bloom filter at all would be buggy, since that way we could miss range
+tombstones.  I've removed the BF-filtering code from SSTNI but have not done a full
+backport of <a href="https://issues.apache.org/jira/browse/CASSANDRA-4885" title="Remove
+or rework per-row bloom filters" class="issue-link"
+data-issue-key="CASSANDRA-4885"><del>CASSANDRA-4885</del></a>.</li></ul> 
+
+
+New Comment: 
+<blockquote>Updated RIE to return sane values when there are no columns instead of
+UnsupportedOperation</blockquote>This was a bit dicey given the hackish nature of the
+serializer.  Possible bug? 
+
+
+New Comment: 
+I tried pulling out just the RIE changes into a new branch and that fails the test too. 
+Looks like that is the smoking gun... 
+
+
+New Comment: 
+Figured it out.  The problem was that I was creating single-item index lists in
+RowIndexEntry.create:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">        <span
+class="code-keyword">if</span> (!index.columnsIndex.isEmpty() ||
+!deletionInfo.isLive())</pre></div></div>Changing this to better match the old semantics
+makes the test pass because no rows actually generate promoted IndexedEntry objects, so
+the test runs through the readSimpleColumns path:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+     <span class="code-keyword">if</span> (index.columnsIndex.size() &gt; 1 ||
+deletionInfo.getTopLevelDeletion() != DeletionTime.LIVE)</pre></div></div>My intuition is
+that if the SSTNI index path cannot handle a single-entry index, my confidence is low that
+it's working correctly with more entries.  I'll create a ticket to follow up on this. 
+
+
+New Comment: 
+Pushed cleaned up and test-passing code to <a
+href="https://github.com/jbellis/cassandra/commits/5487-2" class="external-link"
+rel="nofollow">https://github.com/jbellis/cassandra/commits/5487-2</a> 
+
+
+New Comment: 
+Seemed to have lost my comment from the other day, but code lgtm. I tested locally, and
+upgrading from head of 1.2 to this branch was not a problem. However, upgrading from head
+of 1.1 failed with this:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java"> INFO 10:40:47,602 Opening /<span
+class="code-keyword">var</span>/lib/cassandra/data/system/schema_columns/system-schema_columns-hf-1
+(317 bytes) INFO 10:40:47,621 Opening /<span
+class="code-keyword">var</span>/lib/cassandra/data/system/LocationInfo/system-LocationInfo-hf-2
+(163 bytes) INFO 10:40:47,621 Opening /<span
+class="code-keyword">var</span>/lib/cassandra/data/system/LocationInfo/system-LocationInfo-hf-1
+(234 bytes)ERROR 10:40:47,905 Exception encountered during
+startupjava.lang.NullPointerException	at
+org.apache.cassandra.io.sstable.IndexHelper.skipSSTableBloomFilter(IndexHelper.java:43)	at
+org.apache.cassandra.db.columniterator.IndexedSliceReader.&lt;init&gt;(IndexedSliceReader.java:111)	at
+org.apache.cassandra.db.columniterator.SSTableSliceIterator.createReader(SSTableSliceIterator.java:68)	at
+org.apache.cassandra.db.columniterator.SSTableSliceIterator.&lt;init&gt;(SSTableSliceIterator.java:44)	at
+org.apache.cassandra.db.filter.SliceQueryFilter.getSSTableColumnIterator(SliceQueryFilter.java:101)	at
+org.apache.cassandra.db.filter.QueryFilter.getSSTableColumnIterator(QueryFilter.java:68)	at
+org.apache.cassandra.db.CollationController.collectAllData(CollationController.java:274)	at
+org.apache.cassandra.db.CollationController.getTopLevelColumns(CollationController.java:65)	at
+org.apache.cassandra.db.ColumnFamilyStore.getTopLevelColumns(ColumnFamilyStore.java:1357)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1214)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1126)	at
+org.apache.cassandra.db.ColumnFamilyStore.getColumnFamily(ColumnFamilyStore.java:1116)	at
+org.apache.cassandra.config.ColumnDefinition.readSchema(ColumnDefinition.java:248)	at
+org.apache.cassandra.config.CFMetaData.fromSchema(CFMetaData.java:1427)	at
+org.apache.cassandra.config.KSMetaData.deserializeColumnFamilies(KSMetaData.java:306)	at
+org.apache.cassandra.config.KSMetaData.fromSchema(KSMetaData.java:287)	at
+org.apache.cassandra.db.DefsTable.loadFromTable(DefsTable.java:155)	at
+org.apache.cassandra.config.DatabaseDescriptor.loadSchemas(DatabaseDescriptor.java:563)	at
+org.apache.cassandra.service.CassandraDaemon.setup(CassandraDaemon.java:231)	at
+org.apache.cassandra.service.CassandraDaemon.activate(CassandraDaemon.java:413)	at
+org.apache.cassandra.service.CassandraDaemon.main(CassandraDaemon.java:456)</pre></div></div>Will
+poke into what's going wrong 
+
+
+New Comment: 
+fix pushed to github 
+
+
+New Comment: 
+latest fix confirmed from 1.1 upgrade scenario. code lgtm. ship it! 
+
+
+New Comment: 
+committed.  over to ryan for additional testing.  (we want to make sure slice-by-name,
+slice-by-range, index scan, and seq scan work on data files created in 1.1 and queried in
+1.2.) 
+
+

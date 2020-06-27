@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 2828cb4ecfe3f3efb1372d9008f702ea301af2c5
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3793.txt 
+
+commit 2828cb4ecfe3f3efb1372d9008f702ea301af2c5
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    make DD.defsVersion volatile
+    patch by Jeffrey Wang; reviewed by jbellis for CASSANDRA-2490

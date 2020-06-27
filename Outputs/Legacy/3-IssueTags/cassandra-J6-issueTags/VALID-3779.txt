@@ -1,0 +1,26 @@
+Pattern changes caused by commit: bda0f39cef98f9eefc8105ed19169188ff716263
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Flyweight-6
+To:   Flyweight-5
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3779.txt 
+
+commit bda0f39cef98f9eefc8105ed19169188ff716263
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Allow pig to use multiple schemas, fix BytesTypes cast during storage.
+    Patch by Jeremy Hanna, reviewed by brandonwilliams for CASSANDRA-2465

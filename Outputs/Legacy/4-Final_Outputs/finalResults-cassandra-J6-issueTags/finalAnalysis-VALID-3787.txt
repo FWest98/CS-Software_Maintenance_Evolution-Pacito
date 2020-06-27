@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 4ba0e3c89db1c038f1e17f7d340aa4b1140654f1
+
+From: Flyweight-6
+To:   Flyweight-5
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3787.txt 
+
+commit 4ba0e3c89db1c038f1e17f7d340aa4b1140654f1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    madeCompactionInfo.getTaskType return an enum
+    patch by nickmbailey; reviewed by jbellis for CASSANDRA-2482
+
+
+
+==================================
+ Issue CASSANDRA-2482 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2482] Make compaction type an enum
+-----------------
+
+-----------------
+Summary: Make compaction type an enum
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 14 Apr 2011 19:33:33 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 14 Apr 2011 21:37:42 +0000
+-----------------
+
+-----------------
+Assigned to: Nick Bailey
+-----------------
+
+-----------------
+Description: 
+
+Compaction type should be an enum, half of the places we set it we use it as a message
+and include the keyspace/cf although that is already included in the compaction info
+object.
+
+I realize this is minor and a pedantic but from the standpoint of someone writing
+a monitoring application its kind of annoying.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+committed with a couple fixes:<ul class="alternate" type="square">	<li>row cache save uses
+correct enum</li>	<li>CompactionInfo.getTaskType returns enum instead of string so callers
+don't have to do string inspection anymore</li></ul> 
+
+

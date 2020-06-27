@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 51aa3b5b1b556c32b5361852a8943da44a0b8921
+
+From: Proxy-0
+To:   Proxy-1
+
+From: Strategy-6
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1265.txt 
+
+commit 51aa3b5b1b556c32b5361852a8943da44a0b8921
+Author: Trustin Lee <trustin@apache.org>
+
+    Related issue: DIRMINA-505 (OOM errors when handling badly formed HTTP requests)
+    * Collections created by all http decoding state are cleaned up when the state is destroyed.

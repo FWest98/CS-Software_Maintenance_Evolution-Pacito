@@ -1,0 +1,131 @@
+Pattern changes caused by commit: 8cab2b8266afb7470f841f4f6b6ecced3aa7f86a
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-461.txt 
+
+commit 8cab2b8266afb7470f841f4f6b6ecced3aa7f86a
+Author: Hairong Kuang <hairong@apache.org>
+
+    HDFS-1091. Implement listStatus that returns an iterator of FileStatus. Contributed by Hairong Kuang.
+
+
+
+==================================
+ Issue HDFS-1091 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-1091] Implement listStatus that returns an Iterator of FileStatus 
+-----------------
+
+-----------------
+Summary: Implement listStatus that returns an Iterator of FileStatus 
+-----------------
+
+-----------------
+Issue type: New Feature
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Thu, 8 Apr 2010 23:47:33 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 28 Apr 2010 21:08:15 +0000
+-----------------
+
+-----------------
+Assigned to: Hairong Kuang
+-----------------
+
+-----------------
+Description: 
+
+This jira is for an efficient implementation of the method Iterator&lt;FileStatus&gt;
+listStatus(Path) in HDFS.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Here is a patch that provides an efficient implementation of listStatus that returns an
+iterator in Hdfs. It modifies TestFileStatus to use the new FileContext#listStatus API
+implemented in <a href="https://issues.apache.org/jira/browse/HADOOP-6692" title="Add
+FileContext#listStatus that returns an iterator" class="issue-link"
+data-issue-key="HADOOP-6692"><del>HADOOP-6692</del></a>. It also included a minor fix on
+Hdfs#listStatus that is supposed to get into <a
+href="https://issues.apache.org/jira/browse/HDFS-985" title="HDFS should issue multiple
+RPCs for listing a large directory" class="issue-link"
+data-issue-key="HDFS-985"><del>HDFS-985</del></a> but did not make it by mistake. 
+
+
+New Comment: 
+<ol>	<li><tt>@Override</tt> notation for <tt>Hdfs.listStatusIterator()</tt> should be
+un-commented. It would be also useful to add a comment what it overrides, like<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">@Override <span class="code-comment">//
+AbstractFileSystem</span></pre></div></div></li>	<li>In the
+<tt>Iterator&lt;FileStatus&gt;</tt> returned by <tt>Hdfs.listStatusIterator()</tt> the
+<tt>partialListing</tt> member seem to be redundant. It is already a member of
+<tt>DirectoryListing</tt>, so you can use <tt>thisListing.getPartialListing()</tt>
+instead.</li>	<li>It would be good to have an explanatory message when you throw
+<tt>NoSuchElementException()</tt> and <tt>UnsupportedOperationException()</tt>.</li></ol> 
+
+
+New Comment: 
+Thank Konstantin for his review comments. HdfsListStatusItor1.patch addresses his
+comments. 
+
+
+New Comment: 
++1 This looks good. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12443008/HdfsListStatusIterator1.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12443008/HdfsListStatusIterator1.patch</a><br/>
+ against trunk revision 937914.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 4 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    +1 core
+tests.  The patch passed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h5.grid.sp2.yahoo.net/329/console</a>This
+message is automatically generated. 
+
+

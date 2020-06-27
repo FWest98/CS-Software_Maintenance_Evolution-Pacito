@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 0fb4df971685d7616131063205b93007330a4ad6
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3801.txt 
+
+commit 0fb4df971685d7616131063205b93007330a4ad6
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Invalidate cache for streamed rows
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2420

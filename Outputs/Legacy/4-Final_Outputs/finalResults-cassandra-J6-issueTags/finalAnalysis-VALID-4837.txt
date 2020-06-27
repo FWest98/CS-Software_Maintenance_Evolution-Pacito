@@ -1,0 +1,77 @@
+Pattern changes caused by commit: 6a4c1c73829647e83a78ce509914aaa4fb1d1b6b
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4837.txt 
+
+commit 6a4c1c73829647e83a78ce509914aaa4fb1d1b6b
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Fix interpolation of PIG_OPTS.
+    Patch by Eldon Stegall, reviewed by brandonwilliams for CASSANDRA-3160
+
+
+
+==================================
+ Issue CASSANDRA-3160 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3160] PIG_OPTS bash variable interpolation doesn't work correctly when PIG_OPTS is set in the environment.
+-----------------
+
+-----------------
+Summary: PIG_OPTS bash variable interpolation doesn't work correctly when PIG_OPTS is set in the environment.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Thu, 8 Sep 2011 16:01:43 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 8 Sep 2011 17:12:55 +0000
+-----------------
+
+-----------------
+Assigned to: Unassigned
+-----------------
+
+-----------------
+Description: 
+
+PIG_OPTS bash variable interpolation doesn't work correctly when PIG_OPTS is set in the
+environment due to variable preceding quotes.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Committed, thanks. 
+
+

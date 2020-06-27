@@ -1,0 +1,31 @@
+Pattern changes caused by commit: 84a1d6059bbaab375817a33179bb8de63121176b
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-2
+To:   Flyweight-4
+
+From: Mediator-3
+To:   Mediator-2
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7112.txt 
+
+commit 84a1d6059bbaab375817a33179bb8de63121176b
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix mixing user-provided timestamps and local deletion time for #4396

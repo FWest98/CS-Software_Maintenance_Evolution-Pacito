@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 3d837db50df0e6f0009ceca9d4e5123014929a28
+
+From: Proxy-1
+To:   Proxy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1385.txt 
+
+commit 3d837db50df0e6f0009ceca9d4e5123014929a28
+Author: Trustin Lee <trustin@apache.org>
+
+    Renamed KeepAliveTimeoutException to KeepAliveRequestTimeoutException, which is more accurate

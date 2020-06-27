@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 5b8dc3a0dc20a1d09e64c91c20f6f931e7146016
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4395.txt 
+
+commit 5b8dc3a0dc20a1d09e64c91c20f6f931e7146016
+Merge: d64e805 8e701e0
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    merge from 0.7

@@ -1,0 +1,170 @@
+Pattern changes caused by commit: 410134e67e736f1d0e550ff5d4f767df478ce5e1
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4235.txt 
+
+commit 410134e67e736f1d0e550ff5d4f767df478ce5e1
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix removing columns and subcolumns that are supressed by a row orsupercolumn tombstone during replica resolution
+    patch by Aaron Morton and jbellis; reviewed by slebresne for CASSANDRA-2590
+
+
+
+==================================
+ Issue CASSANDRA-2590 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2590] row delete breaks read repair
+-----------------
+
+-----------------
+Summary: row delete breaks read repair
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 2 May 2011 03:44:51 +0000
+-----------------
+
+-----------------
+Resolved at: Thu, 9 Jun 2011 13:51:09 +0000
+-----------------
+
+-----------------
+Assigned to: Aaron Morton
+-----------------
+
+-----------------
+Description: 
+
+related to <a href="https://issues.apache.org/jira/browse/CASSANDRA-2589" title="row
+deletes do not remove columns" class="issue-link"
+data-issue-key="CASSANDRA-2589"><del>CASSANDRA-2589</del></a> 
+
+Working at CL ALL can get
+inconsistent reads after row deletion. Reproduced on the 0.7 and 0.8 source. 
+
+Steps to
+reproduce:
+<ol>	<li>two node cluster with rf 2 and HH turned off</li>	<li>insert rows via
+cli</li>	<li>flush both nodes</li>	<li>shutdown node 1</li>	<li>connect to node 2 via cli
+and delete one row</li>	<li>bring up node 1</li>	<li>connect to node 1 via cli and issue
+get with CL ALL</li>	<li>first get returns the deleted row, second get returns zero
+rows.</li></ol>
+RowRepairResolver.resolveSuperSet() resolves a local CF with the old row
+columns, and the remote CF which is marked for deletion. CF.resolve() does not pay
+attention to the deletion flags and the resolved CF has both markedForDeletion set and a
+column with a lower timestamp. The return from resolveSuperSet() is used as the return for
+the read without checking if the cols are relevant. 
+
+Also when
+RowRepairResolver.mabeScheduleRepairs() runs it sends two mutations. Node 1 is given the
+row level deletation, and Node 2 is given a mutation to write the old (and now deleted)
+column from node 2. I have some log traces for this if needed. 
+
+A quick fix is to check
+for relevant columns in the RowRepairResolver, will attach shortly.    
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+unit test to show columns in a deleted CF after calling resolve() and a hack fix for the
+use case described above. 
+
+
+New Comment: 
+So the problem is that something in repair isn't calling removeDeleted?  That's the
+approach we normally take; it's like your ensureRelevant, but it doesn't mutate the
+original copy (which is important since the original might be part of a cache).  Here's
+your test modified to use that:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">    @Test    <span
+class="code-keyword">public</span> void testEnsureRelevant()    {        ColumnFamily cf1
+= ColumnFamily.create(<span class="code-quote">"Keyspace1"</span>, <span
+class="code-quote">"Standard1"</span>);        cf1.addColumn(column(<span
+class="code-quote">"one"</span>, <span class="code-quote">"A"</span>, 0));       
+ColumnFamily cf2 = ColumnFamily.create(<span class="code-quote">"Keyspace1"</span>, <span
+class="code-quote">"Standard1"</span>);        cf2.delete((<span
+class="code-object">int</span>) (<span
+class="code-object">System</span>.currentTimeMillis() / 1000), 1);       
+cf2.resolve(cf1);        <span class="code-keyword">assert</span> cf2.getColumnCount() ==
+1;                ColumnFamily cleaned = ColumnFamilyStore.removeDeleted(cf2, <span
+class="code-object">Integer</span>.MAX_VALUE);        <span
+class="code-keyword">assert</span> cleaned == <span class="code-keyword">null</span>;   
+}</pre></div></div> 
+
+
+New Comment: 
+... but that's not what we want for RowRepairResolver. (I freely admit that dealing with
+tombstones is subtle and tricky. <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/>removeDeleted will give you back a version
+of the row with any GC-able tombstones removed. That's not what we want for read repair;
+we want to preserve tombstones, but we want a "canonical" representation of only the
+minimum tombstones necessary. (Technically, this doesn't matter for the repair per se,
+because repairing obsolete data is harmless. What we're concerned with is getting the
+right result back to the client, and thriftifyColumns &amp; friends in CassandraServer
+assume that canonicalization has been performed previously.)So we do want to do what you
+were doing with ensureRelevant, but it's a little more complex than that because we have
+the same problem at the supercolumn level, as at the row
+level.QueryFilter.collectCollatedColumns is responsible for doing this when merging
+different versions from memtables and sstables, so we just need to wire it up in RRR.
+Here's a patch that uses an IdentityQueryFilter to do this. 
+
+
+New Comment: 
+Thanks, am doing some more tests on super columns 
+
+
+New Comment: 
+2590-v3 uses removeDeleted() in RowRepairResolver.resolveSuperset() and includes tests in
+RowResolverTest.Patch is for 0.8.<a
+href="https://issues.apache.org/jira/browse/CASSANDRA-2621" title="sub columns under
+deleted CF returned " class="issue-link"
+data-issue-key="CASSANDRA-2621"><del>CASSANDRA-2621</del></a> shows that
+QueryFilter.collectCollatedColumns() returns a CF with deleted columns and the caller
+should use removeDeleted. Continuing to use CF.resolve() seemed like the minimum change.
+Let me know if you think we should still use QueryFilter to resolve the differences. 
+
+
+New Comment: 
+I think we're almost there.The trick is you actually need <em>both</em>
+collectCollatedColumns and removeDeleted, since rD assumes cCC has already been called
+(which it is, when we're merging versions from different sstables...  but not when we're
+merging versions from different replicas, as in RRR).Added a test
+(testResolveDeletedSuper) to illustrate this.  Fails against v3 (rD but no cCC) but passes
+w/ v4 (cCC and rD). 
+
+
+New Comment: 
++1 on v4, we do need both calls.That being said, we should probably refactor that part of
+the code someday because it is not the cleanest thing ever. And there is probably ways to
+avoid those two phases (which does do some duplicate works I believe). 
+
+
+New Comment: 
+committed.  thanks Aaron! 
+
+

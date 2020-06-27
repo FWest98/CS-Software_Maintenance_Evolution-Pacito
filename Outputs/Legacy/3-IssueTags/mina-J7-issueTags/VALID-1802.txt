@@ -1,0 +1,16 @@
+Pattern changes caused by commit: f6f81270aace599f13895d8aa8022a98da8b165f
+
+From: Proxy-0
+To:   Proxy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1802.txt 
+
+commit f6f81270aace599f13895d8aa8022a98da8b165f
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    o Removed a dead portion of code. There is no way the notified flag can be 'true' in the catch section, when its value is set to true just before the catch.

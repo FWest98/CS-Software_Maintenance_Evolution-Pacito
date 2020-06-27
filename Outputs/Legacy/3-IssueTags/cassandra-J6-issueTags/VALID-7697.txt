@@ -1,0 +1,25 @@
+Pattern changes caused by commit: 487c9168fce9a40f6906ee4a7ee250a9bd390fde
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7697.txt 
+
+commit 487c9168fce9a40f6906ee4a7ee250a9bd390fde
+Author: Eric Evans <eevans@apache.org>
+
+    reenable system ks r/w

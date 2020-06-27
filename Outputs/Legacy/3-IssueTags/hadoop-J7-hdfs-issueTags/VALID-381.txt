@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 212dff13ec8636755b5239c00a8c1eda25ee816b
+
+From: Mediator-0
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-381.txt 
+
+commit 212dff13ec8636755b5239c00a8c1eda25ee816b
+Author: Michael Stack <stack@apache.org>
+
+    HDFS-927 DFSInputStream retries too many times for new block location

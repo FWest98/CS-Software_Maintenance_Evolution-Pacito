@@ -1,0 +1,159 @@
+Pattern changes caused by commit: 97517336485cb80c322c6ed4cbedb481e8e7964e
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-389.txt 
+
+commit 97517336485cb80c322c6ed4cbedb481e8e7964e
+Author: Thomas White <tomwhite@apache.org>
+
+    HDFS-894. DatanodeID.ipcPort is not updated when existing node re-registers. Contributed by Todd Lipcon.
+
+
+
+==================================
+ Issue HDFS-894 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-894] DatanodeID.ipcPort is not updated when existing node re-registers
+-----------------
+
+-----------------
+Summary: DatanodeID.ipcPort is not updated when existing node re-registers
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 13 Jan 2010 03:15:58 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 16 Feb 2010 23:14:58 +0000
+-----------------
+
+-----------------
+Assigned to: Todd Lipcon
+-----------------
+
+-----------------
+Description: 
+
+In FSNamesystem.registerDatanode, it checks if a registering node is a reregistration of
+an old one based on storage ID. If so, it simply updates the old one with the new
+registration info. However, the new ipcPort is lost when this happens.
+
+I produced
+manually this by setting up a DN with IPC port set to 0 (so it picks an ephemeral port)
+and then restarting the DN. At this point, the NN's view of the ipcPort is stale, and
+clients will not be able to achieve pipeline recovery.
+
+This should be easy to fix and
+unit test, but not sure when I'll get to it, so anyone else should feel free to grab it if
+they get to it first.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+This should be fixed in all three current branches. As mentioned in the description, it
+can prevent the write pipeline from recovering since ClientDatanodeProtocol and
+InterDatanodeProtocol won't be able to connect. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12434614/hdfs-894.txt"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12434614/hdfs-894.txt</a><br/>
+ against trunk revision 905760.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 2 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/111/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Failed test seems unrelated. 
+
+
+New Comment: 
+Filed <a href="https://issues.apache.org/jira/browse/HDFS-953" title="TestBlockReport
+times out intermittently" class="issue-link"
+data-issue-key="HDFS-953"><del>HDFS-953</del></a> for the testpatch failure seen above.I
+think this is ready to commit. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+The code looks good. But since this is not a regression (and datanodes typically
+re-register with the same ipcPort) can we put this patch only in trunk? 
+
+
+New Comment: 
+<blockquote>datanodes typically re-register with the same ipcPort</blockquote>Unless
+you've configured the datanode IPC port to 0 - I do this on my test clusters on shared
+hardware, for example.<blockquote>this is not a regression</blockquote>true enough. I find
+it an obvious enough bug that causes big problems when binding to port 0, that we should
+put it in all branches. But if you disagree, trunk's fine. 
+
+
+New Comment: 
+I've just committed this. Thanks Todd! 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #193 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/193/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/193/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+

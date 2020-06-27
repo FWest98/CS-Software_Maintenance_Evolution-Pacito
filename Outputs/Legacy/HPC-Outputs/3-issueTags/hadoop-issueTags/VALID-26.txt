@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 8246aa28ff72e3ae81eb6ce59852abd5828fadc6
+
+From: Facade-10
+To:   Facade-12
+
+From: Strategy-4
+To:   Strategy-7
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-26.txt 
+
+commit 8246aa28ff72e3ae81eb6ce59852abd5828fadc6
+Author: Christopher Douglas <cdouglas@apache.org>
+
+    HADOOP-3315. Add a new, binary file foramt, TFile. Contributed by Hong Tang.

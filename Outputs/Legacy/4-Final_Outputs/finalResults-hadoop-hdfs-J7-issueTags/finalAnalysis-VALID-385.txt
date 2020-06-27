@@ -1,0 +1,228 @@
+Pattern changes caused by commit: 453174ad263252bec3d30e1280e5822ec61bcca8
+
+From: Mediator-1
+To:   Mediator-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-385.txt 
+
+commit 453174ad263252bec3d30e1280e5822ec61bcca8
+Author: Konstantin I Boudnik <cos@apache.org>
+
+    HDFS-907. Add tests for getBlockLocations and totalLoad metrics. Contributed by Ravi Phulari.
+
+
+
+==================================
+ Issue HDFS-907 Description 
+=======================================
+
+Project: Hadoop HDFS
+-----------------
+
+-----------------
+Title: [HDFS-907] Add  tests for getBlockLocations and totalLoad metrics. 
+-----------------
+
+-----------------
+Summary: Add  tests for getBlockLocations and totalLoad metrics. 
+-----------------
+
+-----------------
+Issue type: Test
+-----------------
+
+-----------------
+Current status: Closed
+-----------------
+
+-----------------
+Created at: Wed, 20 Jan 2010 01:07:13 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 5 Feb 2010 04:08:55 +0000
+-----------------
+
+-----------------
+Assigned to: Ravi Phulari
+-----------------
+
+-----------------
+Description: 
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached first working patch.<br/>Will update this patch soon with tests for other
+NameNode metrics and fix for indentation errors. 
+
+
+New Comment: 
+A couple of comments:<ul class="alternate" type="square">	<li>method updateNNMetrics()
+sleeps for 1 second. The comment says that it happens according to
+<tt>dfs.replication.interval</tt>. Why don't you retrieve the actual value of this
+configuration parameter?</li>	<li>use some meaningful messages for the
+asserts</li>	<li><tt>Thread.sleep()</tt> might throw <tt>InterruptedException</tt> which
+will terminate {{ updateNNMetrics()}}. Which in turn will terminate
+<tt>testGetBlockLocations()</tt>. Is it intended?</li>	<li>would suggest to call the test
+<tt>testGetBlockLocationsMetric()</tt></li>	<li>all public methods have to have proper
+JavaDoc with all required tags. In this case <tt>@throws</tt> is missing</li></ul>And some
+nits:<ul class="alternate" type="square">	<li>identification suppose to be equal to 2
+white spaces exactly</li>	<li>I think very last empty line is excessive</li>	<li>test
+method declaration doesn't have a white in <tt>throws Exception{</tt></li>	<li>you have
+two empty lines modifications in<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>   }-  +   private MiniDFSCluster
+cluster;</pre></div></div>and<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>   private FSNamesystem
+namesystem;-+  private NameNodeMetrics nnMetrics;+  private NameNode nn;+     private
+static Path getTestPath(String fileName) {</pre></div></div></li></ul> 
+
+
+New Comment: 
+Oh, one more: the JIRA's title says "Add ... unit tests". These aren't unit tests. So
+please consider writing true unit tests, e.g. using Mockito, or change the title of the
+JIRA. 
+
+
+New Comment: 
+Cos, thanks for reviewing patch and useful comments and suggestions.<br/>Uploading new
+patch updated as per your suggestions. <br/>Thanks. 
+
+
+New Comment: 
+I think I like what I see. One more thing: please add some meaningful message to the
+assertion statements - it will easy the fault analysis effort. 
+
+
+New Comment: 
+More to go, Ravi <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/smile.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/><div class="preformatted panel"
+style="border-width: 1px;"><div class="preformattedContent panelContent"><pre>+    // and
+previous interval are 0+   
+assertEquals(0,nnMetrics.numGetBlockLocations.getPreviousIntervalValue());+   
+assertEquals(0,nnMetrics.numGetBlockLocations.getCurrentIntervalValue());</pre></div></div>BTW,
+you don't need to track versions of your patches manually (e.g. v1, v2, etc.): simply keep
+attaching the file with the same name and JIRA will do the rest. No patches will be lost
+either. 
+
+
+New Comment: 
+Good catch Cos. Duhhh lazy me <img class="emoticon"
+src="https://issues.apache.org/jira/images/icons/emoticons/wink.png" height="16"
+width="16" align="absmiddle" alt="" border="0"/> . <br/>Attaching updated patch. 
+
+
+New Comment: 
++1 patch looks good. Since this is for 0.20 please run test-patch locally and post the
+results here. 
+
+
+New Comment: 
+-1 overall.  Here are the results of testing the latest attachment <br/>  <a
+href="http://issues.apache.org/jira/secure/attachment/12431853/HDFS-907v3.patch"
+class="external-link"
+rel="nofollow">http://issues.apache.org/jira/secure/attachment/12431853/HDFS-907v3.patch</a><br/>
+ against trunk revision 903906.    +1 @author.  The patch does not contain any @author
+tags.    +1 tests included.  The patch appears to include 3 new or modified tests.    +1
+javadoc.  The javadoc tool did not generate any warning messages.    +1 javac.  The
+applied patch does not increase the total number of javac compiler warnings.    +1
+findbugs.  The patch does not introduce any new Findbugs warnings.    +1 release audit. 
+The applied patch does not increase the total number of release audit warnings.    -1 core
+tests.  The patch failed core unit tests.    -1 contrib tests.  The patch failed contrib
+unit tests.Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/testReport/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/testReport/</a><br/>Findbugs
+warnings: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/artifact/trunk/build/test/findbugs/newPatchFindbugsWarnings.html</a><br/>Checkstyle
+results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/artifact/trunk/build/test/checkstyle-errors.html"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/artifact/trunk/build/test/checkstyle-errors.html</a><br/>Console
+output: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/console"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/console</a>This
+message is automatically generated. 
+
+
+New Comment: 
+Above test failures (core and contrib)  are not related to patch. There is something
+terribly wrong going on with Patch reporting. <br/>I say so because *Test results: <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/testReport/*"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/109/testReport/*</a>
+ says that there are no test failures but above comment posts that there are failures. 
+
+
+New Comment: 
+Attaching patch for  0.20 branch. <br/>test-patch passed successfully , pasting test-patch
+result log.<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>[exec]      [exec]      [exec] +1 overall.  
+    [exec]      [exec]     +1 @author.  The patch does not contain any @author tags.    
+[exec]      [exec]     +1 tests included.  The patch appears to include 3 new or modified
+tests.     [exec]      [exec]     +1 javadoc.  The javadoc tool did not generate any
+warning messages.     [exec]      [exec]     +1 javac.  The applied patch does not
+increase the total number of javac compiler warnings.     [exec]      [exec]     +1
+findbugs.  The patch does not introduce any new Findbugs warnings.     [exec]      [exec] 
+   +1 Eclipse classpath. The patch retains Eclipse classpath integrity.     [exec]     
+[exec]      [exec]      [exec]      [exec]
+======================================================================     [exec]
+======================================================================     [exec]    
+Finished build.     [exec]
+======================================================================     [exec]
+======================================================================     [exec]     
+[exec] BUILD SUCCESSFULTotal time: 22 minutes 27 seconds</pre></div></div> 
+
+
+New Comment: 
+Attaching patch for Yahoo! distribution. 
+
+
+New Comment: 
+I've just committed this into two unreleased branches in trunk. Thank you Ravi. 
+
+
+New Comment: 
+Thanks for committing Cos.On 2/4/10 8:10 PM, "Konstantin Boudnik (JIRA)"
+&lt;jira@apache.org&gt; wrote:     [ <a
+href="https://issues.apache.org/jira/browse/HDFS-907?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel"
+class="external-link"
+rel="nofollow">https://issues.apache.org/jira/browse/HDFS-907?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel</a>
+]Konstantin Boudnik updated <a href="https://issues.apache.org/jira/browse/HDFS-907"
+title="Add  tests for getBlockLocations and totalLoad metrics. " class="issue-link"
+data-issue-key="HDFS-907"><del>HDFS-907</del></a>:<br/>------------------------------------
+      Resolution: Fixed<br/>    Fix Version/s: 0.22.0<br/>                   0.21.0<br/>  
+  Hadoop Flags: <span class="error">&#91;Reviewed&#93;</span><br/>           Status:
+Resolved  (was: Patch Available)I've just committed this into two unreleased branches in
+trunk. Thank you Ravi.&#8211;<br/>This message is automatically generated by
+JIRA.<br/>-<br/>You can reply to this email to add a comment to the issue
+online.Ravi<br/>&#8211; 
+
+
+New Comment: 
+Integrated in Hadoop-Hdfs-trunk-Commit #191 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/191/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hadoop-Hdfs-trunk-Commit/191/</a>) 
+
+
+New Comment: 
+Integrated in Hdfs-Patch-h2.grid.sp2.yahoo.net #146 (See <a
+href="http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/"
+class="external-link"
+rel="nofollow">http://hudson.zones.apache.org/hudson/job/Hdfs-Patch-h2.grid.sp2.yahoo.net/146/</a>) 
+
+

@@ -1,0 +1,25 @@
+Pattern changes caused by commit: ef01ca5bcf42fcf6c6a43a77eb4f0a90a93bbc1d
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6232.txt 
+
+commit ef01ca5bcf42fcf6c6a43a77eb4f0a90a93bbc1d
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    Avoids NPE during repair when a keyspace has no CFs

@@ -1,0 +1,329 @@
+
+--------- Original GoF Patterns ----------
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPreAdd is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+exceptionCaught is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+filterClose is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+filterWrite is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+messageReceived is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+messageSent is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPostAdd is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+onPreRemove is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionClosed is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionCreated is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionIdle is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+sessionOpened is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+Decorator Pattern
+ReferenceCountingFilter is a Decorator class
+filterSetTrafficMask is a decorate operation
+filter of type IoFilter is the Decoratee class
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/util/ReferenceCountingFilter.java
+
+
+ IoFilter
+Bridge Pattern.
+IoFilterAdapter is abstract.
+NextFilter is an interface.
+IoFilterAdapter delegates NextFilter.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoFilterAdapter.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoFilter.java
+
+Bridge Pattern.
+TextLineDecoder is abstract.
+IoSession is an interface.
+TextLineDecoder delegates IoSession.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoSession.java
+
+Bridge Pattern.
+TextLineDecoder is abstract.
+ProtocolDecoderOutput is an interface.
+TextLineDecoder delegates ProtocolDecoderOutput.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput.java
+
+Bridge Pattern.
+AbstractMessageDecoder is abstract.
+ProtocolDecoderOutput is an interface.
+AbstractMessageDecoder delegates ProtocolDecoderOutput.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/sumup/codec/AbstractMessageDecoder.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoderOutput.java
+
+Strategy Pattern.
+SingletonStateContextLookup is the Context class.
+StateContext is the Strategy interface.
+Concrete Strategy classes:  AbstractStateContext TestStateContext DefaultStateContext
+Delegation through context of type StateContext
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/SingletonStateContextLookup.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/StateContext.java
+
+Strategy Pattern.
+HttpProtocolCodecFactory is the Context class.
+ProtocolEncoder is the Strategy interface.
+Concrete Strategy classes:  NettyEncoder ProtocolEncoderAdapter DemuxingProtocolEncoder SynchronizedProtocolEncoder TextLineEncoder ObjectSerializationEncoder
+Delegation through encoder of type ProtocolEncoder
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolEncoder.java
+
+Strategy Pattern.
+HttpProtocolCodecFactory is the Context class.
+ProtocolDecoder is the Strategy interface.
+Concrete Strategy classes:  ProtocolDecoderAdapter TextLineDecoder SynchronizedProtocolDecoder
+Delegation through decoder of type ProtocolDecoder
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpProtocolCodecFactory.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/ProtocolDecoder.java
+
+Strategy Pattern.
+Context is the Context class.
+IoBuffer is the Strategy interface.
+Concrete Strategy classes:  AbstractIoBuffer IoBufferWrapper
+Delegation through buf of type IoBuffer
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoBuffer.java
+
+Strategy Pattern.
+VmPipe is the Context class.
+IoHandler is the Strategy interface.
+Concrete Strategy classes:  IoHandlerAdapter SingleSessionIoHandlerDelegate ServerToProxyIoHandler
+Delegation through handler of type IoHandler
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/transport/vmpipe/VmPipe.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoHandler.java
+
+Strategy Pattern.
+SingleSessionIoHandlerDelegate is the Context class.
+SingleSessionIoHandlerFactory is the Strategy interface.
+Concrete Strategy classes: 
+Delegation through factory of type SingleSessionIoHandlerFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerDelegate.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerFactory.java
+
+Strategy Pattern.
+SingleSessionIoHandlerAdapter is the Context class.
+IoSession is the Strategy interface.
+Concrete Strategy classes:  AbstractIoSession SocketSession DatagramSession AprSession VmPipeSession SerialSession
+Delegation through session of type IoSession
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerAdapter.java,
+               /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoSession.java
+
+Flyweight Pattern.
+HttpDecoder is a flyweight factory.
+COOKIE_COMMENT is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpDecoder.java
+
+Flyweight Pattern.
+IoSessionRecycler is a flyweight factory.
+NOOP is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/IoSessionRecycler.java
+
+Flyweight Pattern.
+Server is a flyweight factory.
+VERSION_STRING is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/httpserver/codec/Server.java
+
+Flyweight Pattern.
+MessageDecoder is a flyweight factory.
+OK is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/demux/MessageDecoder.java
+
+Flyweight Pattern.
+AbstractKeepAliveFilter is a flyweight factory.
+PING is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/keepalive/AbstractKeepAliveFilter.java
+
+Flyweight Pattern.
+SingleSessionIoHandlerDelegate is a flyweight factory.
+HANDLER is a flyweight object (declared public-static-final).
+File location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/handler/multiton/SingleSessionIoHandlerDelegate.java
+
+Template Method Found.
+AbstractIoSessionConfig is the template class
+setAll is the template method
+doSetAll is a primitive method
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/common/AbstractIoSessionConfig.java
+
+Factory Method pattern.
+StateContextFactory is a Factory Method class.
+DefaultStateContextFactory is a concrete Factory Method class.
+create is a factory method returns  DefaultStateContext
+ which extends StateContext
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/statemachine/src/main/java/org/apache/mina/statemachine/context/DefaultStateContextFactory.java
+
+Factory Method pattern.
+StateContextFactory is a Factory Method class.
+Main$1 is a concrete Factory Method class.
+create is a factory method returns  TapeDeckContext
+ which extends StateContext
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/tapedeck/Main.java
+
+Proxy Pattern.
+ClientPanel is a proxy.
+JPanel is a proxy interface.
+The real object(s): JTextField
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/udp/ClientPanel.java
+
+Proxy Pattern.
+SwingChatClient is a proxy.
+JFrame is a proxy interface.
+The real object(s): JButton
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/chat/client/SwingChatClient.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineEncoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+TextLineCodecFactory is an adapter class.
+TextLineDecoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationEncoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder.java
+
+Adapter Pattern.
+Adapting classes:  Object ProtocolCodecFactory
+ObjectSerializationCodecFactory is an adapter class.
+ObjectSerializationDecoder is the adaptee class.
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationCodecFactory.java
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationDecoder.java
+
+Facade Pattern.
+HttpDecoder is a facade class.
+Hidden types: IoBuffer HttpResponseMessage HttpMessage Cookie DateUtil
+Facade access types: HttpDecoder
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/filter-codec-http/src/main/java/org/apache/mina/filter/codec/http/HttpDecoder.java
+
+Facade Pattern.
+TextLineEncoder is a facade class.
+Hidden types: IoSession IoBuffer LineDelimiter ProtocolEncoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineEncoder.java
+
+Facade Pattern.
+Main is a facade class.
+Hidden types: StateMachineFactory StateMachineProxyFactory SocketAcceptor DefaultIoFilterChainBuilder IoService IoAcceptor
+Facade access types: Main
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/example/src/main/java/org/apache/mina/example/tapedeck/Main.java
+
+Facade Pattern.
+TextLineDecoder is a facade class.
+Hidden types: LineDelimiter IoSession IoBuffer ProtocolDecoderOutput
+Facade access types: TextLineCodecFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/textline/TextLineDecoder.java
+
+Facade Pattern.
+ObjectSerializationEncoder is a facade class.
+Hidden types: IoBuffer ProtocolEncoderOutput
+Facade access types: ObjectSerializationCodecFactory
+File Location: /home/filipe/Desktop/Internship_RuG_2020/Analyzed_Projects/mina/core/src/main/java/org/apache/mina/filter/codec/serialization/ObjectSerializationEncoder.java
+
+
+------------------------------------------
+
+Pattern Instance Statistics:
+
+Creational Patterns
+==============================
+Abstract Factory            1
+Factory Method              1
+Singleton                   0
+------------------------------
+Structural Patterns
+==============================
+Adapter                     4
+Bridge                      4
+Composite                   0
+Decorator                   1
+Facade                      5
+Flyweight                   6
+Proxy                       2
+------------------------------
+Behavioral Patterns
+==============================
+Chain of Responsibility     0
+Mediator                    0
+Observer                    0
+State                       0
+Strategy                    7
+Template Method             1
+Visitor                     0
+------------------------------
+
+Number of classes processed: 142
+Number of files processed: 411
+Size of DelegationTable: 524
+Size of concrete class nodes: 74
+Size of undirected invocation edges: 86
+
+
+nMediatorFacadeDual/nMediator = 0/0
+nImmutable/nFlyweight = 0/6
+nFlyweightGoFVersion = 0

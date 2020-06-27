@@ -1,0 +1,96 @@
+Pattern changes caused by commit: 5d7e2fba24f99939e44dd082864c1dad55b3726f
+
+From: Mediator-1
+To:   Mediator-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4697.txt 
+
+commit 5d7e2fba24f99939e44dd082864c1dad55b3726f
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow sstable2json to work on index sstable files
+    patch by jbellis and tjake for CASSANDRA-3059
+
+
+
+==================================
+ Issue CASSANDRA-3059 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3059] sstable2json on an index sstable failed with NPE
+-----------------
+
+-----------------
+Summary: sstable2json on an index sstable failed with NPE
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Fri, 19 Aug 2011 00:15:50 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 24 Aug 2011 14:54:53 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+$ ./bin/sstable2json /var/lib/cassandra-trunk/data/Keyspace1/Standard1.Idx1-h-1-Data.db
+<br/>{<br/>Exception in thread "main" java.lang.NullPointerException<br/>        at
+org.apache.cassandra.db.ColumnFamily.create(ColumnFamily.java:74)<br/>        at
+org.apache.cassandra.db.ColumnFamily.create(ColumnFamily.java:69)<br/>        at
+org.apache.cassandra.db.ColumnFamily.create(ColumnFamily.java:64)<br/>        at
+org.apache.cassandra.io.sstable.SSTableIdentityIterator.&lt;init&gt;(SSTableIdentityIterator.java:147)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableIdentityIterator.&lt;init&gt;(SSTableIdentityIterator.java:87)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableIdentityIterator.&lt;init&gt;(SSTableIdentityIterator.java:71)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableScanner$KeyScanningIterator.next(SSTableScanner.java:177)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableScanner$KeyScanningIterator.next(SSTableScanner.java:142)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableScanner.next(SSTableScanner.java:134)<br/>       
+at org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:304)<br/>        at
+org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:335)<br/>        at
+org.apache.cassandra.tools.SSTableExport.export(SSTableExport.java:348)<br/>        at
+org.apache.cassandra.tools.SSTableExport.main(SSTableExport.java:406)
+
+cfm is null for
+Index CF?
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+patch against 0.8 
+
+
+New Comment: 
+v2 fixes off by one bug in substring. otherwise +1 
+
+

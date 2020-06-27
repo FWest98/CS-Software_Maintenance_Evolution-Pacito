@@ -1,0 +1,18 @@
+Pattern changes caused by commit: 843dc796ea5e80b003f6429a329ec04a9f1bfff4
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9456.txt 
+
+commit 843dc796ea5e80b003f6429a329ec04a9f1bfff4
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add get commands for compaction/streaming throughput to nodetool.
+    Patch by Michal Michalski, reviewed by brandonwilliams for
+    CASSANDRA-5588

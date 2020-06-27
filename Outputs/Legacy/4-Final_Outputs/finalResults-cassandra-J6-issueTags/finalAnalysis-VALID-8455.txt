@@ -1,0 +1,89 @@
+Pattern changes caused by commit: 4faed779d1cacedf524cb47711071a5a6ada8809
+
+From: Abstract Factory-1
+To:   Abstract Factory-2
+
+From: Factory Method-1
+To:   Factory Method-2
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Facade-0
+To:   Facade-1
+
+From: Flyweight-3
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-8455.txt 
+
+commit 4faed779d1cacedf524cb47711071a5a6ada8809
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Detect memory for heap sizing on OSX.
+    Patch by Cathy Daw, reviewed by brandonwilliams for CASSANDRA-5157
+
+
+
+==================================
+ Issue CASSANDRA-5157 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-5157] mac friendly cassandra-env.sh
+-----------------
+
+-----------------
+Summary: mac friendly cassandra-env.sh
+-----------------
+
+-----------------
+Issue type: Task
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Tue, 15 Jan 2013 07:11:44 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 15 Jan 2013 12:36:46 +0000
+-----------------
+
+-----------------
+Assigned to: Cathy Daw
+-----------------
+
+-----------------
+Description: 
+
+by default my mac launches with 1024mb but this fix will allow it to start up at 25%
+total memory
+<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">Darwin)    system_memory_in_bytes=`sysctl hw.memsize
+| awk <span class="code-quote">'{print $2}'</span>`    system_memory_in_mb=`expr
+$system_memory_in_bytes / 1024 / 1024`    system_cpu_cores=`sysctl hw.ncpu | awk <span
+class="code-quote">'{print $2}'</span>`;;</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+

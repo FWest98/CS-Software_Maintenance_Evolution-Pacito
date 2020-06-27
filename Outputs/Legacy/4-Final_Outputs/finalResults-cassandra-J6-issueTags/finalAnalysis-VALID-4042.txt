@@ -1,0 +1,104 @@
+Pattern changes caused by commit: 054404ba43d2e673adbd3da0317ed17b5c91701e
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-4042.txt 
+
+commit 054404ba43d2e673adbd3da0317ed17b5c91701e
+Author: Gary Dusbabek <gdusbabek@apache.org>
+
+    initialize local ep state prior to gossip startup if needed. patch by gdusbabek, reviewed by brandonwilliams. CASSANDRA-2638
+
+
+
+==================================
+ Issue CASSANDRA-2638 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2638] Migrations announce on startup attempts to set local gossip state before gossiper is started.
+-----------------
+
+-----------------
+Summary: Migrations announce on startup attempts to set local gossip state before gossiper is started.
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 11 May 2011 17:37:23 +0000
+-----------------
+
+-----------------
+Resolved at: Wed, 11 May 2011 20:08:48 +0000
+-----------------
+
+-----------------
+Assigned to: Gary Dusbabek
+-----------------
+
+-----------------
+Description: 
+
+AbstractCassandraDemon calls MigrationManager.applyMigrations() before the gossiper is
+initialized (via SS.initServer()).
+
+MM.applyMigrations tries to set the local gossip state
+before it is initialized via G.start().
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+java.lang.NullPointerException<br/>	at
+org.apache.cassandra.gms.Gossiper.addLocalApplicationState(Gossiper.java:883)<br/>	at
+org.apache.cassandra.service.MigrationManager.passiveAnnounce(MigrationManager.java:125)<br/>	at
+org.apache.cassandra.service.MigrationManager.applyMigrations(MigrationManager.java:183)<br/>	at
+org.apache.cassandra.service.AbstractCassandraDaemon.setup(AbstractCassandraDaemon.java:182)<br/>	at
+org.apache.cassandra.service.AbstractCassandraDaemon.activate(AbstractCassandraDaemon.java:313)<br/>	at
+org.apache.cassandra.thrift.CassandraDaemon.main(CassandraDaemon.java:80) 
+
+
+New Comment: 
+patch is for trunk, but the same thing basically needs to be done for 0.7. 
+
+
+New Comment: 
++1 
+
+
+New Comment: 
+Integrated in Cassandra-0.7 #480 (See <a
+href="https://builds.apache.org/hudson/job/Cassandra-0.7/480/" class="external-link"
+rel="nofollow">https://builds.apache.org/hudson/job/Cassandra-0.7/480/</a>)<br/>   
+initialize local ep state prior to gossip startup if needed. patch by gdusbabek, reviewed
+by brandonwilliams. <a href="https://issues.apache.org/jira/browse/CASSANDRA-2638"
+title="Migrations announce on startup attempts to set local gossip state before gossiper
+is started." class="issue-link"
+data-issue-key="CASSANDRA-2638"><del>CASSANDRA-2638</del></a> 
+
+

@@ -1,0 +1,337 @@
+Pattern changes caused by commit: d5723b08bd22e1ea2e8a3abe0485b6d4e96c205c
+
+From: Facade-1
+To:   Facade-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5461.txt 
+
+commit d5723b08bd22e1ea2e8a3abe0485b6d4e96c205c
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    Fix incomplete deletion of delivered hints
+    patch by jbellis; reviewed by brandonwilliams for CASSANDRA-3466
+
+
+
+==================================
+ Issue CASSANDRA-3466 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3466] Hinted handoff not working after rolling upgrade from 0.8.7 to 1.0.2
+-----------------
+
+-----------------
+Summary: Hinted handoff not working after rolling upgrade from 0.8.7 to 1.0.2
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 7 Nov 2011 19:16:31 +0000
+-----------------
+
+-----------------
+Resolved at: Fri, 11 Nov 2011 19:54:48 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+
+While testing rolling upgrades from 0.8.7 to 1.0.2 on a test cluster I've noticed that
+hinted hand-off didn't always work properly. Hints generated on an upgraded node does not
+seem to be delivered to other newly upgraded nodes once they rejoin the ring. They only
+way I've found to get a node to deliver its hints is to restart it.
+
+Here's some steps to
+reproduce this issue:
+
+1. Install cassandra 0.8.7 on node1 and node2 using default
+settings.<br/>2. Create keyspace foo with 
+{replication_factor: 2}
+. Create column family
+bar<br/>3. Shutdown node2 <br/>4. Insert data into bar and verify that HintsColumnFamily
+on node2 contains hints<br/>5. Start node2 and verify that hinted handoff is performed and
+HintsColumnFamily becomes empty again.
+
+6. Upgrade and restart node1<br/>7. Shutdown node2
+<br/>8. Insert data into bar and verify that HintsColumnFamily on node2 contains
+hints<br/>9. Upgrade and start node2<br/>10. Notice that hinted handoff is <b>not</b>
+performed when "node2" comes back. (Only if node1 is restarted)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Do you observe the same behavior if both nodes start life as 1.x?Is node2 down long enough
+for node1 failure detector to notice?  (i.e. shows as DOWN in nodetool ring) 
+
+
+New Comment: 
+&gt; Do you observe the same behavior if both nodes start life as 1.x?No. Hinted handoff
+seems to work well if I either start with 1.0.2 nodes or restart all nodes once all nodes
+have been upgraded to 1.0.2. Probably something in the gossip state confusing hinted
+hand-offs.&gt; Is node2 down long enough for node1 failure detector to notice? (i.e. shows
+as DOWN in nodetool ring)Yes. This from the node1 log:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Node2 is shut down  INFO 19:39:08,331 InetAddress /127.0.0.2 is now
+dead.Hint is triggered using set bar[x][x]=<span class="code-quote">'x'</span>  INFO
+19:40:52,126 Node /127.0.0.2 has restarted, now UP  INFO 19:40:52,127 InetAddress
+/127.0.0.2 is now UP  INFO 19:40:52,127 Node /127.0.0.2 state jump to normalNothing
+happens, hint stays in HintsColumnFamily forever</pre></div></div>Calling deliverHints()
+using JMX also does not seem to work. Restarting node1 will though... 
+
+
+New Comment: 
+&gt; Do you observe the same behavior if both nodes start life as 1.x?I spoke too soon. I
+did some more testing with fresh 1.0.2 installs (and empty data directories).<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">1. Start node1 and node2 and create keyspace and cf.2. Stop node2, wait
+until <span class="code-quote">"is now dead"</span>.3. Trigger hint using <span
+class="code-quote">"set bar[x][x]=<span class="code-quote">'x'</span>;"</span>4. Start
+node2, wait <span class="code-keyword">for</span> hint delivery... Nothing happens5.
+Restart node1, hints are <span class="code-keyword">finally</span>
+delivered.</pre></div></div>Now it gets really weird...<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">2.
+Stop node2, wait until <span class="code-quote">"is now dead"</span>.3. Trigger hint using
+<span class="code-quote">"set bar[x][x]=<span class="code-quote">'x'</span>;"</span>4.
+Start node2. Node1 attempts to deliver hints but fails with: INFO 09:29:35,153 Started
+hinted handoff <span class="code-keyword">for</span> token:
+23495828435496583962471242736585511198 with IP: /127.0.0.2ERROR 09:29:35,212 Fatal
+exception in thread <span
+class="code-object">Thread</span>[HintedHandoff:1,1,main]java.lang.AssertionError	at
+org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpoint(HintedHandOffManager.java:301)	at
+org.apache.cassandra.db.HintedHandOffManager.access$100(HintedHandOffManager.java:81)	at
+org.apache.cassandra.db.HintedHandOffManager$2.runMayThrow(HintedHandOffManager.java:353)	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)	at
+java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:680)On node1:[<span
+class="code-keyword">default</span>@system] list HintsColumnFamily;Using <span
+class="code-keyword">default</span> limit of 100-------------------RowKey:
+11ad21c7d112e903d71645d1d951911e=&gt; (super_column=b2cd983009e311e10000fe8ebeead9cf,    
+(column=6b6579, value=78, timestamp=1320740935987, ttl=864000)    
+(column=6d75746174696f6e,
+value=0003666f6f00017800000001000003e801000003e880000000800000000000000000000001000178000004b134f65401d80000000139,
+timestamp=1320740935987, ttl=864000)     (column=7461626c65, value=666f6f,
+timestamp=1320740935987, ttl=864000)     (column=76657273696f6e, value=00000003,
+timestamp=1320740935987, ttl=864000))=&gt; (super_column=f929a36009e211e10000fe8ebeead9df,
+    (column=6b6579, value=78, timestamp=1320740624538, ttl=864000)     (column=7461626c65,
+value=666f6f, timestamp=1320740624538, ttl=864000))1 Row Returned.</pre></div></div>Is
+that a 0.8 hint showing up out of the blue on a pure 1.0.2 cluster? Or did I mess up my
+test somehow? 
+
+
+New Comment: 
+I haven't been able to reproduce the assertion errors, but I did find what is preventing
+hint delivery in some cases:<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>        if
+(hintStore.getSSTables().isEmpty())            return; // nothing to do, don't confuse
+users by logging a no-op handoff</pre></div></div>If you're testing with a small enough
+amount of hints that the hints table never flushes, we never deliver the hints in the
+current memtable. 
+
+
+New Comment: 
+Thats true. i did more testing in this area today. Deleted hints sstables from disk to be
+sure that no 0.8.x possible hints are there - but they should not be there anyway because
+i had snapshot from CF hints truncate around. And i could not get any hints delivered to
+second node (no exceptions today).Thats probably deserves to roll new cassandra version
+soon, because it is very important to get hints properly delivered as soon as possible. 
+
+
+New Comment: 
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>=&gt; (super_column=f929a36009e211e10000fe8ebeead9df,    
+(column=6b6579, value=78, timestamp=1320740624538, ttl=864000)     (column=7461626c65,
+value=666f6f, timestamp=1320740624538, ttl=864000))1 Row Returned.</pre></div></div>The
+odd thing here is that you have the 'table' and 'key' subcolumns, but not the 'mutation'
+or 'version' subcolumns.  Since these are all applied at once I'm not sure how they could
+be missing. 
+
+
+New Comment: 
+application is doing row delete and then row insert 
+
+
+New Comment: 
+&gt; I haven't been able to reproduce the assertion errors, but I did find what is
+preventing hint delivery in some casesBrandon, Did you verify that removing those lines of
+code actually fixes hint delivery? Instead of changing the code I just did a quick
+experiment with "nodetool flush" on the node holding the hints and then restarting the
+other node but that was not enough to trigger hints delivery:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">Node1 notices that node2 is backup up  INFO 14:41:50,752 Node /127.0.0.2
+has restarted, now UP  INFO 14:41:50,752 InetAddress /127.0.0.2 is now UP  INFO
+14:41:50,753 Node /127.0.0.2 state jump to normalBut no hints are delivered...nodetool
+flush is used to make sure hints hit the disk on node1:  INFO 14:42:32,675 Enqueuing flush
+of Memtable-Versions@1503666327(83/103 serialized/live bytes, 3 ops)  INFO 14:42:32,675
+Writing Memtable-Versions@1503666327(83/103 serialized/live bytes, 3 ops)  INFO
+14:42:32,681 Completed flushing /tmp/node1/data/data/system/Versions-h-1-Data.db (247
+bytes)  INFO 14:42:32,682 Enqueuing flush of Memtable-HintsColumnFamily@737188401(177/221
+serialized/live bytes, 1 ops)  INFO 14:42:32,682 Writing
+Memtable-HintsColumnFamily@737188401(177/221 serialized/live bytes, 1 ops)  INFO
+14:42:32,688 Completed flushing /tmp/node1/data/data/system/HintsColumnFamily-h-1-Data.db
+(277 bytes)  INFO 14:42:32,691 Enqueuing flush of Memtable-bar@1831941861(17/21
+serialized/live bytes, 1 ops)  INFO 14:42:32,691 Writing Memtable-bar@1831941861(17/21
+serialized/live bytes, 1 ops)  INFO 14:42:32,694 Completed flushing
+/tmp/node1/data/data/foo/bar-h-1-Data.db (68 bytes)Node2 is restarted once more to check
+<span class="code-keyword">if</span> <span class="code-keyword">this</span> will trigger
+hints delivery:  INFO 14:42:54,650 InetAddress /127.0.0.2 is now dead.  INFO 14:43:02,628
+Node /127.0.0.2 has restarted, now UP  INFO 14:43:02,629 InetAddress /127.0.0.2 is now UP 
+INFO 14:43:02,629 Node /127.0.0.2 state jump to normalStill nothing...  Restarting node 1
+will deliver the hints within a few seconds though...</pre></div></div>Regarding
+reproducing the assertion error it's a bit tricky. But after letting my two node test
+cluster performing hints delivery for each other a few times I was able to reproduce it
+once more. Is there anything special you would like me to test? 
+
+
+New Comment: 
+<blockquote>Brandon, Did you verify that removing those lines of code actually fixes hint
+delivery?</blockquote>Yes.<blockquote>Instead of changing the code I just did a quick
+experiment with "nodetool flush" on the node holding the hints and then restarting the
+other node but that was not enough to trigger hints delivery</blockquote>Hints aren't
+delivered immediately, there's up to a 60s random delay to stagger the replay.  Did you
+wait long enough to be sure it passed? 
+
+
+New Comment: 
+<blockquote>Hints aren't delivered immediately, there's up to a 60s random delay to
+stagger the replay. Did you wait long enough to be sure it passed?</blockquote>Yes, I've
+waited a couple of minutes now and still nothing. So I guess issuing "nodetool flush"
+isn't enough. I'll leave it running while I recompile with your changes and re-test. 
+
+
+New Comment: 
+Brandon, you're right. After commenting out those two lines I can no longer reproduce the
+hint delivery problem.The AssertionError is still there though and I managed to reproduce
+it with my two node setup.<br/>I'll attach a tarball with my config, DEBUG-level log files
+and data directories shortly.<br/>What I did was basically:<ol>	<li>Start a new cluster
+with a patched 1.0.2 and create keyspace and column family.</li>	<li>Bring down node2,
+trigger hints on node1</li>	<li>Bring up node2, notice that hints are delivered,
+YAY!</li>	<li>Bring down node1, trigger hints on node2</li>	<li>Bring up node1, noticed
+AssertionError in log file for node1   (node1/system.log:2036)</li></ol>To me it looks
+like the assertionError on node1 is triggered when node2 connects to deliver its hints. 
+
+
+New Comment: 
+Logs, config files and data files from a setup that triggered AssertionError in
+HintedHandoffManager 
+
+
+New Comment: 
+Jonas,Thanks for the data files.  Looking at them with sstable2json I see the all the
+subcolumns are actually there, so I think what you may be seeing is <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a>, could you try to reproduce
+with that patch applied? 
+
+
+New Comment: 
+<blockquote>Jonas,</blockquote><blockquote>Thanks for the data files. Looking at them with
+sstable2json I see the all the subcolumns are actually there, so I think what you may be
+seeing is <a href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a>, could you try to reproduce
+with that patch applied?</blockquote>Jikes, that one looks pretty bad.Anyway, with the
+patches in <a href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a> in combination with the
+modifications of HintedHandOffManager.py mentioned earlier I've so far not been able to
+reproduce any of the issues I've observed earlier.Thanks for your help! 
+
+
+New Comment: 
+I've unfortunately managed to reproduce this AssertionError even with the <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a> patches and the
+HintedHandOffManager.java modification.I used the same two node setup as before
+initialized with:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">create keyspace foo with
+placement_strategy = <span
+class="code-quote">'org.apache.cassandra.locator.SimpleStrategy'</span> and
+strategy_options = {replication_factor:2};use foo;create column family bar with
+comparator=UTF8Type and key_validation_class=UTF8Type;</pre></div></div><ol>	<li>Shutdown
+node2 and wait until it's detected as down<br/>trigger hints on node1 (using random
+values):<div class="code panel" style="border-width: 1px;"><div class="codeContent
+panelContent"><pre class="code-java">use foo;set bar[0][0]=<span
+class="code-quote">'1'</span>;set bar[2][3]=<span class="code-quote">'1'</span>;set
+bar[3][3]=<span class="code-quote">'1'</span>;</pre></div></div>Verify that `list
+HintsColumnFamily` looks OK</li>	<li>Start node2 and wait for hints delivery<br/>Verify
+that `list HintsColumnFamily` is empty after hints delivery</li></ol>After repeating step
+1-2 a few times (sometimes once is enough) "HintsColumnFamily" will become "corrupt" after
+hints delivery instead of empty. And if node1 is restarted after that it will trigger the
+AssertionError.The attached file contains DEBUG-log files, data directories and
+conf-directories from one test where HintsColumnFamily ended up looking like this:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">[<span class="code-keyword">default</span>@system] list
+HintsColumnFamily;Using <span class="code-keyword">default</span> limit of
+100-------------------RowKey: 1b226da5af66854850abdcc6ab4ce9c6=&gt;
+(super_column=1f2860e00b9811e10000fe8ebeead9ff,     (column=6b6579, value=33,
+timestamp=1320928378352, ttl=864000))1 Row Returned.Elapsed time: 6
+msec(s).</pre></div></div> 
+
+
+New Comment: 
+The system log indicates an assertion error on HintedHandoffManager line 298. But it's not
+an assertion on this line in 1.0.2. Would you mind trying to see if you can reproduce on
+the current 1.0 branch (or 1.0.2 patched with <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3446" title="Problem
+SliceByNamesReadCommand on super column family after flush operation" class="issue-link"
+data-issue-key="CASSANDRA-3446"><del>CASSANDRA-3446</del></a>)? Just want to make sure
+you're not hitting something fixed already. 
+
+
+New Comment: 
+I'm running 1.0.2 with the 3446 patches <b>and</b> the following three lines removed from
+HintedHandOffManager.java (As discussed earlier in this ticket)<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre class="code-java">  
+     <span class="code-keyword">if</span> (hintStore.getSSTables().isEmpty())           
+<span class="code-keyword">return</span>; <span class="code-comment">// nothing to <span
+class="code-keyword">do</span>, don't confuse users by logging a no-op handoff</span><span
+class="code-comment">// An empty line</span></pre></div></div>That should explain the line
+number mismatch (-3).<br/>Without this change hinted handoff wouldn't work at all for me
+unless HintsColumnFamily is large enough to flow to disk before the other node gets back
+up. 
+
+
+New Comment: 
+So I should be looking at node1 HintsColumnFamily for the corruption, right? 
+
+
+New Comment: 
+Fix attached.  The problem is we were deleting the hint with the timestamp from the
+<tt>version</tt> subcolumn, but the subcolumn timestamps were generated independently so
+it's possible for there to be "orphaned" subcolumns left over.Patch (1) uses same ts for
+all hint subcolumns and (2) creates the tombstone w/ the max ts from the subcolumns.Also
+fixes the isEmpty delivery bug by checking memtable contents as well. 
+
+
+New Comment: 
++1 
+
+

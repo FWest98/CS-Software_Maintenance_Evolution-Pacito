@@ -1,0 +1,17 @@
+Pattern changes caused by commit: 8b410078a4d2c779930ee0228d263b926beda00c
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-9373.txt 
+
+commit 8b410078a4d2c779930ee0228d263b926beda00c
+Merge: 94d42a9 b69c1aa
+Author: Yuki Morishita <yukim@apache.org>
+
+    Merge branch 'cassandra-1.2' into trunk

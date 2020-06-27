@@ -1,0 +1,20 @@
+Pattern changes caused by commit: 1a93de3b35c51fef8e9687bfc7b513438e6a9453
+
+From: Abstract Factory-2
+To:   Abstract Factory-1
+
+From: Factory Method-2
+To:   Factory Method-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7956.txt 
+
+commit 1a93de3b35c51fef8e9687bfc7b513438e6a9453
+Merge: 763465b b226ae5
+Author: Dave Brosius <dbrosius@apache.org>
+
+    Merge branch 'cassandra-1.2.0' into cassandra-1.2

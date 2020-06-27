@@ -1,0 +1,16 @@
+Pattern changes caused by commit: 240a261e14b8c38bdfdec4fc55bf4fca2069caae
+
+From: Facade-5
+To:   Facade-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1624.txt 
+
+commit 240a261e14b8c38bdfdec4fc55bf4fca2069caae
+Author: Edouard De Oliveira <edeoliveira@apache.org>
+
+    Fix windows os version extraction

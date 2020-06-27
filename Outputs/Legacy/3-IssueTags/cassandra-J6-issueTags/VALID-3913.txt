@@ -1,0 +1,23 @@
+Pattern changes caused by commit: 5e6539addbca00d82484a60d0ca574f0223bfe05
+
+From: Abstract Factory-3
+To:   Abstract Factory-2
+
+From: Factory Method-3
+To:   Factory Method-2
+
+From: Mediator-2
+To:   Mediator-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-3913.txt 
+
+commit 5e6539addbca00d82484a60d0ca574f0223bfe05
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    fix incorrect use ofNBHM.size in ReadCallback
+    patch by jbellis; reviewed by stuhood for CASSANDRA-2552

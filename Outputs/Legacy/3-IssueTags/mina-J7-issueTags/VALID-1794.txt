@@ -1,0 +1,34 @@
+Pattern changes caused by commit: 0a011175a7210b1a2b8644bdfc066dd118259a04
+
+From: Adapter-6
+To:   Adapter-4
+
+From: Bridge-2
+To:   Bridge-1
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Facade-4
+To:   Facade-0
+
+From: Flyweight-5
+To:   Flyweight-4
+
+From: Strategy-8
+To:   Strategy-1
+
+From: Template Method-1
+To:   Template Method-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-1794.txt 
+
+commit 0a011175a7210b1a2b8644bdfc066dd118259a04
+Author: Emmanuel Lecharny <elecharny@apache.org>
+
+    Better fix for the Mac OSX port finder issue (applying Niklas patch correctly)

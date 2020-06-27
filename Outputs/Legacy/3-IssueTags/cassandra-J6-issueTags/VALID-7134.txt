@@ -1,0 +1,29 @@
+Pattern changes caused by commit: 962b23ba0cb9c2dbb655fdd609561125b2856546
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+From: Template Method-3
+To:   Template Method-2
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7134.txt 
+
+commit 962b23ba0cb9c2dbb655fdd609561125b2856546
+Author: Brandon Williams <brandonwilliams@apache.org>
+
+    Add a token generator to standard tools.
+    Patch by paul cannon, reviewed by brandonwilliams for CASSANDRA-3709

@@ -1,0 +1,19 @@
+Pattern changes caused by commit: 5a3d4c14b2f7e804c74c04c6e0b229c50649e7bd
+
+From: Facade-1
+To:   Facade-0
+
+From: Flyweight-3
+To:   Flyweight-4
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-6340.txt 
+
+commit 5a3d4c14b2f7e804c74c04c6e0b229c50649e7bd
+Author: Sylvain Lebresne <sylvain@datastax.com>
+
+    CFS.setMaxCompactionThreshold doesn't allow 0 unless min is also 0

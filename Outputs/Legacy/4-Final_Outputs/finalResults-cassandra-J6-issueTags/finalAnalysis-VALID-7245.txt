@@ -1,0 +1,212 @@
+Pattern changes caused by commit: 2714056562a4435da48f5a12db18c60ea6551f41
+
+From: Decorator-2
+To:   Decorator-1
+
+From: Flyweight-2
+To:   Flyweight-1
+
+From: Mediator-3
+To:   Mediator-1
+
+From: Strategy-0
+To:   Strategy-1
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-7245.txt 
+
+commit 2714056562a4435da48f5a12db18c60ea6551f41
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    manually unmap CLS buffer
+    patch by jbellis; tested by Patrycjusz Matuszak for CASSANDRA-4337
+
+
+
+==================================
+ Issue CASSANDRA-4337 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-4337] Data insertion fails because of commitlog rename failure
+-----------------
+
+-----------------
+Summary: Data insertion fails because of commitlog rename failure
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 13 Jun 2012 09:34:53 +0000
+-----------------
+
+-----------------
+Resolved at: Tue, 31 Jul 2012 05:14:31 +0000
+-----------------
+
+-----------------
+Assigned to: Jonathan Ellis
+-----------------
+
+-----------------
+Description: 
+<h3><a name="Configuration"></a>Configuration</h3>
+Cassandra server configuration:
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>heap size: 4 GBseed_provider:    - class_name:
+org.apache.cassandra.locator.SimpleSeedProvider      parameters:          - seeds:
+"xxx.xxx.xxx.10,xxx.xxx.xxx.11"listen_address: xxx.xxx.xxx.10rpc_address: 0.0.0.0rpc_port:
+9160rpc_timeout_in_ms: 20000endpoint_snitch:
+PropertyFileSnitch</pre></div></div>
+cassandra-topology.properties
+<div
+class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent
+panelContent"><pre>xxx.xxx.xxx.10=datacenter1:rack1xxx.xxx.xxx.11=datacenter1:rack1default=datacenter1:rack1</pre></div></div>
+Ring
+configuration:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>Address         DC          Rack       
+Status State   Load            Effective-Ownership Token                                  
+                                                       
+85070591730234615865843651857942052864xxx.xxx.xxx.10  datacenter1 rack1       Up    
+Normal  23,11 kB        100,00%             0xxx.xxx.xxx.11  datacenter1 rack1       Up   
+ Normal  23,25 kB        100,00%            
+85070591730234615865843651857942052864</pre></div></div><h3><a
+name="Problem"></a>Problem</h3>
+I have ctreated keyspace and column family using CLI
+commands:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>create keyspace testks with
+placement_strategy = 'org.apache.cassandra.locator.NetworkTopologyStrategy' and
+strategy_options = {datacenter1:2};use testks;create column family
+testcf;</pre></div></div>
+Then I started my Java application, which inserts 50 000 000
+rows to created column family using Hector client. Client is connected to node
+1.<br/>After about 30 seconds (160 000 rows were inserted) Cassandra server on node 1
+throws an exception:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>ERROR [COMMIT-LOG-ALLOCATOR] 2012-06-13
+10:26:38,393 AbstractCassandraDaemon.java (line 134) Exception in thread
+Thread[COMMIT-LOG-ALLOCATOR,5,main]java.io.IOError: java.io.IOException: Rename from
+c:\apache-cassandra\storage\commitlog\CommitLog-7345742389552.log to 7475933520374
+failed	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.&lt;init&gt;(CommitLogSegment.java:127)	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.recycle(CommitLogSegment.java:204)	at
+org.apache.cassandra.db.commitlog.CommitLogAllocator$2.run(CommitLogAllocator.java:166)	at
+org.apache.cassandra.db.commitlog.CommitLogAllocator$1.runMayThrow(CommitLogAllocator.java:95)	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)	at
+java.lang.Thread.run(Thread.java:722)Caused by: java.io.IOException: Rename from
+c:\apache-cassandra\storage\commitlog\CommitLog-7345742389552.log to 7475933520374
+failed	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.&lt;init&gt;(CommitLogSegment.java:105)	...
+5 more</pre></div></div>
+Then, few seconds later Cassandra server on node 2 throws the
+same exception:
+<div class="preformatted panel" style="border-width: 1px;"><div
+class="preformattedContent panelContent"><pre>ERROR [COMMIT-LOG-ALLOCATOR] 2012-06-14
+10:26:44,005 AbstractCassandraDaemon.java (line 134) Exception in thread
+Thread[COMMIT-LOG-ALLOCATOR,5,main]java.io.IOError: java.io.IOException: Rename from
+c:\apache-cassandra\storage\commitlog\CommitLog-7320337904033.log to 7437675489307
+failed	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.&lt;init&gt;(CommitLogSegment.java:127)	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.recycle(CommitLogSegment.java:204)	at
+org.apache.cassandra.db.commitlog.CommitLogAllocator$2.run(CommitLogAllocator.java:166)	at
+org.apache.cassandra.db.commitlog.CommitLogAllocator$1.runMayThrow(CommitLogAllocator.java:95)	at
+org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)	at
+java.lang.Thread.run(Unknown Source)Caused by: java.io.IOException: Rename from
+c:\apache-cassandra\storage\commitlog\CommitLog-7320337904033.log to 7437675489307
+failed	at
+org.apache.cassandra.db.commitlog.CommitLogSegment.&lt;init&gt;(CommitLogSegment.java:105)	...
+5 more</pre></div></div>
+After that, my application cannot insert any more data. Hector
+gets TimedOutException from Thrift:
+<div class="preformatted panel" style="border-width:
+1px;"><div class="preformattedContent panelContent"><pre>Thread-4 HConnectionManager.java
+306 2012-06-14 10:26:56,034 HConnectionManager  operateWithFailover 	 WARN  	 %Could not
+fullfill request on this host CassandraClient&lt;xxx.xxx.xxx.10:9160-10&gt; Thread-4
+HConnectionManager.java 307 2012-06-14 10:26:56,034 HConnectionManager operateWithFailover
+	 WARN  	 %Exception:  me.prettyprint.hector.api.exceptions.HTimedOutException:
+TimedOutException()	at
+me.prettyprint.cassandra.service.ExceptionsTranslatorImpl.translate(ExceptionsTranslatorImpl.java:35)	at
+me.prettyprint.cassandra.connection.HConnectionManager.operateWithFailover(HConnectionManager.java:264)	at
+me.prettyprint.cassandra.model.ExecutingKeyspace.doExecuteOperation(ExecutingKeyspace.java:97)	at
+me.prettyprint.cassandra.model.MutatorImpl.execute(MutatorImpl.java:243)	at
+patrycjusz.nosqltest.db.cassandra.CassandraHectorDbAdapter.commitTransaction(CassandraDbAdapter.java:63)	at
+patrycjusz.nosqltest.DbTest.insertData(DbTest.java:459)	at
+patrycjusz.nosqltest.gui.InsertPanel.executeTask(NePanel.java:154)	at
+patrycjusz.nosqltest.gui.InsertPanel$1.run(NePanel.java:141)	at
+java.lang.Thread.run(Unknown Source)Caused by: TimedOutException()	at
+org.apache.cassandra.thrift.Cassandra$batch_mutate_result.read(Cassandra.java:20269)	at
+org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:78)	at
+org.apache.cassandra.thrift.Cassandra$Client.recv_batch_mutate(Cassandra.java:922)	at
+org.apache.cassandra.thrift.Cassandra$Client.batch_mutate(Cassandra.java:908)	at
+me.prettyprint.cassandra.model.MutatorImpl$3.execute(MutatorImpl.java:246)	at
+me.prettyprint.cassandra.model.MutatorImpl$3.execute(MutatorImpl.java:243)	at
+me.prettyprint.cassandra.service.Operation.executeAndSetResult(Operation.java:103)	at
+me.prettyprint.cassandra.connection.HConnectionManager.operateWithFailover(HConnectionManager.java:258)	...
+8 more</pre></div></div> 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Attached Cassandra server logs 
+
+
+New Comment: 
+Why would commitlog rename fail?  Do you have some kind of permissions problem? 
+
+
+New Comment: 
+I don't think that it has anything to do with permissions. I'm running Cassandra as
+administrator.<br/>Last night I found a probable cause of the problem. I switched to Java
+6 update 33 x64 on both machines and was able to perform all planed tests without any
+errors.<br/>It seems that this bug is related to Java version I used. Problem doesn't
+occur when using Java 6. 
+
+
+New Comment: 
+Can you reproduce w/ java7 and the Stress tool that ships with Cassandra? 
+
+
+New Comment: 
+I've attached logs from test with Stress tool on Java 7 update 5.<br/>I had to run Stress
+tool twice to reproduce this bug. At first run no exception was thrown. 
+
+
+New Comment: 
+It may be the CommitLogSegment mmap'd buffer preventing rename.  Can you test the attached
+patch? 
+
+
+New Comment: 
+I've tested with attached patch and couldn't reproduce this bug. 
+
+
+New Comment: 
+I was going to try to make this super robust for JVMs that don't provide an munmap
+cleaner, but I decided that since (a) it's extremely unlikely that anyone runs such JVMs
+on windows, and (b) such JVMs work fine anyway on *nix since you can rename w/o unmapping
+first, and (c) this doesn't make things worse for such JVMs; it just fixes it for OpenJDK
+/ Oracle JDK, I'll just commit this as is.(In any case, the "right" solution for such a
+posited JVM is to wrap its munmap funcationality the way we did for Oracle's...  such
+functionality has to exist for the GC to clean up direct buffers.) 
+
+

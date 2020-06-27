@@ -1,0 +1,437 @@
+Pattern changes caused by commit: 9b9c4d32973ea4e586031775b3322180169135cd
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5189.txt 
+
+commit 9b9c4d32973ea4e586031775b3322180169135cd
+Author: Sylvain Lebresne <slebresne@apache.org>
+
+    Make SSTW.RowIndexer.iwriter a final field to avoid NPE
+    patch by slebresne; reviewed by jbellis for CASSANDRA-2863
+
+
+
+==================================
+ Issue CASSANDRA-2863 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-2863] NPE when writing SSTable generated via repair
+-----------------
+
+-----------------
+Summary: NPE when writing SSTable generated via repair
+-----------------
+
+-----------------
+Issue type: Bug
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Wed, 6 Jul 2011 11:32:18 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 10 Oct 2011 13:58:31 +0000
+-----------------
+
+-----------------
+Assigned to: Sylvain Lebresne
+-----------------
+
+-----------------
+Description: 
+
+A NPE is generated during repair when closing an sstable generated via SSTable build. It
+doesn't happen always. The node had been scrubbed and compacted before calling repair.
+
+
+INFO <span class="error">&#91;CompactionExecutor:2&#93;</span> 2011-07-06 11:11:32,640
+SSTableReader.java (line 158) Opening /d2/cassandra/data/sbs/walf-g-730<br/>ERROR <span
+class="error">&#91;CompactionExecutor:2&#93;</span> 2011-07-06 11:11:34,327
+AbstractCassandraDaemon.java (line 113) Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:2,1,main&#93;</span>
+<br/>java.lang.NullPointerException<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1103)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1094)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:662)
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+I don't now if it's the same one, buy I got another during repair on another node:ERROR
+<span class="error">&#91;Thread-1710&#93;</span> 2011-07-08 21:21:00,514
+AbstractCassandraDaemon.java (line 113) Fatal exception in thread Thread<span
+class="error">&#91;Thread-1710,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>	at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:154)<br/>	at
+org.apache.cassandra.streaming.IncomingStreamReader.read(IncomingStreamReader.java:63)<br/>	at
+org.apache.cassandra.net.IncomingTcpConnection.stream(IncomingTcpConnection.java:162)<br/>	at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:95)<br/>Caused
+by: java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>	at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>	at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>	at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:138)<br/>	...
+3 more<br/>Caused by: java.lang.NullPointerException<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>	at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1103)<br/>	at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1094)<br/>	at
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>	at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>	at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>	at
+java.lang.Thread.run(Thread.java:662) 
+
+
+New Comment: 
+I'm a little bit baffled by that one. Trusting the stack trace, apparently when
+SSTW.RowIndexer.close() is called, the iwriter field is null. But iwriter is set in
+prepareIndexing() that is called the line before index() in SSTW.Builder. Thus if an
+exception happens in prepareIndexing, we shouldn't arrive to the index() method (which is
+the one triggering the close()). And looking at the use of iwriter, no other line set it
+(so it can't be set back to null after prepareIndexing()).So I mean we can add a <tt>if
+(iwriter != null)</tt> before calling the close, but the truth is I have no clue how it
+could ever be null at that point.Héctor: are you positive that you are using stock 0.8.1 ? 
+
+
+New Comment: 
+I have a patch from <a href="https://issues.apache.org/jira/browse/CASSANDRA-2818"
+title="0.8.0 is unable to participate with nodes using a _newer_ protocol version"
+class="issue-link" data-issue-key="CASSANDRA-2818"><del>CASSANDRA-2818</del></a> (2818-v4)
+applied, if that's of any help. The patch only touches messaging classes though. 
+
+
+New Comment: 
+Doesn't make any sense to me, either.  The only place close() is called is from index()
+<span class="error">&#91;as seen in the stacktrace here&#93;</span> and the only place
+index() is called is after prepareIndexing, which sets iwriter to non-null:<div
+class="code panel" style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">            <span class="code-object">long</span> estimatedRows =
+indexer.prepareIndexing();            <span class="code-comment">// build the index and
+filter</span>            <span class="code-object">long</span> rows =
+indexer.index();</pre></div></div> 
+
+
+New Comment: 
+I just got a similar-looking NPE stack trace.  The node that raised the exception was
+receiving streams from a node being decommissioned (with "nodetool decommission").  Both
+nodes were running 0.8.6; both had been upgraded a few hours earlier from 0.8.4.The first:
+ ERROR <span class="error">&#91;CompactionExecutor:72&#93;</span> 2011-09-20 22:34:20,892
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:72,1,main&#93;</span><br/>java.lang.NullPointerException<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)Then half a minute later: INFO <span
+class="error">&#91;CompactionExecutor:72&#93;</span> 2011-09-20 22:34:46,923
+SSTableReader.java (line 162) Opening /mnt/cassandra/data/Keyspace/CF1-g-1536<br/>ERROR
+<span class="error">&#91;Thread-785&#93;</span> 2011-09-20 22:34:52,054
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;Thread-785,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:154)<br/>
+       at
+org.apache.cassandra.streaming.IncomingStreamReader.read(IncomingStreamReader.java:63)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.stream(IncomingTcpConnection.java:189)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:117)<br/>Caused
+by: java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>        at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:138)<br/>
+       ... 3 more<br/>Caused by: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662) 
+
+
+New Comment: 
+So I restarted the node making the NPE above and ran the decommission again (on the other
+node) and it successfully finished decommissioning.  A few hours later I tried to
+decommission another node and received this error, on a separate node from the two
+mentioned before, which is a new node running 0.8.6 for just about a day now.INFO <span
+class="error">&#91;COMMIT-LOG-WRITER&#93;</span> 2011-09-21 05:12:46,361
+CommitLogSegment.java (line 58) Creating new commitlog segment
+/raid0/cassandra/commitlog/CommitLog-1316581966361.log<br/>ERROR <span
+class="error">&#91;Thread-224&#93;</span> 2011-09-21 05:12:52,738
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;Thread-224,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:154)<br/>
+       at
+org.apache.cassandra.streaming.IncomingStreamReader.read(IncomingStreamReader.java:63)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.stream(IncomingTcpConnection.java:189)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:117)<br/>Caused
+by: java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>        at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:138)<br/>
+       ... 3 more<br/>Caused by: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662) 
+
+
+New Comment: 
+Since my last two comments, I increased my RF and started a rolling repair on my nodes. 
+This has caused this NPE to pop up on all the boxes over the last couple of days as they
+process SSTables.  Again, all the nodes are fresh 0.8.6 installs from a few days ago using
+the ComboAMI.  I've seen backtraces like the one below appear at least a couple of times
+on each node in my cluster as I was repairing.. INFO <span
+class="error">&#91;CompactionExecutor:648&#93;</span> 2011-09-22 04:35:51,086
+SSTableReader.java (line 162) Opening /raid0/cassandra/data/Keyspace/CF1-g-535<br/> INFO
+<span class="error">&#91;CompactionExecutor:648&#93;</span> 2011-09-22 04:35:51,172
+SSTableReader.java (line 162) Opening /raid0/cassandra/data/Keyspace/CF2-g-350<br/> INFO
+<span class="error">&#91;CompactionExecutor:648&#93;</span> 2011-09-22 04:36:01,721
+SSTableReader.java (line 162) Opening /raid0/cassandra/data/Keyspace/CF3-g-456<br/>ERROR
+<span class="error">&#91;Thread-3658&#93;</span> 2011-09-22 04:36:04,821
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;Thread-3658,5,main&#93;</span><br/>java.lang.RuntimeException:
+java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:154)<br/>
+       at
+org.apache.cassandra.streaming.IncomingStreamReader.read(IncomingStreamReader.java:63)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.stream(IncomingTcpConnection.java:189)<br/>
+       at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:117)<br/>Caused
+by: java.util.concurrent.ExecutionException: java.lang.NullPointerException<br/>        at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>        at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:138)<br/>
+       ... 3 more<br/>Caused by: java.lang.NullPointerException<br/>        at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662)<br/>ERROR <span
+class="error">&#91;CompactionExecutor:648&#93;</span> 2011-09-22 04:36:04,823
+AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:648,1,main&#93;</span><br/>java.lang.NullPointerException<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662) 
+
+
+New Comment: 
+Here's another from a node that was streaming out: INFO <span
+class="error">&#91;AntiEntropyStage:1&#93;</span> 2011-09-22 17:56:33,737 StreamOut.java
+(line 181) Stream context metadata [/raid0/cassandra/data/Keyspace/CF1-g-315-Data.db
+sections=1073 progress=0/358<br/> INFO <span
+class="error">&#91;AntiEntropyStage:1&#93;</span> 2011-09-22 17:56:33,738
+StreamOutSession.java (line 174) Streaming to /10.207.38.196<br/> INFO <span
+class="error">&#91;ValidationExecutor:14&#93;</span> 2011-09-22 17:56:33,740
+ColumnFamilyStore.java (line 1128) Enqueuing flush of
+Memtable-CF4@516894197(9505947/21294113 serialized/live bytes, 5684 ops)<br/> INFO <span
+class="error">&#91;FlushWriter:621&#93;</span> 2011-09-22 17:56:33,743 Memtable.java (line
+237) Writing Memtable-CF4@516894197(9505947/21294113 serialized/live bytes, 5684 ops)<br/>
+INFO <span class="error">&#91;FlushWriter:621&#93;</span> 2011-09-22 17:56:33,880
+Memtable.java (line 254) Completed flushing
+/raid0/cassandra/data/Keyspace/CF4-g-434-Data.db (9914202 bytes)<br/> INFO <span
+class="error">&#91;CompactionExecutor:884&#93;</span> 2011-09-22 17:56:45,912
+CompactionManager.java (line 608) Compacted to
+/raid0/cassandra/data/Keyspace/CF4-tmp-g-332-Data.db.  32,824,572,147 to
+18,506,0<br/>ERROR <span class="error">&#91;CompactionExecutor:884&#93;</span> 2011-09-22
+17:56:46,134 AbstractCassandraDaemon.java (line 139) Fatal exception in thread Thread<span
+class="error">&#91;CompactionExecutor:884,1,main&#93;</span><br/>java.lang.NullPointerException<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)<br/>
+       at
+org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)<br/>  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)<br/>
+       at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)<br/>
+       at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>       
+at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>  
+     at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>      
+ at java.lang.Thread.run(Thread.java:662) 
+
+
+New Comment: 
+Getting the following after trying to 'move' on 0.8.5:<div class="code panel"
+style="border-width: 1px;"><div class="codeContent panelContent"><pre
+class="code-java">ERROR [CompactionExecutor:213] 2011-09-23
+14:02:26,571AbstractCassandraDaemon.java (line 139) Fatal exception in thread<span
+class="code-object">Thread</span>[CompactionExecutor:213,1,main]java.lang.NullPointerException
+      at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)    
+  at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)    
+  at org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315)  
+    at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)  
+    at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)  
+    at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)       at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)       at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)      
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)      
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div> 
+
+
+New Comment: 
+Also got the same NPE when doing a repair on a different node. This time, the NPE was
+preceded by a different NPE:<div class="code panel" style="border-width: 1px;"><div
+class="codeContent panelContent"><pre class="code-java">java.lang.RuntimeException:
+java.util.concurrent.ExecutionException: java.lang.NullPointerException        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:154)  
+     at
+org.apache.cassandra.streaming.IncomingStreamReader.read(IncomingStreamReader.java:63)    
+   at
+org.apache.cassandra.net.IncomingTcpConnection.stream(IncomingTcpConnection.java:177)     
+  at
+org.apache.cassandra.net.IncomingTcpConnection.run(IncomingTcpConnection.java:114)Caused
+by: java.util.concurrent.ExecutionException: java.lang.NullPointerException        at
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)        at
+java.util.concurrent.FutureTask.get(FutureTask.java:83)        at
+org.apache.cassandra.streaming.StreamInSession.closeIfFinished(StreamInSession.java:138)  
+     ... 3 moreCaused by: java.lang.NullPointerException        at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.close(SSTableWriter.java:382)    
+   at
+org.apache.cassandra.io.sstable.SSTableWriter$RowIndexer.index(SSTableWriter.java:370)    
+   at org.apache.cassandra.io.sstable.SSTableWriter$Builder.build(SSTableWriter.java:315) 
+      at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1108)  
+     at
+org.apache.cassandra.db.compaction.CompactionManager$9.call(CompactionManager.java:1099)  
+     at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)        at
+java.util.concurrent.FutureTask.run(FutureTask.java:138)        at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)       
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)       
+at java.lang.<span class="code-object">Thread</span>.run(<span
+class="code-object">Thread</span>.java:662)</pre></div></div> 
+
+
+New Comment: 
+We've seen the same error via autobootstrap. 
+
+
+New Comment: 
+Joaquin, can you give steps to reproduce? 
+
+
+New Comment: 
+Alright, I've tried boostrapping nodes a few times and I'm still not able to reproduce, so
+ it's likely a race of something.That being said, I still have no clue how the iwriter
+field in SSTableWriter.RowIndexer can be null where the stack indicates it to be null. The
+assignment happens before the access, there is no other assignment of that field and the
+assignment/access are in the same thread.Anyway, what we can easily do is to make iwrite
+being final and assign it in the constructor. If that doesn't make that field being
+non-null, I don't know what will. Patch attached to make that change. 
+
+
+New Comment: 
+First patch was buggy in that it was now creating the index file <b>before</b> we assert
+that this file doesn't exist.v2 just moves the maybeOpenIndexer call after the asserts. 
+
+
+New Comment: 
++1 v2 
+
+
+New Comment: 
+Committed and marking resolved for now. If that errors come up in another form, we'll see
+then. 
+
+

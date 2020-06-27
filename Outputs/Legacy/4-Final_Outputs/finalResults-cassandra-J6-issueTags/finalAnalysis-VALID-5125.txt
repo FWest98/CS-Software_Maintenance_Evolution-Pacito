@@ -1,0 +1,122 @@
+Pattern changes caused by commit: a4d656b86c2a40fff8174e6dc6c67f919fa9f244
+
+From: Decorator-1
+To:   Decorator-0
+
+From: Flyweight-4
+To:   Flyweight-5
+
+From: Strategy-1
+To:   Strategy-0
+
+
+=========================
+       NEW GIT LOG
+=========================
+
+This commit refers to file: VALID-5125.txt 
+
+commit a4d656b86c2a40fff8174e6dc6c67f919fa9f244
+Author: Jonathan Ellis <jbellis@apache.org>
+
+    allow wrapping ranges in Hadoop queries
+    patch by Mck SembWever; reviewed by jbellis for CASSANDRA-3137
+
+
+
+==================================
+ Issue CASSANDRA-3137 Description 
+=======================================
+
+Project: Cassandra
+-----------------
+
+-----------------
+Title: [CASSANDRA-3137] Implement wrapping intersections for ConfigHelper's InputKeyRange
+-----------------
+
+-----------------
+Summary: Implement wrapping intersections for ConfigHelper's InputKeyRange
+-----------------
+
+-----------------
+Issue type: Improvement
+-----------------
+
+-----------------
+Current status: Resolved
+-----------------
+
+-----------------
+Created at: Mon, 5 Sep 2011 11:33:26 +0000
+-----------------
+
+-----------------
+Resolved at: Mon, 3 Oct 2011 19:58:41 +0000
+-----------------
+
+-----------------
+Assigned to: Michael Semb Wever
+-----------------
+
+-----------------
+Description: 
+
+Before there was no support for multiple intersections between the split's range and the
+job's configured range.<br/>After <a
+href="https://issues.apache.org/jira/browse/CASSANDRA-3108" title="Make Range and Bounds
+objects client-safe" class="issue-link"
+data-issue-key="CASSANDRA-3108"><del>CASSANDRA-3108</del></a> it is now possible.
+ 
+
+-----------------
+
+-----------------
+Comments: 
+
+New Comment: 
+Haven't tested this (with real data) yet.But the code looks pretty simple and straight
+forward here... 
+
+
+New Comment: 
+new patch w/ better formatting 
+
+
+New Comment: 
+Wrapping (key) ranges was the source of a ton of bugs in the 0.6 era.  Thus I'm leery of
+adding wrapped range support to Hadoop just "because we can."  Is there a compelling
+motivation otherwise? 
+
+
+New Comment: 
+Indeed. I could be using this asap.The use case is...<br/>We're using a
+ByteOrderedPartition because we run incremental hadoop jobs over one of our column
+families where "events" initially come in. This cf has RF=1 and time-based UUID keys that
+are manipulated so that their byte ordering are time ordered. (the timestamp put up
+front). Each column has ttl of 3 months.<br/>After 3 months of data we saw all data on one
+node. Now i understand as the token range is the timestamp range which is from 1970 to
+2270 so of course our 3 month period fell on one node (with a 3 node cluster even 100
+years would fall on one node).To properly manage this cf we need to either continuously
+move nodes around, a cumbersome operation, or change the key so it's prefixed with
+<tt>timestamp % 3months</tt>. This would allow 3 months of data to cycle over the whole
+cluster and wrap around again. Obviously we're leaning towards the latter solution as it
+simplifies operations. But it does require this patch.(When CFIF supports IndexClause
+everything changes, we change our cluster to RandomPartitioner, use secondary indexes, and
+never look back...) 
+
+
+New Comment: 
+Sounds reasonable.  Patch looks okay to me.  I'll commit it after you've tested it. <img
+class="emoticon" src="https://issues.apache.org/jira/images/icons/emoticons/smile.png"
+height="16" width="16" align="absmiddle" alt="" border="0"/> 
+
+
+New Comment: 
+This is tested in production now. 
+
+
+New Comment: 
+Thanks, committed. 
+
+
