@@ -2,11 +2,11 @@
 #SBATCH --time=10-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --job-name=complete_cycle_pinot_mina
+#SBATCH --job-name=PACITO_Apache_Mina
 #SBATCH --mem=100GB
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=f.a.de.capela@student.rug.nl
-#SBATCH --output=job-%j-complete_cycle_pinot_mina.log
+#SBATCH --output=job-%j-PACITO_Apache_Mina.log
 #SBATCH --partition=regular
 
 module load Maven/3.5.2
