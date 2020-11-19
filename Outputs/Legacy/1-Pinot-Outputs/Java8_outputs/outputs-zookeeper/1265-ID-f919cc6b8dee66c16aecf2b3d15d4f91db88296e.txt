@@ -1,1 +1,0 @@
-pinot: symbol.cpp:177: wchar_t* MethodSymbol::Header(): Assertion `s[-2] == U_LB && s[-1] == U_RB' failed.
