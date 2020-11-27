@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="pinotAnalysisProgressChecker:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/pinotAnalysisProgressChecker_jar</output-path>
-    <root id="archive" name="pinotAnalysisProgressChecker.jar">
-      <element id="module-output" name="pinotAnalysisProgressChecker" />
-    </root>
-  </artifact>
-</component>

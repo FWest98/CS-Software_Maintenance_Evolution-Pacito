@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="JiraIssueParser:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/JiraIssueParser_jar</output-path>
-    <root id="archive" name="JiraIssueParser.jar">
-      <element id="module-output" name="JiraIssueParser" />
-    </root>
-  </artifact>
-</component>
