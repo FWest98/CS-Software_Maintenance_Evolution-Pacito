@@ -11,12 +11,17 @@ repositories {
 }
 
 library {
+    source.from(file("src/main/cpp"))
+    privateHeaders.from(file("src/main/cpp"))
+    publicHeaders.from(file("src/main/headers"))
+
     targetMachines.add(machines.linux.x86_64)
     targetMachines.add(machines.windows.x86_64)
     targetMachines.add(machines.macOS.x86_64)
 
     binaries.configureEach {
         compileTask.get().includes.from("${Jvm.current().javaHome}/include")
+        compileTask.get().includes.from(".")
 
         val os = targetPlatform.targetMachine.operatingSystemFamily
         when {
@@ -24,6 +29,8 @@ library {
             os.isLinux -> compileTask.get().includes.from("${Jvm.current().javaHome}/include/linux")
             os.isWindows -> compileTask.get().includes.from("${Jvm.current().javaHome}/include/win32")
         }
+
+        compileTask.get().compilerArgs.addAll(listOf("-Wl,-rpath,/usr/local/lib", "-L/usr/local/lib"))
     }
 }
 
