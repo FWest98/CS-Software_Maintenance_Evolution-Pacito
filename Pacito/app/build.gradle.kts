@@ -14,6 +14,7 @@ plugins {
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_11
@@ -22,15 +23,21 @@ java.targetCompatibility = JavaVersion.VERSION_11
 dependencies {
     // This dependency is used by the application.
     implementation("com.google.guava:guava:29.0-jre")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r")
+    implementation("info.picocli:picocli:4.5.2")
+    annotationProcessor("info.picocli:picocli-codegen:4.5.2")
 }
 
 application {
     // Define the main class for the application.
-    mainClass.set("Pacito.App")
+    mainClass.set("Pacito.Pacito")
 }
 
-// Add JNI header compilation
 tasks.withType<JavaCompile> {
+    // Add picocli processing
+    options.compilerArgs.addAll(listOf("-Aproject=${project.group}/${project.name}"))
+
+    // Add JNI header compilation
     options.compilerArgs.addAll(listOf("-h", file("${buildDir}/headers").absolutePath))
 }
 

@@ -18,7 +18,7 @@
 #include <iomanip>
 #include <dlfcn.h>
 #include <stdlib.h>
-#include "../headers/Pacito_App.h"
+#include "../headers/Pacito_Pinot.h"
 
 #ifdef HAVE_JIKES_NAMESPACE
 namespace Jikes { // Open namespace Jikes block
@@ -7807,7 +7807,7 @@ void Control::CleanUp(FileSymbol* file_symbol)
     }
 }
 
-JNIEXPORT void JNICALL Java_Pacito_App_test(JNIEnv *env, jobject thisObj) {
+JNIEXPORT void JNICALL Java_Pacito_Pinot_test(JNIEnv *env, jobject thisObj) {
     Coutput << "Test" << endl;
     return;
 }
