@@ -521,7 +521,7 @@ public:
     inline bool WriteToFile(const char* file_name)
     {
         JikesAPI::FileWriter* file =
-            JikesAPI::getInstance() -> write(file_name, buffer.top);
+            JikesAPI::write(file_name, buffer.top);
 
         // NB if file was invalid it would have been destroyed by write()
         if (file == NULL)

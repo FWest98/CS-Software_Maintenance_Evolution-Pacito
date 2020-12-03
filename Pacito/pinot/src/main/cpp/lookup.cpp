@@ -373,7 +373,7 @@ time_t DirectoryEntry::Mtime()
         strcat(file_name, this -> name);
 
         struct stat status;
-        if (JikesAPI::getInstance() -> stat(file_name, &status) == 0)
+        if (SystemStat(file_name, &status) == 0)
              mtime_ = status.st_mtime;
         else assert(false && "Cannot compute system time stamp\n");
 

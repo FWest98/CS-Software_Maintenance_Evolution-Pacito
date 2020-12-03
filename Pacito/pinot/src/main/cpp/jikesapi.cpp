@@ -321,7 +321,7 @@ DefaultFileReader::DefaultFileReader(const char *fileName)
     buffer = NULL;
 
     struct stat status;
-    JikesAPI::getInstance() -> stat(fileName, &status);
+    SystemStat(fileName, &status);
     size = status.st_size;
 
     FILE *srcfile = SystemFopen(fileName, "rb");

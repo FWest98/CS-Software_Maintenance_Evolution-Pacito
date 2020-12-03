@@ -6,5 +6,5 @@ public class Pinot {
         System.loadLibrary("pinot");
     }
 
-    public native void test();
+    public native void run(String[] files);
 }

@@ -6339,6 +6339,7 @@ option.bytecode = false;
     //
     if (option.directory)
     {
+        Coutput << "This should not happen" << endl;
         if (! SystemIsDirectory(option.directory))
         {
             for (char* ptr = option.directory; *ptr; ptr++)
@@ -6369,6 +6370,8 @@ option.bytecode = false;
                 delete [] name;
             }
         }
+    } else {
+        Coutput << "This should happen" << endl;
     }
 
     //
@@ -7807,9 +7810,20 @@ void Control::CleanUp(FileSymbol* file_symbol)
     }
 }
 
-JNIEXPORT void JNICALL Java_Pacito_Pinot_test(JNIEnv *env, jobject thisObj) {
-    Coutput << "Test" << endl;
-    return;
+JNIEXPORT void JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jobjectArray files) {
+    int fileCount = env->GetArrayLength(files);
+    const char* fileNames[fileCount + 1]; // NULL at end
+
+    for (int i = 0; i < fileCount; i++) {
+        auto file = (jstring) (env->GetObjectArrayElement(files, i));
+        const char* fileString = env->GetStringUTFChars(file, 0);
+        fileNames[i] = fileString;
+    }
+
+    fileNames[fileCount] = NULL;
+
+    auto option = new Option();
+    new Control(const_cast<char **>(fileNames), *option);
 }
 
  

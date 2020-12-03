@@ -312,6 +312,37 @@ static inline char* makeStrippedCopy(char* value)
     return result;
 }
 
+Option::Option()
+    : first_file_index(0),
+      nocleanup(true),
+      incremental(false),
+      makefile(false),
+      dependence_report(false),
+      bytecode(true),
+      full_check(false),
+      unzip(false),
+      dump_errors(false),
+      errors(true),
+      pedantic(false),
+      noassert(false),
+      dependence_report_name(NULL)
+{
+    // Add some defaults
+    source = target = SDK1_4_2;
+    bootclasspath = makeStrippedCopy(getenv("BOOTCLASSPATH"));
+    extdirs = makeStrippedCopy(getenv("EXTDIRS"));
+    classpath = makeStrippedCopy(getenv("JIKESPATH"));
+    if (!classpath)
+        classpath = makeStrippedCopy(getenv("CLASSPATH"));
+
+    sourcepath = makeStrippedCopy(getenv("SOURCEPATH"));
+    if (! sourcepath) {
+        sourcepath = new char[2];
+        sourcepath[0] = '.';
+        sourcepath[1] = U_NULL;
+    }
+}
+
 Option::Option(ArgumentExpander& arguments,
                Tuple<OptionError *>& bad_options)
     : first_file_index(arguments.argc),

@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     Pacito_Pinot
- * Method:    test
- * Signature: ()V
+ * Method:    run
+ * Signature: ([Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_Pacito_Pinot_test
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_Pacito_Pinot_run
+  (JNIEnv *, jobject, jobjectArray);
 
 #ifdef __cplusplus
 }

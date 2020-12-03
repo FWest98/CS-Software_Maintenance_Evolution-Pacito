@@ -81,6 +81,8 @@ public class Pacito implements Callable<Integer> {
             copyFolder(src, dir, REPLACE_EXISTING);
 
             // Start thread
+            var runner = new PacitoRunner(dir, commits);
+            runner.run();
         }
 
         return 0;
@@ -92,7 +94,7 @@ public class Pacito implements Callable<Integer> {
     }
 
     private void copyFolder(Path source, Path dest, CopyOption... options) throws IOException {
-        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(source, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 Files.createDirectories(dest.resolve(source.relativize(dir)));

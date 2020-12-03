@@ -157,7 +157,7 @@ public:
     /**
      * This method will be called for each error reported.
      */
-    virtual void reportError(JikesError* error);
+    static void reportError(JikesError* error);
 
     /**
      * Define the virtual base class for all Readers.
@@ -195,10 +195,10 @@ public:
         size_t maxSize;
     };
 
-    virtual int stat(const char* filename, struct stat* status);
+    static int stat(const char* filename, struct stat* status);
 
-    virtual FileReader* read(const char* filename);
-    virtual FileWriter* write(const char* filename, size_t bytes);
+    static FileReader* read(const char* filename);
+    static FileWriter* write(const char* filename, size_t bytes);
 
 private:
     void cleanupOptions(); // Helper to delete option and parsedOptions

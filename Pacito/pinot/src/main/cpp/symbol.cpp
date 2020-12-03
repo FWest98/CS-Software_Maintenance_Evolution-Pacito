@@ -1104,7 +1104,7 @@ void DirectorySymbol::ReadDirectory()
                     sprintf(filename, "%s/%s", DirectoryName(),
                             entry -> d_name);
                     struct stat status;
-                    if(JikesAPI::getInstance() -> stat(filename, &status) == 0)
+                    if(SystemStat(filename, &status) == 0)
                         entries -> InsertEntry(this, entry -> d_name, length);
                     delete [] filename;
                 }

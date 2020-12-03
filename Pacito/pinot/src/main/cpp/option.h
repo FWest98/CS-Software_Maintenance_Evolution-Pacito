@@ -153,6 +153,7 @@ public:
 
     char *dependence_report_name;
 
+    Option(); // empty constructor for defaults
     Option(ArgumentExpander &, Tuple<OptionError *>&);
 
     ~Option();
