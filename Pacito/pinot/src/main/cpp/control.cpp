@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <dlfcn.h>
 #include <stdlib.h>
-#include "../headers/Pacito_Pinot.h"
 
 #ifdef HAVE_JIKES_NAMESPACE
 namespace Jikes { // Open namespace Jikes block
@@ -6339,7 +6338,6 @@ option.bytecode = false;
     //
     if (option.directory)
     {
-        Coutput << "This should not happen" << endl;
         if (! SystemIsDirectory(option.directory))
         {
             for (char* ptr = option.directory; *ptr; ptr++)
@@ -6370,8 +6368,6 @@ option.bytecode = false;
                 delete [] name;
             }
         }
-    } else {
-        Coutput << "This should happen" << endl;
     }
 
     //
@@ -7662,6 +7658,11 @@ void Control::ProcessBodies(TypeSymbol* type, StoragePool* ast_pool)
                 }
                 delete types;
             }
+        } else {
+            //Coutput << "failed " << type->fully_qualified_name->value << endl;
+            //Coutput << "NumErrors: " << sem->NumErrors() << endl;
+            //Coutput << "NumBadTokens: " << sem->lex_stream->NumBadTokens() << endl;
+            //sem->PrintMessages();
         }
     }
 
@@ -7808,22 +7809,6 @@ void Control::CleanUp(FileSymbol* file_symbol)
 
         file_symbol -> CleanUp();
     }
-}
-
-JNIEXPORT void JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jobjectArray files) {
-    int fileCount = env->GetArrayLength(files);
-    const char* fileNames[fileCount + 1]; // NULL at end
-
-    for (int i = 0; i < fileCount; i++) {
-        auto file = (jstring) (env->GetObjectArrayElement(files, i));
-        const char* fileString = env->GetStringUTFChars(file, 0);
-        fileNames[i] = fileString;
-    }
-
-    fileNames[fileCount] = NULL;
-
-    auto option = new Option();
-    new Control(const_cast<char **>(fileNames), *option);
 }
 
  

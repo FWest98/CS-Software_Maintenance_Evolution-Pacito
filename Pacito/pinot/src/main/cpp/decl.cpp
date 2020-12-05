@@ -3948,10 +3948,10 @@ void Semantic::ProcessType(AstType* type_expr)
         if (name -> type_arguments_opt)
         {
             // TODO: Add generics support for 1.5.
-            ReportSemError(SemanticError::TYPE_ARGUMENTS_UNSUPPORTED,
-                           name -> type_arguments_opt,
-                           type -> ContainingPackageName(),
-                           type -> ExternalName());
+            //ReportSemError(SemanticError::TYPE_ARGUMENTS_UNSUPPORTED,
+//                           name -> type_arguments_opt,
+//                           type -> ContainingPackageName(),
+//                           type -> ExternalName());
         }
     }
     if (type -> Bad() && NumErrors() == error_count)

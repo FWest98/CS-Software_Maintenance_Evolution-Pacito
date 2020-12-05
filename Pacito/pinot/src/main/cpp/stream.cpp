@@ -741,14 +741,14 @@ void LexStream::ReadInput()
     else
     {
         struct stat status;
-        JikesAPI::getInstance() -> stat(FileName(), &status);
+        SystemStat(FileName(), &status);
 
         file_symbol -> mtime = status.st_mtime; // actual time stamp of file read
         file_symbol -> lex_stream = this;
 
 
         JikesAPI::FileReader* file =
-            JikesAPI::getInstance() -> read(FileName());
+            JikesAPI::read(FileName());
         if (file)
         {
             ProcessInput(file -> getBuffer(), file -> getBufferSize());
@@ -780,12 +780,12 @@ void LexStream::RereadInput()
     else
     {
         struct stat status;
-        JikesAPI::getInstance() -> stat(FileName(), &status);
+        SystemStat(FileName(), &status);
 
         if (status.st_mtime == file_symbol -> mtime)
         {
            JikesAPI::FileReader* file =
-               JikesAPI::getInstance() -> read(FileName());
+               JikesAPI::read(FileName());
            if (file)
            {
                ProcessInput(file -> getBuffer(), file -> getBufferSize());
@@ -1359,13 +1359,13 @@ void LexStream::PrintMessages()
             else
             {
                 for (unsigned i = 0; i < bad_tokens.Length(); i++)
-                    JikesAPI::getInstance() -> reportError(&bad_tokens[i]);
+                    JikesAPI::reportError(&bad_tokens[i]);
             }
         }
         else
         {
             for (unsigned i = 0; i < bad_tokens.Length(); i++)
-                JikesAPI::getInstance() -> reportError(&bad_tokens[i]);
+                JikesAPI::reportError(&bad_tokens[i]);
         }
 
         DestroyInput();

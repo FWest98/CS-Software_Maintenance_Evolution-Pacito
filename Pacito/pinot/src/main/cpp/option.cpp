@@ -313,19 +313,29 @@ static inline char* makeStrippedCopy(char* value)
 }
 
 Option::Option()
-    : first_file_index(0),
-      nocleanup(true),
-      incremental(false),
-      makefile(false),
-      dependence_report(false),
-      bytecode(true),
-      full_check(false),
-      unzip(false),
-      dump_errors(false),
-      errors(true),
-      pedantic(false),
-      noassert(false),
-      dependence_report_name(NULL)
+        : first_file_index(0),
+#ifdef JIKES_DEBUG
+          debug_trap_op(0),
+          debug_dump_lex(false),
+          debug_dump_ast(false),
+          debug_unparse_ast(false),
+          debug_unparse_ast_debug(false),
+          debug_comments(false),
+          debug_dump_class(false),
+          debug_trace_stack_change(false),
+#endif // JIKES_DEBUG
+          nocleanup(true),
+          incremental(false),
+          makefile(false),
+          dependence_report(false),
+          bytecode(true),
+          full_check(false),
+          unzip(false),
+          dump_errors(false),
+          errors(true),
+          pedantic(false),
+          noassert(false),
+          dependence_report_name(NULL)
 {
     // Add some defaults
     source = target = SDK1_4_2;
@@ -1064,6 +1074,9 @@ Option::Option(ArgumentExpander& arguments,
         Coutput.SetExpandWchar();
 }
 
+void Option::setClasspath(char* classpath) {
+    this->classpath = makeStrippedCopy(classpath);
+}
 
 Option::~Option()
 {

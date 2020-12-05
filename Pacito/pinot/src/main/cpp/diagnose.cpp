@@ -2313,7 +2313,7 @@ void ParseError::PrintMessages()
 void ParseError::PrintMessage(int k)
 {
     errors[k].Initialize(lex_stream);
-    JikesAPI::getInstance() -> reportError(&errors[k]);
+    JikesAPI::reportError(&errors[k]);
 }
 
 #ifdef HAVE_JIKES_NAMESPACE

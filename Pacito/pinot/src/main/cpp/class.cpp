@@ -1680,7 +1680,7 @@ void Semantic::ReadClassFile(TypeSymbol* type, TokenIndex tok)
     {
         // Get a ReadObject from the API that contains the file's data.
         JikesAPI::FileReader* classFile =
-            JikesAPI::getInstance() -> read(file_symbol -> FileName());
+            JikesAPI::read(file_symbol -> FileName());
         if (classFile == NULL)
         {
             // this symbol table will only contain a default constructor

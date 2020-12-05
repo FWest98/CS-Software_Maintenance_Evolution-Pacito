@@ -262,7 +262,7 @@ inline TO DYNAMIC_CAST(FROM f)
         const char* name = t.name();
         fprintf(stderr, "DYNAMIC_CAST argument type was \"%s\"\n", name);
 # endif // HAVE_RTTI
-        assert(ptr && "Failed dynamic_cast<> in DYNAMIC_CAST");
+        //assert(ptr && "Failed dynamic_cast<> in DYNAMIC_CAST");
     }
     return ptr;
 #endif // HAVE_DYNAMIC_CAST

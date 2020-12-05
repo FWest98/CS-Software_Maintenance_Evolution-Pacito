@@ -589,9 +589,13 @@ AstModifiers* Parser::MakeModifiers()
             if (lex_stream -> Kind(mod -> modifier_token) == TK_static)
                 p -> static_token_opt = mod -> modifier_token;
         }
-        else p -> AddModifier(DYNAMIC_CAST<AstAnnotation*> (root -> element));
+        //else p -> AddModifier(DYNAMIC_CAST<AstAnnotation*> (root -> element));
     } while (root != tail);
     FreeCircularList(tail);
+
+    if(p->NumModifiers() == 0)
+        p = NULL;
+
     return p;
 }
 

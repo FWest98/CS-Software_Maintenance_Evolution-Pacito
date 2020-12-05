@@ -29,7 +29,7 @@ public class PacitoRunner implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        pinot = new Pinot();
+        pinot = new Pinot("/d/Documents/Studie/Informatica/Software Maintenance and Evolution/Pinot/lib/rt-1.7.jar");
 
         var commit = commits.get(2000);
         // Checkout commit
@@ -42,6 +42,7 @@ public class PacitoRunner implements Runnable {
         try {
             var files = findFiles("*.java", directory);
             pinot.run(files.stream().map(Path::toString).toArray(String[]::new));
+            pinot.clean();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     Pacito_Pinot
+ * Method:    initialize
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_Pacito_Pinot_initialize
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    clean
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_Pacito_Pinot_clean
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
  * Method:    run
  * Signature: ([Ljava/lang/String;)V
  */

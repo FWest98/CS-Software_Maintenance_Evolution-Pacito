@@ -156,6 +156,8 @@ public:
     Option(); // empty constructor for defaults
     Option(ArgumentExpander &, Tuple<OptionError *>&);
 
+    void setClasspath(char*);
+
     ~Option();
 };
 

@@ -53,8 +53,8 @@ AccessFlags Semantic::ProcessModifiers(AstModifiers* modifiers,
                                                         identifier_token));
             }
             // TODO: Add annotation support for 1.5.
-            ReportSemError(SemanticError::ANNOTATION_MODIFIER_UNSUPPORTED,
-                           mod);
+            //ReportSemError(SemanticError::ANNOTATION_MODIFIER_UNSUPPORTED,
+//                           mod);
             continue;
         }
         assert(keyword);

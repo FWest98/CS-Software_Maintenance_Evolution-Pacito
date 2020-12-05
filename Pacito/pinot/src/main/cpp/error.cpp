@@ -1150,7 +1150,7 @@ void SemanticError::reportError(int k)
 {
     FormatError(error[k]);
     error[k].Initialize(lex_stream);
-    JikesAPI::getInstance() -> reportError(&error[k]);
+    JikesAPI::reportError(&error[k]);
 }
 
 //

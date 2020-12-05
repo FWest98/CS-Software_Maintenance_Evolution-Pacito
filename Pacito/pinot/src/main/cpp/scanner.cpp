@@ -183,8 +183,7 @@ void Scanner::Scan(FileSymbol* file_symbol)
         {
             lex -> SortMessages();
             for (unsigned i = 0; i < lex -> bad_tokens.Length(); i++)
-                JikesAPI::getInstance() ->
-                    reportError(&(lex -> bad_tokens[i]));
+                JikesAPI::reportError(&(lex -> bad_tokens[i]));
         }
         lex -> DestroyInput(); // get rid of input buffer
     }
