@@ -3303,8 +3303,8 @@ void Semantic::ProcessFormalParameters(BlockSymbol* block,
             // TODO: Add varargs support for 1.5.
             //            if (control.option.source < JikesOption::SDK1_5)
             {
-                ReportSemError(SemanticError::VARARGS_UNSUPPORTED,
-                               parameter -> ellipsis_token_opt);
+                /*ReportSemError(SemanticError::VARARGS_UNSUPPORTED,
+                               parameter -> ellipsis_token_opt);*/
             }
         }
         symbol -> SetType(parm_type -> GetArrayType(this, dims));

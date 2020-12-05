@@ -55,6 +55,10 @@ void Semantic::ProcessVariableInitializer(AstVariableDeclarator* variable_declar
                 else ReportSemError(SemanticError::INVALID_SHORT_VALUE, init);
                 init -> value = NULL;
             }
+            else if (wcscmp(init -> Type()->Name(), L"Object") == 0) {
+                // Hack we assume code to be correct.
+                variable_declarator -> variable_initializer_opt = init;
+            }
             else
             {
                 ReportSemError(SemanticError::INCOMPATIBLE_TYPE_FOR_ASSIGNMENT,

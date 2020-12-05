@@ -6948,6 +6948,12 @@ void Semantic::ProcessAssignmentExpression(Ast* expr)
                 }
                 assignment_expression -> symbol = control.no_type;
             }
+            else if (wcscmp(right_type->Name(), L"Object") == 0) {
+                // Hack we assume code to be correct.
+                assignment_expression -> expression =
+                        ConvertToType(assignment_expression -> expression,
+                                      left_type);
+            }
             else
             {
                 ReportSemError(SemanticError::INCOMPATIBLE_TYPE_FOR_ASSIGNMENT,
