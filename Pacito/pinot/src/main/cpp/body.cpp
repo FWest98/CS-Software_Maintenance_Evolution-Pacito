@@ -1274,6 +1274,10 @@ void Semantic::ProcessReturnStatement(Ast* stmt)
                 if (CanAssignmentConvert(method_type, expression))
                     return_statement -> expression_opt =
                         ConvertToType(expression, method_type);
+                else if (wcscmp(expression_type->Name(), L"Object") == 0) {
+                    return_statement -> expression_opt =
+                            ConvertToType(expression, method_type);
+                }
                 else
                 {
                     ReportSemError(SemanticError::MISMATCHED_RETURN_AND_METHOD_TYPE,
