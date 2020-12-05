@@ -235,6 +235,8 @@ public:
     inline unsigned Column(TokenIndex i)
     {
         // FindColumn grabs the right edge of an expanded character.
+        auto loc = tokens[i].Location();
+        if(loc == 0) return 0;
         return input_buffer ? FindColumn(tokens[i].Location() - 1) + 1 : 0;
     }
     unsigned RightColumn(TokenIndex i);

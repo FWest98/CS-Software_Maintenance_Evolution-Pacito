@@ -809,7 +809,9 @@ void Semantic::ProcessTypeParameters(TypeSymbol* /*type*/,
                                      AstTypeParameters* parameters)
 {
     // TODO: Add generics support for 1.5.
-    ReportSemError(SemanticError::TYPE_PARAMETERS_UNSUPPORTED, parameters);
+    // We skip error reporting here and replace single-character types later on by Object in hope
+    // of sufficient results.
+    //ReportSemError(SemanticError::TYPE_PARAMETERS_UNSUPPORTED, parameters);
 }
 
 
@@ -2508,9 +2510,9 @@ void Semantic::CheckMethodOverride(MethodSymbol* method,
                 ! hidden_method -> containing_type ->
                   file_symbol -> IsClassOnly())
             {
-                ReportSemError(SemanticError::COVARIANCE_UNSUPPORTED,
-                               left_tok, right_tok, method -> Header(),
-                               hidden_method -> Header());
+                //ReportSemError(SemanticError::COVARIANCE_UNSUPPORTED,
+//                               left_tok, right_tok, method -> Header(),
+//                               hidden_method -> Header());
             }
         }
         else if (method -> containing_type == base_type)

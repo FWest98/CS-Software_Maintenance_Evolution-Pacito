@@ -718,13 +718,14 @@ void Semantic::ProcessForeachStatement(Ast* stmt)
     ProcessExpression(foreach -> expression);
     TypeSymbol* cond_type = foreach -> expression -> Type();
     TypeSymbol* component_type;
-    if (control.option.source < JikesOption::SDK1_5)
+    /*if (control.option.source < JikesOption::SDK1_5)
     {
         ReportSemError(SemanticError::FOREACH_UNSUPPORTED,
                        stmt -> RightToken(),
                        foreach -> statement -> LeftToken() - 1);
     }
-    else if (cond_type -> IsArray())
+    else*/
+        if (cond_type -> IsArray())
     {
         component_type = cond_type -> ArraySubtype();
         if (! CanAssignmentConvertReference(index_type, component_type))
