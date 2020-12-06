@@ -46,6 +46,7 @@ public class PacitoRunner implements Runnable {
             var bridge = pinot.findBridge();
             var strategy = pinot.findStrategy();
             var flyweight = pinot.findFlyweight();
+            var template = pinot.findTemplateMethod();
             pinot.clean();
         } catch (IOException e) {
             e.printStackTrace();

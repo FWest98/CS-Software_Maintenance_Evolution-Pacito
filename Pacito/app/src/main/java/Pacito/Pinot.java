@@ -18,6 +18,7 @@ public class Pinot extends JniObject {
     public native Pattern[] findBridge();
     public native Pattern[] findStrategy();
     public native Pattern[] findFlyweight();
+    public native Pattern[] findTemplateMethod();
 
     public Pinot(String classPath) {
         initialize(classPath);

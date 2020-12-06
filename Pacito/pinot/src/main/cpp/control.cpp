@@ -16,7 +16,7 @@
 #include "option.h"
 #include <fstream>
 #include <dlfcn.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #ifdef HAVE_JIKES_NAMESPACE
 namespace Jikes { // Open namespace Jikes block
@@ -1089,49 +1089,6 @@ void FindMediator2(ClassSymbolTable *cs_table)
 			mediators.AddElement((*cs_table)[c]);
 		}
 	}	
-}
-void FindTemplateMethod(DelegationTable *d_table)
-{
-  vector<TypeSymbol*> cache;
-  for (int i = 0; i < d_table -> size(); i++)
-    {
-      DelegationEntry* entry = d_table -> Entry(i);	
-/*
-  if (strcmp(entry -> method -> Utf8Name(), "handleConnect") == 0)
-  entry->method->declaration->MethodDeclarationCast()->Print();
-  
-  if (strcmp(entry -> method -> Utf8Name(), "target") == 0)
-  entry->method->declaration->MethodDeclarationCast()->Print();
-*/
-      unsigned j = 0;
-      for (; (j < cache.size()) && (cache[j] != entry -> from) ; j++);
-      if (j == cache.size())
-	{
-	  if ((entry -> enclosing -> containing_type == entry -> method -> containing_type)
-		//&& entry -> enclosing -> ACC_PUBLIC()
-	      	&& entry -> enclosing -> ACC_FINAL()
-	      	&& (entry -> enclosing -> declaration -> kind == Ast::METHOD)
-	      	&& (entry -> method -> declaration -> kind == Ast::METHOD)
-	      	&& (entry -> from == entry -> to))
-	    {
-	      AstMethodDeclaration* method_declaration = entry -> method -> declaration -> MethodDeclarationCast();
-	      if (entry -> method -> ACC_ABSTRACT()
-		  || (method_declaration -> method_body_opt == 0)
-		  || ((method_declaration -> method_body_opt -> Statement(0) -> kind == Ast::RETURN) 
-		      && (method_declaration -> method_body_opt -> Statement(0) -> ReturnStatementCast() -> expression_opt == 0 ))
-		  )
-		{
-		  nTemplate++;
-		  cache.push_back(entry -> from);
-		  Coutput << "Template Method Found." << endl;
-		  Coutput << entry -> from -> Utf8Name() << " is the template class" << endl;
-		  Coutput << entry -> enclosing -> Utf8Name() << " is the template method" << endl;
-		  Coutput << entry -> method -> Utf8Name() << " is a primitive method" << endl;			
-		  Coutput << "File Location: " << entry -> from -> file_symbol -> FileName() << endl << endl;
-		}
-	    }
-	}
-    }
 }
 
 void FindFactory(ClassSymbolTable *cs_table, MethodSymbolTable *ms_table, StoragePool *ast_pool)
@@ -5883,7 +5840,7 @@ int Control::run(char** arguments) {
     //FindFlyweight2(cs_table, w_table, r_table);
     FindComposite(cs_table, d_table);
     //FindMediator(cs_table, d_table);
-    FindTemplateMethod(d_table);
+    //FindTemplateMethod(d_table);
     FindFactory(cs_table, ms_table, ast_pool);
     FindVisitor(cs_table, ms_table);
     FindObserver(cs_table, d_table);

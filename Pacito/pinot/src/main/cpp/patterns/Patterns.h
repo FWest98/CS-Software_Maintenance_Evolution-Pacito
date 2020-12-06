@@ -15,6 +15,7 @@ public:
     static vector<Ptr> FindBridge(Control *);
     static vector<Ptr> FindStrategy(Control *);
     static vector<Ptr> FindFlyweight(Control *);
+    static vector<Ptr> FindTemplateMethod(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -163,6 +164,23 @@ public:
 
         Coutput << "Delegation is through " << delegator->Utf8Name() << endl;
         Coutput << "File location: " << contextFile->FileName() << endl << strategyFile->FileName() << endl << endl;
+    }
+};
+
+class Template : public Pattern {
+public:
+    TypeSymbol *templateClass;
+    MethodSymbol *templateMethod;
+    MethodSymbol *templateSource;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Template Method" << endl;
+        Coutput << templateClass->Utf8Name() << " is the template class" << endl;
+        Coutput << templateMethod->Utf8Name() << " is the template method" << endl;
+        Coutput << templateSource->Utf8Name() << " is a primitive method" << endl;
+        Coutput << "File location: " << file->FileName() << endl << endl;
     }
 };
 
