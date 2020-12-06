@@ -39,6 +39,22 @@ JNIEXPORT jint JNICALL Java_Pacito_Pinot_run
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findBridge
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findBridge
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findStrategy
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,15 +1,22 @@
 package Pacito;
 
+import Pacito.Patterns.Pattern;
+
 // Class representing interaction with Pinot
 public class Pinot extends JniObject {
     static {
         System.loadLibrary("pinot");
     }
 
+    // Lifecycle methods
     private native void initialize(String classPath);
     public native void clean();
 
-    public native void run(String[] files);
+    // Operations methods
+    public native int run(String[] files);
+    public native Pattern[] findCoR();
+    public native Pattern[] findBridge();
+    public native Pattern[] findStrategy();
 
     public Pinot(String classPath) {
         initialize(classPath);

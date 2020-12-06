@@ -1,4 +1,5 @@
 #include <jni.h>
+#include <vector>
 
 #ifndef PACITO_HELPERS_H
 #define PACITO_HELPERS_H
@@ -6,6 +7,7 @@
 jfieldID getPointerField(JNIEnv *, jobject);
 jobject makeObject(JNIEnv*, const char*);
 void setString(JNIEnv *, jobject, const char *, const char *);
+void setStringArray(JNIEnv *, jobject, const char *, std::vector<const char *>);
 
 template <class T> void setInstance(JNIEnv *env, jobject obj, T *instance) {
     env->SetLongField(obj, getPointerField(env, obj), (jlong) instance);

@@ -3,6 +3,17 @@
 #include "helpers.h"
 #include "../patterns/Patterns.h"
 
+jobjectArray findPatternHelper(JNIEnv *env, std::vector<Pattern::Ptr> result) {
+    auto cls = env->FindClass("Pacito/Patterns/Pattern");
+    auto array = env->NewObjectArray(result.size(), cls, nullptr);
+
+    for(auto i = 0; i < result.size(); i++) {
+        env->SetObjectArrayElement(array, i, result.at(i)->ConvertToJava(env));
+    }
+
+    return array;
+}
+
 JNIEXPORT void JNICALL Java_Pacito_Pinot_initialize(JNIEnv *env, jobject thisObj, jstring classPath) {
     auto classPathString = env->GetStringUTFChars(classPath, 0);
     auto pacito = new Pacito(const_cast<char *>(classPathString));
@@ -36,12 +47,19 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR(JNIEnv *env, jobject th
     auto pacito = getInstance<Pacito>(env, thisObj);
     auto result = Pattern::FindChainOfResponsibility(pacito->getControl());
 
-    auto cls = env->FindClass("Pacito/Patterns/Pattern");
-    auto array = env->NewObjectArray(result.size(), cls, NULL);
+    return findPatternHelper(env, result);
+}
 
-    for(auto i = 0; i < result.size(); i++) {
-        env->SetObjectArrayElement(array, i, result.at(i)->ConvertToJava(env));
-    }
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findBridge(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindBridge(pacito->getControl());
 
-    return array;
+    return findPatternHelper(env, result);
+}
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindStrategy(pacito->getControl());
+
+    return findPatternHelper(env, result);
 }

@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include <vector>
 
 jfieldID getPointerField(JNIEnv *env, jobject obj) {
     // Get JniObject java class
@@ -32,4 +33,22 @@ void setString(JNIEnv *env, jobject obj, const char *field, const char *value) {
 
     auto content = env->NewStringUTF(value);
     env->SetObjectField(obj, fieldId, content);
+}
+
+void setStringArray(JNIEnv *env, jobject obj, const char *field, std::vector<const char *> arr) {
+    auto cls = env->GetObjectClass(obj);
+    if(cls == nullptr) return;
+
+    auto fieldId = env->GetFieldID(cls, field, "[Ljava/lang/String;");
+    if(fieldId == nullptr) return;
+
+    auto stringCls = env->FindClass("java/lang/String");
+    auto array = env->NewObjectArray(arr.size(), stringCls, nullptr);
+
+    for(auto i = 0; i < arr.size(); i++) {
+        auto content = env->NewStringUTF(arr.at(i));
+        env->SetObjectArrayElement(array, i, content);
+    }
+
+    env->SetObjectField(obj, fieldId, array);
 }

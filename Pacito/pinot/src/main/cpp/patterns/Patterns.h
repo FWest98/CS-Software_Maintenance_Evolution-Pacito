@@ -11,26 +11,44 @@ public:
 
     Pattern() = default;
 
-    TypeSymbol *subject;
-    FileSymbol *file;
-
-    static vector<Pattern::Ptr> FindChainOfResponsibility(Control *);
+    static vector<Ptr> FindChainOfResponsibility(Control *);
+    static vector<Ptr> FindBridge(Control *);
+    static vector<Ptr> FindStrategy(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
     virtual ~Pattern() = default;
 };
 
-class CoR : public Pattern {
+class Bridge : public Pattern {
 public:
-    MethodSymbol *handler;
-    VariableSymbol *propagator;
+    TypeSymbol *delegator;
+    FileSymbol *delegatorFile;
+    TypeSymbol *delegated;
+    FileSymbol *delegatedFile;
 
     jobject ConvertToJava(JNIEnv *) override;
-    void Print() {
+    void Print() override {
+        Coutput << "Bridge Pattern" << endl;
+        Coutput << delegator->Utf8Name() << " is abstract" << endl;
+        Coutput << delegated->Utf8Name() << " is an interface" << endl;
+        Coutput << delegator->Utf8Name() << " delegates " << delegated->Utf8Name() << endl;
+        Coutput << "File location: " << delegatorFile->FileName() << endl << delegatedFile->FileName() << endl << endl;
+    }
+};
+
+class CoR : public Pattern {
+public:
+    TypeSymbol *handler;
+    MethodSymbol *handlerMethod;
+    VariableSymbol *propagator;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
         Coutput << "Chain of Responsibility Pattern" << endl;
-        Coutput << subject->Utf8Name() << " is a Chain of Responsibility Handler class" << endl;
-        Coutput << handler->Utf8Name() << " is a handle operation" << endl;
+        Coutput << handler->Utf8Name() << " is a Chain of Responsibility Handler class" << endl;
+        Coutput << handlerMethod->Utf8Name() << " is a handle operation" << endl;
         Coutput << propagator->Utf8Name() << " of type " << propagator->Type()->Utf8Name() << " propagates the request"
                 << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
@@ -39,17 +57,75 @@ public:
 
 class Decorator : public Pattern {
 public:
-    MethodSymbol *decorateOp;
+    TypeSymbol *decorator;
+    MethodSymbol *decorateMethod;
     VariableSymbol *decoratee;
+    FileSymbol *file;
 
     jobject ConvertToJava(JNIEnv *) override;
-    void Print() {
+    void Print() override {
         Coutput << "Decorator Pattern" << endl;
-        Coutput << subject->Utf8Name() << " is a Decorator class" << endl;
-        Coutput << decorateOp->Utf8Name() << " is a decorate operation" << endl;
+        Coutput << decorator->Utf8Name() << " is a Decorator class" << endl;
+        Coutput << decorateMethod->Utf8Name() << " is a decorate operation" << endl;
         Coutput << decoratee->Utf8Name() << " of type " << decoratee->Type()->Utf8Name() << " is the Decoratee class"
                 << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class StatePattern : public Pattern {
+public:
+    TypeSymbol *context;
+    TypeSymbol *state;
+    vector<TypeSymbol *> stateImplementations;
+
+    VariableSymbol *delegator;
+    MethodSymbol *stateChanger;
+    vector<MethodSymbol *> changeInvokers;
+
+    FileSymbol *contextFile;
+    FileSymbol *stateFile;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "State Pattern" << endl;
+        Coutput << context->Utf8Name() << " is the Context class" << endl;
+        Coutput << state->Utf8Name() << " is the State interface with the following concrete implementations:" << endl;
+        for(auto impl : stateImplementations)
+            Coutput << impl->Utf8Name() << ", ";
+        Coutput << endl;
+
+        Coutput << "Delegation is through " << delegator->Utf8Name() << ", being changed by " << stateChanger->Utf8Name() << endl;
+        Coutput << "Changer is invoked by:" << endl;
+        for(auto inv : changeInvokers)
+            Coutput << inv->Utf8Name() << ", ";
+        Coutput << endl;
+
+        Coutput << "File location: " << contextFile->FileName() << endl << stateFile->FileName() << endl << endl;
+    }
+};
+
+class Strategy : public Pattern {
+public:
+    TypeSymbol *context;
+    TypeSymbol *strategy;
+    vector<TypeSymbol *> strategyImplementations;
+    VariableSymbol *delegator;
+
+    FileSymbol *contextFile;
+    FileSymbol *strategyFile;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Strategy Pattern" << endl;
+        Coutput << context->Utf8Name() << " is the Context class" << endl;
+        Coutput << strategy->Utf8Name() << " is the Strategy interface with the following concrete implementations:" << endl;
+        for(auto impl : strategyImplementations)
+            Coutput << impl->Utf8Name() << ", ";
+        Coutput << endl;
+
+        Coutput << "Delegation is through " << delegator->Utf8Name() << endl;
+        Coutput << "File location: " << contextFile->FileName() << endl << strategyFile->FileName() << endl << endl;
     }
 };
 

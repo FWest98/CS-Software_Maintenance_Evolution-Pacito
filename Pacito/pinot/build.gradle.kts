@@ -31,6 +31,7 @@ library {
         }
 
         compileTask.get().compilerArgs.addAll(listOf("-Wl,-rpath,/usr/local/lib", "-L/usr/local/lib"))
+        compileTask.get().compilerArgs.addAll(listOf("-std=c++20"))
     }
 }
 

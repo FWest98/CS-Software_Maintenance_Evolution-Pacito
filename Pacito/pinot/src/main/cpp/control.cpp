@@ -15,7 +15,6 @@
 #include "case.h"
 #include "option.h"
 #include <fstream>
-#include <iomanip>
 #include <dlfcn.h>
 #include <stdlib.h>
 
@@ -480,65 +479,6 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 	}
 }
 
-void FindBridge(ClassSymbolTable *cs_table, DelegationTable *d_table)
-{
-	multimap<TypeSymbol*,TypeSymbol*> cache;
-	multimap<TypeSymbol*,TypeSymbol*> negatives;
-	
-	int i;
-	for (i = 0; i < d_table -> size(); i++)
-	{
-		DelegationEntry *entry = d_table -> Entry(i);
-
-		if (//(entry -> from -> ACC_ABSTRACT()) &&
-		entry->from->subtypes
-		&& entry->from->subtypes->Size()
-		&& entry->to->ACC_INTERFACE()
-		&& entry->from->file_symbol->IsJava()
-		&& entry->to->file_symbol->IsJava()		
-		&& (!cs_table -> Converge(entry -> from, entry -> to)))
-		{
-			multimap<TypeSymbol*,TypeSymbol*>::iterator p = cache.begin();
-			for (; (p != cache.end()) && ((p -> first != entry -> from) || (p -> second != entry -> to)); p++);
-			if ((p == cache.end()) && !d_table -> DelegatesSuccessors(entry -> from, entry -> to))
-			{
-				nBridge++;
-				cache.insert(pair<TypeSymbol*,TypeSymbol*>(entry -> from, entry -> to));
-				Coutput << "Bridge Pattern." << endl;
-				Coutput << entry -> from -> Utf8Name()
-					<< " is abstract.\n"
-					<< entry -> to -> Utf8Name()
-					<< " is an interface.\n"
-					<< entry -> from -> Utf8Name()
-					<< " delegates "
-					<< entry -> to -> Utf8Name()
-					<< "."
-					<< endl
-					<< "File Location: "
-					<< entry -> from -> file_symbol -> FileName()
-					<< ",\n               "
-					<< entry -> to -> file_symbol -> FileName()
-					<< endl;
-/*
-				Coutput << "Subclasses of " << entry -> from -> Utf8Name() << ": ";
-				cs_table -> PrintSubclasses(entry -> from);
-				
-				Coutput << "Subtypes of " << entry -> to -> Utf8Name() << ": ";				
-				cs_table -> PrintSubtypes(entry -> to);
-				
-				Coutput << "Subinterfaces of " << entry -> to -> Utf8Name() << ": ";				
-				cs_table -> PrintSubinterfaces(entry -> to);
-
-				d_table -> Delegates(entry -> to, entry -> from);
-				d_table -> ShowDelegations(entry -> from, entry -> to);
-*/
-				Coutput << endl;
-				
-			}
-		}
-	}
-}
-
 void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* assoc_table)
 {
 	// Collecting possible flyweight pools
@@ -801,78 +741,6 @@ void FindFlyweight2(ClassSymbolTable *cs_table, WriteAccessTable *w_table, ReadA
 	}
 }
 
-bool Connectivity(MethodSymbol* start, TypeSymbol *end, MethodSymbolTable *ms_table)
-{
-	if (!start->invokers || !end->subtypes || (end->subtypes->Size()==0))
-		return false;
-	ms_table->ClearMarks();
-
-	Symbol *sym = end->subtypes->FirstElement();
-	while(sym)
-	{
-		TypeSymbol *type =  sym->TypeCast();
-		for (unsigned i = 0; i < type->NumMethodSymbols(); i++)
-		{
-			if (type->MethodSym(i)->declaration)
-			{
-				if ((type->MethodSym(i)->declaration->ConstructorDeclarationCast() 
-					&& type->MethodSym(i)->declaration->ConstructorDeclarationCast()->constructor_body)
-				|| (type->MethodSym(i)->declaration->MethodDeclarationCast() 
-					&& type->MethodSym(i)->declaration->MethodDeclarationCast()->method_body_opt))
-					type->MethodSym(i)->mark = 'B';
-			}
-		}
-		sym = end->subtypes->NextElement();
-	}
-	if (start->mark == 'B')
-	{
-		Coutput << start->Utf8Name() << " is called by " << start->containing_type->Utf8Name() << "::" << start->Utf8Name() << " is the pivot point." <<endl;
-		return true;
-	}
-	SymbolSet set(0);
-	sym = start->invokers->FirstElement();
-	while(sym)
-	{
-		MethodSymbol *msym = sym->MethodCast();
-		if (msym->mark == 'B')
-		{
-			Coutput << start->Utf8Name() << " is called by " << msym->containing_type->Utf8Name() << "::" << msym->Utf8Name() << " is the pivot point." <<endl;
-			return true;
-		}
-		else
-		{
-			msym->mark = 'R';
-			if (msym->invokers)
-				set.Union(*msym->invokers);
-		}
-		sym = start->invokers->NextElement();
-	}
-	while(set.Size())
-	{
-		sym = set.FirstElement();
-		while(sym)
-		{
-			MethodSymbol *msym = sym->MethodCast();
-			if (msym->mark == 'B')
-			{
-				Coutput << msym->containing_type->Utf8Name() << "::" << msym->Utf8Name() << " is the pivot point." <<endl;
-				return true;
-			}
-			else if (msym->mark == 'R')
-				set.RemoveElement(msym);
-			else if (msym->mark == 'W')
-			{
-				msym->mark = 'R';
-				set.RemoveElement(msym);
-				if (msym->invokers)
-					set.Union(*msym->invokers);
-			}
-			sym = set.NextElement();			
-		}
-	}
-	return false;
-}
-
 bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 {
 	// pre-condition: t1 is concrete, while t2 is abstract
@@ -963,8 +831,8 @@ void FindStrategy(ClassSymbolTable *cs_table, DelegationTable *d_table, WriteAcc
 								//MethodSymbol *t2 = p->second;
 								if (p->first==vsym)
 								{
-									if (Connectivity(p->second, entry->to, ms_table)
-									)
+									//if (Connectivity(p->second, entry->to, ms_table)
+									//)
 										dsym = p->second;
 								}
 							}
@@ -1027,82 +895,6 @@ void FindStrategy(ClassSymbolTable *cs_table, DelegationTable *d_table, WriteAcc
 					}
 				}
 			}
-		}
-	}	
-}
-void FindStrategy1(ClassSymbolTable *cs_table, DelegationTable *d_table, WriteAccessTable *w_table, ReadAccessTable *r_table, MethodSymbolTable *ms_table) 
-{
-	multimap<TypeSymbol*,TypeSymbol*> cache;
-
-	unsigned c;
-	for (c = 0; c < cs_table->size(); c++)
-	{
-		TypeSymbol *context = (*cs_table)[c];
-		if (!context->ACC_ABSTRACT() && !context->Anonymous() && (!context->subtypes || !context->subtypes->Size()))
-		{
-		for (unsigned i = 0; i < context->NumVariableSymbols(); i++)
-		{
-			VariableSymbol *vsym = context->VariableSym(i);
-			if (vsym->Type()->file_symbol 
-			&& vsym->Type()->file_symbol->IsJava()
-			&& vsym->Type()->ACC_ABSTRACT()
-			&& !vsym->Type()->IsFamily(context)
-			&& !vsym->Type()->IsArray()
-			//&& !vsym->Type()->IsSelfContaining()
-			)
-			{
-				MethodSymbol *dsym = NULL;
-				multimap<VariableSymbol*, MethodSymbol*>::iterator p;
-				bool flag = false;
-				for (p = w_table->begin(); !dsym && p!=w_table->end();p++)
-				{
-					//VariableSymbol *t1 = p->first;
-					//MethodSymbol *t2 = p->second;
-					if (p->first==vsym)
-					{
-						flag = true;
-						if (p->second->declaration 
-						&& p->second->declaration->MethodDeclarationCast() 
-						&& Connectivity(p->second, vsym->Type(), ms_table))
-							dsym = p->second;
-					}
-				}			
-				if (dsym)
-				{
-					nState++;
-					Coutput << "State Pattern." << endl;
-					Coutput << context->Utf8Name() << " is the Context class." << endl
-						<< vsym->Type()->Utf8Name() << " is the State interface." << endl;
-					Coutput << "Concrete State classes: ";
-					vsym->Type()->subtypes->Print();
-					Coutput << "Delegation through " << vsym->Utf8Name() << " of type " << vsym->Type()->Utf8Name() << endl
-						<< dsym->Utf8Name() 	<< " changes the state variable " 	<< vsym->Utf8Name() 	<< endl;
-					Coutput << dsym->Utf8Name() << " is invoked by ";
-					dsym->invokers->Print();
-					Coutput << "File Location: "
-						<< context->file_symbol->FileName() << ",\n               "
-						<< vsym->Type()->file_symbol->FileName()
-						<< endl
-						<< endl;
-				}
-				else if (flag)
-				{
-					nStrategy++;
-					Coutput << "Strategy Pattern." << endl;
-					Coutput << context->Utf8Name() << " is the Context class." << endl
-						<< vsym->Type()->Utf8Name() << " is the Strategy interface." << endl;
-					Coutput << "Concrete Strategy classes: ";
-					vsym->Type()->subtypes->Print();
-					Coutput << "Delegation through " << vsym->Utf8Name() << " of type " << vsym->Type()->Utf8Name() << endl;
-					Coutput << "File Location: "
-						<< context->file_symbol->FileName() << ",\n               "
-						<< vsym->Type()->file_symbol->FileName()
-						<< endl
-						<< endl;
-				}
-				
-			}
-		}
 		}
 	}	
 }
@@ -6373,8 +6165,8 @@ int Control::run(char** arguments) {
     FindSingleton1(cs_table, ast_pool);
 
     //FindChainOfResponsibility(cs_table, ms_table, d_table, ast_pool);
-    FindBridge(cs_table, d_table);
-    FindStrategy1(cs_table, d_table, w_table, r_table, ms_table);	
+    //FindBridge(cs_table, d_table);
+    //FindStrategy1(cs_table, d_table, w_table, r_table, ms_table);
     //FindFlyweight(mb_table, gen_table, assoc_table);
     FindFlyweight1(ms_table);
     FindFlyweight2(cs_table, w_table, r_table);
