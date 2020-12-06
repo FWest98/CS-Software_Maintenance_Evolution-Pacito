@@ -593,154 +593,6 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 	}
 }
 
-void FindFlyweight1(MethodSymbolTable *ms_table)
-{
-	if (PINOT_DEBUG)
-		Coutput << "Identifying the Flyweight pattern" << endl;
-	      	
-	for (unsigned i=0; i<ms_table->size(); i++) 
-	{
-		MethodSymbol *msym = (*ms_table)[i];
-
-		if (PINOT_DEBUG)
-			Coutput << "Analyzing method: " << msym->Utf8Name() << endl;
-
-		TypeSymbol *unit_type = msym->containing_type;
-		if ((msym->declaration->kind==Ast::METHOD)
-		&& msym->declaration->MethodDeclarationCast()->method_body_opt
-		&& msym->Type()->file_symbol 
-		&& !unit_type->IsFamily(msym->Type())
-		)
-		{
-			FlyweightAnalysis flyweight(msym);
-			msym->declaration->MethodDeclarationCast()->method_body_opt->Accept(flyweight);
-			//flyweight.DumpSummary();
-			if (flyweight.IsFlyweightFactory())
-			{
-				nFlyweight++;
-				nFlyweightGoFVersion++;
-				Coutput << "Flyweight Pattern." << endl;
-				Coutput << unit_type->Utf8Name() << " is a flyweight factory." << endl;
-				Coutput << flyweight.GetFlyweightPool()->Utf8Name() << " is the flyweight pool." << endl;
-				Coutput << msym->Utf8Name() 
-					<< " is the factory method, producing flyweight objects of type "
-					<< msym->Type()->Utf8Name() << endl;
-				Coutput << "File location: " << unit_type->file_symbol->FileName() << endl << endl;				
-			}
-		}
-	}
-}
-
-void FindFlyweight2(ClassSymbolTable *cs_table, WriteAccessTable *w_table, ReadAccessTable *r_table)
-{
-	// This strategy looks for a variant flyweight implementation, where
-	// flyweight factories and pools are not necessary:
-	//
-	//   1. classes that are defined immutable
-	//       - class declared "final"
-	//       - allows instantiation, thus public ctors (unlike java.lang.Math)
-	//       - but internal fields should all be private and not written/modified by any non-private methods.
-	//
-	//   2. flyweight pools are represented as individual variable declarations
-       //	  - such variables are typically declared "static final" and are initialized (pre-populated)
-
-      	unsigned c;
-	for (c= 0; c < cs_table -> size(); c++) 
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-		if (unit_type->ACC_FINAL())
-		{
-			AstClassBody *class_body = unit_type->declaration;
-			if (!class_body -> default_constructor)
-			{
-				unsigned i, j;
-				for (i=0; (i < class_body->NumConstructors()) && !class_body->Constructor(i)->constructor_symbol->ACC_PRIVATE(); i++)
-					;
-				for (j=0; (j < unit_type->NumVariableSymbols()) && unit_type->VariableSym(j)->ACC_PRIVATE(); j++)
-					;
-				if ((i ==  class_body->NumConstructors()) && (j ==  unit_type->NumVariableSymbols()))
-				{
-					bool flag = false;
-					unsigned m, v;
-					for (v = 0; !flag && (v < unit_type->NumVariableSymbols()); v++)
-					{
-						if (!unit_type->VariableSym(v)->ACC_FINAL())
-						{
-							for (m=0; !flag && (m < class_body->NumMethods()); m++)
-							{
-								if (class_body->Method(m)->method_symbol->ACC_PUBLIC())
-									flag = w_table->IsWrittenBy(unit_type->VariableSym(v), class_body->Method(m)->method_symbol);
-							}
-						}
-					}
-					if (!flag)
-					{
-						nFlyweight++;
-						Coutput << "Flyweight Pattern." << endl;
-						Coutput << unit_type->Utf8Name() << " is immutable." << endl;
-						Coutput << "File location: " <<  unit_type->file_symbol->FileName() << endl << endl;
-						nImmutable++;
-					}
-				}
-			}
-		}
-		else
-		{
-			unsigned i;
-			for (i=0; i < unit_type->NumVariableSymbols(); i++)
-			{
-				if (unit_type->VariableSym(i)->Type()->file_symbol
-				&& unit_type->VariableSym(i)->ACC_STATIC() 
-				&& unit_type->VariableSym(i)->ACC_FINAL()
-				//&& (unit_type != unit_type->VariableSym(i)->Type())
-				)
-				{
-					if (unit_type->VariableSym(i)->ACC_PUBLIC() && unit_type->VariableSym(i)->declarator->variable_initializer_opt)
-					{
-						nFlyweight++;
-						Coutput << "Flyweight Pattern." << endl;
-						Coutput << unit_type->Utf8Name() << " is a flyweight factory." << endl;
-						Coutput << unit_type->VariableSym(i)->Utf8Name() << " is a flyweight object (declared public-static-final)." << endl;
-						Coutput << "File location: " <<  unit_type->file_symbol->FileName() << endl << endl;
-						goto done;
-					}
-					else 
-					{
-						VariableSymbol *vsym = unit_type->VariableSym(i);
-						MethodSymbol *msym = NULL;
-						multimap<VariableSymbol*,MethodSymbol*>::iterator p;
-						for (p = r_table -> begin(); p != r_table -> end(); p++)
-						{
-							//Find the method that returns this static-final flyweight object.
-							//NOTE: this  approach does not analyze method body, just the fact that a flyweight object can be returned.
-
-							//VariableSymbol *t1 = p->first;
-							//MethodSymbol *t2 = p->second;
-							if (strcmp(vsym->Type()->fully_qualified_name->value, "java/lang/String")
-							&& (p -> first == vsym))
-								msym = p->second;						
-							else if (Utility::Aliasing(p->first, vsym))
-								msym = p->second;
-						}
-					
-						if (msym)
-						{
-							nFlyweight++;
-							Coutput << "Flyweight Pattern." << endl;
-							Coutput << unit_type->Utf8Name() << " is a flyweight factory." << endl;
-							Coutput << vsym->Utf8Name() << " is a flyweight object." << endl;
-							Coutput << msym->Utf8Name() << " is the getFlyweight method." << endl;
-							Coutput << "File location: " <<  unit_type->file_symbol->FileName() << endl << endl;
-							goto done;
-						}
-					}
-				}
-			}
-			done: ;
-		}
-	}
-}
-
 bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 {
 	// pre-condition: t1 is concrete, while t2 is abstract
@@ -758,145 +610,6 @@ bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 		}
 	}
 	return false;
-}
-
-void FindStrategy(ClassSymbolTable *cs_table, DelegationTable *d_table, WriteAccessTable *w_table, ReadAccessTable *r_table, MethodSymbolTable *ms_table) 
-{
-	multimap<TypeSymbol*,TypeSymbol*> cache;
-	
-	int i;
-	for (i = 0; i < d_table -> size(); i++)
-	{
-		DelegationEntry *entry = d_table -> Entry(i);
-
-		if ((!entry -> from -> ACC_ABSTRACT())
-		&& (!entry -> from -> Anonymous())
-		&& (entry -> to -> ACC_ABSTRACT())
-		&& (entry -> to -> file_symbol -> IsJava())
-		&& (entry -> base_opt)
-		&& !entry->from->IsFamily(entry->to)
-		)
-		{
-			multimap<TypeSymbol*,TypeSymbol*>::iterator p = cache.begin();
-			for (; (p != cache.end()) && ((p -> first != entry -> from) || (p -> second != entry -> to)) ; p++);
-			if ((p == cache.end()) 
-			&& (!DelegatesSuccessors(entry -> from, entry -> to))
-			)
-			{
-				VariableSymbol *vsym = NULL;
-
-				//
-				// Change THIS
-				// entry->base_opt should be unwrapped to vsym/this/super/class.
-				//
-				if (entry -> base_opt -> kind == Ast::NAME)
-					vsym = entry -> base_opt -> symbol -> VariableCast();
-				else if (entry -> base_opt -> kind == Ast::CALL)
-				{
-					AstMethodInvocation *call = (entry -> base_opt -> MethodInvocationCast() -> resolution_opt)
-						? entry -> base_opt -> MethodInvocationCast() -> resolution_opt -> MethodInvocationCast()
-						: entry -> base_opt -> MethodInvocationCast();
-					MethodSymbol *msym = (MethodSymbol*) call -> symbol;
-					multimap<VariableSymbol*,MethodSymbol*>::iterator p;
-
-					//
-					// Change THIS
-					// a var can be returned by multiple methods.
-					//
-					for (p = r_table -> begin(); !vsym && (p != r_table -> end()); p++)
-					{
-						if (p -> second == msym)
-							vsym = p -> first;
-					}
-				}
-
-				if (vsym
-				&& ((! vsym-> IsLocal())
-				   ||(vsym = entry -> from -> Shadows(vsym))))
-				{
-					if ((entry -> from == vsym -> ContainingType())
-					|| ((entry -> from -> IsInner()) && (entry -> from -> ContainingType() == vsym -> ContainingType())))
-					{
-						cache.insert(pair<TypeSymbol*,TypeSymbol*>(entry->from, entry -> to));
-
-						// check if State pattern is implemented.
-						MethodSymbol *dsym = NULL;
-						// if previous didn't work, try the following
-						if (!dsym)
-						{
-							multimap<VariableSymbol*, MethodSymbol*>::iterator p;
-							for (p = w_table->begin(); !dsym && p!=w_table->end();p++)
-							{
-								//VariableSymbol *t1 = p->first;
-								//MethodSymbol *t2 = p->second;
-								if (p->first==vsym)
-								{
-									//if (Connectivity(p->second, entry->to, ms_table)
-									//)
-										dsym = p->second;
-								}
-							}
-						}
-						if (dsym)
-						{
-							nState++;
-							Coutput << "State Pattern." << endl;
-							Coutput << entry -> from -> Utf8Name()
-								<< " is the Context class."
-								<< endl
-								<< entry -> to -> Utf8Name()						
-								<< " is the State interface."
-								<< endl;
-							Coutput << "Concrete State classes: ";
-								entry->to->subtypes->Print();
-							Coutput << "Delegation through "
-								<< vsym -> Utf8Name()
-								<< " of type "
-								<< vsym -> Type() -> Utf8Name()							
-								<< endl
-								<< dsym -> Utf8Name()
-								<< " changes the state variable "
-								<< vsym -> Utf8Name()
-								<< endl;
-							Coutput << dsym->Utf8Name()
-								<< " is invoked by ";
-							dsym->callers->Print();
-							Coutput << "File Location: "
-								<< entry -> from -> file_symbol -> FileName()
-								<< ",\n               "
-								<< entry -> to -> file_symbol -> FileName()
-								<< endl
-								<< endl;
-						}
-						else
-						{
-							nStrategy++;
-							Coutput << "Strategy Pattern." << endl;
-							Coutput << entry -> from -> Utf8Name()
-								<< " is the Context class."
-								<< endl
-								<< entry -> to -> Utf8Name()						
-								<< " is the Strategy interface."
-								<< endl;
-							Coutput << "Concrete Strategy classes: ";
-								entry->to->subtypes->Print();
-							Coutput << "Delegation through "
-								<< vsym -> Utf8Name()
-								<< " of type "
-								<< vsym -> Type() -> Utf8Name()							
-								<< endl
-								<< "File Location: "
-								<< entry -> from -> file_symbol -> FileName()
-								<< ",\n               "
-								<< entry -> to -> file_symbol -> FileName()
-								<< endl
-								<< endl;
-						}						
-					}
-				}
-			}
-		}
-	}	
 }
 
 void FindComposite(ClassSymbolTable *cs_table, DelegationTable *d_table)
@@ -2292,6 +2005,7 @@ void FlyweightAnalysis::visit(AstIfStatement* statement)
 }
 void FlyweightAnalysis::visit(AstAssignmentExpression *expression)
 {
+    if(!expression->left_hand_side->symbol) return;
 	if (expression->left_hand_side->symbol->VariableCast() 
 	&& (expression->left_hand_side->symbol->VariableCast()->Type() == flyweight))
 		statements.push_back(expression);
@@ -2315,7 +2029,7 @@ void FlyweightAnalysis::visit(AstVariableDeclarator* var_declarator)
 }
 void FlyweightAnalysis::visit(AstReturnStatement* statement)
 {
-	if (statement->expression_opt)
+	if (statement->expression_opt && statement->expression_opt->symbol)
 	{
 		if (statement->expression_opt->symbol->VariableCast()
 		&& (statement->expression_opt->symbol->VariableCast()->Type() == flyweight))
@@ -6164,12 +5878,9 @@ int Control::run(char** arguments) {
     //FindSingleton(cs_table, ms_table);
     FindSingleton1(cs_table, ast_pool);
 
-    //FindChainOfResponsibility(cs_table, ms_table, d_table, ast_pool);
-    //FindBridge(cs_table, d_table);
-    //FindStrategy1(cs_table, d_table, w_table, r_table, ms_table);
     //FindFlyweight(mb_table, gen_table, assoc_table);
-    FindFlyweight1(ms_table);
-    FindFlyweight2(cs_table, w_table, r_table);
+    //FindFlyweight1(ms_table);
+    //FindFlyweight2(cs_table, w_table, r_table);
     FindComposite(cs_table, d_table);
     //FindMediator(cs_table, d_table);
     FindTemplateMethod(d_table);

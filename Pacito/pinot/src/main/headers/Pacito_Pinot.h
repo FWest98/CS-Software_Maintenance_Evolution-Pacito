@@ -55,6 +55,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findBridge
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findFlyweight
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFlyweight
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

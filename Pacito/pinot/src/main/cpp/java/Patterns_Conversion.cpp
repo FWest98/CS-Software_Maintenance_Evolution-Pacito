@@ -18,61 +18,74 @@ template<HasUtf8 T> std::vector<const char *> symbolVectorToStringVector(std::ve
 
 jobject Bridge::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Bridge");
-    setString(env, obj, "Delegator", this->delegator->Utf8Name());
-    setString(env, obj, "DelegatorFile", this->delegatorFile->FileName());
-    setString(env, obj, "Delegated", this->delegated->Utf8Name());
-    setString(env, obj, "DelegatedFile", this->delegatedFile->Utf8Name());
+    setString(env, obj, "Delegator", delegator->Utf8Name());
+    setString(env, obj, "DelegatorFile", delegatorFile->FileName());
+    setString(env, obj, "Delegated", delegated->Utf8Name());
+    setString(env, obj, "DelegatedFile", delegatedFile->Utf8Name());
 
     return obj;
 }
 
 jobject CoR::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/CoR");
-    setString(env, obj, "Handler", this->handler->Utf8Name());
-    setString(env, obj, "File", this->file->FileName());
-    setString(env, obj, "HandlerMethod", this->handlerMethod->Utf8Name());
-    setString(env, obj, "PropagatorName", this->propagator->Utf8Name());
-    setString(env, obj, "PropagatorType", this->propagator->Type()->Utf8Name());
+    setString(env, obj, "Handler", handler->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+    setString(env, obj, "HandlerMethod", handlerMethod->Utf8Name());
+    setString(env, obj, "PropagatorName", propagator->Utf8Name());
+    setString(env, obj, "PropagatorType", propagator->Type()->Utf8Name());
 
     return obj;
 }
 
 jobject Decorator::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Decorator");
-    setString(env, obj, "Decorator", this->decorator->Utf8Name());
-    setString(env, obj, "File", this->file->FileName());
-    setString(env, obj, "DecorateMethod", this->decorateMethod->Utf8Name());
-    setString(env, obj, "DecorateeName", this->decoratee->Utf8Name());
-    setString(env, obj, "DecorateeType", this->decoratee->Type()->Utf8Name());
+    setString(env, obj, "Decorator", decorator->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+    setString(env, obj, "DecorateMethod", decorateMethod->Utf8Name());
+    setString(env, obj, "DecorateeName", decoratee->Utf8Name());
+    setString(env, obj, "DecorateeType", decoratee->Type()->Utf8Name());
+
+    return obj;
+}
+
+jobject Flyweight::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Flyweight");
+    setString(env, obj, "ObjectType", objectType ? objectType->Utf8Name() : "");
+    setString(env, obj, "Factory", factory ? factory->Utf8Name() : "");
+    setString(env, obj, "FactoryMethod", factoryMethod ? factoryMethod->Utf8Name() : "");
+    setString(env, obj, "Pool", pool ? pool->Utf8Name() : "");
+    setString(env, obj, "Object", object ? object->Utf8Name() : "");
+    setString(env, obj, "File", file->FileName());
+    setBool(env, obj, "IsImmutable", isImmutable);
 
     return obj;
 }
 
 jobject StatePattern::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/State");
-    setString(env, obj, "Context", this->context->Utf8Name());
-    setString(env, obj, "State", this->state->Utf8Name());
+    setString(env, obj, "Context", context->Utf8Name());
+    setString(env, obj, "State", state->Utf8Name());
     setStringArray(env, obj, "StateImplementations", symbolVectorToStringVector(stateImplementations));
 
-    setString(env, obj, "Delegator", this->delegator->Utf8Name());
-    setString(env, obj, "StateChanger", this->stateChanger->Utf8Name());
+    setString(env, obj, "Delegator", delegator->Utf8Name());
+    setString(env, obj, "StateChanger", stateChanger->Utf8Name());
     setStringArray(env, obj, "ChangeInvokers", symbolVectorToStringVector(changeInvokers));
 
-    setString(env, obj, "ContextFile", this->contextFile->FileName());
-    setString(env, obj, "StateFile", this->stateFile->FileName());
+    setString(env, obj, "ContextFile", contextFile->FileName());
+    setString(env, obj, "StateFile", stateFile->FileName());
 
     return obj;
 }
 
 jobject Strategy::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Strategy");
-    setString(env, obj, "Context", this->context->Utf8Name());
-    setString(env, obj, "Strategy", this->strategy->Utf8Name());
+    setString(env, obj, "Context", context->Utf8Name());
+    setString(env, obj, "Strategy", strategy->Utf8Name());
     setStringArray(env, obj, "StrategyImplementations", symbolVectorToStringVector(strategyImplementations));
 
-    setString(env, obj, "Delegator", this->delegator->Utf8Name());
-    setString(env, obj, "ContextFile", this->contextFile->FileName());
-    setString(env, obj, "StrategyFile", this->strategyFile->FileName());
+    setString(env, obj, "Delegator", delegator->Utf8Name());
+    setString(env, obj, "ContextFile", contextFile->FileName());
+    setString(env, obj, "StrategyFile", strategyFile->FileName());
 
     return obj;
 }

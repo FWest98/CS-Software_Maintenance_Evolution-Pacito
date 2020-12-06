@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 @CommandLine.Command(name = "Pacito", mixinStandardHelpOptions = true)
 public class Pacito implements Callable<Integer> {
     @CommandLine.Spec CommandSpec spec;
@@ -78,7 +76,7 @@ public class Pacito implements Callable<Integer> {
 
             // Copy source (if thread > 0 copy from base thread since we assume this to be quick storage)
             var src = i == 0 ? source : dir.resolve("../pacito0");
-            copyFolder(src, dir, REPLACE_EXISTING);
+            //copyFolder(src, dir, REPLACE_EXISTING);
 
             // Start thread
             var runner = new PacitoRunner(dir, commits);

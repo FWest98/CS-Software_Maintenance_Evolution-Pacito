@@ -24,6 +24,16 @@ jobject makeObject(JNIEnv* env, const char* name) {
     return env->NewObject(cls, constructor);
 }
 
+void setBool(JNIEnv *env, jobject obj, const char *field, bool value) {
+    auto cls = env->GetObjectClass(obj);
+    if(cls == nullptr) return;
+
+    auto fieldId = env->GetFieldID(cls, field, "Z");
+    if(fieldId == nullptr) return;
+
+    env->SetBooleanField(obj, fieldId, value);
+}
+
 void setString(JNIEnv *env, jobject obj, const char *field, const char *value) {
     auto cls = env->GetObjectClass(obj);
     if(cls == nullptr) return;

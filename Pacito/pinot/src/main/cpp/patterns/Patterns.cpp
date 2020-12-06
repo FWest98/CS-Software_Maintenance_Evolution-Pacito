@@ -2,7 +2,6 @@
 #include "option.h"
 #include "case.h"
 #include "bytecode.h"
-#include "error.h"
 #include "semantic.h"
 #include "parser.h"
 #include "scanner.h"
@@ -250,6 +249,157 @@ vector<Pattern::Ptr> Pattern::FindStrategy(Control *control) {
                         output.push_back(strategy);
                     }
 
+                }
+            }
+        }
+    }
+
+    return output;
+}
+
+vector<Pattern::Ptr> Pattern::FindFlyweight(Control *control) {
+    auto ms_table = control->ms_table;
+    auto cs_table = control->cs_table;
+    auto w_table = control->w_table;
+    auto r_table = control->r_table;
+
+    vector<Pattern::Ptr> output;
+
+    // First strategy
+
+    if (PINOT_DEBUG)
+        Coutput << "Identifying the Flyweight pattern" << endl;
+
+    for (unsigned i = 0; i < ms_table->size(); i++) {
+        //break; // We skip this for now
+        MethodSymbol *msym = (*ms_table)[i];
+
+        if (PINOT_DEBUG)
+            Coutput << "Analyzing method: " << msym->Utf8Name() << endl;
+
+        TypeSymbol *unit_type = msym->containing_type;
+        if ((msym->declaration->kind == Ast::METHOD)
+            && msym->declaration->MethodDeclarationCast()->method_body_opt
+            && msym->Type()->file_symbol
+            && !unit_type->IsFamily(msym->Type())
+                ) {
+            FlyweightAnalysis flyweight(msym);
+
+            // For some reason this errors out, seems to hit a nullptr funcref.
+            //msym->declaration->MethodDeclarationCast()->method_body_opt->Accept(flyweight);
+            auto x = msym->declaration->MethodDeclarationCast()->method_body_opt;
+
+            typedef void (AstMethodBody::*vad)(FlyweightAnalysis&);
+            vad y = &AstMethodBody::Accept;
+            auto z = *x;
+            //(z.*y)(flyweight);
+            z.Accept(flyweight);
+
+            //flyweight.DumpSummary();
+            if (flyweight.IsFlyweightFactory()) {
+                auto pattern = make_shared<Flyweight>();
+                pattern->factory = unit_type;
+                pattern->pool = flyweight.GetFlyweightPool();
+                pattern->factoryMethod = msym;
+                pattern->objectType = msym->Type();
+                pattern->file = unit_type->file_symbol;
+
+                output.push_back(pattern);
+            }
+        }
+    }
+
+    // Second strategy
+
+    // This strategy looks for a variant flyweight implementation, where
+    // flyweight factories and pools are not necessary:
+    //
+    //   1. classes that are defined immutable
+    //       - class declared "final"
+    //       - allows instantiation, thus public ctors (unlike java.lang.Math)
+    //       - but internal fields should all be private and not written/modified by any non-private methods.
+    //
+    //   2. flyweight pools are represented as individual variable declarations
+    //	  - such variables are typically declared "static final" and are initialized (pre-populated)
+
+    unsigned c;
+    for (c = 0; c < cs_table->size(); c++) {
+        TypeSymbol *unit_type = (*cs_table)[c];
+        if (unit_type->ACC_FINAL()) {
+            AstClassBody *class_body = unit_type->declaration;
+            if (!class_body->default_constructor) {
+                unsigned i, j;
+                for (i = 0; (i < class_body->NumConstructors()) &&
+                            !class_body->Constructor(i)->constructor_symbol->ACC_PRIVATE(); i++);
+                for (j = 0; (j < unit_type->NumVariableSymbols()) && unit_type->VariableSym(j)->ACC_PRIVATE(); j++);
+                if ((i == class_body->NumConstructors()) && (j == unit_type->NumVariableSymbols())) {
+                    bool flag = false;
+                    unsigned m, v;
+                    for (v = 0; !flag && (v < unit_type->NumVariableSymbols()); v++) {
+                        if (!unit_type->VariableSym(v)->ACC_FINAL()) {
+                            for (m = 0; !flag && (m < class_body->NumMethods()); m++) {
+                                if (class_body->Method(m)->method_symbol->ACC_PUBLIC())
+                                    flag = w_table->IsWrittenBy(unit_type->VariableSym(v),
+                                                                class_body->Method(m)->method_symbol);
+                            }
+                        }
+                    }
+                    if (!flag) {
+                        auto pattern = make_shared<Flyweight>();
+                        pattern->factory = unit_type;
+                        pattern->isImmutable = true;
+                        pattern->file = unit_type->file_symbol;
+
+                        output.push_back(pattern);
+                    }
+                }
+            }
+        } else {
+            unsigned i;
+            for (i = 0; i < unit_type->NumVariableSymbols(); i++) {
+                if (unit_type->VariableSym(i)->Type()->file_symbol
+                    && unit_type->VariableSym(i)->ACC_STATIC()
+                    && unit_type->VariableSym(i)->ACC_FINAL()
+                    //&& (unit_type != unit_type->VariableSym(i)->Type())
+                        ) {
+                    if (unit_type->VariableSym(i)->ACC_PUBLIC() &&
+                        unit_type->VariableSym(i)->declarator->variable_initializer_opt) {
+
+                        auto pattern = make_shared<Flyweight>();
+                        pattern->factory = unit_type;
+                        pattern->object = unit_type->VariableSym(i);
+                        pattern->file = unit_type->file_symbol;
+
+                        output.push_back(pattern);
+                        break;
+                    } else {
+                        VariableSymbol *vsym = unit_type->VariableSym(i);
+                        MethodSymbol *msym = NULL;
+                        multimap<VariableSymbol *, MethodSymbol *>::iterator p;
+                        for (p = r_table->begin(); p != r_table->end(); p++) {
+                            //Find the method that returns this static-final flyweight object.
+                            //NOTE: this  approach does not analyze method body, just the fact that a flyweight object can be returned.
+
+                            //VariableSymbol *t1 = p->first;
+                            //MethodSymbol *t2 = p->second;
+                            if (strcmp(vsym->Type()->fully_qualified_name->value, "java/lang/String")
+                                && (p->first == vsym))
+                                msym = p->second;
+                            else if (Utility::Aliasing(p->first, vsym))
+                                msym = p->second;
+                        }
+
+                        if (msym) {
+                            auto pattern = make_shared<Flyweight>();
+                            pattern->factory = unit_type;
+                            pattern->object = vsym;
+                            pattern->factoryMethod = msym;
+                            pattern->file = unit_type->file_symbol;
+
+                            output.push_back(pattern);
+                            break;
+                        }
+                    }
                 }
             }
         }

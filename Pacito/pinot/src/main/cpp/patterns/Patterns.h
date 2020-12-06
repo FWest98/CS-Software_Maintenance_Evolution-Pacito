@@ -14,6 +14,7 @@ public:
     static vector<Ptr> FindChainOfResponsibility(Control *);
     static vector<Ptr> FindBridge(Control *);
     static vector<Ptr> FindStrategy(Control *);
+    static vector<Ptr> FindFlyweight(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -69,6 +70,42 @@ public:
         Coutput << decorateMethod->Utf8Name() << " is a decorate operation" << endl;
         Coutput << decoratee->Utf8Name() << " of type " << decoratee->Type()->Utf8Name() << " is the Decoratee class"
                 << endl;
+        Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Flyweight : public Pattern {
+public:
+    TypeSymbol *objectType = nullptr;
+    TypeSymbol *factory = nullptr;
+    MethodSymbol *factoryMethod = nullptr;
+
+    VariableSymbol *pool = nullptr;
+    VariableSymbol *object = nullptr;
+
+    FileSymbol *file = nullptr;
+    bool isImmutable = false;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Flyweight Pattern" << endl;
+
+        if(isImmutable) {
+            Coutput << factory->Utf8Name() << " is immutable" << endl;
+        } else {
+            Coutput << factory->Utf8Name() << " is a flyweight factory" << endl;
+
+            if(pool) {
+                Coutput << pool->Utf8Name() << " is the flyweight pool" << endl;
+                Coutput << factoryMethod->Utf8Name() << " is the factory methods, producing flyweight objects of type " << objectType->Utf8Name() << endl;
+            } else if (object && factoryMethod) {
+                Coutput << object->Utf8Name() << " is a flyweight object" << endl;
+                Coutput << factoryMethod->Utf8Name() << " is the getFlyweight method" << endl;
+            } else if(object) {
+                Coutput << object->Utf8Name() << " is a flyweight object (declared public/static/final)" << endl;
+            }
+        }
+
         Coutput << "File location: " << file->FileName() << endl << endl;
     }
 };

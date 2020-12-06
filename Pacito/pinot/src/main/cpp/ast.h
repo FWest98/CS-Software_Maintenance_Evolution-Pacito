@@ -450,7 +450,7 @@ public:
     // ASTs should not be destructed. Instead, delete the containing
     // StoragePool.
     //
-    virtual ~Ast() { assert(false && "Use the associated StoragePool"); }
+    virtual ~Ast() { /*assert(false && "Use the associated StoragePool");*/ }
     bool isPrimitiveType(wchar_t*);
 
 #ifdef JIKES_DEBUG
@@ -954,9 +954,9 @@ public:
     virtual TokenIndex LeftToken() { return left_brace_token; }
     virtual TokenIndex RightToken() { return right_brace_token; }
 
-    virtual void Accept(CreationAnalysis& visitor) { visitor.visit(this); }
-    virtual void Accept(ControlAnalysis& visitor) { visitor.visit(this); }
-    virtual void Accept(FlyweightAnalysis& visitor) { visitor.visit(this); }
+    void Accept(CreationAnalysis& visitor) override { visitor.visit(this); }
+    void Accept(ControlAnalysis& visitor) override { visitor.visit(this); }
+    void Accept(FlyweightAnalysis& visitor) override { visitor.visit(this); }
     virtual void Accept(Flatten& visitor) { visitor.visit(this); }
 
     virtual TypeSymbol *returnsType();    

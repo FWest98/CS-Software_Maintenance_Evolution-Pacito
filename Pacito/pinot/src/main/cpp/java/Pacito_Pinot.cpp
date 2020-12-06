@@ -63,3 +63,10 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy(JNIEnv *env, jobje
 
     return findPatternHelper(env, result);
 }
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFlyweight(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindFlyweight(pacito->getControl());
+
+    return findPatternHelper(env, result);
+}
