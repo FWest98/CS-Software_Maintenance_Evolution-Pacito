@@ -1098,14 +1098,47 @@ public:                                                         \
 #undef METHOD_ACCESSOR
 #undef FIELD_ACCESSOR
 
+    StoragePool* ast_pool;
     IntLiteralTable int_pool;
     LongLiteralTable long_pool;
     FloatLiteralTable float_pool;
     DoubleLiteralTable double_pool;
     Utf8LiteralTable Utf8_pool;
 
-    Control(char**, Option&);
+    Control(Option&);
     ~Control();
+
+    int run(char**); // Extract run from constructor
+
+    //
+    // GoF IRs
+    //
+    WriteAccessTable *w_table;
+    ReadAccessTable *r_table;
+    DelegationTable *d_table;
+    ClassSymbolTable* cs_table;
+    MethodSymbolTable* ms_table;
+
+    MethodBodyTable* mb_table;
+    GenTable* gen_table;
+    AssocTable* assoc_table;
+
+    // Other pattern detection functions
+    //void FindSingleton();
+    //std::vector<Pattern> FindChainOfResponsibility();
+    //void FindBridge();
+    //void FindStrategy();
+    //void FindFlyweight1();
+    //void FindFlyweight2();
+    //void FindComposite();
+    //void FindTemplateMethod();
+    //void FindFactory();
+    //void FindVisitor();
+    //void FindObserver();
+    //void FindMediator();
+    //void FindProxy();
+    //void FindAdapter();
+    //void FindFacade();
 
     Utf8LiteralValue* ConvertUnicodeToUtf8(const wchar_t* source)
     {
@@ -1236,19 +1269,6 @@ public:                                                         \
     DirectorySymbol* ProcessSubdirectories(wchar_t*, int, bool);
 
 private:
-
-    //
-    // GoF IRs
-    //
-    WriteAccessTable *w_table;
-    ReadAccessTable *r_table;
-    DelegationTable *d_table;
-    ClassSymbolTable* cs_table;
-    MethodSymbolTable* ms_table;
-
-    MethodBodyTable* mb_table;
-    GenTable* gen_table;
-    AssocTable* assoc_table;
 	
     LiteralValue bad_value;
 

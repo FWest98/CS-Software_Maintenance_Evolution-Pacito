@@ -208,7 +208,8 @@ int JikesAPI::compile(char** filenames)
     // is so that the jikespai.h header does not
     // need to include option.h.
 
-    Control *control = new Control(filenames, *((Option *) option));
+    Control *control = new Control(*((Option *) option));
+    control->run(filenames);
     int return_code = control -> return_code;
     delete control;
     return return_code;

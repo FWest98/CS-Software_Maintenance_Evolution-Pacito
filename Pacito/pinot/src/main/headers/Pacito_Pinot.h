@@ -26,10 +26,18 @@ JNIEXPORT void JNICALL Java_Pacito_Pinot_clean
 /*
  * Class:     Pacito_Pinot
  * Method:    run
- * Signature: ([Ljava/lang/String;)V
+ * Signature: ([Ljava/lang/String;)I
  */
-JNIEXPORT void JNICALL Java_Pacito_Pinot_run
+JNIEXPORT jint JNICALL Java_Pacito_Pinot_run
   (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findCoR
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

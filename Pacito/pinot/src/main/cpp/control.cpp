@@ -480,73 +480,6 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 	}
 }
 
-void FindChainOfResponsibility(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table, DelegationTable *d_table, StoragePool *ast_pool)
-{
-	if (PINOT_DEBUG)
-		Coutput << "Identifying Cor and Decorator" << endl;
-
-	SymbolSet CoR_cache;
-	SymbolSet D_cache;
-	
-	vector<MethodSymbol*> cache;
-	int i;
-	for (i = 0; i< d_table -> size(); i++)
-	{
-		DelegationEntry *entry = d_table -> Entry(i);
-
-		if (PINOT_DEBUG)
-			Coutput << "Analyzing delegation: " << entry->enclosing->Utf8Name() << " -> " << entry->method->Utf8Name() << endl;
-
-		if (entry-> vsym
-		&& (entry->from->IsSubtype(entry->vsym->Type()) || entry->vsym->Type()->IsSubtype(entry->from))
-		&& (!entry->vsym->IsLocal() || entry->from->Shadows(entry->vsym))
-		&& ((strcmp(entry -> method -> Utf8Name(), entry -> enclosing -> Utf8Name()) == 0) || (entry->method == entry->enclosing))
-		&& (strcmp(entry->enclosing->SignatureString(), entry->method->SignatureString()) == 0)
-		)
-		{
-			unsigned j = 0;
-			for (; (j < cache.size()) && (cache[j] != entry->enclosing) ; j++);
-			if (j == cache.size())
-			{
-					ChainAnalysis chain_analysis(entry->vsym, entry->enclosing, ast_pool);
-					ChainAnalysis::ResultTag result = chain_analysis.AnalyzeCallChain();
-					if (result == ChainAnalysis::CoR)
-					{
-						Coutput << "Chain of Responsibility Pattern" << endl;
-						Coutput << entry -> from -> Utf8Name() << " is a Chain of Responsibility Handler class" << endl;
-						Coutput << entry -> enclosing -> Utf8Name() << " is a handle operation" << endl;
-						Coutput << entry -> vsym -> Utf8Name()  << " of type " << entry -> vsym -> Type() -> Utf8Name() << " propogates the request" << endl;
-
-						char* file_name = entry -> enclosing -> containing_type -> file_symbol -> FileName();						
-						Coutput << L"File Location: " << file_name << endl << endl;
-						cache.push_back(entry->enclosing);
-						CoR_cache.AddElement(entry -> vsym -> Type());
-						//nCoR++;
-					}
-					else if (result == ChainAnalysis::DECORATOR)
-					{
-							Coutput << "Decorator Pattern" << endl;
-							Coutput << entry -> from -> Utf8Name() << " is a Decorator class" << endl;
-							Coutput << entry -> enclosing -> Utf8Name() << " is a decorate operation" << endl;
-							Coutput << entry -> vsym -> Utf8Name()  << " of type " << entry -> vsym -> Type() -> Utf8Name() << " is the Decoratee class" << endl;
-
-							char* file_name = entry -> enclosing -> containing_type -> file_symbol -> FileName();						
-							Coutput << L"File Location: " << file_name << endl << endl;
-							cache.push_back(entry->enclosing);
-							D_cache.AddElement(entry -> vsym -> Type());
-							//nDecorator++;
-					}
-
-					chain_analysis.CleanUp();
-			}
-		}
-	}
-	nCoR += CoR_cache.Size();
-	CoR_cache.Print();
-	nDecorator += D_cache.Size();
-	D_cache.Print();
-}
-
 void FindBridge(ClassSymbolTable *cs_table, DelegationTable *d_table)
 {
 	multimap<TypeSymbol*,TypeSymbol*> cache;
@@ -6053,7 +5986,7 @@ void Flatten::DumpSummary()
 	}
 }
 
-Control::Control(char** arguments, Option& option_)
+Control::Control(Option& option_)
     : return_code(0)
     , option(option_)
     , dot_classpath_index(0)
@@ -6180,11 +6113,10 @@ Control::Control(char** arguments, Option& option_)
     // Package cache.  unnamed and lang are initialized in constructor body.
     , annotation_package(NULL)
     , io_package(NULL)
-    , util_package(NULL)
-{
-PINOT_DEBUG = (getenv("PINOT_DEBUG")) ? true :  false;
-option.bytecode = false;
-	
+    , util_package(NULL) {
+    PINOT_DEBUG = (getenv("PINOT_DEBUG")) != nullptr;
+    option.bytecode = false;
+
 // breakpoint 0.
 // getchar();
     r_table = new ReadAccessTable();
@@ -6217,6 +6149,10 @@ option.bytecode = false;
     parser = new Parser();
     SemanticError::StaticInitializer();
 
+    ast_pool = new StoragePool(64);
+}
+
+int Control::run(char** arguments) {
     //
     // Process all file names specified in command line
     //
@@ -6226,7 +6162,6 @@ option.bytecode = false;
     // For each input file, copy it into the input_files array and process
     // its package declaration. Estimate we need 64 tokens.
     //
-    StoragePool* ast_pool = new StoragePool(64);
     FileSymbol** input_files = new FileSymbol*[input_java_file_set.Size() + 1];
     int num_files = 0;
     FileSymbol* file_symbol;
@@ -6437,7 +6372,7 @@ option.bytecode = false;
     //FindSingleton(cs_table, ms_table);
     FindSingleton1(cs_table, ast_pool);
 
-    FindChainOfResponsibility(cs_table, ms_table, d_table, ast_pool);
+    //FindChainOfResponsibility(cs_table, ms_table, d_table, ast_pool);
     FindBridge(cs_table, d_table);
     FindStrategy1(cs_table, d_table, w_table, r_table, ms_table);	
     //FindFlyweight(mb_table, gen_table, assoc_table);
@@ -6821,18 +6756,11 @@ option.bytecode = false;
         }
     }
 
-	
-    delete ast_pool;
+
     delete main_file_clone; // delete the clone of the main source file...
     delete [] input_files;
 
-
-    delete cs_table;
-    delete ms_table;
-
-    delete mb_table;
-    delete gen_table;
-    delete assoc_table;
+    return return_code;
 }
 
 
@@ -6852,6 +6780,15 @@ Control::~Control()
     delete parser;
     delete system_semantic;
     delete system_table;
+
+    delete cs_table;
+    delete ms_table;
+
+    delete mb_table;
+    delete gen_table;
+    delete assoc_table;
+
+    delete ast_pool;
 
 #ifdef JIKES_DEBUG
     if (option.debug_dump_lex || option.debug_dump_ast ||
