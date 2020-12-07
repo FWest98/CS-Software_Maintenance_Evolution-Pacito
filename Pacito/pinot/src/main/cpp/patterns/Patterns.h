@@ -24,6 +24,7 @@ public:
     static vector<Ptr> FindAdapter(Control *);
     static vector<Ptr> FindFacade(Control *);
     static vector<Ptr> FindSingleton(Control *);
+    static vector<Ptr> FindComposite(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -64,6 +65,23 @@ public:
         Coutput << delegated->Utf8Name() << " is an interface" << endl;
         Coutput << delegator->Utf8Name() << " delegates " << delegated->Utf8Name() << endl;
         Coutput << "File location: " << delegatorFile->FileName() << endl << delegatedFile->FileName() << endl << endl;
+    }
+};
+
+class Composite : public Pattern {
+public:
+    TypeSymbol *compositeClass;
+    VariableSymbol *instance;
+    TypeSymbol *componentClass;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Composite pattern" << endl;
+        Coutput << componentClass->Utf8Name() << " is the composite class" << endl;
+        Coutput << instance->Utf8Name() << " is the composite instance" << endl;
+        Coutput << componentClass->Utf8Name() << " is the component class" << endl;
+        Coutput << "File location: " << file->FileName() << endl;
     }
 };
 

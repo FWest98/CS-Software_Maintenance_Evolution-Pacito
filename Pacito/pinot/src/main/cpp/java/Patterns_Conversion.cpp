@@ -37,6 +37,16 @@ jobject Bridge::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Composite::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Composite");
+    setString(env, obj, "CompositeClass", compositeClass->Utf8Name());
+    setString(env, obj, "Instance", instance->Utf8Name());
+    setString(env, obj, "ComponentClass", componentClass->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+
+    return obj;
+}
+
 jobject CoR::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/CoR");
     setString(env, obj, "Handler", handler->Utf8Name());

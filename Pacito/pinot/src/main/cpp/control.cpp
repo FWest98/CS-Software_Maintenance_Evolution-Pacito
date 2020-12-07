@@ -544,101 +544,6 @@ bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 	return false;
 }
 
-void FindComposite(ClassSymbolTable *cs_table, DelegationTable *d_table)
-{
-	unsigned c;
-	for (c = 0; c < cs_table -> size(); c++)
-	{
-		if (!(*cs_table)[c] -> ACC_ABSTRACT() && (*cs_table)[c]->supertypes_closure && (*cs_table)[c]->supertypes_closure->Size())
-		{
-			TypeSymbol *unit_type = (*cs_table)[c];
-			AstClassBody* class_body = unit_type -> declaration;
-			for (unsigned i = 0; i < class_body -> NumInstanceVariables(); i++)
-			{
-				AstFieldDeclaration* field_decl  = class_body -> InstanceVariable(i);
-				for (unsigned vi = 0; (vi < field_decl -> NumVariableDeclarators()); vi++)
-				{
-					AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
-					ContainerType *container_type = Utility::IdentifyContainerType(vd->symbol);
-					//TypeSymbol *contained_type = unit_type->IsOnetoMany(vd->symbol, d_table);
-					if (!container_type)
-						break;
-					
-					if (container_type->kind == ContainerType::ARRAY)
-					{
-						if ((unit_type != vd->symbol->Type()->base_type)
-						&& unit_type -> IsSubtype(vd->symbol->Type()->base_type))
-						{
-							nComposite++;
-							Coutput << "Composite pattern." << endl;
-							Coutput << unit_type->Utf8Name() << " is the composite class." << endl;
-							Coutput << vd->symbol->Utf8Name() << " is the composite instance." << endl;
-							Coutput << vd->symbol->Type()->base_type->Utf8Name() << " is the component class." << endl;
-							Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl;
-							if (vd->symbol->Type()->base_type->file_symbol->IsClassOnly() && getenv("PINOT_HOME"))
-								Coutput << "$PINOT_HOME/lib/rt.jar" << vd->symbol->Type()->base_type->fully_qualified_name->value << ".class" << endl << endl;
-							else
-								Coutput << "File Location: " << vd->symbol->Type()->base_type->file_symbol->FileName() << endl << endl;							
-						}
-					}
-					else
-					{
-						SymbolSet set;
-						set.Union(*unit_type->supertypes_closure);
-						int ct = 0;
-						for (int i = 0; i < d_table -> size(); i++)
-						{
-							DelegationEntry *entry = d_table -> Entry(i);
-							if (entry->vsym
-							&& (entry->vsym == vd->symbol)
-							&& container_type->IsPutMethod(entry->call->symbol->MethodCast()))
-							{
-								TypeSymbol *type = container_type->GetPutType(entry->call);
-								if (type && type->supertypes_closure)
-								{
-									type->supertypes_closure->AddElement(type);
-									set.Intersection(*type->supertypes_closure);
-									type->supertypes_closure->RemoveElement(type);
-									ct++;
-								}
-							}
-						}
-						if (ct == 0)
-							break;
-						//remove java/lang/Object from set
-						Utility::RemoveBuiltinInterfaces(set);
-						if (set.Size() == 0)
-							break;
-
-						nComposite++;
-						Coutput << "Composite pattern." << endl;
-						Coutput << unit_type->Utf8Name() << " is the composite class." << endl;
-						Coutput << vd->symbol->Utf8Name() << " is the composite instance." << endl;
-						Coutput << set.FirstElement()->TypeCast()->Utf8Name() << " is the component class." << endl;
-						Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl;
-						Coutput << "File Location: " << set.FirstElement()->TypeCast()->file_symbol->FileName() << endl << endl;
-
-						
-						/*
-						if ((contained_type != unit_type) && contained_type && unit_type -> IsSubtype(contained_type))
-						{
-							nComposite++;
-							Coutput << "Composite pattern." << endl;
-							Coutput << unit_type -> Utf8Name() << " is the composite class." << endl;
-							Coutput << vd -> symbol -> Utf8Name() << " is the composite instance." << endl;
-							Coutput << contained_type -> Utf8Name() << " is the component class." << endl;
-							Coutput << "File Location: " << unit_type -> file_symbol -> FileName() << endl;
-							Coutput << "File Location: " << contained_type -> file_symbol -> FileName() << endl << endl;
-						}
-						*/
-					}
-					delete container_type;
-				}
-    			}
-		}
-	}
-}
-
 void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
 {
 	unsigned c;
@@ -5048,7 +4953,7 @@ int Control::run(char** arguments) {
         //FindFlyweight(mb_table, gen_table, assoc_table);
         //FindFlyweight1(ms_table);
         //FindFlyweight2(cs_table, w_table, r_table);
-        FindComposite(cs_table, d_table);
+        //FindComposite(cs_table, d_table);
         //FindMediator(cs_table, d_table);
         //FindTemplateMethod(d_table);
         //FindFactory(cs_table, ms_table, ast_pool);

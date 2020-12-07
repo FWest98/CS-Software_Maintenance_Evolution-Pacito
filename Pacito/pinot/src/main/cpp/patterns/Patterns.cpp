@@ -1226,3 +1226,78 @@ vector<Pattern::Ptr> Pattern::FindSingleton(Control *control) {
 
     return output;
 }
+
+vector<Pattern::Ptr> Pattern::FindComposite(Control *control) {
+    auto cs_table = control->cs_table;
+    auto d_table = control->d_table;
+
+    vector<Pattern::Ptr> output;
+
+    unsigned c;
+    for (c = 0; c < cs_table->size(); c++) {
+        if (!(*cs_table)[c]->ACC_ABSTRACT() && (*cs_table)[c]->supertypes_closure &&
+            (*cs_table)[c]->supertypes_closure->Size()) {
+            TypeSymbol *unit_type = (*cs_table)[c];
+            AstClassBody *class_body = unit_type->declaration;
+            for (unsigned i = 0; i < class_body->NumInstanceVariables(); i++) {
+                AstFieldDeclaration *field_decl = class_body->InstanceVariable(i);
+                for (unsigned vi = 0; (vi < field_decl->NumVariableDeclarators()); vi++) {
+                    AstVariableDeclarator *vd = field_decl->VariableDeclarator(vi);
+                    ContainerType *container_type = Utility::IdentifyContainerType(vd->symbol);
+                    //TypeSymbol *contained_type = unit_type->IsOnetoMany(vd->symbol, d_table);
+                    if (!container_type)
+                        break;
+
+                    if (container_type->kind == ContainerType::ARRAY) {
+                        if ((unit_type != vd->symbol->Type()->base_type)
+                            && unit_type->IsSubtype(vd->symbol->Type()->base_type)) {
+
+                            auto pattern = make_shared<Composite>();
+                            pattern->componentClass = unit_type;
+                            pattern->componentClass = vd->symbol->Type()->base_type;
+                            pattern->instance = vd->symbol;
+                            pattern->file = unit_type->file_symbol;
+
+                            output.push_back(pattern);
+                        }
+                    } else {
+                        SymbolSet set;
+                        set.Union(*unit_type->supertypes_closure);
+                        int ct = 0;
+                        for (int i = 0; i < d_table->size(); i++) {
+                            DelegationEntry *entry = d_table->Entry(i);
+                            if (entry->vsym
+                                && (entry->vsym == vd->symbol)
+                                && container_type->IsPutMethod(entry->call->symbol->MethodCast())) {
+                                TypeSymbol *type = container_type->GetPutType(entry->call);
+                                if (type && type->supertypes_closure) {
+                                    type->supertypes_closure->AddElement(type);
+                                    set.Intersection(*type->supertypes_closure);
+                                    type->supertypes_closure->RemoveElement(type);
+                                    ct++;
+                                }
+                            }
+                        }
+                        if (ct == 0)
+                            break;
+                        //remove java/lang/Object from set
+                        Utility::RemoveBuiltinInterfaces(set);
+                        if (set.Size() == 0)
+                            break;
+
+                        auto pattern = make_shared<Composite>();
+                        pattern->componentClass = unit_type;
+                        pattern->componentClass = set.FirstElement()->TypeCast();
+                        pattern->instance = vd->symbol;
+                        pattern->file = unit_type->file_symbol;
+
+                        output.push_back(pattern);
+                    }
+                    delete container_type;
+                }
+            }
+        }
+    }
+
+    return output;
+}

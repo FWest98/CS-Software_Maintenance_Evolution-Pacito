@@ -55,6 +55,7 @@ public class PacitoRunner implements Runnable {
             var adapter = pinot.findAdapter();
             var facade = pinot.findFacade();
             var singleton = pinot.findSingleton();
+            var composite = pinot.findComposite();
             pinot.clean();
         } catch (IOException e) {
             e.printStackTrace();

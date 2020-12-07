@@ -133,3 +133,10 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findSingleton(JNIEnv *env, jobj
 
     return findPatternHelper(env, result);
 }
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findComposite(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindComposite(pacito->getControl());
+
+    return findPatternHelper(env, result);
+}
