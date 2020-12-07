@@ -2269,71 +2269,66 @@ void EmitStatementAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_m
 	}
 }
 
-void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, DelegationTable *d_table, ClassSymbolTable *cs_table, MethodBodyTable* mb_table, MethodSymbolTable *ms_table, GenTable* gen_table, AssocTable* assoc_table, TypeSymbol* unit_type, StoragePool* ast_pool)
-{
-	//Coutput << unit_type->fully_qualified_name->value << endl;
-	if (unit_type->Anonymous() && (unit_type->NumInterfaces() || unit_type->super))
-	{
-		if (!unit_type->supertypes_closure)
-			unit_type->supertypes_closure = new SymbolSet(0);
-		if (unit_type->NumInterfaces())
-			unit_type->supertypes_closure->AddElement(unit_type->Interface(0));
-		if (unit_type->super)
-			unit_type->supertypes_closure->AddElement(unit_type->super);
-	}
+void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, DelegationTable *d_table,
+                      ClassSymbolTable *cs_table, MethodBodyTable *mb_table, MethodSymbolTable *ms_table,
+                      GenTable *gen_table, AssocTable *assoc_table, TypeSymbol *unit_type, StoragePool *ast_pool) {
+    //Coutput << unit_type->fully_qualified_name->value << endl;
+    if (unit_type->Anonymous() && (unit_type->NumInterfaces() || unit_type->super)) {
+        if (!unit_type->supertypes_closure)
+            unit_type->supertypes_closure = new SymbolSet(0);
+        if (unit_type->NumInterfaces())
+            unit_type->supertypes_closure->AddElement(unit_type->Interface(0));
+        if (unit_type->super)
+            unit_type->supertypes_closure->AddElement(unit_type->super);
+    }
 
-    Semantic& semantic = *unit_type -> semantic_environment -> sem;
+    Semantic &semantic = *unit_type->semantic_environment->sem;
     LexStream *lex_stream = semantic.lex_stream;
 
-    wchar_t* package_name = unit_type -> FileLoc();
+    wchar_t *package_name = unit_type->FileLoc();
 
-    AstClassBody* class_body = unit_type -> declaration;
+    AstClassBody *class_body = unit_type->declaration;
 
-    class_body -> Lexify(*lex_stream);
-	
-    wchar_t* class_name = const_cast<wchar_t*>(unit_type -> Name());
+    class_body->Lexify(*lex_stream);
+
+    wchar_t *class_name = const_cast<wchar_t *>(unit_type->Name());
 
     EmitGeneralization(gen_table, unit_type); // to be eliminated.
-    cs_table -> AddClassSymbol(unit_type);
-	
+    cs_table->AddClassSymbol(unit_type);
+
     unsigned i;
 
-    if ((class_body -> NumClassVariables() + class_body -> NumInstanceVariables()) > 0)
-    {
-	unit_type -> instances = new SymbolSet();    	
-	unit_type -> references = new SymbolSet();
+    if ((class_body->NumClassVariables() + class_body->NumInstanceVariables()) > 0) {
+        unit_type->instances = new SymbolSet();
+        unit_type->references = new SymbolSet();
     }
-		
+
     //
     // Process static variables.
     //
-    for (i = 0; i < class_body -> NumClassVariables(); i++)
-    {
-        AstFieldDeclaration* field_decl = class_body -> ClassVariable(i);
+    for (i = 0; i < class_body->NumClassVariables(); i++) {
+        AstFieldDeclaration *field_decl = class_body->ClassVariable(i);
 
-	 TypeSymbol *type = (field_decl -> type -> symbol -> IsArray()) 
-	 					? field_decl -> type -> symbol -> base_type
-	 					: field_decl -> type -> symbol;
-  	 unit_type -> references -> AddElement(type);
+        TypeSymbol *type = (field_decl->type->symbol->IsArray())
+                           ? field_decl->type->symbol->base_type
+                           : field_decl->type->symbol;
+        unit_type->references->AddElement(type);
 
         for (unsigned vi = 0;
-             vi < field_decl -> NumVariableDeclarators(); vi++)
-        {
-		AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
-	     	unit_type -> instances -> AddElement(vd -> symbol);
-	     	field_decl -> PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
-            	//DeclareField(vd -> symbol);
+             vi < field_decl->NumVariableDeclarators(); vi++) {
+            AstVariableDeclarator *vd = field_decl->VariableDeclarator(vi);
+            unit_type->instances->AddElement(vd->symbol);
+            field_decl->PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
+            //DeclareField(vd -> symbol);
 
-		if (vd->variable_initializer_opt && vd->variable_initializer_opt->ExpressionCast())
-		{
-			AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
-			if (rhs_expression->symbol->VariableCast())
-			{
-				if (!vd->symbol->aliases)
-					vd->symbol->aliases = new SymbolSet();
-				vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
-			}
-		}
+            if (vd->variable_initializer_opt && vd->variable_initializer_opt->ExpressionCast()) {
+                AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
+                if (rhs_expression->symbol->VariableCast()) {
+                    if (!vd->symbol->aliases)
+                        vd->symbol->aliases = new SymbolSet();
+                    vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
+                }
+            }
         }
     }
 
@@ -2342,52 +2337,47 @@ void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, Deleg
     // because in 1.4 or later, constant fields are initialized before the
     // call to super() in order to obey semantics of JLS 13.1.
     //
-    Tuple<AstVariableDeclarator*> constant_instance_fields
-        (unit_type -> NumVariableSymbols());
-    for (i = 0; i < class_body -> NumInstanceVariables(); i++)
-    {
-        AstFieldDeclaration* field_decl  = class_body -> InstanceVariable(i);
+    Tuple<AstVariableDeclarator *> constant_instance_fields
+            (unit_type->NumVariableSymbols());
+    for (i = 0; i < class_body->NumInstanceVariables(); i++) {
+        AstFieldDeclaration *field_decl = class_body->InstanceVariable(i);
 
-	 TypeSymbol *type = (field_decl -> type -> symbol -> IsArray()) 
-	 					? field_decl -> type -> symbol -> base_type
-	 					: field_decl -> type -> symbol;
-	 unit_type -> references -> AddElement(type);
+        TypeSymbol *type = (field_decl->type->symbol->IsArray())
+                           ? field_decl->type->symbol->base_type
+                           : field_decl->type->symbol;
+        unit_type->references->AddElement(type);
 
         for (unsigned vi = 0;
-             vi < field_decl -> NumVariableDeclarators(); vi++)
-        {
-            AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
-	     field_decl -> PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
-            VariableSymbol* vsym = vd -> symbol;
-	     unit_type -> instances -> AddElement(vsym);
+             vi < field_decl->NumVariableDeclarators(); vi++) {
+            AstVariableDeclarator *vd = field_decl->VariableDeclarator(vi);
+            field_decl->PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
+            VariableSymbol *vsym = vd->symbol;
+            unit_type->instances->AddElement(vsym);
             //DeclareField(vsym);
-            if (vd -> variable_initializer_opt && vsym -> initial_value)
-            {
-                AstExpression* init;
-                assert(init = vd -> variable_initializer_opt -> ExpressionCast());
-                assert(init -> IsConstant() && vd -> symbol -> ACC_FINAL());
+            if (vd->variable_initializer_opt && vsym->initial_value) {
+                AstExpression *init;
+                assert(init = vd->variable_initializer_opt->ExpressionCast());
+                assert(init->IsConstant() && vd->symbol->ACC_FINAL());
                 constant_instance_fields.Next() = vd;
 
-		  AstExpression *expr = (init -> kind == Ast::CAST) 
-							? init -> CastExpressionCast() -> expression
-							: init;
-		  if (expr -> kind == Ast::CLASS_CREATION)
-		  {
-			if (!vsym -> concrete_types)
-				vsym -> concrete_types = new SymbolSet(0);
-			vsym -> concrete_types -> AddElement(expr -> ClassCreationExpressionCast() -> class_type -> symbol -> TypeCast());
-		  }			
+                AstExpression *expr = (init->kind == Ast::CAST)
+                                      ? init->CastExpressionCast()->expression
+                                      : init;
+                if (expr->kind == Ast::CLASS_CREATION) {
+                    if (!vsym->concrete_types)
+                        vsym->concrete_types = new SymbolSet(0);
+                    vsym->concrete_types->AddElement(
+                            expr->ClassCreationExpressionCast()->class_type->symbol->TypeCast());
+                }
             }
-            if (vd->variable_initializer_opt && vd->variable_initializer_opt->ExpressionCast())
-	     {
-			AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
-			if (rhs_expression->symbol->VariableCast())
-			{
-				if (!vd->symbol->aliases)
-					vd->symbol->aliases = new SymbolSet();
-				vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
-			}
-	     }			
+            if (vd->variable_initializer_opt && vd->variable_initializer_opt->ExpressionCast()) {
+                AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
+                if (rhs_expression->symbol->VariableCast()) {
+                    if (!vd->symbol->aliases)
+                        vd->symbol->aliases = new SymbolSet();
+                    vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
+                }
+            }
         }
     }
 
@@ -2420,30 +2410,29 @@ void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, Deleg
     //
     // Process declared methods.
     //
-    for (i = 0; i < class_body -> NumMethods(); i++)
-    {
-        AstMethodDeclaration* method = class_body -> Method(i);
-        if (method -> method_symbol)
-        {
+    for (i = 0; i < class_body->NumMethods(); i++) {
+        AstMethodDeclaration *method = class_body->Method(i);
+        if (method->method_symbol) {
             counter3++;
-	     wchar_t* method_name = const_cast<wchar_t*>((*lex_stream).NameString(method -> method_declarator -> identifier_token));
+            wchar_t *method_name = const_cast<wchar_t *>((*lex_stream).NameString(
+                    method->method_declarator->identifier_token));
 
             //int method_index = methods.NextIndex(); // index for method
             //BeginMethod(method_index, method -> method_symbol);
-            if (method -> method_body_opt) // not an abstract method ?
+            if (method->method_body_opt) // not an abstract method ?
             {
-		  mb_table -> addMethodBodyAddr(package_name, class_name, method_name, method);  // to be eliminated.
-		  method -> PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
-		  ms_table -> AddMethodSymbol(method -> method_symbol);
+                mb_table->addMethodBodyAddr(package_name, class_name, method_name, method);  // to be eliminated.
+                method->PrintAssociation(assoc_table, package_name, class_name, *lex_stream);
+                ms_table->AddMethodSymbol(method->method_symbol);
 
-            	  assert(method -> method_body_opt -> NumStatements() > 0);
-		  EmitBlockAssociation(unit_type, method -> method_symbol, method -> method_body_opt, d_table, w_table, r_table);
+                assert(method->method_body_opt->NumStatements() > 0);
+                EmitBlockAssociation(unit_type, method->method_symbol, method->method_body_opt, d_table, w_table,
+                                     r_table);
 
-		  counter2++;
+                counter2++;
                 //EmitBlockStatement(method -> method_body_opt);
-            }
-	     else
-		 	counter1++;
+            } else
+                counter1++;
             //EndMethod(method_index, method -> method_symbol);
         }
     }
@@ -2499,18 +2488,17 @@ void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, Deleg
     // Process all constructors (including synthetic ones).
     //
 
-    if (!class_body -> default_constructor)
-    {
-    	for (i = 0; i < class_body -> NumConstructors(); i++)
-    	{
-   		//AstConstructorDeclaration *constructor = dynamic_cast<AstConstructorDeclaration*>(class_body -> Constructor(i) -> Clone(ast_pool, *lex_stream));
-		AstConstructorDeclaration *constructor = class_body -> Constructor(i);
-		mb_table -> addMethodBodyAddr(package_name, class_name, class_name, constructor);  // to be eliminated.
-	   	ms_table -> AddMethodSymbol(constructor -> constructor_symbol);
-		EmitBlockAssociation(unit_type, constructor -> constructor_symbol, constructor -> constructor_body, d_table, w_table, r_table);
+    if (!class_body->default_constructor) {
+        for (i = 0; i < class_body->NumConstructors(); i++) {
+            //AstConstructorDeclaration *constructor = dynamic_cast<AstConstructorDeclaration*>(class_body -> Constructor(i) -> Clone(ast_pool, *lex_stream));
+            AstConstructorDeclaration *constructor = class_body->Constructor(i);
+            mb_table->addMethodBodyAddr(package_name, class_name, class_name, constructor);  // to be eliminated.
+            ms_table->AddMethodSymbol(constructor->constructor_symbol);
+            EmitBlockAssociation(unit_type, constructor->constructor_symbol, constructor->constructor_body, d_table,
+                                 w_table, r_table);
 
-          	// CompileConstructor(class_body -> Constructor(i), constant_instance_fields, has_instance_initializer);
-    	}
+            // CompileConstructor(class_body -> Constructor(i), constant_instance_fields, has_instance_initializer);
+        }
     }
     /*
     for (i = 0; i < unit_type -> NumPrivateAccessConstructors(); i++)
@@ -4562,28 +4550,87 @@ Control::~Control()
     }
 
     unsigned i;
-    for (i = 0; i < bad_zip_filenames.Length(); i++)
-        delete [] bad_zip_filenames[i];
-    for (i = 0; i < bad_input_filenames.Length(); i++)
-        delete [] bad_input_filenames[i];
-    for (i = 0; i < unreadable_input_filenames.Length(); i++)
-        delete [] unreadable_input_filenames[i];
-    for (i = 0; i < system_directories.Length(); i++)
-        delete system_directories[i];
+    for (i = 0; i < bad_zip_filenames.Length(); i++) delete [] bad_zip_filenames[i];
+    for (i = 0; i < bad_input_filenames.Length(); i++) delete [] bad_input_filenames[i];
+    for (i = 0; i < unreadable_input_filenames.Length(); i++) delete [] unreadable_input_filenames[i];
+    for (i = 0; i < system_directories.Length(); i++) delete system_directories[i];
+    /*for (i = 0; i < bad_dirnames.Length(); i++) delete [] bad_dirnames[i];
+    for (i = 0; i < semantic.Length(); i++) delete semantic[i];
+    for (i = 0; i < needs_body_work.Length(); i++) delete needs_body_work[i];
+    for (i = 0; i < type_trash_bin.Length(); i++) delete type_trash_bin[i];*/
 
     delete scanner;
     delete parser;
     delete system_semantic;
     delete system_table;
 
+    /*delete access_name_symbol;
+    delete array_name_symbol;
+    delete assert_name_symbol;
+    delete block_init_name_symbol;
+    delete class_name_symbol;
+    delete clinit_name_symbol;
+    delete clone_name_symbol;
+    delete dot_name_symbol;
+    delete dot_dot_name_symbol;
+    delete Enum_name_symbol;
+    delete equals_name_symbol;
+    delete false_name_symbol;
+    delete hashCode_name_symbol;
+    delete init_name_symbol;
+    delete length_name_symbol;
+    delete null_name_symbol;
+    delete Object_name_symbol;
+    delete package_info_name_symbol;
+    delete question_name_symbol;
+    delete serialPersistentFields_name_symbol;
+    delete serialVersionUID_name_symbol;
+    delete this_name_symbol;
+    delete val_name_symbol;*/
+
+    /*delete ConstantValue_literal;
+    delete Exceptions_literal;
+    delete InnerClasses_literal;
+    delete Synthetic_literal;
+    delete Deprecated_literal;
+    delete LineNumberTable_literal;
+    delete LocalVariableTable_literal;
+    delete Code_literal;
+    delete SourceFile_literal;
+    delete EnclosingMethod_literal;
+
+    delete byte_type;
+    delete short_type;
+    delete int_type;
+    delete long_type;
+    delete char_type;
+    delete float_type;
+    delete double_type;
+    delete boolean_type;
+    delete void_type;
+    delete null_type;
+    delete no_type;*/
+
+    /*delete annotation_package;
+    delete io_package;
+    delete lang_package;
+    delete util_package;
+    delete unnamed_package;*/
+
     delete cs_table;
     delete ms_table;
-
     delete mb_table;
     delete gen_table;
     delete assoc_table;
-
+    delete w_table;
+    delete r_table;
+    delete d_table;
     delete ast_pool;
+
+    /*for(i = 0; i < classpath.Length(); i++) {
+        delete classpath[i]->name_symbol;
+        delete classpath[i];
+    }*/
 
 #ifdef JIKES_DEBUG
     if (option.debug_dump_lex || option.debug_dump_ast ||
@@ -5248,6 +5295,8 @@ void Control::ProcessMembers()
         }
     }
 
+    needs_member_work.SetEmpty();
+
     semantic.Reset();
 }
 
@@ -5281,13 +5330,11 @@ void Control::CollectTypes(TypeSymbol* type, Tuple<TypeSymbol*>& types)
 }
 
 
-void Control::ProcessBodies(TypeSymbol* type, StoragePool* ast_pool)
-{
-    Semantic* sem = type -> semantic_environment -> sem;
+void Control::ProcessBodies(TypeSymbol *type, StoragePool *ast_pool) {
+    Semantic *sem = type->semantic_environment->sem;
 
-    if (type -> declaration &&
-        ! sem -> compilation_unit -> BadCompilationUnitCast())
-    {
+    if (type->declaration &&
+        !sem->compilation_unit->BadCompilationUnitCast()) {
 #ifdef WIN32_FILE_SYSTEM
         if (! type -> file_symbol -> IsZip())
         {
@@ -5323,51 +5370,43 @@ void Control::ProcessBodies(TypeSymbol* type, StoragePool* ast_pool)
         }
 #endif // WIN32_FILE_SYSTEM
 
-        if (! parser -> InitializerParse(sem -> lex_stream,
-                                         type -> declaration))
-        {
+        if (!parser->InitializerParse(sem->lex_stream,
+                                      type->declaration)) {
             // Mark that syntax errors were detected.
-            sem -> compilation_unit -> MarkBad();
-        }
-        else
-        {
-            type -> CompleteSymbolTable();
-            if (! parser -> BodyParse(sem -> lex_stream, type -> declaration))
-            {
+            sem->compilation_unit->MarkBad();
+        } else {
+            type->CompleteSymbolTable();
+            if (!parser->BodyParse(sem->lex_stream, type->declaration)) {
                 // Mark that syntax errors were detected.
-                sem -> compilation_unit -> MarkBad();
-            }
-            else type -> ProcessExecutableBodies();
+                sem->compilation_unit->MarkBad();
+            } else type->ProcessExecutableBodies();
         }
 
-        if (sem -> NumErrors() == 0 &&
-            sem -> lex_stream -> NumBadTokens() == 0 &&
-            ! sem -> compilation_unit -> BadCompilationUnitCast())
-        {
-            Tuple<TypeSymbol*>* types = new Tuple<TypeSymbol*>(1024);
+        if (sem->NumErrors() == 0 &&
+            sem->lex_stream->NumBadTokens() == 0 &&
+            !sem->compilation_unit->BadCompilationUnitCast()) {
+            auto *types = new Tuple<TypeSymbol *>(1024);
             CollectTypes(type, *types);
 
-	     //
-	     // Get Structural info for pattern detection.
-	     //
-	     for (unsigned k = 0; k < types -> Length(); k++)
-	     {
-	     		TypeSymbol *type = (*types)[k];			
-	      		ExtractStructure(w_table, r_table, d_table, cs_table, mb_table, ms_table, gen_table, assoc_table, type, ast_pool);
-	     }
+            //
+            // Get Structural info for pattern detection.
+            //
+            for (unsigned k = 0; k < types->Length(); k++) {
+                TypeSymbol *type = (*types)[k];
+                ExtractStructure(w_table, r_table, d_table, cs_table, mb_table, ms_table, gen_table, assoc_table, type,
+                                 ast_pool);
+            }
 
             //
             // If we are supposed to generate code, do so now !!!
             //
-            if (option.bytecode)
-            {
-                for (unsigned k = 0; k < types -> Length(); k++)
-                {
-                    TypeSymbol* type = (*types)[k];
+            if (option.bytecode) {
+                for (unsigned k = 0; k < types->Length(); k++) {
+                    TypeSymbol *type = (*types)[k];
                     // Make sure the literal is available for bytecode.
-                    type -> file_symbol -> SetFileNameLiteral(this);
-                    ByteCode* code = new ByteCode(type);
-                    code -> GenerateCode();
+                    type->file_symbol->SetFileNameLiteral(this);
+                    ByteCode *code = new ByteCode(type);
+                    code->GenerateCode();
                     delete code;
                 }
             }
@@ -5376,16 +5415,13 @@ void Control::ProcessBodies(TypeSymbol* type, StoragePool* ast_pool)
             // If no error was detected while generating code, then
             // start cleaning up.
             //
-            if (! option.nocleanup)
-            {
-                if (sem -> NumErrors() == 0)
-                {
-                    for (unsigned k = 0; k < types -> Length(); k++)
-                    {
-                        TypeSymbol* type = (*types)[k];
-                        delete type -> semantic_environment;
-                        type -> semantic_environment = NULL;
-                        type -> declaration -> semantic_environment = NULL;
+            if (!option.nocleanup) {
+                if (sem->NumErrors() == 0) {
+                    for (unsigned k = 0; k < types->Length(); k++) {
+                        TypeSymbol *type = (*types)[k];
+                        delete type->semantic_environment;
+                        type->semantic_environment = NULL;
+                        type->declaration->semantic_environment = NULL;
                     }
                 }
                 delete types;
@@ -5398,15 +5434,13 @@ void Control::ProcessBodies(TypeSymbol* type, StoragePool* ast_pool)
         }
     }
 
-    sem -> types_to_be_processed.RemoveElement(type);
+    sem->types_to_be_processed.RemoveElement(type);
 
-    if (sem -> types_to_be_processed.Size() == 0)
-    {
+    if (sem->types_to_be_processed.Size() == 0) {
         // All types belonging to this compilation unit have been processed.
         CheckForUnusedImports(sem);
-        if (! option.nocleanup)
-        {
-            CleanUp(sem -> source_file_symbol);
+        if (!option.nocleanup) {
+            CleanUp(sem->source_file_symbol);
         }
     }
 }

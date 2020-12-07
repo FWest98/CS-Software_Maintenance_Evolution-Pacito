@@ -324,7 +324,7 @@ Option::Option()
           debug_dump_class(false),
           debug_trace_stack_change(false),
 #endif // JIKES_DEBUG
-          nocleanup(true),
+          nocleanup(false),
           incremental(false),
           makefile(false),
           dependence_report(false),

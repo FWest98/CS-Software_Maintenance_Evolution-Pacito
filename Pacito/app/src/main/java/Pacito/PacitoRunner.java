@@ -1,5 +1,6 @@
 package Pacito;
 
+import lombok.SneakyThrows;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -9,73 +10,66 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class PacitoRunner implements Runnable {
-    private Path directory;
+public class PacitoRunner implements Callable<Pinot> {
+    private final Path directory;
     private Git git;
-    private ArrayList<RevCommit> commits;
+    private final RevCommit commit;
     private Pinot pinot;
 
-    public PacitoRunner(Path directory, ArrayList<RevCommit> commits) {
+    public PacitoRunner(Path directory, RevCommit commit) {
         this.directory = directory;
-        this.commits = commits;
+        this.commit = commit;
     }
 
+    @SneakyThrows(UnsupportedOperationException.class)
     @Override
-    public void run() {
+    public Pinot call() {
+        // Git work
         try {
+            // Open repository
             git = Git.open(directory.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        pinot = new Pinot("/d/Documents/Studie/Informatica/Software Maintenance and Evolution/Pinot/lib/rt-1.7.jar");
 
-        var commit = commits.get(2000);
-        // Checkout commit
-        try {
+            // Checkout commit
             git.reset().setRef(commit.getName()).setMode(ResetCommand.ResetType.HARD).call();
-        } catch (GitAPIException e) {
+
+            // Clean dir
+            git.clean().setCleanDirectories(true).setForce(true).call();
+        } catch (IOException | GitAPIException e) {
             e.printStackTrace();
+            return null;
         }
 
-        try {
-            var files = findFiles("*.java", directory);
-            var stats = pinot.run(files.stream().map(Path::toString).toArray(String[]::new));
-            var cor = pinot.findCoR();
-            var bridge = pinot.findBridge();
-            var strategy = pinot.findStrategy();
-            var flyweight = pinot.findFlyweight();
-            var template = pinot.findTemplateMethod();
-            var factory = pinot.findFactory();
-            var visitor = pinot.findVisitor();
-            var observer = pinot.findObserver();
-            var mediator = pinot.findMediator();
-            var proxy = pinot.findProxy();
-            var adapter = pinot.findAdapter();
-            var facade = pinot.findFacade();
-            var singleton = pinot.findSingleton();
-            var composite = pinot.findComposite();
-            pinot.clean();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Call Pinot
+        pinot = new Pinot();
+        pinot.initialize(Collections.singletonList("/d/Documents/Studie/Informatica/Software Maintenance and Evolution/Pinot/lib/rt-1.7.jar"));
+
+        var files = findFiles("*.java", directory);
+        pinot.run(files);
+        pinot.cleanUp();
+
+        return pinot;
     }
 
-    private List<Path> findFiles(String pattern, Path directory) throws IOException {
+    private List<Path> findFiles(String pattern, Path directory) {
         var paths = new ArrayList<Path>();
         var matcher = FileSystems.getDefault().getPathMatcher("glob:"+pattern);
 
-        Files.walkFileTree(directory, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                if(matcher.matches(file.getFileName())) {
-                    paths.add(file);
-                }
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    if (matcher.matches(file.getFileName())) {
+                        paths.add(file);
+                    }
 
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch(IOException ignored) {}
 
         return paths;
     }

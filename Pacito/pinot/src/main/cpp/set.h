@@ -130,6 +130,7 @@ public:
         for (unsigned i = 0; i < symbol_pool.Length(); i++)
             delete symbol_pool[i];
         symbol_pool.Reset();
+        symbol_pool.Resize(0);
         base = (ShadowSymbol**) memset(base, 0,
                                        hash_size * sizeof(ShadowSymbol*));
     }

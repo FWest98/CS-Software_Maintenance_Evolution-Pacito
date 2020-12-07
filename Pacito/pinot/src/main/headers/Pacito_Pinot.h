@@ -33,10 +33,10 @@ JNIEXPORT jobject JNICALL Java_Pacito_Pinot_run
 
 /*
  * Class:     Pacito_Pinot
- * Method:    findCoR
+ * Method:    findAdapter
  * Signature: ()[LPacito/Patterns/Pattern;
  */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findAdapter
   (JNIEnv *, jobject);
 
 /*
@@ -49,74 +49,18 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findBridge
 
 /*
  * Class:     Pacito_Pinot
- * Method:    findStrategy
+ * Method:    findComposite
  * Signature: ()[LPacito/Patterns/Pattern;
  */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findComposite
   (JNIEnv *, jobject);
 
 /*
  * Class:     Pacito_Pinot
- * Method:    findFlyweight
+ * Method:    findCoR
  * Signature: ()[LPacito/Patterns/Pattern;
  */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFlyweight
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findTemplateMethod
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findTemplateMethod
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findFactory
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFactory
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findVisitor
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findVisitor
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findObserver
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findObserver
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findMediator
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findMediator
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findProxy
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findProxy
-  (JNIEnv *, jobject);
-
-/*
- * Class:     Pacito_Pinot
- * Method:    findAdapter
- * Signature: ()[LPacito/Patterns/Pattern;
- */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findAdapter
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR
   (JNIEnv *, jobject);
 
 /*
@@ -129,6 +73,46 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFacade
 
 /*
  * Class:     Pacito_Pinot
+ * Method:    findFactory
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFactory
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findFlyweight
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFlyweight
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findMediator
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findMediator
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findObserver
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findObserver
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findProxy
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findProxy
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
  * Method:    findSingleton
  * Signature: ()[LPacito/Patterns/Pattern;
  */
@@ -137,10 +121,26 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findSingleton
 
 /*
  * Class:     Pacito_Pinot
- * Method:    findComposite
+ * Method:    findStrategy
  * Signature: ()[LPacito/Patterns/Pattern;
  */
-JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findComposite
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findStrategy
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findTemplateMethod
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findTemplateMethod
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findVisitor
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findVisitor
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

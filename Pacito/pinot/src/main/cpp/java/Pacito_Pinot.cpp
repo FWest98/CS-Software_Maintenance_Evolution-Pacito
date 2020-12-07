@@ -31,9 +31,9 @@ JNIEXPORT jobject JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jo
     int fileCount = env->GetArrayLength(files);
     const char* fileNames[fileCount + 1]; // NULL at end
 
-    for (int i = 0; i < fileCount; i++) {
+    for (auto i = 0; i < fileCount; i++) {
         auto file = (jstring) (env->GetObjectArrayElement(files, i));
-        const char* fileString = env->GetStringUTFChars(file, 0);
+        const char* fileString = env->GetStringUTFChars(file, nullptr);
         fileNames[i] = fileString;
     }
 
@@ -41,6 +41,12 @@ JNIEXPORT jobject JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jo
 
     auto pacito = getInstance<Pacito>(env, thisObj);
     auto result = pacito->run(const_cast<char **>(fileNames));
+
+    // We can now release the filenames again
+    for(auto i = 0; i < fileCount; i++) {
+        auto file = (jstring) (env->GetObjectArrayElement(files, i));
+        env->ReleaseStringUTFChars(file, fileNames[i]);
+    }
 
     auto obj = makeObject(env, "Pacito/Pinot$RunStats");
     setInt(env, obj, "returnCode", result.returnCode);

@@ -25,6 +25,10 @@ dependencies {
     implementation("com.google.guava:guava:29.0-jre")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r")
     implementation("info.picocli:picocli:4.5.2")
+
+    compileOnly("org.projectlombok:lombok:1.18.16")
+
+    annotationProcessor("org.projectlombok:lombok:1.18.16")
     annotationProcessor("info.picocli:picocli-codegen:4.5.2")
 }
 

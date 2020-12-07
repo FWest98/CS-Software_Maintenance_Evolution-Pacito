@@ -411,7 +411,7 @@ class DelegationEntry
 							AstExpression *b, VariableSymbol *v, MethodSymbol *m, 
 							MethodSymbol *e, AstMethodInvocation *c)
 			:from(f), to(t), base_opt(b), vsym(v), method(m), enclosing(e), call(c) {}
-		~DelegationEntry();
+		~DelegationEntry() = default;
 		TypeSymbol *from;
 		TypeSymbol *to;
 		AstExpression *base_opt;
@@ -437,7 +437,10 @@ class DelegationTable
 		int IsBidirectional(TypeSymbol*,TypeSymbol*);
 		void DumpTable();
 		void ConcretizeDelegations();
-		~DelegationTable() { delete table; }
+		~DelegationTable() {
+		    for(auto item : *table) delete item;
+		    delete table;
+		}
 	private:
 		vector<DelegationEntry*>*table;
 };
@@ -606,7 +609,7 @@ public:
      MethodBodyAddr(wchar_t* pkg, wchar_t* cls, wchar_t* mtd, AstDeclared* ptr)
          : ast_location(ptr), package_name(pkg), class_name(cls), method_name(mtd) {}
 
-     ~MethodBodyAddr();	
+     ~MethodBodyAddr() = default;
 private:
      AstDeclared* ast_location;
      wchar_t* package_name;
@@ -621,7 +624,10 @@ public:
     {
         table = new vector<MethodBodyAddr*>();
     }
-    ~MethodBodyTable() { delete table; }
+    ~MethodBodyTable() {
+        for(auto item : *table) delete item;
+        delete table;
+    }
 
     void addMethodBodyAddr(wchar_t*, wchar_t*, wchar_t*, AstDeclared*);
     wchar_t* getClassNameAt(int i) {return (*table )[i] -> class_name;}
@@ -658,7 +664,7 @@ public:
         , package_name(pkg)
         , file_name(f)
     {}
-    ~Gen();
+    ~Gen() = default;
 private:
     wchar_t* class_name;
     wchar_t* super_name;
@@ -681,7 +687,10 @@ public:
     {
         table = new vector<Gen*>();
     }
-    ~GenTable() { delete table; }
+    ~GenTable() {
+        for(auto item : *table) delete item;
+        delete table;
+    }
 
     void addGeneralization(wchar_t*, wchar_t*, wchar_t*, vector<wchar_t*>*, Gen::Kind, char*);
     wchar_t* getSuper(wchar_t*, wchar_t*);
@@ -733,7 +742,7 @@ public:
         , class_name(cls)
         , method_name(mtd)        
     {}
-    ~Assoc();
+    ~Assoc() = default;
 private:
     Kind kind;
     Mode mode;
@@ -751,7 +760,10 @@ public:
     {
         table = new vector<Assoc*>();
     }
-    ~AssocTable() { delete table; }
+    ~AssocTable() {
+        for(auto item : *table) delete item;
+        delete table;
+    }
 
     void addAssociation(Assoc::Kind, Assoc::Mode, wchar_t*, wchar_t*, wchar_t*, wchar_t*, wchar_t*);
     bool isAssociated(wchar_t*, wchar_t*);

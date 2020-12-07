@@ -873,6 +873,8 @@ TypeSymbol::~TypeSymbol()
         delete [] NestedTypeSignature(i);
     delete nested_type_signatures;
 
+    delete instances;
+    delete references;
     delete local_constructor_call_environments;
     delete private_access_methods;
     delete private_access_constructors;
@@ -882,6 +884,7 @@ TypeSymbol::~TypeSymbol()
     delete interfaces;
     delete anonymous_types;
     delete array;
+    delete associates;
 }
 
 
@@ -933,6 +936,7 @@ MethodSymbol::~MethodSymbol()
 
     delete block_symbol; // overload(s)
     delete [] header;
+    delete file_location;
 
     delete invokees;
     delete invokers;

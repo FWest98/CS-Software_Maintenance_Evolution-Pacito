@@ -9,8 +9,8 @@ Pacito::Pacito(char *classPath) {
 }
 
 Pacito::~Pacito() {
-    delete option;
     delete control;
+    delete option;
 }
 
 RunStats Pacito::run(char **files) {

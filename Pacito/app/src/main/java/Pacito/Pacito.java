@@ -79,8 +79,11 @@ public class Pacito implements Callable<Integer> {
             //copyFolder(src, dir, REPLACE_EXISTING);
 
             // Start thread
-            var runner = new PacitoRunner(dir, commits);
-            runner.run();
+            for(int j = 1500; j < 2000; j++) {
+                var runner = new PacitoRunner(dir, commits.get(j));
+                var result = runner.call();
+                System.out.println(j + ": " + result.getResult().numClasses + " classes parsed in commit " + commits.get(2000).getName());
+            }
         }
 
         return 0;
