@@ -1151,3 +1151,78 @@ vector<Pattern::Ptr> Pattern::FindFacade(Control *control) {
 
     return output;
 }
+
+vector<Pattern::Ptr> Pattern::FindSingleton(Control *control) {
+    auto cs_table = control->cs_table;
+    auto ast_pool = control->ast_pool;
+
+    vector<Pattern::Ptr> output;
+
+    if (PINOT_DEBUG)
+        Coutput << "Identifying the Singleton Pattern" << endl;
+
+    for (unsigned c = 0; c < cs_table->size(); c++) {
+        TypeSymbol *unit_type = (*cs_table)[c];
+
+        if (PINOT_DEBUG)
+            Coutput << "Analyzing class: " << unit_type->fully_qualified_name->value << endl;
+
+        //if (unit_type->Anonymous()) break;
+
+        bool instantiable = true; //for Singleton pattern, either class is abtract or ctor is private
+        VariableSymbol *instance = NULL;
+        MethodSymbol *GetInstance = NULL;
+
+        if (unit_type->ACC_ABSTRACT())
+            instantiable = false;
+
+        for (unsigned i = 0; i < unit_type->NumVariableSymbols(); i++) {
+            VariableSymbol *vsym = unit_type->VariableSym(i);
+            if (vsym->ACC_PRIVATE() && vsym->ACC_STATIC() && (vsym->Type() == unit_type)) {
+                instance = vsym;
+                break;
+            }
+        }
+
+        for (unsigned i = 0; (instantiable || !GetInstance) && (i < unit_type->NumMethodSymbols()); i++) {
+            MethodSymbol *msym = unit_type->MethodSym(i);
+            if (msym->declaration) {
+                if (msym->declaration->kind == Ast::CONSTRUCTOR) {
+                    if (msym->ACC_PRIVATE())
+                        instantiable = false;
+                } else if (msym->declaration->kind == Ast::METHOD) {
+                    if (msym->ACC_PUBLIC() && msym->ACC_STATIC() && (msym->Type() == unit_type))
+                        GetInstance = msym;
+                }
+            }
+        }
+
+        if (!instantiable && instance && GetInstance) {
+            // Do the behavioral analysis
+
+            SingletonAnalysis singleton(instance, GetInstance, ast_pool);
+            //Coutput << unit_type->file_symbol->FileName() << endl;
+            if (singleton.ReturnsSingleton()) {
+                auto pattern = make_shared<Singleton>();
+                pattern->singleton = unit_type;
+                pattern->instance = instance;
+                pattern->creator = GetInstance;
+                pattern->file = unit_type->file_symbol;
+                pattern->isMultithreaded = GetInstance->ACC_SYNCHRONIZED();
+
+                pattern->Print();
+                output.push_back(pattern);
+
+                /*Coutput << ((GetInstance->ACC_SYNCHRONIZED()) ? "Multithreaded " : "") << "Singleton Pattern" << endl
+                        << unit_type->Utf8Name() << " is a Singleton class" << endl
+                        << instance->Utf8Name() << " is the Singleton instance" << endl
+                        << GetInstance->Utf8Name() << " creates and returns " << instance->Utf8Name() << endl
+                        << "File location: " << unit_type->file_symbol->FileName() << endl
+                        << ((GetInstance->ACC_SYNCHRONIZED()) ? "Double-checked Locking not used.\n" : "\n") << endl;*/
+            }
+            singleton.CleanUp();
+        }
+    }
+
+    return output;
+}

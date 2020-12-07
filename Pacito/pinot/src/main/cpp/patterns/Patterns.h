@@ -23,6 +23,7 @@ public:
     static vector<Ptr> FindProxy(Control *);
     static vector<Ptr> FindAdapter(Control *);
     static vector<Ptr> FindFacade(Control *);
+    static vector<Ptr> FindSingleton(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -233,6 +234,27 @@ public:
         Coutput << "The real object(s): ";
         for(auto real : reals) Coutput << real->Utf8Name() << ", ";
         Coutput << endl << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Singleton : public Pattern {
+public:
+    TypeSymbol *singleton;
+    VariableSymbol *instance;
+    MethodSymbol *creator;
+    FileSymbol *file;
+    bool isMultithreaded = false;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        if(isMultithreaded) Coutput << "Multithreaded ";
+        Coutput << "Singleton Pattern" << endl;
+        Coutput << singleton->Utf8Name() << " is a Singleton class" << endl;
+        Coutput << instance->Utf8Name() << " is the Singleton instance" << endl;
+        Coutput << creator->Utf8Name() << " creates and returns the singleton" << endl;
+        Coutput << "File location: " << file->FileName() << endl;
+        if(isMultithreaded) Coutput << "Double-checked Locking not used!" << endl;
+        Coutput << endl;
     }
 };
 

@@ -127,6 +127,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findAdapter
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFacade
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findSingleton
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findSingleton
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

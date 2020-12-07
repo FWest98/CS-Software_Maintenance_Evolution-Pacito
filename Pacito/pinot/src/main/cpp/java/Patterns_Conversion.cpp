@@ -125,6 +125,17 @@ jobject Proxy::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Singleton::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Singleton");
+    setString(env, obj, "Singleton", singleton->Utf8Name());
+    setString(env, obj, "Instance", instance->Utf8Name());
+    setString(env, obj, "Creator", creator->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+    setBool(env, obj, "IsMultithreaded", isMultithreaded);
+
+    return obj;
+}
+
 jobject StatePattern::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/State");
     setString(env, obj, "Context", context->Utf8Name());

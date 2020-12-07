@@ -26,6 +26,7 @@ public class Pinot extends JniObject {
     public native Pattern[] findProxy();
     public native Pattern[] findAdapter();
     public native Pattern[] findFacade();
+    public native Pattern[] findSingleton();
 
     public Pinot(String classPath) {
         initialize(classPath);

@@ -261,81 +261,13 @@ void FindPrototype(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 		}
 	}
 }
-void FindSingleton1(ClassSymbolTable *cs_table, StoragePool *ast_pool)
-{
-	if (PINOT_DEBUG)
-		Coutput << "Identifying the Singleton Pattern" << endl;
-	
-	for (unsigned c = 0; c < cs_table -> size(); c++) 
-	{		
-		TypeSymbol *unit_type = (*cs_table)[c];
 
-		if (PINOT_DEBUG)
-			Coutput << "Analyzing class: " << unit_type->fully_qualified_name->value << endl;
-
-		//if (unit_type->Anonymous()) break;
-		
-		bool instantiable = true; //for Singleton pattern, either class is abtract or ctor is private
-		VariableSymbol *instance = NULL;
-		MethodSymbol *GetInstance = NULL;
-		
-		if (unit_type -> ACC_ABSTRACT())
-			instantiable = false;
-
-		for (unsigned i = 0; i < unit_type->NumVariableSymbols(); i++)
-		{
-			VariableSymbol *vsym = unit_type->VariableSym(i);
-			if (vsym->ACC_PRIVATE() && vsym->ACC_STATIC() && (vsym->Type() == unit_type))
-			{
-				instance = vsym;
-				break;
-			}			
-		}
-
-		for (unsigned i = 0; (instantiable || !GetInstance) && (i < unit_type->NumMethodSymbols()); i++)
-		{
-			MethodSymbol *msym = unit_type->MethodSym(i);
-			if (msym->declaration)
-			{
-			if (msym->declaration->kind == Ast::CONSTRUCTOR)
-			{
-				if (msym->ACC_PRIVATE())
-					instantiable = false;
-			}
-			else if (msym->declaration->kind == Ast::METHOD)
-			{
-				if (msym->ACC_PUBLIC() && msym->ACC_STATIC() && (msym->Type() == unit_type))
-					GetInstance = msym;
-			}
-			}
-		}
-
-		if (!instantiable && instance && GetInstance)
-		{
-			// Do the behavioral analysis
-
-			SingletonAnalysis singleton(instance, GetInstance, ast_pool);
-			//Coutput << unit_type->file_symbol->FileName() << endl;
-			if (singleton.ReturnsSingleton())
-			{
-				Coutput << ((GetInstance-> ACC_SYNCHRONIZED()) ? "Multithreaded " : "") << "Singleton Pattern" << endl
-					      << unit_type->Utf8Name() << " is a Singleton class" << endl
-					      << instance->Utf8Name() << " is the Singleton instance" << endl 
-					      << GetInstance->Utf8Name() << " creates and returns " << instance->Utf8Name() << endl
-					      << "File location: " << unit_type->file_symbol->FileName() << endl
-					      << ((GetInstance->ACC_SYNCHRONIZED()) ? "Double-checked Locking not used.\n" : "\n")	 << endl;
-				nSingleton++;
-			}
-			singleton.CleanUp();
-		}
-	}
-}
 void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 {
 	vector<TypeSymbol*> candidates_t;
-	
-	for (unsigned i = 0; i<ms_table->size(); i++) 
-	{	
+
+	for (unsigned i = 0; i<ms_table->size(); i++)
+	{
 		MethodSymbol *method = (*ms_table)[i];
 		if (method -> declaration -> kind == Ast::CONSTRUCTOR)
 		{
@@ -348,8 +280,8 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 	}
 
 	unsigned c;
-	for (c = 0; c < cs_table -> size(); c++) 
-	{		
+	for (c = 0; c < cs_table -> size(); c++)
+	{
 		TypeSymbol *unit_type = (*cs_table)[c];
 		if (unit_type -> ACC_ABSTRACT())
 		{
@@ -390,9 +322,9 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 					get_method_sym = method -> method_symbol;
 
 			}
-			
+
 			if (instance_sym && get_method_sym)
-			{			
+			{
 				AstMethodDeclaration *method_declaration = get_method_sym -> declaration -> MethodDeclarationCast();
 				AstMethodBody *method_body = method_declaration -> method_body_opt;
 
@@ -431,12 +363,12 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 							      << candidates_t[i] -> Utf8Name() << " is a Singleton class"
 							      << endl
 							      << instance_sym -> Utf8Name() << " is the Singleton instance"
-							      << endl 
+							      << endl
 							      << get_method_sym -> Utf8Name() << " returns a " << instance_sym -> Utf8Name()
 							      << endl
 							      << "File location: " << candidates_t[i] -> file_symbol -> FileName()
 							      << endl
-							      << ((get_method_sym-> ACC_SYNCHRONIZED()) ? L"Double-checked Locking not used.\n" : L"\n")							      
+							      << ((get_method_sym-> ACC_SYNCHRONIZED()) ? L"Double-checked Locking not used.\n" : L"\n")
 							      << endl;
 						nSingleton++;
 					}
@@ -448,7 +380,7 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 							      << class_name << L" is a Singleton class"
 							      << endl
 							      << instance_name << L" is the Singleton instance"
-							      << endl 
+							      << endl
 							      << get_method << L" returns a " << instance_name
 							      << endl
 							      << L"File location: " << file_name
@@ -466,7 +398,7 @@ void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
 							      << class_name << L" is a Singleton class"
 							      << endl
 							      << instance_name << L" is the Singleton instance"
-							      << endl 
+							      << endl
 							      << get_method << L" returns a " << instance_name
 							      << endl
 							      << L"File location: " << file_name
@@ -500,7 +432,7 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 			else if (!isCached(class_name, pools))
 			{
 				pools -> push_back(class_name);
-			}				
+			}
 		}
 	}
 
@@ -513,7 +445,7 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 			wchar_t* package_name = assoc_table -> getPackageNameAt(i);
 			wchar_t* flyweight_factory = assoc_table -> getClassNameAt(i);
 			wchar_t* get_flyweight = assoc_table -> getMethodNameAt(i);
-			
+
 			AstMethodDeclaration *method_declaration = dynamic_cast<AstMethodDeclaration*>
 													(mb_table -> getAstLocation(flyweight_factory, get_flyweight));
 			AstMethodBody *method_body = method_declaration -> method_body_opt;
@@ -533,7 +465,7 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 				//Coutput  << "package name: " << package_name << endl
 				//	<< "class name: " << flyweight_factory << endl
 				//	<< "method name: " << get_flyweight << endl;
-					
+
 
 
 				// Check for variables of type "flyweight" declared in this method
@@ -547,8 +479,8 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 					if (method_body -> returnsVar(temp))
 					{
 						// If not, reject this class as a flyweight factory.
-	
-						// Look for a specific statechart on the var that gets returned from this method. 
+
+						// Look for a specific statechart on the var that gets returned from this method.
 						// (1) SET --yes--> RETURN
 						// (2) SET --no --> CREATE ----> SET ----> RETURN
 
@@ -560,20 +492,20 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 						&& (isCached( pool_name, statechart -> getStateParticipantsAt(0)))
 						&& (statechart -> getStateKindAt(1) == State::CONDITION)
 						&& (statechart -> getStateKindAt(2) == State::CREATE)
-						&& ((statechart -> getStateKindAt(3) == State::SET))						
+						&& ((statechart -> getStateKindAt(3) == State::SET))
 						&& (isCached( pool_name, statechart -> getStateParticipantsAt(3)))
-						&& ((statechart -> getStateKindAt(4) == State::RETURN)))						
+						&& ((statechart -> getStateKindAt(4) == State::RETURN)))
 						{
 
 						Coutput << "Flyweight Pattern." << endl;
 						Coutput << flyweight_factory
-							     <<  " is a Flyweight factory class. " 
+							     <<  " is a Flyweight factory class. "
 							     << endl;
 
 						Coutput << pool
 							     << " is a flyweight object pool."
 							     << endl;
-						
+
 						Coutput << get_flyweight
 							     <<  " returns a flyweight object."
 							     << endl;
@@ -588,7 +520,7 @@ void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* a
 						}
 					}
 				}
-			}			
+			}
 		}
 	}
 }
@@ -5111,7 +5043,7 @@ int Control::run(char** arguments) {
         Coutput << "--------- Original GoF Patterns ----------" << endl << endl;
 
         //FindSingleton(cs_table, ms_table);
-        FindSingleton1(cs_table, ast_pool);
+        //FindSingleton1(cs_table, ast_pool);
 
         //FindFlyweight(mb_table, gen_table, assoc_table);
         //FindFlyweight1(ms_table);
