@@ -16,6 +16,7 @@ public:
     static vector<Ptr> FindStrategy(Control *);
     static vector<Ptr> FindFlyweight(Control *);
     static vector<Ptr> FindTemplateMethod(Control *);
+    static vector<Ptr> FindFactory(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -72,6 +73,28 @@ public:
         Coutput << decoratee->Utf8Name() << " of type " << decoratee->Type()->Utf8Name() << " is the Decoratee class"
                 << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Factory : public Pattern {
+public:
+    TypeSymbol *factoryMethodClass;
+    TypeSymbol *factoryMethodImpl;
+    MethodSymbol *factoryMethod;
+    vector<TypeSymbol *> factoryMethodResults;
+    TypeSymbol *factoryMethodResultBase;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Factory Method Pattern" << endl;
+        Coutput << factoryMethodClass->Utf8Name() << " is a Factory Method class." << endl;
+        Coutput << factoryMethodImpl->Utf8Name() << " is a concrete Factory Method class." << endl;
+        Coutput << factoryMethod->Utf8Name() << " is a factory method returns ";
+        for(auto res : factoryMethodResults)
+            Coutput << res->Utf8Name() << ", ";
+        Coutput << " which extends " << factoryMethodResultBase->Utf8Name() << endl;
+        Coutput << "File location: " << file->FileName() << endl;
     }
 };
 

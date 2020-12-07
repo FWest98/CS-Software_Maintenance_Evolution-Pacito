@@ -71,6 +71,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFlyweight
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findTemplateMethod
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findFactory
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFactory
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

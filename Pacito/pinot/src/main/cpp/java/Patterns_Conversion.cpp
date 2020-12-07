@@ -48,6 +48,18 @@ jobject Decorator::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Factory::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Factory");
+    setString(env, obj, "FactoryMethodClass", factoryMethodClass->Utf8Name());
+    setString(env, obj, "FactoryMethodImplementation", factoryMethodImpl->Utf8Name());
+    setString(env, obj, "FactoryMethod", factoryMethod->Utf8Name());
+    setString(env, obj, "FactoryMethodResultBase", factoryMethodResultBase->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+    setStringArray(env, obj, "FactoryMethodResults", symbolVectorToStringVector(factoryMethodResults));
+
+    return obj;
+}
+
 jobject Flyweight::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Flyweight");
     setString(env, obj, "ObjectType", objectType ? objectType->Utf8Name() : "");

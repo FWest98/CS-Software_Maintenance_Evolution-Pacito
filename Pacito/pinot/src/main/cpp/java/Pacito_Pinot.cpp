@@ -77,3 +77,10 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findTemplateMethod(JNIEnv *env,
 
     return findPatternHelper(env, result);
 }
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFactory(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindFactory(pacito->getControl());
+
+    return findPatternHelper(env, result);
+}

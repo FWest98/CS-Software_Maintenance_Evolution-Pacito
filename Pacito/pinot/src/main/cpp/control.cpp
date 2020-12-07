@@ -1091,88 +1091,6 @@ void FindMediator2(ClassSymbolTable *cs_table)
 	}	
 }
 
-void FindFactory(ClassSymbolTable *cs_table, MethodSymbolTable *ms_table, StoragePool *ast_pool)
-{
-  SymbolSet abstract_factories;
-  map<TypeSymbol*, TypeSymbol*> inheritance;
-  map<TypeSymbol*, SymbolSet*> concrete_factories;
-  
-  for (unsigned i=0; i<ms_table->size(); i++)
-    {
-    	MethodSymbol *method = (*ms_table)[i];
-
-	if (!method -> containing_type -> ACC_ABSTRACT()
-	&& method->declaration
-  	//&& method -> declaration -> kind == Ast::METHOD
-       && !method -> ACC_PRIVATE()
-       && !method -> Type() -> IsArray()
-       && method -> Type() -> file_symbol
-       && method->declaration->MethodDeclarationCast()
-       && method->declaration->MethodDeclarationCast()->method_body_opt)
-	{
-		FactoryAnalysis factory(method, ast_pool);
-		MethodSymbol *abstract_factory_method= NULL;
-		if ((abstract_factory_method = method -> GetVirtual())
-	      	&& (factory.IsFactoryMethod()))
-		{
-			abstract_factories.AddElement(abstract_factory_method->containing_type);
-			inheritance.insert(pair<TypeSymbol*,TypeSymbol*>(method->containing_type, abstract_factory_method->containing_type));
-			map<TypeSymbol*, SymbolSet*>::iterator ci = concrete_factories.find(method->containing_type);
-			if (ci == concrete_factories.end())
-			{
-				SymbolSet *set = new SymbolSet();
-				set->Union(factory.types);
-				concrete_factories.insert(pair<TypeSymbol*, SymbolSet*>(method->containing_type, set));
-			}
-			else
-			{
-				ci->second->Union(factory.types);
-			}
-			
-			Coutput << "Factory Method pattern." << endl
-				<< abstract_factory_method -> containing_type -> Utf8Name() << " is a Factory Method class." << endl;
-		  
-		  	Coutput << method -> containing_type -> Utf8Name()
-				<< " is a concrete Factory Method class."
-			  	<< endl
-			  	<< method -> Utf8Name()
-		         	<< " is a factory method returns ";
-			factory.types.Print();
-		       Coutput << " which extends "
-		       	<< method -> Type() -> Utf8Name()
-		         	<< endl			 
-			  	<< "File Location: " << method->containing_type->file_symbol->FileName()
-			  	<< endl << endl;
-		}
-		factory.CleanUp();
-	}
-    }
-    nFactoryMethod += abstract_factories.Size();
-    //check for family of products, Abstract Factory
-    Symbol *sym = abstract_factories.FirstElement();
-    while(sym)
-    {
-       vector<SymbolSet*> sets;
-    	TypeSymbol *type = sym->TypeCast();
-	map<TypeSymbol*, TypeSymbol*>::iterator ii;
-	for (ii = inheritance.begin(); ii != inheritance.end(); ii++)
-	{
-		if (ii->second == type)
-			sets.push_back((concrete_factories.find(ii->first))->second);
-	}
-	//check mutual isolation between sets
-	bool flag = false;
-	for (unsigned i=0; i<sets.size() && !flag; i++)
-		for (unsigned j=0; j<sets.size() && !flag; j++)
-			if (i != j)
-				flag = sets[i]->Intersects(*sets[j]);
-	if (!flag)
-		nAbstractFactory++;
-	sym = abstract_factories.NextElement();
-    }
-    
-}
-
 void FindVisitor(ClassSymbolTable *cs_table, MethodSymbolTable *ms_table)
 {
 	multimap<TypeSymbol*, TypeSymbol*> cache;
@@ -2935,7 +2853,17 @@ bool FactoryAnalysis::IsFactoryMethod()
 	//Coutput << "Analyzing " << method->Utf8Name() << endl;
 	
 	visited.AddElement(method);
-	method->declaration->MethodDeclarationCast()->method_body_opt->Accept(flatten);
+
+	auto x = method->declaration->MethodDeclarationCast()->method_body_opt;
+	if(x) {
+        typedef void (AstMethodBody::*fac)(Flatten &);
+        fac y = &AstMethodBody::Accept;
+
+        auto z = *x;
+        (z.*y)(flatten);
+        //z.Accept(flatten);
+    }
+
 	//flatten.DumpSummary();
 
 	for (unsigned t = 0; t < flatten.traces.size(); t++)
@@ -5841,7 +5769,7 @@ int Control::run(char** arguments) {
     FindComposite(cs_table, d_table);
     //FindMediator(cs_table, d_table);
     //FindTemplateMethod(d_table);
-    FindFactory(cs_table, ms_table, ast_pool);
+    //FindFactory(cs_table, ms_table, ast_pool);
     FindVisitor(cs_table, ms_table);
     FindObserver(cs_table, d_table);
     FindMediator2(cs_table);
