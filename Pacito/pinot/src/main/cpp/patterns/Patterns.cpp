@@ -623,23 +623,7 @@ vector<Pattern::Ptr> Pattern::FindFactory(Control *control) {
                         pattern->factoryMethodResults.push_back(type->TypeCast());
                 } while ((type = factory.types.NextElement()));
 
-                pattern->Print();
                 output.push_back(pattern);
-
-                /*Coutput << "Factory Method pattern." << endl
-                        << abstract_factory_method -> containing_type -> Utf8Name() << " is a Factory Method class." << endl;
-
-                Coutput << method -> containing_type -> Utf8Name()
-                        << " is a concrete Factory Method class."
-                        << endl
-                        << method -> Utf8Name()
-                        << " is a factory method returns ";
-                factory.types.Print();
-                Coutput << " which extends "
-                        << method -> Type() -> Utf8Name()
-                        << endl
-                        << "File Location: " << method->containing_type->file_symbol->FileName()
-                        << endl << endl;*/
             }
             factory.CleanUp();
         }

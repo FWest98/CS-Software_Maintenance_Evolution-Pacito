@@ -45,9 +45,9 @@ public class PacitoRunner implements Runnable {
             var cor = pinot.findCoR();
             var bridge = pinot.findBridge();
             var strategy = pinot.findStrategy();
-            //var flyweight = pinot.findFlyweight();
+            var flyweight = pinot.findFlyweight();
             var template = pinot.findTemplateMethod();
-            //var factory = pinot.findFactory();
+            var factory = pinot.findFactory();
             var visitor = pinot.findVisitor();
             var observer = pinot.findObserver();
             pinot.clean();
