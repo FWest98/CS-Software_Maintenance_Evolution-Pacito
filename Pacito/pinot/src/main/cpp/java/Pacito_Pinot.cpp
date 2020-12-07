@@ -119,3 +119,10 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findAdapter(JNIEnv *env, jobjec
 
     return findPatternHelper(env, result);
 }
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFacade(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindFacade(pacito->getControl());
+
+    return findPatternHelper(env, result);
+}

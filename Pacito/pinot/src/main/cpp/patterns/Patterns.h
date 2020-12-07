@@ -22,6 +22,7 @@ public:
     static vector<Ptr> FindMediator(Control *);
     static vector<Ptr> FindProxy(Control *);
     static vector<Ptr> FindAdapter(Control *);
+    static vector<Ptr> FindFacade(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -98,6 +99,25 @@ public:
         Coutput << decoratee->Utf8Name() << " of type " << decoratee->Type()->Utf8Name() << " is the Decoratee class"
                 << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Facade : public Pattern {
+public:
+    TypeSymbol *facade;
+    vector<TypeSymbol *> hidden;
+    vector<TypeSymbol *> access;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Facade Pattern" << endl;
+        Coutput << facade->Utf8Name() << " is a facade class" << endl;
+        Coutput << "Hidden types: ";
+        for(auto type : hidden) Coutput << type->Utf8Name() << ", ";
+        Coutput << endl << "Facade access types: ";
+        for(auto type : access) Coutput << type->Utf8Name() << ", ";
+        Coutput << endl << "File location: " << file->FileName() << endl << endl;
     }
 };
 

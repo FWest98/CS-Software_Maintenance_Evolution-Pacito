@@ -10,15 +10,12 @@
 
 extern bool PINOT_DEBUG;
 
-bool IsJavaContainer(VariableSymbol *vsym)
-{
+bool IsJavaContainer(VariableSymbol *vsym) {
     if (strcmp(vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
         return true;
-    if (vsym->Type()->supertypes_closure)
-    {
+    if (vsym->Type()->supertypes_closure) {
         Symbol *sym = vsym->Type()->supertypes_closure->FirstElement();
-        while (sym)
-        {
+        while (sym) {
             TypeSymbol *type = sym->TypeCast();
             if (strcmp(type->fully_qualified_name->value, "java/util/Iterator") == 0)
                 return true;
@@ -28,8 +25,7 @@ bool IsJavaContainer(VariableSymbol *vsym)
     return false;
 }
 
-VariableSymbol *IteratorVar(AstExpression *expression)
-{
+VariableSymbol *IteratorVar(AstExpression *expression) {
     /*
         1 - java.util.Iterator
         2 - array index
@@ -37,43 +33,37 @@ VariableSymbol *IteratorVar(AstExpression *expression)
       */
 
     AstExpression *resolved = Utility::RemoveCasting(expression);
-    if (resolved->kind == Ast::CALL)
-    {
+    if (resolved->kind == Ast::CALL) {
         AstMethodInvocation *call = resolved->MethodInvocationCast();
         if (call->base_opt
             && call->base_opt->symbol->VariableCast()
             && IsJavaContainer(call->base_opt->symbol->VariableCast())
             && (strcmp(call->symbol->MethodCast()->Utf8Name(), "next") == 0))
-            return call -> base_opt -> NameCast() -> symbol -> VariableCast();
-    }
-    else if (resolved -> kind == Ast::ARRAY_ACCESS)
-    {
-        if (resolved -> ArrayAccessCast()->base-> kind == Ast::NAME)
-            return resolved -> ArrayAccessCast()->base->symbol->VariableCast();
-    }
-    else if ((resolved->kind == Ast::NAME) && (resolved->NameCast()->symbol->Kind()==Symbol::VARIABLE))
-    {
-        return resolved->NameCast()->symbol ->VariableCast();
+            return call->base_opt->NameCast()->symbol->VariableCast();
+    } else if (resolved->kind == Ast::ARRAY_ACCESS) {
+        if (resolved->ArrayAccessCast()->base->kind == Ast::NAME)
+            return resolved->ArrayAccessCast()->base->symbol->VariableCast();
+    } else if ((resolved->kind == Ast::NAME) && (resolved->NameCast()->symbol->Kind() == Symbol::VARIABLE)) {
+        return resolved->NameCast()->symbol->VariableCast();
     }
     return 0;
 }
-VariableSymbol *ListVar(VariableSymbol *vsym)
-{
+
+VariableSymbol *ListVar(VariableSymbol *vsym) {
     if (!vsym->declarator->variable_initializer_opt
         || !vsym->declarator->variable_initializer_opt->ExpressionCast())
         return NULL;
 
-    AstExpression *var_initializer = Utility::RemoveCasting(vsym->declarator->variable_initializer_opt->ExpressionCast());
+    AstExpression *var_initializer = Utility::RemoveCasting(
+            vsym->declarator->variable_initializer_opt->ExpressionCast());
 
     // vsym -> IsLocal()
     // vsym is an iterator that implements java.util.Iterator
-    if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
-    {
-        if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
-        {
-            AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
+    if (strcmp(vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0) {
+        if (vsym->declarator->variable_initializer_opt->kind == Ast::CALL) {
+            AstMethodInvocation *init_call = vsym->declarator->variable_initializer_opt->MethodInvocationCast();
             // iterator initialized at declaration
-            if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "iterator") == 0)
+            if (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "iterator") == 0)
                 return (init_call->base_opt->symbol->Kind() == Symbol::VARIABLE)
                        ? init_call->base_opt->symbol->VariableCast()
                        : 0;
@@ -82,40 +72,34 @@ VariableSymbol *ListVar(VariableSymbol *vsym)
             //	verify assignment statement
             // if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
         }
-    }
-    else if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/ListIterator") == 0)
-    {
-        if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
-        {
-            AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
+    } else if (strcmp(vsym->Type()->fully_qualified_name->value, "java/util/ListIterator") == 0) {
+        if (vsym->declarator->variable_initializer_opt->kind == Ast::CALL) {
+            AstMethodInvocation *init_call = vsym->declarator->variable_initializer_opt->MethodInvocationCast();
             // iterator initialized at declaration
-            if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "listIterator") == 0)
-                return init_call -> base_opt -> NameCast() -> symbol -> VariableCast();
+            if (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "listIterator") == 0)
+                return init_call->base_opt->NameCast()->symbol->VariableCast();
             // iterator initialized later in an assignment statement
             // 	vsym->owner is a Symbol, but if vsym is local then the owner is a MethodSymbol
             //	verify assignment statement
             // if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
         }
-    }
-    else if ((vsym->declarator->variable_initializer_opt->kind == Ast::NAME)
-             && (vsym->declarator->variable_initializer_opt->NameCast()->symbol->Kind()==Symbol::VARIABLE))
-    {
+    } else if ((vsym->declarator->variable_initializer_opt->kind == Ast::NAME)
+               && (vsym->declarator->variable_initializer_opt->NameCast()->symbol->Kind() == Symbol::VARIABLE)) {
         return vsym->declarator->variable_initializer_opt->NameCast()->symbol->VariableCast();
-    }
-    else if (var_initializer->kind == Ast::CALL)
-    {
+    } else if (var_initializer->kind == Ast::CALL) {
         AstMethodInvocation *init_call = var_initializer->MethodInvocationCast();
-        if (init_call->base_opt && init_call->base_opt->symbol->VariableCast())
-        {
-            if (((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Vector") == 0)
+        if (init_call->base_opt && init_call->base_opt->symbol->VariableCast()) {
+            if (((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value,
+                         "java/util/Vector") == 0)
                  && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "elementAt") == 0))
-                || ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/ArrayList") == 0)
+                || ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value,
+                            "java/util/ArrayList") == 0)
                     && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "get") == 0))
                     )
                 return init_call->base_opt->symbol->VariableCast();
-            else if ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
-                     && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "next") == 0))
-            {
+            else if ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value,
+                             "java/util/Iterator") == 0)
+                     && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "next") == 0)) {
                 VariableSymbol *iterator = init_call->base_opt->symbol->VariableCast();
                 AstMethodInvocation *i_init_call = iterator->declarator->variable_initializer_opt->MethodInvocationCast();
                 // iterator initialized at declaration
@@ -719,21 +703,22 @@ vector<Pattern::Ptr> Pattern::FindVisitor(Control *control) {
                                                 pattern->visitee = method->containing_type;
 
                                                 auto super_visitee = method->IsVirtual();
-                                                if(super_visitee) {
+                                                if (super_visitee) {
                                                     pattern->abstractVisitee = super_visitee;
                                                     auto impl = super_visitee->subtypes->FirstElement();
                                                     do {
-                                                        if(impl->TypeCast())
+                                                        if (impl->TypeCast())
                                                             pattern->visiteeImplementations.push_back(impl->TypeCast());
-                                                    } while((impl = super_visitee->subtypes->NextElement()));
+                                                    } while ((impl = super_visitee->subtypes->NextElement()));
                                                 }
 
                                                 pattern->accept = method;
                                                 pattern->visit = call->symbol->MethodCast();
-                                                if(call->arguments->Argument(k)->kind == Ast::THIS_EXPRESSION)
+                                                if (call->arguments->Argument(k)->kind == Ast::THIS_EXPRESSION)
                                                     pattern->isThisExposed = true;
                                                 else
-                                                    pattern->exposed = call->arguments->Argument(k)->NameCast()->symbol->VariableCast();
+                                                    pattern->exposed = call->arguments->Argument(
+                                                            k)->NameCast()->symbol->VariableCast();
 
                                                 pattern->file = method->containing_type->file_symbol;
 
@@ -756,34 +741,26 @@ vector<Pattern::Ptr> Pattern::FindVisitor(Control *control) {
     return output;
 }
 
-vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
-{
+vector<Pattern::Ptr> Pattern::FindObserver(Control *control) {
     auto cs_table = control->cs_table;
     auto d_table = control->d_table;
     vector<Pattern::Ptr> output;
 
-    vector<TypeSymbol*> cache;
+    vector<TypeSymbol *> cache;
     unsigned c;
-    for (c = 0; c < cs_table ->size(); c++)
-    {
+    for (c = 0; c < cs_table->size(); c++) {
         TypeSymbol *unit_type = (*cs_table)[c];
-        if (!unit_type -> ACC_INTERFACE())
-        {
-            for (unsigned i = 0; i < unit_type -> declaration-> NumInstanceVariables(); i++)
-            {
-                AstFieldDeclaration* field_decl = unit_type -> declaration -> InstanceVariable(i);
-                for (unsigned vi = 0; vi < field_decl -> NumVariableDeclarators(); vi++)
-                {
-                    AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
+        if (!unit_type->ACC_INTERFACE()) {
+            for (unsigned i = 0; i < unit_type->declaration->NumInstanceVariables(); i++) {
+                AstFieldDeclaration *field_decl = unit_type->declaration->InstanceVariable(i);
+                for (unsigned vi = 0; vi < field_decl->NumVariableDeclarators(); vi++) {
+                    AstVariableDeclarator *vd = field_decl->VariableDeclarator(vi);
 
-                    TypeSymbol *generic_type = unit_type -> IsOnetoMany(vd -> symbol, d_table) ;
-                    if (generic_type && generic_type -> file_symbol)
-                    {
-                        for (int j = 0; j < d_table -> size(); j++)
-                        {
-                            DelegationEntry* entry = d_table -> Entry(j);
-                            if ((unit_type == entry -> enclosing -> containing_type) && (generic_type == entry -> to))
-                            {
+                    TypeSymbol *generic_type = unit_type->IsOnetoMany(vd->symbol, d_table);
+                    if (generic_type && generic_type->file_symbol) {
+                        for (int j = 0; j < d_table->size(); j++) {
+                            DelegationEntry *entry = d_table->Entry(j);
+                            if ((unit_type == entry->enclosing->containing_type) && (generic_type == entry->to)) {
                                 /*
                                     if ((unit_type == generic_type) && (entry -> vsym == vd -> symbol) && (entry -> enclosing == entry -> method) && (entry -> enclosing -> callers -> Size() > 1))
                                     {
@@ -799,25 +776,24 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
                                     }
                                 */
                                 if (!entry->enclosing->callers
-                                    || (!entry->enclosing->callers -> IsElement(generic_type)
+                                    || (!entry->enclosing->callers->IsElement(generic_type)
                                             //&& !entry->enclosing->callers -> IsElement(unit_type)
                                     )
-                                        )
-                                {
+                                        ) {
                                     VariableSymbol *iterator = 0;
-                                    ControlAnalysis controlflow(entry -> call);
-                                    if (entry -> enclosing -> declaration -> MethodDeclarationCast()
-                                        && entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt)
-                                        entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt -> Accept(controlflow);
+                                    ControlAnalysis controlflow(entry->call);
+                                    if (entry->enclosing->declaration->MethodDeclarationCast()
+                                        && entry->enclosing->declaration->MethodDeclarationCast()->method_body_opt)
+                                        entry->enclosing->declaration->MethodDeclarationCast()->method_body_opt->Accept(
+                                                controlflow);
 
                                     if (controlflow.result
                                         && controlflow.IsRepeated()
-                                        && entry -> base_opt
+                                        && entry->base_opt
                                         && (iterator = IteratorVar(entry->base_opt))
                                         && ((iterator == vd->symbol)
-                                            || (vd->symbol == unit_type -> Shadows(iterator))
-                                            || (vd -> symbol == ListVar(iterator))))
-                                    {
+                                            || (vd->symbol == unit_type->Shadows(iterator))
+                                            || (vd->symbol == ListVar(iterator)))) {
                                         auto pattern = make_shared<Observer>();
                                         pattern->iterator = unit_type;
                                         pattern->listenerType = generic_type;
@@ -826,7 +802,7 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
                                         pattern->file = unit_type->file_symbol;
 
                                         auto subjects = entry->enclosing->callers;
-                                        if(subjects) {
+                                        if (subjects) {
                                             auto subject = subjects->FirstElement();
                                             do {
                                                 if (subject->TypeCast())
@@ -837,13 +813,11 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
                                         output.push_back(pattern);
                                     }
                                 }
-                            }
-                            else if ((generic_type == entry -> enclosing -> containing_type) && (unit_type == entry -> to))
-                            {
+                            } else if ((generic_type == entry->enclosing->containing_type) &&
+                                       (unit_type == entry->to)) {
                                 unsigned j = 0;
-                                for (; (j < cache.size()) && (cache[j] != unit_type) ; j++);
-                                if (j == cache.size())
-                                {
+                                for (; (j < cache.size()) && (cache[j] != unit_type); j++);
+                                if (j == cache.size()) {
                                     cache.push_back(unit_type);
 
                                     auto pattern = make_shared<Mediator>();
@@ -852,9 +826,9 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
                                     pattern->file = unit_type->file_symbol;
 
                                     auto impl = generic_type->subtypes->FirstElement();
-                                    if(impl)
+                                    if (impl)
                                         do {
-                                            if(impl->TypeCast())
+                                            if (impl->TypeCast())
                                                 pattern->colleagues.push_back(impl->TypeCast());
                                         } while ((impl = generic_type->subtypes->NextElement()));
 
@@ -871,31 +845,25 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
     return output;
 }
 
-vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
-{
+vector<Pattern::Ptr> Pattern::FindMediator(Control *control) {
     auto cs_table = control->cs_table;
     vector<Pattern::Ptr> output;
 
-    map<TypeSymbol*, SymbolSet*> cache;
-    vector<TypeSymbol*> ordered_cache;
+    map<TypeSymbol *, SymbolSet *> cache;
+    vector<TypeSymbol *> ordered_cache;
     unsigned c;
-    for (c = 0; c < cs_table ->size(); c++)
-    {
+    for (c = 0; c < cs_table->size(); c++) {
         TypeSymbol *unit_type = (*cs_table)[c];
         // check if this facade class can be serving as a mediator for some of the hidden classes.
         unsigned i = 0;
-        while (i < unit_type->NumMethodSymbols())
-        {
+        while (i < unit_type->NumMethodSymbols()) {
             MethodSymbol *msym = unit_type->MethodSym(i);
-            if (msym->callers && msym->invokees)
-            {
+            if (msym->callers && msym->invokees) {
                 Symbol *sym1 = msym->callers->FirstElement();
-                while (sym1)
-                {
+                while (sym1) {
                     TypeSymbol *caller = sym1->TypeCast();
                     Symbol *sym2 = msym->invokees->FirstElement();
-                    while(sym2)
-                    {
+                    while (sym2) {
                         TypeSymbol *callee = sym2->MethodCast()->containing_type;
                         if (caller->file_symbol
                             && caller->file_symbol->IsJava()
@@ -907,8 +875,7 @@ vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
                             && !callee->call_dependents->IsElement(caller)
                             && (caller != unit_type)
                             && (callee != unit_type)
-                                )
-                        {
+                                ) {
                             if (!unit_type->mediator_colleagues)
                                 unit_type->mediator_colleagues = new SymbolSet(0);
                             unit_type->mediator_colleagues->AddElement(caller);
@@ -955,10 +922,8 @@ vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
     }
     */
 
-    for (c = 0; c < cs_table ->size(); c++)
-    {
-        if ((*cs_table)[c]->mediator_colleagues)
-        {
+    for (c = 0; c < cs_table->size(); c++) {
+        if ((*cs_table)[c]->mediator_colleagues) {
             auto mediator = (*cs_table)[c];
             auto pattern = make_shared<Mediator>();
             pattern->mediator = mediator;
@@ -966,7 +931,7 @@ vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
 
             auto colleague = mediator->mediator_colleagues->FirstElement();
             do {
-                if(colleague->TypeCast())
+                if (colleague->TypeCast())
                     pattern->colleagues.push_back(colleague->TypeCast());
             } while ((colleague = mediator->mediator_colleagues->NextElement()));
 
@@ -980,68 +945,58 @@ vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
     return output;
 }
 
-vector<Pattern::Ptr> Pattern::FindProxy(Control *control)
-{
+vector<Pattern::Ptr> Pattern::FindProxy(Control *control) {
     auto cs_table = control->cs_table;
     vector<Pattern::Ptr> output;
 
     unsigned c;
-    for (c = 0; c < cs_table ->size(); c++)
-    {
+    for (c = 0; c < cs_table->size(); c++) {
         TypeSymbol *unit_type = (*cs_table)[c];
-        SymbolSet *parents = unit_type -> supertypes_closure;
-        SymbolSet *instances = unit_type -> instances;
+        SymbolSet *parents = unit_type->supertypes_closure;
+        SymbolSet *instances = unit_type->instances;
 
-        if (!unit_type->Anonymous() && parents && parents -> Size() && instances)
-        {
-            Symbol *sym1 = instances -> FirstElement();
+        if (!unit_type->Anonymous() && parents && parents->Size() && instances) {
+            Symbol *sym1 = instances->FirstElement();
             bool flag = false;
-            while (!flag && sym1)
-            {
-                VariableSymbol *vsym = sym1 -> VariableCast();
-                TypeSymbol *real =  vsym -> Type();
-                if (!real -> Primitive() && !real -> IsArray() && vsym->concrete_types)
-                {
-                    Symbol *sym2 = parents -> FirstElement();
-                    while(!flag && sym2)
-                    {
-                        TypeSymbol *type = sym2 ->TypeCast();
+            while (!flag && sym1) {
+                VariableSymbol *vsym = sym1->VariableCast();
+                TypeSymbol *real = vsym->Type();
+                if (!real->Primitive() && !real->IsArray() && vsym->concrete_types) {
+                    Symbol *sym2 = parents->FirstElement();
+                    while (!flag && sym2) {
+                        TypeSymbol *type = sym2->TypeCast();
                         if ((real != unit_type)
-                            && !type -> Primitive()
+                            && !type->Primitive()
                             && (strcmp(type->fully_qualified_name->value, "java/lang/Object") != 0)
-                            && type -> file_symbol
+                            && type->file_symbol
                             //&& type -> file_symbol -> IsJava()
-                            && real -> IsFamily(type)) // use IsFamily
+                            && real->IsFamily(type)) // use IsFamily
                         {
                             SymbolSet real_set(0);
-                            if ((real == type) && type -> subtypes && type -> subtypes -> Size())
-                            {
-                                Symbol *sym3 = type -> subtypes -> FirstElement();
-                                while (sym3)
-                                {
-                                    real = sym3 -> TypeCast();
+                            if ((real == type) && type->subtypes && type->subtypes->Size()) {
+                                Symbol *sym3 = type->subtypes->FirstElement();
+                                while (sym3) {
+                                    real = sym3->TypeCast();
                                     if ((unit_type != real)
-                                        && !real ->Anonymous()
+                                        && !real->Anonymous()
                                         && real->call_dependents
-                                        && real->call_dependents->IsElement(unit_type))
-                                    {
+                                        && real->call_dependents->IsElement(unit_type)) {
                                         real->call_dependents->RemoveElement(unit_type);
-                                        if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
+                                        if (!unit_type->call_dependents ||
+                                            !unit_type->call_dependents->Intersects(*real->call_dependents))
                                             real_set.AddElement(real);
                                         real->call_dependents->AddElement(unit_type);
                                     }
-                                    sym3 = type -> subtypes -> NextElement();
+                                    sym3 = type->subtypes->NextElement();
                                 }
-                            }
-                            else if (real->call_dependents && real -> call_dependents -> IsElement(unit_type))
-                            {
+                            } else if (real->call_dependents && real->call_dependents->IsElement(unit_type)) {
                                 real->call_dependents->RemoveElement(unit_type);
-                                if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
+                                if (!unit_type->call_dependents ||
+                                    !unit_type->call_dependents->Intersects(*real->call_dependents))
                                     real_set.AddElement(real);
                                 real->call_dependents->AddElement(unit_type);
                             }
-                            if (real_set.Size())
-                            {
+                            if (real_set.Size()) {
                                 flag = true;
 
                                 auto pattern = make_shared<Proxy>();
@@ -1051,24 +1006,21 @@ vector<Pattern::Ptr> Pattern::FindProxy(Control *control)
 
                                 auto real = real_set.FirstElement();
                                 do {
-                                    if(real->TypeCast())
+                                    if (real->TypeCast())
                                         pattern->reals.push_back(real->TypeCast());
                                 } while ((real = real_set.NextElement()));
 
                                 output.push_back(pattern);
-                            }
-                            else
-                                sym2 = parents -> NextElement();
+                            } else
+                                sym2 = parents->NextElement();
 
-                        }
-                        else
-                            sym2 = parents -> NextElement();
+                        } else
+                            sym2 = parents->NextElement();
                     }
                     if (!flag)
-                        sym1 = instances -> NextElement();
-                }
-                else
-                    sym1 = instances -> NextElement();
+                        sym1 = instances->NextElement();
+                } else
+                    sym1 = instances->NextElement();
             }
         }
     }
@@ -1076,50 +1028,43 @@ vector<Pattern::Ptr> Pattern::FindProxy(Control *control)
     return output;
 }
 
-vector<Pattern::Ptr> Pattern::FindAdapter(Control *control)
-{
+vector<Pattern::Ptr> Pattern::FindAdapter(Control *control) {
     auto cs_table = control->cs_table;
     vector<Pattern::Ptr> output;
 
     unsigned c;
-    for (c = 0; c < cs_table->size(); c++)
-    {
+    for (c = 0; c < cs_table->size(); c++) {
         TypeSymbol *unit_type = (*cs_table)[c];
-        if (!unit_type -> ACC_INTERFACE()
-            && !unit_type -> ACC_ABSTRACT()
-            && unit_type -> supertypes_closure && (unit_type -> supertypes_closure -> Size() > 1)
-            && unit_type -> instances)
-        {
-            Symbol *sym = unit_type -> instances -> FirstElement();
-            while (sym)
-            {
-                TypeSymbol *ref_type = sym->VariableCast() -> Type();
-                if (!ref_type -> IsArray()
-                    && !ref_type -> Primitive()
+        if (!unit_type->ACC_INTERFACE()
+            && !unit_type->ACC_ABSTRACT()
+            && unit_type->supertypes_closure && (unit_type->supertypes_closure->Size() > 1)
+            && unit_type->instances) {
+            Symbol *sym = unit_type->instances->FirstElement();
+            while (sym) {
+                TypeSymbol *ref_type = sym->VariableCast()->Type();
+                if (!ref_type->IsArray()
+                    && !ref_type->Primitive()
                     && (unit_type != ref_type)
                     //&& !ref_type -> ACC_INTERFACE()
                     //&& !ref_type -> ACC_ABSTRACT()
-                    && !unit_type -> IsFamily(ref_type)
-                    && ref_type -> file_symbol
-                    && ref_type -> file_symbol -> IsJava()
-                    && ref_type -> call_dependents
-                    && ref_type -> call_dependents -> IsElement(unit_type))
-                {
+                    && !unit_type->IsFamily(ref_type)
+                    && ref_type->file_symbol
+                    && ref_type->file_symbol->IsJava()
+                    && ref_type->call_dependents
+                    && ref_type->call_dependents->IsElement(unit_type)) {
                     SymbolSet unit_dependents(0);
                     if (unit_type->call_dependents)
                         unit_dependents.Union(*unit_type->call_dependents);
                     unsigned q;
-                    for (q = 0; q < cs_table->size(); q++)
-                    {
+                    for (q = 0; q < cs_table->size(); q++) {
                         TypeSymbol *type = (*cs_table)[q];
                         if (unit_type->supertypes_closure->IsElement(type) && type->call_dependents)
                             unit_dependents.Union(*type->call_dependents);
                     }
 
-                    ref_type -> call_dependents -> RemoveElement(unit_type);
+                    ref_type->call_dependents->RemoveElement(unit_type);
                     if ((!unit_dependents.Intersects(*ref_type->call_dependents))
-                        && sym->VariableCast()->concrete_types)
-                    {
+                        && sym->VariableCast()->concrete_types) {
                         auto pattern = make_shared<Adapter>();
                         pattern->adapter = unit_type;
                         pattern->adaptee = ref_type;
@@ -1128,15 +1073,78 @@ vector<Pattern::Ptr> Pattern::FindAdapter(Control *control)
 
                         auto type = unit_type->supertypes_closure->FirstElement();
                         do {
-                            if(type->TypeCast())
+                            if (type->TypeCast())
                                 pattern->adapting.push_back(type->TypeCast());
                         } while ((type = unit_type->supertypes_closure->NextElement()));
 
                         output.push_back(pattern);
                     }
-                    ref_type -> call_dependents -> AddElement(unit_type);
+                    ref_type->call_dependents->AddElement(unit_type);
                 }
-                sym = unit_type -> instances -> NextElement();
+                sym = unit_type->instances->NextElement();
+            }
+        }
+    }
+
+    return output;
+}
+
+vector<Pattern::Ptr> Pattern::FindFacade(Control *control) {
+    auto cs_table = control->cs_table;
+    vector<Pattern::Ptr> output;
+
+    unsigned p;
+    for (p = 0; p < cs_table->size(); p++) {
+        TypeSymbol *unit_type = (*cs_table)[p];
+        SymbolSet all_dependents(0), hidden_types(0);
+        if (!unit_type->ACC_ABSTRACT()
+            && unit_type->call_dependents
+            && unit_type->associates) {
+            Symbol *sym = unit_type->associates->FirstElement();
+            while (sym) {
+                TypeSymbol *type = sym->TypeCast();
+                if (type->file_symbol
+                    && type->file_symbol->IsJava()
+                    && type->call_dependents
+                    && type->call_dependents->IsElement(unit_type)
+                        ) {
+                    type->call_dependents->RemoveElement(unit_type);
+                    if (!unit_type->IsFamily(type)
+                        && !type->IsNested()
+                        && (!type->call_dependents
+                            || !unit_type->call_dependents->Intersects(*type->call_dependents))
+                            ) {
+                        //if (type -> call_dependents)
+                        //	all_dependents.Union(*type -> call_dependents);
+                        hidden_types.AddElement(type);
+                    }
+                    type->call_dependents->AddElement(unit_type);
+                }
+                sym = unit_type->associates->NextElement();
+            }
+            if ((hidden_types.Size() > 1)
+                //&& !unit_type -> call_dependents -> Intersects(all_dependents)
+                    ) {
+                auto pattern = make_shared<Facade>();
+                pattern->facade = unit_type;
+                pattern->file = unit_type->file_symbol;
+
+                auto type = hidden_types.FirstElement();
+                do {
+                    if (type->TypeCast()) pattern->hidden.push_back(type->TypeCast());
+                } while ((type = hidden_types.NextElement()));
+
+                auto access_types = unit_type->call_dependents;
+                type = access_types->FirstElement();
+                do
+                    if (type->TypeCast()) pattern->access.push_back(type->TypeCast());
+                while ((type = access_types->NextElement()));
+
+                output.push_back(pattern);
+
+                /*if (mediators.IsElement(unit_type))
+                    nMediatorFacadeDual++;*/
+
             }
         }
     }

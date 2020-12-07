@@ -119,6 +119,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findProxy
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findAdapter
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findFacade
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFacade
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

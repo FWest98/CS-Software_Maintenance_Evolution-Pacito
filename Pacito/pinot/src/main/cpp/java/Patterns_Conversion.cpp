@@ -59,6 +59,16 @@ jobject Decorator::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Facade::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Facade");
+    setString(env, obj, "Facade", facade->Utf8Name());
+    setStringArray(env, obj, "Hidden", symbolVectorToStringVector(hidden));
+    setStringArray(env, obj, "Access", symbolVectorToStringVector(access));
+    setString(env, obj, "File", file->FileName());
+
+    return obj;
+}
+
 jobject Factory::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Factory");
     setString(env, obj, "FactoryMethodClass", factoryMethodClass->Utf8Name());

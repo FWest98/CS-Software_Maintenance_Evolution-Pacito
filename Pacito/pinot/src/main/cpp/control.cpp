@@ -779,77 +779,6 @@ void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
 	}
 }
 
-void FindFacade(ClassSymbolTable *cs_table)
-{
-	unsigned p;
-	for (p = 0; p < cs_table->size(); p++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[p];
-		SymbolSet all_dependents(0), hidden_types(0);
-		if (!unit_type -> ACC_ABSTRACT() 
-		&& unit_type -> call_dependents
-		&& unit_type -> associates)
-		{
-			Symbol *sym = unit_type -> associates -> FirstElement();
-				while(sym)
-			{
-				TypeSymbol *type = sym -> TypeCast();
-				if (type -> file_symbol
-				&& type -> file_symbol -> IsJava()
-				&& type->call_dependents
-				&& type->call_dependents->IsElement(unit_type)
-				)
-				{
-					type->call_dependents->RemoveElement(unit_type);
-					if (!unit_type -> IsFamily(type)
-					&& !type -> IsNested()
-					&& (!type -> call_dependents 
-						||!unit_type -> call_dependents -> Intersects(*type -> call_dependents))
-					)
-					{
-						//if (type -> call_dependents)
-						//	all_dependents.Union(*type -> call_dependents);
-						hidden_types.AddElement(type);
-					}
-					type->call_dependents->AddElement(unit_type);
-				}
-				sym = unit_type -> associates -> NextElement();
-			}
-			if ((hidden_types.Size() > 1) 
-				//&& !unit_type -> call_dependents -> Intersects(all_dependents)
-				)
-			{
-				nFacade++;
-				Coutput << "Facade Pattern."
-					<< endl
-					<< unit_type -> Utf8Name()
-					<< " is a facade class."
-					<< endl;
-
-				Coutput << "Hidden types: " << hidden_types.FirstElement()->TypeCast() -> Utf8Name();
-				while (sym = hidden_types.NextElement())
-					Coutput << " " << sym -> TypeCast() -> Utf8Name();
-				Coutput << endl;
-
-				Coutput << "Facade access types: " << unit_type->call_dependents->FirstElement()->TypeCast() -> Utf8Name();
-				while (sym = unit_type->call_dependents->NextElement())
-				{
-					if ((sym != unit_type) && !sym->TypeCast()->IsNested())
-						Coutput << " " << sym -> TypeCast() -> Utf8Name();
-				}
-				Coutput << endl;
-
-				Coutput << "File Location: " << unit_type -> file_symbol -> FileName()
-					<< endl << endl;
-
-				if (mediators.IsElement(unit_type))
-					nMediatorFacadeDual++;
-
-			}
-		}
-	}
-}
-
 void FindThreadSafeInterface(DelegationTable *d_table)
 {
 	for (int i = 0; i < d_table -> size(); i++)
@@ -5196,7 +5125,7 @@ int Control::run(char** arguments) {
         //FindMediator2(cs_table);
         //FindProxy(cs_table, d_table);
         //FindAdapter(cs_table);
-        FindFacade(cs_table);
+        //FindFacade(cs_table);
 
         //    FindThreadSafeInterface(d_table);
 
