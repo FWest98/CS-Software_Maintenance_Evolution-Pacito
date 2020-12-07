@@ -111,3 +111,18 @@ jobject Template::ConvertToJava(JNIEnv *env) {
 
     return obj;
 }
+
+jobject Visitor::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Visitor");
+    setString(env, obj, "Visitor", visitor->Utf8Name());
+    setString(env, obj, "Visitee", visitee->Utf8Name());
+    setString(env, obj, "Accept", accept->Utf8Name());
+    setString(env, obj, "Visit", visit->Utf8Name());
+    setBool(env, obj, "IsThisExposed", isThisExposed);
+    setString(env, obj, "Exposed", exposed ? exposed->Utf8Name() : "");
+    setString(env, obj, "File", file->FileName());
+    setString(env, obj, "AbstractVisitee", abstractVisitee ? abstractVisitee->Utf8Name() : "");
+    setStringArray(env, obj, "VisiteeImplementations", symbolVectorToStringVector(visiteeImplementations));
+
+    return obj;
+}

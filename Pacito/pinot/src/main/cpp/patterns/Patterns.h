@@ -17,6 +17,7 @@ public:
     static vector<Ptr> FindFlyweight(Control *);
     static vector<Ptr> FindTemplateMethod(Control *);
     static vector<Ptr> FindFactory(Control *);
+    static vector<Ptr> FindVisitor(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -203,6 +204,44 @@ public:
         Coutput << templateClass->Utf8Name() << " is the template class" << endl;
         Coutput << templateMethod->Utf8Name() << " is the template method" << endl;
         Coutput << templateSource->Utf8Name() << " is a primitive method" << endl;
+        Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Visitor : public Pattern {
+public:
+    TypeSymbol *visitor;
+    TypeSymbol *visitee;
+
+    MethodSymbol *accept;
+    MethodSymbol *visit;
+    bool isThisExposed = false; // or
+    VariableSymbol *exposed = nullptr;
+
+    FileSymbol *file;
+
+    // Optional
+    TypeSymbol *abstractVisitee = nullptr;
+    vector<TypeSymbol *> visiteeImplementations;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Visitor Pattern" << endl;
+        Coutput << visitor->Utf8Name() << " is an abstract Visitor class." << endl;
+        Coutput << visitee->Utf8Name() << " is a Visitee class" << endl;
+        if(abstractVisitee) {
+            Coutput << abstractVisitee->Utf8Name() << " is the abstract Visitee superclass with subtypes:" << endl;
+            for(auto impl : visiteeImplementations)
+                Coutput << impl->Utf8Name() << ", ";
+            Coutput << endl;
+        }
+        Coutput << accept->Utf8Name() << " is the accept method." << endl;
+        Coutput << visit->Utf8Name() << " is the visit method." << endl;
+        if(isThisExposed)
+            Coutput << "Pointer to <this> is exposed to the abstract visitor class" << endl;
+        else
+            Coutput << "Variable " << exposed->Utf8Name() << " is exposed to the abstract visitor class" << endl;
+
         Coutput << "File location: " << file->FileName() << endl << endl;
     }
 };

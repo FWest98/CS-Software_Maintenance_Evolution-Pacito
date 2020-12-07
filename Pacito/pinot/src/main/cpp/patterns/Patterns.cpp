@@ -455,46 +455,40 @@ vector<Pattern::Ptr> Pattern::FindTemplateMethod(Control *control) {
     return output;
 }
 
-vector<Pattern::Ptr> Pattern::FindFactory(Control *control)
-{
+vector<Pattern::Ptr> Pattern::FindFactory(Control *control) {
     auto ms_table = control->ms_table;
     auto ast_pool = control->ast_pool;
 
     vector<Pattern::Ptr> output;
 
     SymbolSet abstract_factories;
-    map<TypeSymbol*, TypeSymbol*> inheritance;
-    map<TypeSymbol*, SymbolSet*> concrete_factories;
+    map<TypeSymbol *, TypeSymbol *> inheritance;
+    map<TypeSymbol *, SymbolSet *> concrete_factories;
 
-    for (unsigned i=0; i<ms_table->size(); i++)
-    {
+    for (unsigned i = 0; i < ms_table->size(); i++) {
         MethodSymbol *method = (*ms_table)[i];
 
-        if (!method -> containing_type -> ACC_ABSTRACT()
+        if (!method->containing_type->ACC_ABSTRACT()
             && method->declaration
             //&& method -> declaration -> kind == Ast::METHOD
-            && !method -> ACC_PRIVATE()
-            && !method -> Type() -> IsArray()
-            && method -> Type() -> file_symbol
+            && !method->ACC_PRIVATE()
+            && !method->Type()->IsArray()
+            && method->Type()->file_symbol
             && method->declaration->MethodDeclarationCast()
-            && method->declaration->MethodDeclarationCast()->method_body_opt)
-        {
+            && method->declaration->MethodDeclarationCast()->method_body_opt) {
             FactoryAnalysis factory(method, ast_pool);
-            MethodSymbol *abstract_factory_method= NULL;
-            if ((abstract_factory_method = method -> GetVirtual())
-                && (factory.IsFactoryMethod()))
-            {
+            MethodSymbol *abstract_factory_method = NULL;
+            if ((abstract_factory_method = method->GetVirtual())
+                && (factory.IsFactoryMethod())) {
                 abstract_factories.AddElement(abstract_factory_method->containing_type);
-                inheritance.insert(pair<TypeSymbol*,TypeSymbol*>(method->containing_type, abstract_factory_method->containing_type));
-                map<TypeSymbol*, SymbolSet*>::iterator ci = concrete_factories.find(method->containing_type);
-                if (ci == concrete_factories.end())
-                {
+                inheritance.insert(pair<TypeSymbol *, TypeSymbol *>(method->containing_type,
+                                                                    abstract_factory_method->containing_type));
+                map<TypeSymbol *, SymbolSet *>::iterator ci = concrete_factories.find(method->containing_type);
+                if (ci == concrete_factories.end()) {
                     SymbolSet *set = new SymbolSet();
                     set->Union(factory.types);
-                    concrete_factories.insert(pair<TypeSymbol*, SymbolSet*>(method->containing_type, set));
-                }
-                else
-                {
+                    concrete_factories.insert(pair<TypeSymbol *, SymbolSet *>(method->containing_type, set));
+                } else {
                     ci->second->Union(factory.types);
                 }
 
@@ -507,9 +501,9 @@ vector<Pattern::Ptr> Pattern::FindFactory(Control *control)
 
                 auto type = factory.types.FirstElement();
                 do {
-                    if(type->TypeCast())
+                    if (type->TypeCast())
                         pattern->factoryMethodResults.push_back(type->TypeCast());
-                } while((type = factory.types.NextElement()));
+                } while ((type = factory.types.NextElement()));
 
                 pattern->Print();
                 output.push_back(pattern);
@@ -556,5 +550,104 @@ vector<Pattern::Ptr> Pattern::FindFactory(Control *control)
 
         sym = abstract_factories.NextElement();
     }*/
+}
 
+vector<Pattern::Ptr> Pattern::FindVisitor(Control *control) {
+    auto ms_table = control->ms_table;
+    vector<Pattern::Ptr> output;
+
+    multimap<TypeSymbol *, TypeSymbol *> cache;
+
+    for (auto method : *ms_table) {
+        // Recognizing the Accept(Visitor v) declaration.
+        if ((method->declaration->kind == Ast::METHOD)
+            && method->ACC_PUBLIC()
+                ) {
+            bool flag1 = false;
+            unsigned i = 0;
+            while (!flag1 && (i < method->NumFormalParameters())) {
+                if (method->FormalParameter(i)->Type()->ACC_ABSTRACT()
+                    && method->FormalParameter(i)->Type()->file_symbol
+                    && method->FormalParameter(i)->Type()->file_symbol->IsJava()
+                    && !method->containing_type->IsFamily(method->FormalParameter(i)->Type())
+                        ) {
+                    auto p = cache.begin();
+                    while ((p != cache.end())
+                           && (!method->containing_type->IsSubtype(p->first) &&
+                               !method->FormalParameter(i)->Type()->IsSubtype(p->second)))
+                        p++;
+
+                    if (p == cache.end()) {
+                        VariableSymbol *vsym = method->FormalParameter(i);
+                        AstMethodDeclaration *method_declaration = method->declaration->MethodDeclarationCast();
+                        if (method_declaration->method_body_opt) {
+                            AstMethodBody *block = method_declaration->method_body_opt;
+
+                            bool flag2 = false;
+                            unsigned j = 0;
+                            while (!flag2 && (j < block->NumStatements())) {
+                                if ((block->Statement(j)->kind == Ast::EXPRESSION_STATEMENT)
+                                    &&
+                                    (block->Statement(j)->ExpressionStatementCast()->expression->kind == Ast::CALL)) {
+                                    // analyze the visitor.Accept(this) invocation
+                                    AstMethodInvocation *call = (j < block->NumStatements())
+                                                                ? block->Statement(
+                                                    j)->ExpressionStatementCast()->expression->MethodInvocationCast()
+                                                                : NULL;
+                                    if (call
+                                        && call->base_opt
+                                        && (call->base_opt->kind == Ast::NAME)
+                                        && (call->base_opt->NameCast()->symbol->VariableCast() == vsym)) {
+                                        bool flag3 = false;
+                                        unsigned k = 0;
+                                        while (!flag3 && (k < call->arguments->NumArguments())) {
+                                            if ((call->arguments->Argument(k)->kind == Ast::THIS_EXPRESSION)
+                                                || ((call->arguments->Argument(k)->kind == Ast::NAME)
+                                                    &&
+                                                    (call->arguments->Argument(k)->NameCast()->symbol->VariableCast())
+                                                    && (!call->arguments->Argument(
+                                                    k)->NameCast()->symbol->VariableCast()->IsLocal()))) {
+
+                                                flag1 = flag2 = flag3 = true;
+
+                                                auto pattern = make_shared<Visitor>();
+                                                pattern->visitor = method->FormalParameter(i)->Type();
+                                                pattern->visitee = method->containing_type;
+
+                                                auto super_visitee = method->IsVirtual();
+                                                if(super_visitee) {
+                                                    pattern->abstractVisitee = super_visitee;
+                                                    auto impl = super_visitee->subtypes->FirstElement();
+                                                    do {
+                                                        if(impl->TypeCast())
+                                                            pattern->visiteeImplementations.push_back(impl->TypeCast());
+                                                    } while((impl = super_visitee->subtypes->NextElement()));
+                                                }
+
+                                                pattern->accept = method;
+                                                pattern->visit = call->symbol->MethodCast();
+                                                if(call->arguments->Argument(k)->kind == Ast::THIS_EXPRESSION)
+                                                    pattern->isThisExposed = true;
+                                                else
+                                                    pattern->exposed = call->arguments->Argument(k)->NameCast()->symbol->VariableCast();
+
+                                                pattern->file = method->containing_type->file_symbol;
+
+                                                output.push_back(pattern);
+                                            }
+                                            k++;
+                                        }
+                                    }
+                                }
+                                j++;
+                            }
+                        }
+                    }
+                }
+                i++;
+            }
+        }
+    }
+
+    return output;
 }

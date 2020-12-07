@@ -1091,116 +1091,6 @@ void FindMediator2(ClassSymbolTable *cs_table)
 	}	
 }
 
-void FindVisitor(ClassSymbolTable *cs_table, MethodSymbolTable *ms_table)
-{
-	multimap<TypeSymbol*, TypeSymbol*> cache;
-
-	for (unsigned i=0; i<ms_table->size(); i++)
-	{
-		MethodSymbol *method = (*ms_table)[i];
-		// Recognizing the Accept(Visitor v) declaration.
-		if ((method -> declaration -> kind == Ast::METHOD)
-		&& method -> ACC_PUBLIC()
-		)
-		{
-			bool flag1 = false;			
-			unsigned i = 0;
-			while (!flag1 && (i < method -> NumFormalParameters()))
-			{					
-				if (method -> FormalParameter(i) -> Type() -> ACC_ABSTRACT()
-				&& method -> FormalParameter(i) -> Type() -> file_symbol
-				&& method -> FormalParameter(i) -> Type() -> file_symbol -> IsJava()				
-				&& !method -> containing_type -> IsFamily(method -> FormalParameter(i) -> Type())
-				)
-				{
-					multimap<TypeSymbol*, TypeSymbol*>::iterator p = cache.begin();
-					while ((p != cache.end())
-						&& (!method -> containing_type -> IsSubtype(p -> first) && !method -> FormalParameter(i) -> Type() -> IsSubtype(p -> second)))
-						p++;
-					
-					if (p == cache.end())
-						{
-					VariableSymbol *vsym = method -> FormalParameter(i);
-					AstMethodDeclaration *method_declaration  = method -> declaration -> MethodDeclarationCast();
-					if (method_declaration -> method_body_opt)
-					{
-						AstMethodBody *block = method_declaration -> method_body_opt;
-
-						bool flag2 = false;
-						unsigned j = 0;
-						while (!flag2 && (j < block -> NumStatements()))
-						{
-							if ((block -> Statement(j) -> kind == Ast::EXPRESSION_STATEMENT)
-							&& (block -> Statement(j) -> ExpressionStatementCast() -> expression -> kind == Ast::CALL))
-							{
-								// analyze the visitor.Accept(this) invocation
-								AstMethodInvocation *call = (j < block -> NumStatements())
-									? block -> Statement(j) -> ExpressionStatementCast() -> expression -> MethodInvocationCast()
-									: NULL;
-								if (call
-								&& call -> base_opt
-								&& (call -> base_opt -> kind == Ast::NAME)
-								&& (call -> base_opt-> NameCast() -> symbol -> VariableCast() == vsym))
-								{
-									bool flag3 = false;
-									unsigned k = 0;
-									while (!flag3 && (k < call -> arguments -> NumArguments()))
-									{
-										if ((call -> arguments -> Argument(k) -> kind == Ast::THIS_EXPRESSION)
-										|| ((call -> arguments -> Argument(k) -> kind == Ast::NAME)
-											&& (call -> arguments -> Argument(k) -> NameCast() -> symbol -> VariableCast())
-											&& (!call -> arguments -> Argument(k) -> NameCast() -> symbol -> VariableCast() -> IsLocal())))
-										{
-											nVisitor++;
-											flag1 = flag2 = flag3 = true;
-											Coutput << "Visitor pattern found." 
-												<< endl
-												<< method -> FormalParameter(i) -> Type() -> Utf8Name()
-												<< " is an abstract Visitor class."
-												<< endl
-												<< method -> containing_type -> Utf8Name()
-												<< " is a Vistee class."
-												<< endl;
-											TypeSymbol *super_visitee = method -> IsVirtual();
-											if (super_visitee)
-											{
-												cache.insert(pair<TypeSymbol*, TypeSymbol*>(super_visitee, method -> FormalParameter(i) -> Type()));
-												Coutput << super_visitee -> Utf8Name()
-													<< " is an abstract Visitee class."
-													<< endl;
-												super_visitee -> subtypes -> Print();
-											}
-											else
-											{
-												cache.insert(pair<TypeSymbol*, TypeSymbol*>(method -> containing_type, method -> FormalParameter(i) -> Type()));
-											}
-											Coutput << method->Utf8Name() << " is the accept method." << endl;
-											Coutput << call -> symbol -> MethodCast() -> Utf8Name() << " is the visit method." << endl;
-											if (call -> arguments -> Argument(k) -> kind == Ast::THIS_EXPRESSION)
-												Coutput << "THIS pointer is exposed to visitor ";
-											else
-												Coutput << call -> arguments -> Argument(k) -> NameCast() -> symbol -> VariableCast() -> Utf8Name() 
-													<< " is exposed to visitor ";
-											Coutput << method -> FormalParameter(i) -> Type() -> Utf8Name() << endl;
-											Coutput << "File Location: "
-												<< method -> containing_type -> file_symbol -> FileName() 
-												<< endl << endl;
-										}
-										k++;
-									}
-								}
-							}
-							j++;
-						}
-					}
-						}
-				}
-				i++;
-			}
-		}
-	}
-}
-
 void FindProxy(ClassSymbolTable *cs_table, DelegationTable *d_table)
 {
 	unsigned c;
@@ -5770,7 +5660,7 @@ int Control::run(char** arguments) {
     //FindMediator(cs_table, d_table);
     //FindTemplateMethod(d_table);
     //FindFactory(cs_table, ms_table, ast_pool);
-    FindVisitor(cs_table, ms_table);
+    //FindVisitor(cs_table, ms_table);
     FindObserver(cs_table, d_table);
     FindMediator2(cs_table);
     FindProxy(cs_table, d_table);
