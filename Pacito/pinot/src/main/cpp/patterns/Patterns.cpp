@@ -870,3 +870,119 @@ vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
 
     return output;
 }
+
+vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
+{
+    auto cs_table = control->cs_table;
+    vector<Pattern::Ptr> output;
+
+    map<TypeSymbol*, SymbolSet*> cache;
+    vector<TypeSymbol*> ordered_cache;
+    unsigned c;
+    for (c = 0; c < cs_table ->size(); c++)
+    {
+        TypeSymbol *unit_type = (*cs_table)[c];
+        // check if this facade class can be serving as a mediator for some of the hidden classes.
+        unsigned i = 0;
+        while (i < unit_type->NumMethodSymbols())
+        {
+            MethodSymbol *msym = unit_type->MethodSym(i);
+            if (msym->callers && msym->invokees)
+            {
+                Symbol *sym1 = msym->callers->FirstElement();
+                while (sym1)
+                {
+                    TypeSymbol *caller = sym1->TypeCast();
+                    Symbol *sym2 = msym->invokees->FirstElement();
+                    while(sym2)
+                    {
+                        TypeSymbol *callee = sym2->MethodCast()->containing_type;
+                        if (caller->file_symbol
+                            && caller->file_symbol->IsJava()
+                            && caller->call_dependents
+                            && callee->file_symbol
+                            && callee->file_symbol->IsJava()
+                            && callee->call_dependents
+                            && !caller->call_dependents->IsElement(callee)
+                            && !callee->call_dependents->IsElement(caller)
+                            && (caller != unit_type)
+                            && (callee != unit_type)
+                                )
+                        {
+                            if (!unit_type->mediator_colleagues)
+                                unit_type->mediator_colleagues = new SymbolSet(0);
+                            unit_type->mediator_colleagues->AddElement(caller);
+                            unit_type->mediator_colleagues->AddElement(callee);
+
+                            /* trying to get rid of STL map
+                         map<TypeSymbol*, SymbolSet*>::iterator m = cache.find(unit_type);
+                         if (m == cache.end())
+                         {
+                             SymbolSet *set = new SymbolSet(0);
+                             set->AddElement(caller);
+                             set->AddElement(callee);
+                             cache.insert(pair<TypeSymbol*, SymbolSet*>(unit_type, set));
+                         }
+                         else
+                         {
+                             m->second->AddElement(caller);
+                             m->second->AddElement(callee);
+                         }
+                         */
+
+                        }
+                        sym2 = msym->invokees->NextElement();
+                    }
+                    sym1 = msym->callers->NextElement();
+                }
+            }
+            i++;
+        }
+    }
+    // Print results
+    /*
+    nMediator += cache.size();
+    map<TypeSymbol*, SymbolSet*>::iterator pattern;
+    for (pattern = cache.begin(); pattern != cache.end(); pattern++)
+    {
+        Coutput << "Mediator Pattern." << endl;
+        Coutput << "Mediator: " << pattern->first->Utf8Name() << endl;
+        Coutput << "Colleagues: ";
+        pattern->second->Print();
+        Coutput << "FileLocation: " << pattern->first->file_symbol->FileName() << endl << endl;
+
+        mediators.AddElement(pattern->first);
+    }
+    */
+
+    for (c = 0; c < cs_table ->size(); c++)
+    {
+        if ((*cs_table)[c]->mediator_colleagues)
+        {
+            auto mediator = (*cs_table)[c];
+            auto pattern = make_shared<Mediator>();
+            pattern->mediator = mediator;
+            pattern->file = mediator->file_symbol;
+
+            auto colleague = mediator->mediator_colleagues->FirstElement();
+            do {
+                if(colleague->TypeCast())
+                    pattern->colleagues.push_back(colleague->TypeCast());
+            } while ((colleague = mediator->mediator_colleagues->NextElement()));
+
+            output.push_back(pattern);
+            pattern->Print();
+
+            /*Coutput << "Mediator Pattern." << endl;
+            Coutput << "Mediator: " << (*cs_table)[c]->Utf8Name() << endl;
+            Coutput << "Colleagues: ";
+            (*cs_table)[c]->mediator_colleagues->Print();
+            Coutput << "FileLocation: " << (*cs_table)[c]->file_symbol->FileName() << endl << endl;*/
+
+            //mediators.AddElement((*cs_table)[c]);
+            // TODO add this statistic?
+        }
+    }
+
+    return output;
+}

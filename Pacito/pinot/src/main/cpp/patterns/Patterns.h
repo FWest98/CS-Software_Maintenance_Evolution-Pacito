@@ -19,6 +19,7 @@ public:
     static vector<Ptr> FindFactory(Control *);
     static vector<Ptr> FindVisitor(Control *);
     static vector<Ptr> FindObserver(Control *);
+    static vector<Ptr> FindMediator(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;

@@ -95,6 +95,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findVisitor
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findObserver
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findMediator
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findMediator
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
