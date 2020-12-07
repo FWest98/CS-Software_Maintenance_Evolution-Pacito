@@ -771,6 +771,15 @@ private:
     vector<Assoc*>* table;
 };
 
+struct RunStats {
+    int returnCode;
+    int numClasses;
+    int numFiles;
+    int numDelegations;
+    int numConcreteClassNodes;
+    int numUndirectedInvocationEdges;
+};
+
 //
 // This class represents the control information common across all compilation
 // units.  It provides a cache for essential classes and objects, as well as
@@ -779,7 +788,6 @@ private:
 class Control : public StringConstant
 {
 public:
-    StoragePool* gof_pool;
     int return_code;
     Option& option;
     SymbolTable classpath_table;
@@ -1108,7 +1116,7 @@ public:                                                         \
     Control(Option&);
     ~Control();
 
-    int run(char**); // Extract run from constructor
+    RunStats run(char**); // Extract run from constructor
 
     //
     // GoF IRs
@@ -1122,23 +1130,6 @@ public:                                                         \
     MethodBodyTable* mb_table;
     GenTable* gen_table;
     AssocTable* assoc_table;
-
-    // Other pattern detection functions
-    //void FindSingleton();
-    //std::vector<Pattern> FindChainOfResponsibility();
-    //void FindBridge();
-    //void FindStrategy();
-    //void FindFlyweight1();
-    //void FindFlyweight2();
-    //void FindComposite();
-    //void FindTemplateMethod();
-    //void FindFactory();
-    //void FindVisitor();
-    //void FindObserver();
-    //void FindMediator();
-    //void FindProxy();
-    //void FindAdapter();
-    //void FindFacade();
 
     Utf8LiteralValue* ConvertUnicodeToUtf8(const wchar_t* source)
     {
@@ -1169,7 +1160,6 @@ public:                                                         \
     void RereadDirectory(DirectorySymbol*);
     void RereadDirectories();
     void ComputeRecompilationSet(TypeDependenceChecker&);
-    bool IncrementalRecompilation();
 
     //
     // The one and only bad value constant.
@@ -1310,16 +1300,6 @@ private:
 
     FileSymbol* FindOrInsertJavaInputFile(DirectorySymbol*, NameSymbol*);
     FileSymbol* FindOrInsertJavaInputFile(wchar_t*, int);
-/*
-    void ExtractStructure(WriteAccessTable *w_table, DelegationTable *d_table, ClassSymbolTable *cs_table, MethodBodyTable* mb_table, MethodSymbolTable *ms_table, GenTable* gen_table, AssocTable* assoc_table, TypeSymbol* unit_type, StoragePool* ast_pool);
-    void EmitGeneralization(GenTable * gen_table, TypeSymbol * unit_type);
-    void EmitBlockAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstBlock * block, DelegationTable * d_table, WriteAccessTable * w_table);
-    void EmitStatementAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstStatement * statement, DelegationTable * d_table, WriteAccessTable * w_table);
-    void EmitExpressionAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstExpression * expression, DelegationTable * d_table, WriteAccessTable * w_table);
-    void EmitDelegation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstMethodInvocation * expression, DelegationTable * d_table, WriteAccessTable * w_table);
-    void EmitWriteAccess(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstAssignmentExpression * expression, DelegationTable * d_table, WriteAccessTable * w_table);
-    void EmitReadAccess(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstName * name, ReadAccessTable * r_table);
-*/
 };
 
 #ifdef HAVE_JIKES_NAMESPACE

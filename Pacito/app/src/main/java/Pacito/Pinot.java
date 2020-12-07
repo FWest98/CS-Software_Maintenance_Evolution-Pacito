@@ -13,7 +13,7 @@ public class Pinot extends JniObject {
     public native void clean();
 
     // Operations methods
-    public native int run(String[] files);
+    public native RunStats run(String[] files);
     public native Pattern[] findCoR();
     public native Pattern[] findBridge();
     public native Pattern[] findStrategy();
@@ -31,5 +31,14 @@ public class Pinot extends JniObject {
 
     public Pinot(String classPath) {
         initialize(classPath);
+    }
+
+    public static class RunStats {
+        public int returnCode;
+        public int numClasses;
+        public int numFiles;
+        public int numDelegations;
+        public int numConcreteClassNodes;
+        public int numUndirectedInvocationEdges;
     }
 }

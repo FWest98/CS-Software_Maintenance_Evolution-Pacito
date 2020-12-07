@@ -41,7 +41,7 @@ public class PacitoRunner implements Runnable {
 
         try {
             var files = findFiles("*.java", directory);
-            pinot.run(files.stream().map(Path::toString).toArray(String[]::new));
+            var stats = pinot.run(files.stream().map(Path::toString).toArray(String[]::new));
             var cor = pinot.findCoR();
             var bridge = pinot.findBridge();
             var strategy = pinot.findStrategy();

@@ -210,321 +210,6 @@ void printVector(vector<wchar_t*>* v)
  */
 void PrintSingletonXMI(TypeSymbol *class_sym , VariableSymbol *instance_sym, MethodSymbol *method_sym);
 
-void FindPrototype(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* assoc_table)
-{
-	vector<wchar_t*>* prototypes = NULL;
-		   
-	prototypes = gen_table -> getSuccessors(L"Cloneable", GenTable::IMPL);
-
-	if (prototypes)
-	{
-		unsigned i;
-		for (i = 0; i < prototypes -> size(); i++)
-		{
-		       int j;
-			for (j = 0; j < assoc_table -> getSize(); j++)
-			{
-				if ((assoc_table -> getKindAt(j) == Assoc::MR) 
-				&& (wcscmp(assoc_table -> getTypeAt(j), (*prototypes)[i]) == 0))
-				{
-				 	wchar_t* factory = assoc_table -> getClassNameAt(j);
-					wchar_t* method_name = assoc_table -> getMethodNameAt(j);
-					wchar_t* var_name = assoc_table -> getName(Assoc::CF, Assoc::PRIVATE, (*prototypes)[i], factory);
-
-					AstMethodDeclaration* method_declaration = dynamic_cast<AstMethodDeclaration*>(mb_table -> getAstLocation(factory, method_name));
-					AstMethodBody* method_body = method_declaration -> method_body_opt;
-
-					Coutput << L"Prototype Factory: " << factory << endl
-						     << L"Make Method: " << method_name << endl
-						     << L"Prototype Var: " << var_name <<endl << endl;
-
-					Coutput << L"AST of " << method_name << endl;
-					method_body -> Print();
-
-					if ((method_body -> NumStatements() == 1)
-					&& (method_body -> Statement(0) -> kind == Ast::RETURN))
-					{
-						AstReturnStatement* return_statement = dynamic_cast<AstReturnStatement*>(method_body -> Statement(0));
-						if (return_statement -> expression_opt -> kind == Ast::CAST)
-						{
-							AstCastExpression* cast_expression = dynamic_cast<AstCastExpression*>(return_statement -> expression_opt);
-							AstMethodInvocation* method_invocation =  dynamic_cast<AstMethodInvocation*>(cast_expression -> expression);
-
-							if ((wcscmp(method_invocation -> identifier_token_string, L"clone") == 0)
-							&& (wcscmp(dynamic_cast<AstName*>(method_invocation -> base_opt) -> identifier_token_string, var_name) == 0))
-								Coutput << L"Yoohoo" << endl;
-						}
-					}
-					Coutput << endl << endl;
-				}
-			}
-		}
-	}
-}
-
-void FindSingleton(ClassSymbolTable *cs_table, MethodSymbolTable* ms_table)
-{
-	vector<TypeSymbol*> candidates_t;
-
-	for (unsigned i = 0; i<ms_table->size(); i++)
-	{
-		MethodSymbol *method = (*ms_table)[i];
-		if (method -> declaration -> kind == Ast::CONSTRUCTOR)
-		{
-			if (method -> ACC_PRIVATE())
-			{
-				TypeSymbol *unit_type = method -> containing_type;
-				candidates_t.push_back(unit_type);
-			}
-		}
-	}
-
-	unsigned c;
-	for (c = 0; c < cs_table -> size(); c++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-		if (unit_type -> ACC_ABSTRACT())
-		{
-			candidates_t.push_back(unit_type);
-		}
-	}
-
-	if (candidates_t.size() > 0)
-	{
-		unsigned i;
-		for (i = 0; i < candidates_t.size(); i++)
-		{
-			AstClassBody *class_body = candidates_t[i] -> declaration;
-
-			// find the class variable
-			VariableSymbol *instance_sym = NULL;
-			for (unsigned j = 0; !instance_sym && (j < class_body -> NumClassVariables()); j++)
-			{
-				AstFieldDeclaration* field_decl = class_body -> ClassVariable(j);
-				TypeSymbol *type = field_decl -> type -> symbol;
-				if ((type == candidates_t[i]) && (field_decl -> NumVariableDeclarators() == 1))
-				{
-					AstVariableDeclarator* vd = field_decl -> VariableDeclarator(0);
-					if (vd -> symbol -> ACC_PRIVATE())
-						instance_sym = vd -> symbol;
-				}
-			}
-
-			// find the get_instance method
-			MethodSymbol *get_method_sym = NULL;
-			for (unsigned j = 0; !get_method_sym && (j < class_body -> NumMethods()); j++)
-			{
-				AstMethodDeclaration* method = class_body -> Method(j);
-				if ((method -> method_symbol)
-				&& (method -> method_symbol -> Type() == candidates_t[i])
-				&& (method -> method_symbol -> ACC_STATIC())
-				&& (method -> method_symbol -> ACC_PUBLIC()))
-					get_method_sym = method -> method_symbol;
-
-			}
-
-			if (instance_sym && get_method_sym)
-			{
-				AstMethodDeclaration *method_declaration = get_method_sym -> declaration -> MethodDeclarationCast();
-				AstMethodBody *method_body = method_declaration -> method_body_opt;
-
-				wchar_t *instance_name = const_cast<wchar_t*>(instance_sym -> Name());
-				if (method_body -> returnsVar(instance_name))
-				{
-					EnvTable *env = new EnvTable();
-					env -> addEnvironment(instance_name, Env::INIT);
-					method_body -> simulate(env);
-					if (env -> getState(instance_name) == Env::INIT)
-					{
-					/*
-						char* file_name = method_sym -> containing_type -> file_symbol -> FileName();
-
-						TypeSymbol *class_sym = NULL;
-						for (unsigned i = 0; !class_sym && (i < candidates_t.size()); i++)
-						if (wcscmp(candidates_t[i] -> Name(), class_name) == 0)
-							class_sym = candidates_t[i];
-
-						VariableSymbol *instance_sym = NULL;
-						for (unsigned j = 0; !instance_sym && (j <  class_sym -> declaration -> NumClassVariables()); j++)
-						{
-							AstFieldDeclaration* field_decl = class_sym -> declaration -> ClassVariable(j);
-							for (unsigned vi = 0; vi < field_decl -> NumVariableDeclarators(); vi++)
-							{
-								AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
-								if (wcscmp(vd -> symbol -> Name(), instance_name) == 0)
-									instance_sym = vd -> symbol;
-						        }
-						}
-					*/
-						//PrintSingletonXMI(class_sym , instance_sym, method_sym);
-						Coutput << ((get_method_sym-> ACC_SYNCHRONIZED()) ? L"Multithreaded " : L"")
-							      << L"Singleton Pattern"
-							      << endl
-							      << candidates_t[i] -> Utf8Name() << " is a Singleton class"
-							      << endl
-							      << instance_sym -> Utf8Name() << " is the Singleton instance"
-							      << endl
-							      << get_method_sym -> Utf8Name() << " returns a " << instance_sym -> Utf8Name()
-							      << endl
-							      << "File location: " << candidates_t[i] -> file_symbol -> FileName()
-							      << endl
-							      << ((get_method_sym-> ACC_SYNCHRONIZED()) ? L"Double-checked Locking not used.\n" : L"\n")
-							      << endl;
-						nSingleton++;
-					}
-					else
-					{
-					 /*
-						Coutput  << L"Singleton Pattern"
-							      << endl
-							      << class_name << L" is a Singleton class"
-							      << endl
-							      << instance_name << L" is the Singleton instance"
-							      << endl
-							      << get_method << L" returns a " << instance_name
-							      << endl
-							      << L"File location: " << file_name
-							      << endl;
-						Coutput << L"Warning: " << instance_name << L" is modified more than once." << endl << endl;
-					*/
-					}
-					delete env;
-				}
-				else
-				{
-				/*
-					Coutput  << L"Singleton Pattern"
-							      << endl
-							      << class_name << L" is a Singleton class"
-							      << endl
-							      << instance_name << L" is the Singleton instance"
-							      << endl
-							      << get_method << L" returns a " << instance_name
-							      << endl
-							      << L"File location: " << file_name
-							      << endl;
-					Coutput << L"Warning: " << instance_name << L" is not returned in " << get_method << endl << endl;
-				*/
-				}
-			}
-		}
-	}
-}
-
-void FindFlyweight(MethodBodyTable* mb_table, GenTable* gen_table, AssocTable* assoc_table)
-{
-	// Collecting possible flyweight pools
-	vector<wchar_t*>* pools = NULL;
-	int i;
-	for (i = 0; i < assoc_table -> getSize(); i++)
-	{
-		if ((assoc_table -> getKindAt(i) == Assoc::IM)
-		&& (assoc_table -> getModeAt(i) == Assoc::PRIVATE)
-		&& (wcscmp(assoc_table -> getTypeAt(i), L"Hashtable") == 0))
-		{
-			wchar_t* class_name = assoc_table -> getClassNameAt(i);
-
-			if (!pools)
-			{
-				pools = new vector<wchar_t*>();
-				pools -> push_back(class_name);
-			}
-			else if (!isCached(class_name, pools))
-			{
-				pools -> push_back(class_name);
-			}
-		}
-	}
-
-	// Look for possible flyweight factories
-	for (i = 0; i < assoc_table -> getSize(); i++)
-	{
-		if ((assoc_table -> getKindAt(i) == Assoc::MP)
-		&& (isCached(assoc_table ->getTypeAt(i), pools)))
-		{
-			wchar_t* package_name = assoc_table -> getPackageNameAt(i);
-			wchar_t* flyweight_factory = assoc_table -> getClassNameAt(i);
-			wchar_t* get_flyweight = assoc_table -> getMethodNameAt(i);
-
-			AstMethodDeclaration *method_declaration = dynamic_cast<AstMethodDeclaration*>
-													(mb_table -> getAstLocation(flyweight_factory, get_flyweight));
-			AstMethodBody *method_body = method_declaration -> method_body_opt;
-
-			// Given:
-			//   - type of flyweight class
-			//   - flyweight pool type and var_name
-
-		  	wchar_t* flyweight = method_declaration -> getReturnType();
-			wchar_t* pool = assoc_table ->getTypeAt(i);
-			wchar_t* pool_name = assoc_table -> getNameAt(i);
-
-			if (method_body
-			&& (!method_declaration -> isPrimitiveType(flyweight))
-			&& (wcscmp(pool, flyweight_factory) != 0))
-			{
-				//Coutput  << "package name: " << package_name << endl
-				//	<< "class name: " << flyweight_factory << endl
-				//	<< "method name: " << get_flyweight << endl;
-
-
-
-				// Check for variables of type "flyweight" declared in this method
-				vector<wchar_t*>* vars = method_body -> getVariables(flyweight);
-
-				if (vars && vars -> size() == 1)
-				{
-					wchar_t* temp = (*vars)[0];
-
-					//Then make sure that this var is returned by the method
-					if (method_body -> returnsVar(temp))
-					{
-						// If not, reject this class as a flyweight factory.
-
-						// Look for a specific statechart on the var that gets returned from this method.
-						// (1) SET --yes--> RETURN
-						// (2) SET --no --> CREATE ----> SET ----> RETURN
-
-
-						Statechart* statechart = method_body -> getStatechart(temp);
-
-						//int i = 0;
-						if ((statechart -> getStateKindAt(0) == State::SET)
-						&& (isCached( pool_name, statechart -> getStateParticipantsAt(0)))
-						&& (statechart -> getStateKindAt(1) == State::CONDITION)
-						&& (statechart -> getStateKindAt(2) == State::CREATE)
-						&& ((statechart -> getStateKindAt(3) == State::SET))
-						&& (isCached( pool_name, statechart -> getStateParticipantsAt(3)))
-						&& ((statechart -> getStateKindAt(4) == State::RETURN)))
-						{
-
-						Coutput << "Flyweight Pattern." << endl;
-						Coutput << flyweight_factory
-							     <<  " is a Flyweight factory class. "
-							     << endl;
-
-						Coutput << pool
-							     << " is a flyweight object pool."
-							     << endl;
-
-						Coutput << get_flyweight
-							     <<  " returns a flyweight object."
-							     << endl;
-
-						if (method_declaration -> isSynchronized())
-							Coutput << "Consider using Double-checked Locking." << endl;
-
-
-						Coutput << "File location: " << gen_table -> getFileName(flyweight_factory, package_name) << endl;
-						Coutput << endl << endl;
-						nFlyweight++;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
 bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 {
 	// pre-condition: t1 is concrete, while t2 is abstract
@@ -542,78 +227,6 @@ bool DelegatesSuccessors(TypeSymbol *t1, TypeSymbol *t2)
 		}
 	}
 	return false;
-}
-
-void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
-{
-	unsigned c;
-	for (c = 0; c < cs_table -> size(); c++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-
-		if (!unit_type -> ACC_INTERFACE()
-		&& !unit_type -> IsInner()
-		&& !unit_type -> ACC_PRIVATE())
-		{
-			SymbolSet colleagues;
-			SymbolSet observers;
-			SymbolSet *dset = unit_type -> references;
-			Symbol *sym = (dset) ? dset->FirstElement() : NULL; 
-			while (sym)
-			{
-				TypeSymbol *type = sym -> TypeCast();
-				if (!type->Primitive()
-				&& type -> ACC_ABSTRACT()
-				&& !type -> ACC_INTERFACE()				
-				&& type -> references 
-				&& (unit_type != type) 
-				&& type -> file_symbol-> IsJava() 
-				&& type -> references -> IsElement(unit_type)
-				&& unit_type -> IsOnetoMany(type))
-				{
-					if (d_table -> IsBidirectional(unit_type, type) == 3)
-						colleagues.AddElement(type);
-					else if (d_table -> IsBidirectional(unit_type, type) > 0)
-						observers.AddElement(type);
-				}
-				sym = dset->NextElement();
-			}
-			if (!colleagues.IsEmpty())
-			{
-				nMediator++;
-				Coutput << "Mediator pattern." << endl;
-				Coutput << unit_type -> Utf8Name() << " is a Mediator class." << endl;
-				Symbol *sym = NULL;
-				Coutput << "Colleagues: ";
-				sym = colleagues.FirstElement();
-				while (sym)
-				{
-					Coutput << sym -> TypeCast() -> Utf8Name() << " ";
-					sym = colleagues.NextElement();
-				}
-				Coutput << endl;
-				Coutput << "File Location: " << unit_type -> file_symbol -> FileName() << endl << endl;
-				colleagues.SetEmpty();
-			}
-			else if (!observers.IsEmpty())
-			{
-				nObserver++;
-				Coutput << "Observer pattern." << endl;
-				Coutput << unit_type -> Utf8Name() << " is a Subject class." << endl;
-				Symbol *sym = NULL;
-				Coutput << "Observers: ";
-				sym = observers.FirstElement();
-				while (sym)
-				{
-					Coutput << sym -> TypeCast() -> Utf8Name() << " ";
-					sym = observers.NextElement();
-				}
-				Coutput << endl;
-				Coutput << "File Location: " << unit_type -> file_symbol -> FileName() << endl << endl;
-				observers.SetEmpty();
-			}
-		}
-	}
 }
 
 void FindThreadSafeInterface(DelegationTable *d_table)
@@ -4732,7 +4345,7 @@ Control::Control(Option& option_)
     ast_pool = new StoragePool(64);
 }
 
-int Control::run(char** arguments) {
+RunStats Control::run(char **arguments) {
     //
     // Process all file names specified in command line
     //
@@ -4742,36 +4355,32 @@ int Control::run(char** arguments) {
     // For each input file, copy it into the input_files array and process
     // its package declaration. Estimate we need 64 tokens.
     //
-    FileSymbol** input_files = new FileSymbol*[input_java_file_set.Size() + 1];
+    FileSymbol **input_files = new FileSymbol *[input_java_file_set.Size() + 1];
     int num_files = 0;
-    FileSymbol* file_symbol;
-    for (file_symbol = (FileSymbol*) input_java_file_set.FirstElement();
+    FileSymbol *file_symbol;
+    for (file_symbol = (FileSymbol *) input_java_file_set.FirstElement();
          file_symbol;
-         file_symbol = (FileSymbol*) input_java_file_set.NextElement())
-    {
+         file_symbol = (FileSymbol *) input_java_file_set.NextElement()) {
         input_files[num_files++] = file_symbol;
 
-	//Coutput << file_symbol->FileName() << endl;
 #ifdef JIKES_DEBUG
         input_files_processed++;
 #endif
         errno = 0;
-        scanner -> Scan(file_symbol);
-        if (file_symbol -> lex_stream) // did we have a successful scan!
+        scanner->Scan(file_symbol);
+        if (file_symbol->lex_stream) // did we have a successful scan!
         {
-            AstPackageDeclaration* package_declaration =
-                parser -> PackageHeaderParse(file_symbol -> lex_stream,
-                                             ast_pool);
+            AstPackageDeclaration *package_declaration =
+                    parser->PackageHeaderParse(file_symbol->lex_stream,
+                                               ast_pool);
 
             ProcessPackageDeclaration(file_symbol, package_declaration);
-            ast_pool -> Reset();
-        }
-        else
-        {
-            const char* std_err = strerror(errno);
+            ast_pool->Reset();
+        } else {
+            const char *std_err = strerror(errno);
             ErrorString err_str;
             err_str << '"' << std_err << '"' << " while trying to open "
-                    << file_symbol -> FileName();
+                    << file_symbol->FileName();
             general_io_errors.Next() = err_str.SafeArray();
         }
     }
@@ -4779,27 +4388,26 @@ int Control::run(char** arguments) {
     //
     //
     //
-    FileSymbol* main_file_clone;
+    FileSymbol *main_file_clone;
     if (num_files > 0)
-        main_file_clone = input_files[0] -> Clone();
-    else
-    {
+        main_file_clone = input_files[0]->Clone();
+    else {
         //
         // Some name, any name !!! We use dot_name_symbol as a bad file name
         // because no file can be named ".".
         //
-        FileSymbol* file_symbol = classpath[dot_classpath_index] ->
-            RootDirectory() -> InsertFileSymbol(dot_name_symbol);
-        file_symbol -> directory_symbol = classpath[dot_classpath_index] ->
-            RootDirectory();
-        file_symbol -> SetJava();
+        FileSymbol *file_symbol = classpath[dot_classpath_index]->
+                RootDirectory()->InsertFileSymbol(dot_name_symbol);
+        file_symbol->directory_symbol = classpath[dot_classpath_index]->
+                RootDirectory();
+        file_symbol->SetJava();
 
-        main_file_clone = file_symbol -> Clone();
+        main_file_clone = file_symbol->Clone();
     }
 
-    main_file_clone -> semantic = new Semantic(*this, main_file_clone);
-    system_semantic = main_file_clone -> semantic;
-    scanner -> SetUp(main_file_clone);
+    main_file_clone->semantic = new Semantic(*this, main_file_clone);
+    system_semantic = main_file_clone->semantic;
+    scanner->SetUp(main_file_clone);
 
 #ifdef WIN32_FILE_SYSTEM
     //
@@ -4813,56 +4421,47 @@ int Control::run(char** arguments) {
 #endif // WIN32_FILE_SYSTEM
 
     unsigned i;
-    for (i = 0; i < bad_dirnames.Length(); i++)
-    {
-        system_semantic ->
-            ReportSemError(SemanticError::CANNOT_OPEN_PATH_DIRECTORY,
-                           BAD_TOKEN, bad_dirnames[i]);
+    for (i = 0; i < bad_dirnames.Length(); i++) {
+        system_semantic->
+                ReportSemError(SemanticError::CANNOT_OPEN_PATH_DIRECTORY,
+                               BAD_TOKEN, bad_dirnames[i]);
     }
-    for (i = 0; i < bad_zip_filenames.Length(); i++)
-    {
-        system_semantic -> ReportSemError(SemanticError::CANNOT_OPEN_ZIP_FILE,
-                                          BAD_TOKEN, bad_zip_filenames[i]);
+    for (i = 0; i < bad_zip_filenames.Length(); i++) {
+        system_semantic->ReportSemError(SemanticError::CANNOT_OPEN_ZIP_FILE,
+                                        BAD_TOKEN, bad_zip_filenames[i]);
     }
-    for (i = 0; i < general_io_warnings.Length(); i++)
-    {
-        system_semantic -> ReportSemError(SemanticError::IO_WARNING, BAD_TOKEN,
-                                          general_io_warnings[i]);
-        delete [] general_io_warnings[i];
+    for (i = 0; i < general_io_warnings.Length(); i++) {
+        system_semantic->ReportSemError(SemanticError::IO_WARNING, BAD_TOKEN,
+                                        general_io_warnings[i]);
+        delete[] general_io_warnings[i];
     }
-    for (i = 0; i < general_io_errors.Length(); i++)
-    {
-        system_semantic -> ReportSemError(SemanticError::IO_ERROR, BAD_TOKEN,
-                                          general_io_errors[i]);
-        delete [] general_io_errors[i];
+    for (i = 0; i < general_io_errors.Length(); i++) {
+        system_semantic->ReportSemError(SemanticError::IO_ERROR, BAD_TOKEN,
+                                        general_io_errors[i]);
+        delete[] general_io_errors[i];
     }
 
     //
     // Require the existence of java.lang.
     //
-    if (lang_package -> directory.Length() == 0)
-    {
-        system_semantic -> ReportSemError(SemanticError::PACKAGE_NOT_FOUND,
-                                          BAD_TOKEN,
-                                          StringConstant::US_java_SL_lang);
+    if (lang_package->directory.Length() == 0) {
+        system_semantic->ReportSemError(SemanticError::PACKAGE_NOT_FOUND,
+                                        BAD_TOKEN,
+                                        StringConstant::US_java_SL_lang);
     }
 
     //
     // When the -d option is specified, create the relevant
     // directories if they don't already exist.
     //
-    if (option.directory)
-    {
-        if (! SystemIsDirectory(option.directory))
-        {
-            for (char* ptr = option.directory; *ptr; ptr++)
-            {
+    if (option.directory) {
+        if (!SystemIsDirectory(option.directory)) {
+            for (char *ptr = option.directory; *ptr; ptr++) {
                 char delimiter = *ptr;
-                if (delimiter == U_SLASH)
-                {
+                if (delimiter == U_SLASH) {
                     *ptr = U_NULL;
 
-                    if (! SystemIsDirectory(option.directory))
+                    if (!SystemIsDirectory(option.directory))
                         SystemMkdir(option.directory);
 
                     *ptr = delimiter;
@@ -4871,16 +4470,15 @@ int Control::run(char** arguments) {
 
             SystemMkdir(option.directory);
 
-            if (! SystemIsDirectory(option.directory))
-            {
+            if (!SystemIsDirectory(option.directory)) {
                 int length = strlen(option.directory);
-                wchar_t* name = new wchar_t[length + 1];
+                wchar_t *name = new wchar_t[length + 1];
                 for (int j = 0; j < length; j++)
                     name[j] = option.directory[j];
                 name[length] = U_NULL;
-                system_semantic -> ReportSemError(SemanticError::CANNOT_OPEN_DIRECTORY,
-                                                  BAD_TOKEN, name);
-                delete [] name;
+                system_semantic->ReportSemError(SemanticError::CANNOT_OPEN_DIRECTORY,
+                                                BAD_TOKEN, name);
+                delete[] name;
             }
         }
     }
@@ -4888,31 +4486,27 @@ int Control::run(char** arguments) {
     //
     //
     //
-    for (i = 0; i < bad_input_filenames.Length(); i++)
-    {
-        system_semantic -> ReportSemError(SemanticError::BAD_INPUT_FILE,
-                                          BAD_TOKEN, bad_input_filenames[i]);
+    for (i = 0; i < bad_input_filenames.Length(); i++) {
+        system_semantic->ReportSemError(SemanticError::BAD_INPUT_FILE,
+                                        BAD_TOKEN, bad_input_filenames[i]);
     }
 
     //
     //
     //
-    for (i = 0; i < unreadable_input_filenames.Length(); i++)
-    {
-        system_semantic -> ReportSemError(SemanticError::UNREADABLE_INPUT_FILE,
-                                          BAD_TOKEN,
-                                          unreadable_input_filenames[i]);
+    for (i = 0; i < unreadable_input_filenames.Length(); i++) {
+        system_semantic->ReportSemError(SemanticError::UNREADABLE_INPUT_FILE,
+                                        BAD_TOKEN,
+                                        unreadable_input_filenames[i]);
     }
 
     //
     //
     //
-    if (system_semantic -> NumErrors() > 0)
-    {
-        system_semantic -> PrintMessages();
-        return_code = system_semantic -> return_code;
-    }
-    else {
+    if (system_semantic->NumErrors() > 0) {
+        system_semantic->PrintMessages();
+        return_code = system_semantic->return_code;
+    } else {
         //
         // There might be some warnings we want to print.
         //
@@ -4924,424 +4518,49 @@ int Control::run(char** arguments) {
                 ProcessFile(file_symbol, ast_pool);
         }
 
-
-
-
-
-//    mb_table -> dumpTable();
-//	gen_table -> dumpTable();
-//    assoc_table -> dumpTable();
-//	d_table -> DumpTable();
-
-        //FindPrototype(mb_table, gen_table, assoc_table);
-
-// breakpoint 1.
-// getchar();
-// Coutput << "breakpoint 1." << endl;
         d_table->ConcretizeDelegations();
         ms_table->ExpandCallDependents();
         cs_table->ExpandSubtypes();
-// breakpoint 2.
-// getchar();	
-
-        Coutput << endl;
-        Coutput << "--------- Original GoF Patterns ----------" << endl << endl;
-
-        //FindSingleton(cs_table, ms_table);
-        //FindSingleton1(cs_table, ast_pool);
-
-        //FindFlyweight(mb_table, gen_table, assoc_table);
-        //FindFlyweight1(ms_table);
-        //FindFlyweight2(cs_table, w_table, r_table);
-        //FindComposite(cs_table, d_table);
-        //FindMediator(cs_table, d_table);
-        //FindTemplateMethod(d_table);
-        //FindFactory(cs_table, ms_table, ast_pool);
-        //FindVisitor(cs_table, ms_table);
-        //FindObserver(cs_table, d_table);
-        //FindMediator2(cs_table);
-        //FindProxy(cs_table, d_table);
-        //FindAdapter(cs_table);
-        //FindFacade(cs_table);
-
-        //    FindThreadSafeInterface(d_table);
-
-#ifdef PLUGIN_ENABLED
-        Coutput << endl;
-        Coutput << "--------- User-defined Patterns ----------" << endl<< endl;
-
-
-      void *handle = dlopen("/home/madonna/sandbox/pinot/src/plugins.dll", RTLD_LAZY);
-      if (!handle)
-      {
-        printf("Error during dlopen(): %s\n", dlerror());
-        exit(1);
-      }
-
-      void (*pattern)(DelegationTable*);
-      pattern = (void (*)(DelegationTable*))dlsym(handle, "FindTemplateMethod");
-      if (!pattern)
-      {
-        printf("Error locating 'FindTemplateMethod' - %s\n", dlerror());
-        exit(1);
-      }
-
-      (*pattern)(d_table);
-#endif
-
-        // Print Statics
-
-
-        Coutput << endl << "------------------------------------------" << endl << endl;
-        Coutput << "Pattern Instance Statistics:" << endl << endl;
-
-        Coutput << "Creational Patterns" << endl;
-        Coutput << "==============================" << endl;
-        Coutput << "Abstract Factory";
-        Coutput.width(30 - sizeof("Abstract Factory"));
-        Coutput << nAbstractFactory << endl;
-
-        Coutput << "Factory Method";
-        Coutput.width(30 - sizeof("Factory Method"));
-        Coutput << nFactoryMethod << endl;
-
-        Coutput << "Singleton";
-        Coutput.width(30 - sizeof("Singleton"));
-        Coutput << nSingleton << endl;
-
-        Coutput << "------------------------------" << endl;
-        Coutput << "Structural Patterns" << endl;
-        Coutput << "==============================" << endl;
-
-        Coutput << "Adapter";
-        Coutput.width(30 - sizeof("Adapter"));
-        Coutput << nAdapter << endl;
-
-        Coutput << "Bridge";
-        Coutput.width(30 - sizeof("Bridge"));
-        Coutput << nBridge << endl;
-
-        Coutput << "Composite";
-        Coutput.width(30 - sizeof("Composite"));
-        Coutput << nComposite << endl;
-
-        Coutput << "Decorator";
-        Coutput.width(30 - sizeof("Decorator"));
-        Coutput << nDecorator << endl;
-
-        Coutput << "Facade";
-        Coutput.width(30 - sizeof("Facade"));
-        Coutput << nFacade << endl;
-
-        Coutput << "Flyweight";
-        Coutput.width(30 - sizeof("Flyweight"));
-        Coutput << nFlyweight << endl;
-
-        Coutput << "Proxy";
-        Coutput.width(30 - sizeof("Proxy"));
-        Coutput << nProxy << endl;
-        Coutput << "------------------------------" << endl;
-        Coutput << "Behavioral Patterns" << endl;
-        Coutput << "==============================" << endl;
-
-        Coutput << "Chain of Responsibility";
-        Coutput.width(30 - sizeof("Chain of Responsibility"));
-        Coutput << nCoR << endl;
-
-        Coutput << "Mediator";
-        Coutput.width(30 - sizeof("Mediator"));
-        Coutput << nMediator << endl;
-
-        Coutput << "Observer";
-        Coutput.width(30 - sizeof("Observer"));
-        Coutput << nObserver << endl;
-
-        Coutput << "State";
-        Coutput.width(30 - sizeof("State"));
-        Coutput << nState << endl;
-
-        Coutput << "Strategy";
-        Coutput.width(30 - sizeof("Strategy"));
-        Coutput << nStrategy << endl;
-
-        Coutput << "Template Method";
-        Coutput.width(30 - sizeof("Template Method"));
-        Coutput << nTemplate << endl;
-
-        Coutput << "Visitor";
-        Coutput.width(30 - sizeof("Visitor"));
-        Coutput << nVisitor << endl;
-        Coutput << "------------------------------" << endl;
-        Coutput << endl;
-
-        Coutput << "Number of classes processed: " << gen_table->getSize() << endl;
-        Coutput << "Number of files processed: " << num_files << endl;
-        Coutput << "Size of DelegationTable: " << d_table->size() << endl;
-        Coutput << "Size of concrete class nodes: " << cs_table->ConcreteClasses() << endl;
-        Coutput << "Size of undirected invocation edges: " << d_table->UniqueDirectedCalls() << endl;
-
-        Coutput << endl << endl;
-        Coutput << "nMediatorFacadeDual/nMediator = " << nMediatorFacadeDual << "/" << nMediator << endl;
-        Coutput << "nImmutable/nFlyweight = " << nImmutable << "/" << nFlyweight << endl;
-        Coutput << "nFlyweightGoFVersion = " << nFlyweightGoFVersion << endl;
-
     }
-        /*//
-        // Clean up all the files that have just been compiled in this new
-        // batch.
-        //
-        FileSymbol* file_symbol;
-        for (file_symbol = (FileSymbol*) input_java_file_set.FirstElement();
-             file_symbol;
-             file_symbol = (FileSymbol*) input_java_file_set.NextElement())
-        {
-            CleanUp(file_symbol);
-        }
-
-        //
-        // If more messages were added to system_semantic, print them...
-        //
-        system_semantic -> PrintMessages();
-        if (system_semantic -> return_code > 0 ||
-            bad_input_filenames.Length() > 0 ||
-            unreadable_input_filenames.Length() > 0)
-        {
-            return_code = 1;
-        }
-
-        //
-        // If the incremental flag is on, check to see if the user wants us
-        // to recompile.
-        //
-        if (option.incremental)
-        {
-            // The depend flag should only be in effect in the first pass
-            option.depend = false;
-
-            for (bool recompile = IncrementalRecompilation();
-                 recompile; recompile = IncrementalRecompilation())
-            {
-                // Reset the return code as we may compile clean in this pass.
-                return_code = 0;
-                system_semantic -> return_code = 0;
-
-                //
-                //
-                //
-                for (i = 0; i < bad_input_filenames.Length(); i++)
-                {
-                    system_semantic ->
-                        ReportSemError(SemanticError::BAD_INPUT_FILE,
-                                       BAD_TOKEN, bad_input_filenames[i]);
-                }
-
-                //
-                //
-                //
-                for (i = 0; i < unreadable_input_filenames.Length(); i++)
-                {
-                    system_semantic ->
-                        ReportSemError(SemanticError::UNREADABLE_INPUT_FILE,
-                                       BAD_TOKEN,
-                                       unreadable_input_filenames[i]);
-                }
-
-                FileSymbol* file_symbol;
-
-                num_files = 0;
-                delete [] input_files; // delete previous copy
-                input_files = new FileSymbol*[recompilation_file_set.Size()];
-                for (file_symbol = (FileSymbol*) recompilation_file_set.FirstElement();
-                     file_symbol;
-                     file_symbol = (FileSymbol*) recompilation_file_set.NextElement())
-                {
-                    input_java_file_set.RemoveElement(file_symbol);
-                    input_files[num_files++] = file_symbol;
-
-                    LexStream* lex_stream = file_symbol -> lex_stream;
-                    if (lex_stream)
-                    {
-                        AstPackageDeclaration* package_declaration = parser ->
-                            PackageHeaderParse(lex_stream, ast_pool);
-                        ProcessPackageDeclaration(file_symbol,
-                                                  package_declaration);
-                        ast_pool -> Reset();
-                    }
-                }
-
-                //
-                // If a file was erased, remove it from the input file set.
-                //
-                for (file_symbol = (FileSymbol*) expired_file_set.FirstElement();
-                     file_symbol;
-                     file_symbol = (FileSymbol*) expired_file_set.NextElement())
-                {
-                    input_java_file_set.RemoveElement(file_symbol);
-                }
-
-                //
-                // Reset the global objects before recompiling this new batch.
-                //
-                expired_file_set.SetEmpty();
-                recompilation_file_set.SetEmpty();
-                type_trash_bin.Reset();
-
-                //
-                // For each file that should be recompiled, process it if it
-                // has not already been dragged in by dependence.
-                //
-                for (int j = 0; j < num_files; j++)
-                {
-                    FileSymbol* file_symbol = input_files[j];
-                    if (! input_java_file_set.IsElement(file_symbol))
-                        ProcessFile(file_symbol, ast_pool);
-                }
-
-                //
-                // Clean up all the files that have just been compiled in
-                // this new batch.
-                //
-                for (file_symbol = (FileSymbol*) input_java_file_set.FirstElement();
-                    // delete file_symbol
-                     file_symbol;
-                     file_symbol = (FileSymbol*) input_java_file_set.NextElement())
-                {
-                    // delete file_symbol
-                    CleanUp(file_symbol);
-                }
-
-                //
-                // If any system error or warning was detected, print it...
-                //
-                system_semantic -> PrintMessages();
-                if (system_semantic -> return_code > 0 ||
-                    bad_input_filenames.Length() > 0 ||
-                    unreadable_input_filenames.Length() > 0)
-                {
-                    return_code = 1;
-                }
-            }
-        }
-
-        //
-        // Are we supposed to generate Makefiles?
-        //
-        if (option.makefile)
-        {
-            if (option.dependence_report)
-            {
-                FILE* outfile = SystemFopen(option.dependence_report_name,
-                                            "w");
-                if (outfile == NULL)
-                    Coutput << "*** Cannot open dependence output file "
-                            << option.dependence_report_name << endl;
-                else
-                {
-                    SymbolSet types_in_new_files;
-                    FileSymbol* file_symbol;
-                    for (file_symbol = (FileSymbol*) input_java_file_set.FirstElement();
-                         file_symbol;
-                         file_symbol = (FileSymbol*) input_java_file_set.NextElement())
-                    {
-                        char* java_name = file_symbol -> FileName();
-
-                        for (i = 0; i < file_symbol -> types.Length(); i++)
-                        {
-                            TypeSymbol* type = file_symbol -> types[i];
-                            fprintf(outfile, "%s : %s\n", java_name,
-                                    type -> SignatureString());
-
-                            TypeSymbol* static_parent;
-                            for (static_parent = (TypeSymbol*) type -> static_parents -> FirstElement();
-                                 static_parent;
-                                 static_parent = (TypeSymbol*) type -> static_parents -> NextElement())
-                            {
-                                if (! type -> parents ->
-                                    IsElement(static_parent))
-                                {
-                                    // Only a static ref to static_parent?
-                                    fprintf(outfile, "   !%s\n",
-                                            static_parent -> SignatureString());
-
-                                    //
-                                    // If the type is contained in a type that
-                                    // is not one of the input files, save it
-                                    //
-                                    if (static_parent -> file_symbol &&
-                                        static_parent -> file_symbol -> IsClass())
-                                    {
-                                        types_in_new_files.AddElement(static_parent);
-                                    }
-                                }
-                            }
-
-                            TypeSymbol* parent;
-                            for (parent = (TypeSymbol*) type -> parents -> FirstElement();
-                                 parent;
-                                 parent = (TypeSymbol*) type -> parents -> NextElement())
-                            {
-                                fprintf(outfile, "    %s\n",
-                                        parent -> SignatureString());
-
-                                //
-                                // If the type is contained in a type that is
-                                // not one of the input files, save it
-                                //
-                                if (parent -> file_symbol &&
-                                    parent -> file_symbol -> IsClass())
-                                {
-                                    types_in_new_files.AddElement(parent);
-                                }
-                            }
-                        }
-                    }
-
-                    //
-                    // Print the list of class files that are referenced.
-                    //
-                    TypeSymbol* type;
-                    for (type = (TypeSymbol*) types_in_new_files.FirstElement();
-                         type;
-                         type = (TypeSymbol*) types_in_new_files.NextElement())
-                    {
-                        char* class_name = type -> file_symbol -> FileName();
-                        fprintf(outfile, "%s : %s\n", class_name,
-                                type -> SignatureString());
-                    }
-
-                    fclose(outfile);
-                }
-            }
-            else
-            {
-                SymbolSet* candidates =
-                    new SymbolSet(input_java_file_set.Size() +
-                                  input_class_file_set.Size());
-                *candidates = input_java_file_set;
-                candidates -> Union(input_class_file_set);
-
-                TypeDependenceChecker* dependence_checker =
-                    new TypeDependenceChecker(this, *candidates,
-                                              type_trash_bin);
-                dependence_checker -> PartialOrder();
-                dependence_checker -> OutputDependences();
-                delete dependence_checker;
-
-                delete candidates;
-            }
-        }
-    }
-
 
     delete main_file_clone; // delete the clone of the main source file...
-    delete [] input_files;*/
+    delete[] input_files;
 
-    return return_code;
+    return {
+            return_code,
+            gen_table->getSize(),
+            num_files,
+            d_table->size(),
+            cs_table->ConcreteClasses(),
+            d_table->UniqueDirectedCalls()
+    };
 }
-
 
 Control::~Control()
 {
+    //
+    // Clean up all the files that have just been compiled in this new
+    // batch.
+    //
+    FileSymbol* file_symbol;
+    for (file_symbol = (FileSymbol*) input_java_file_set.FirstElement();
+         file_symbol;
+         file_symbol = (FileSymbol*) input_java_file_set.NextElement())
+    {
+        CleanUp(file_symbol);
+    }
+
+    //
+    // If more messages were added to system_semantic, print them...
+    //
+    system_semantic -> PrintMessages();
+    if (system_semantic -> return_code > 0 ||
+        bad_input_filenames.Length() > 0 ||
+        unreadable_input_filenames.Length() > 0)
+    {
+        return_code = 1;
+    }
+
     unsigned i;
     for (i = 0; i < bad_zip_filenames.Length(); i++)
         delete [] bad_zip_filenames[i];

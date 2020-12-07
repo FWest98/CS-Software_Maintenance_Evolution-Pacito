@@ -26,9 +26,9 @@ JNIEXPORT void JNICALL Java_Pacito_Pinot_clean
 /*
  * Class:     Pacito_Pinot
  * Method:    run
- * Signature: ([Ljava/lang/String;)I
+ * Signature: ([Ljava/lang/String;)LPacito/Pinot/RunStats;
  */
-JNIEXPORT jint JNICALL Java_Pacito_Pinot_run
+JNIEXPORT jobject JNICALL Java_Pacito_Pinot_run
   (JNIEnv *, jobject, jobjectArray);
 
 /*

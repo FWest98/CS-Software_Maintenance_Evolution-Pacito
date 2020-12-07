@@ -13,6 +13,6 @@ Pacito::~Pacito() {
     delete control;
 }
 
-int Pacito::run(char **files) {
-    control->run(files);
+RunStats Pacito::run(char **files) {
+    return control->run(files);
 }

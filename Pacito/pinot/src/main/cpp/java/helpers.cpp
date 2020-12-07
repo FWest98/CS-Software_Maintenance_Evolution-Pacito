@@ -34,6 +34,16 @@ void setBool(JNIEnv *env, jobject obj, const char *field, bool value) {
     env->SetBooleanField(obj, fieldId, value);
 }
 
+void setInt(JNIEnv *env, jobject obj, const char *field, int value) {
+    auto cls = env->GetObjectClass(obj);
+    if(cls == nullptr) return;
+
+    auto fieldId = env->GetFieldID(cls, field, "I");
+    if(fieldId == nullptr) return;
+
+    env->SetIntField(obj, fieldId, value);
+}
+
 void setString(JNIEnv *env, jobject obj, const char *field, const char *value) {
     auto cls = env->GetObjectClass(obj);
     if(cls == nullptr) return;

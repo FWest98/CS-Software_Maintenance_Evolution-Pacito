@@ -14,7 +14,7 @@ public:
     Pacito(char *);
     ~Pacito();
 
-    int run(char **);
+    RunStats run(char **);
     Control* getControl() { return control; }
 };
 

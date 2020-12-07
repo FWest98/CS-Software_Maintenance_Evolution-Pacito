@@ -27,7 +27,7 @@ JNIEXPORT void JNICALL Java_Pacito_Pinot_clean(JNIEnv *env, jobject thisObj) {
     delete pacito;
 }
 
-JNIEXPORT jint JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jobjectArray files) {
+JNIEXPORT jobject JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jobjectArray files) {
     int fileCount = env->GetArrayLength(files);
     const char* fileNames[fileCount + 1]; // NULL at end
 
@@ -40,7 +40,17 @@ JNIEXPORT jint JNICALL Java_Pacito_Pinot_run(JNIEnv *env, jobject thisObj, jobje
     fileNames[fileCount] = nullptr;
 
     auto pacito = getInstance<Pacito>(env, thisObj);
-    return pacito->run(const_cast<char **>(fileNames));
+    auto result = pacito->run(const_cast<char **>(fileNames));
+
+    auto obj = makeObject(env, "Pacito/Pinot$RunStats");
+    setInt(env, obj, "returnCode", result.returnCode);
+    setInt(env, obj, "numClasses", result.numClasses);
+    setInt(env, obj, "numFiles", result.numFiles);
+    setInt(env, obj, "numDelegations", result.numDelegations);
+    setInt(env, obj, "numConcreteClassNodes", result.numConcreteClassNodes);
+    setInt(env, obj, "numUndirectedInvocationEdges", result.numUndirectedInvocationEdges);
+
+    return obj;
 }
 
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findCoR(JNIEnv *env, jobject thisObj) {
