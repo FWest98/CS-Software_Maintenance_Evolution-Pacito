@@ -21,10 +21,31 @@ public:
     static vector<Ptr> FindObserver(Control *);
     static vector<Ptr> FindMediator(Control *);
     static vector<Ptr> FindProxy(Control *);
+    static vector<Ptr> FindAdapter(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
     virtual ~Pattern() = default;
+};
+
+class Adapter : public Pattern {
+public:
+    vector<TypeSymbol *> adapting;
+    TypeSymbol *adapter;
+    TypeSymbol *adaptee;
+    FileSymbol *adapterFile;
+    FileSymbol *adapteeFile;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Adapter Pattern" << endl;
+        Coutput << "Adapting classes: ";
+        for(auto adapt : adapting) Coutput << adapt->Utf8Name() << ", ";
+        Coutput << endl;
+        Coutput << adapter->Utf8Name() << " is an adapter class" << endl;
+        Coutput << adaptee->Utf8Name() << " is an adaptee class" << endl;
+        Coutput << "File locations: " << adapterFile->FileName() << endl << adapteeFile->FileName() << endl << endl;
+    }
 };
 
 class Bridge : public Pattern {

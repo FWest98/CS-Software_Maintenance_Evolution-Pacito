@@ -779,66 +779,6 @@ void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
 	}
 }
 
-void FindAdapter(ClassSymbolTable *cs_table)
-{
-	unsigned c;
-	for (c = 0; c < cs_table->size(); c++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-		if (!unit_type -> ACC_INTERFACE()
-		&& !unit_type -> ACC_ABSTRACT()
-		&& unit_type -> supertypes_closure && (unit_type -> supertypes_closure -> Size() > 1)
-		&& unit_type -> instances)
-		{
-			Symbol *sym = unit_type -> instances -> FirstElement();
-			while (sym)
-			{
-				TypeSymbol *ref_type = sym->VariableCast() -> Type();
-				if (!ref_type -> IsArray()
-				&& !ref_type -> Primitive()					
-				&& (unit_type != ref_type)			
-				//&& !ref_type -> ACC_INTERFACE()
-				//&& !ref_type -> ACC_ABSTRACT()
-				&& !unit_type -> IsFamily(ref_type)
-				&& ref_type -> file_symbol
-				&& ref_type -> file_symbol -> IsJava()
-				&& ref_type -> call_dependents
-				&& ref_type -> call_dependents -> IsElement(unit_type))
-				{
-					SymbolSet unit_dependents(0);
-					if (unit_type->call_dependents)
-						unit_dependents.Union(*unit_type->call_dependents);
-					unsigned q;
-					for (q = 0; q < cs_table->size(); q++)
-					{
-						TypeSymbol *type = (*cs_table)[q];
-						if (unit_type->supertypes_closure->IsElement(type) && type->call_dependents)
-							unit_dependents.Union(*type->call_dependents);
-					}
-					
-					ref_type -> call_dependents -> RemoveElement(unit_type);
-					if ((!unit_dependents.Intersects(*ref_type->call_dependents))
-					&& sym->VariableCast()->concrete_types)
-					{
-						nAdapter++;
-						Coutput << "Adapter Pattern." << endl
-							<< "Adapting classes: ";
-						unit_type->supertypes_closure->Print();
-						Coutput << unit_type -> Utf8Name()
-							<< " is an adapter class." << endl
-							<< ref_type -> Utf8Name()
-							<< " is the adaptee class." << endl 
-							<< "File Location: " << unit_type -> file_symbol -> FileName() << endl
-							<< "File Location: " << ref_type->file_symbol->FileName() << endl << endl;
-					}
-					ref_type -> call_dependents -> AddElement(unit_type);					
-				}
-				sym = unit_type -> instances -> NextElement();
-			}
-		}		
-	}
-}
-
 void FindFacade(ClassSymbolTable *cs_table)
 {
 	unsigned p;
@@ -5255,7 +5195,7 @@ int Control::run(char** arguments) {
         //FindObserver(cs_table, d_table);
         //FindMediator2(cs_table);
         //FindProxy(cs_table, d_table);
-        FindAdapter(cs_table);
+        //FindAdapter(cs_table);
         FindFacade(cs_table);
 
         //    FindThreadSafeInterface(d_table);

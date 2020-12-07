@@ -1075,3 +1075,71 @@ vector<Pattern::Ptr> Pattern::FindProxy(Control *control)
 
     return output;
 }
+
+vector<Pattern::Ptr> Pattern::FindAdapter(Control *control)
+{
+    auto cs_table = control->cs_table;
+    vector<Pattern::Ptr> output;
+
+    unsigned c;
+    for (c = 0; c < cs_table->size(); c++)
+    {
+        TypeSymbol *unit_type = (*cs_table)[c];
+        if (!unit_type -> ACC_INTERFACE()
+            && !unit_type -> ACC_ABSTRACT()
+            && unit_type -> supertypes_closure && (unit_type -> supertypes_closure -> Size() > 1)
+            && unit_type -> instances)
+        {
+            Symbol *sym = unit_type -> instances -> FirstElement();
+            while (sym)
+            {
+                TypeSymbol *ref_type = sym->VariableCast() -> Type();
+                if (!ref_type -> IsArray()
+                    && !ref_type -> Primitive()
+                    && (unit_type != ref_type)
+                    //&& !ref_type -> ACC_INTERFACE()
+                    //&& !ref_type -> ACC_ABSTRACT()
+                    && !unit_type -> IsFamily(ref_type)
+                    && ref_type -> file_symbol
+                    && ref_type -> file_symbol -> IsJava()
+                    && ref_type -> call_dependents
+                    && ref_type -> call_dependents -> IsElement(unit_type))
+                {
+                    SymbolSet unit_dependents(0);
+                    if (unit_type->call_dependents)
+                        unit_dependents.Union(*unit_type->call_dependents);
+                    unsigned q;
+                    for (q = 0; q < cs_table->size(); q++)
+                    {
+                        TypeSymbol *type = (*cs_table)[q];
+                        if (unit_type->supertypes_closure->IsElement(type) && type->call_dependents)
+                            unit_dependents.Union(*type->call_dependents);
+                    }
+
+                    ref_type -> call_dependents -> RemoveElement(unit_type);
+                    if ((!unit_dependents.Intersects(*ref_type->call_dependents))
+                        && sym->VariableCast()->concrete_types)
+                    {
+                        auto pattern = make_shared<Adapter>();
+                        pattern->adapter = unit_type;
+                        pattern->adaptee = ref_type;
+                        pattern->adapterFile = unit_type->file_symbol;
+                        pattern->adapteeFile = ref_type->file_symbol;
+
+                        auto type = unit_type->supertypes_closure->FirstElement();
+                        do {
+                            if(type->TypeCast())
+                                pattern->adapting.push_back(type->TypeCast());
+                        } while ((type = unit_type->supertypes_closure->NextElement()));
+
+                        output.push_back(pattern);
+                    }
+                    ref_type -> call_dependents -> AddElement(unit_type);
+                }
+                sym = unit_type -> instances -> NextElement();
+            }
+        }
+    }
+
+    return output;
+}

@@ -16,6 +16,17 @@ template<HasUtf8 T> std::vector<const char *> symbolVectorToStringVector(std::ve
     return output;
 }
 
+jobject Adapter::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Adapter");
+    setString(env, obj, "Adapter", adapter->Utf8Name());
+    setString(env, obj, "Adaptee", adaptee->Utf8Name());
+    setString(env, obj, "AdapterFile", adapterFile->FileName());
+    setString(env, obj, "AdapteeFile", adapteeFile->FileName());
+    setStringArray(env, obj, "Adapting", symbolVectorToStringVector(adapting));
+
+    return obj;
+}
+
 jobject Bridge::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Bridge");
     setString(env, obj, "Delegator", delegator->Utf8Name());
