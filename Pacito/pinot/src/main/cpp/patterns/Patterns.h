@@ -20,6 +20,7 @@ public:
     static vector<Ptr> FindVisitor(Control *);
     static vector<Ptr> FindObserver(Control *);
     static vector<Ptr> FindMediator(Control *);
+    static vector<Ptr> FindProxy(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -173,6 +174,24 @@ public:
             Coutput << subject->Utf8Name() << ", ";
         Coutput << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Proxy : public Pattern {
+public:
+    TypeSymbol *proxy;
+    TypeSymbol *interface;
+    vector<TypeSymbol *> reals;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Proxy Pattern" << endl;
+        Coutput << proxy->Utf8Name() << " is a proxy" << endl;
+        Coutput << interface->Utf8Name() << " is a proxy interface" << endl;
+        Coutput << "The real object(s): ";
+        for(auto real : reals) Coutput << real->Utf8Name() << ", ";
+        Coutput << endl << "File location: " << file->FileName() << endl << endl;
     }
 };
 

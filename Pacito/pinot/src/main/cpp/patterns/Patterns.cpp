@@ -971,16 +971,105 @@ vector<Pattern::Ptr> Pattern::FindMediator(Control *control)
             } while ((colleague = mediator->mediator_colleagues->NextElement()));
 
             output.push_back(pattern);
-            pattern->Print();
-
-            /*Coutput << "Mediator Pattern." << endl;
-            Coutput << "Mediator: " << (*cs_table)[c]->Utf8Name() << endl;
-            Coutput << "Colleagues: ";
-            (*cs_table)[c]->mediator_colleagues->Print();
-            Coutput << "FileLocation: " << (*cs_table)[c]->file_symbol->FileName() << endl << endl;*/
 
             //mediators.AddElement((*cs_table)[c]);
             // TODO add this statistic?
+        }
+    }
+
+    return output;
+}
+
+vector<Pattern::Ptr> Pattern::FindProxy(Control *control)
+{
+    auto cs_table = control->cs_table;
+    vector<Pattern::Ptr> output;
+
+    unsigned c;
+    for (c = 0; c < cs_table ->size(); c++)
+    {
+        TypeSymbol *unit_type = (*cs_table)[c];
+        SymbolSet *parents = unit_type -> supertypes_closure;
+        SymbolSet *instances = unit_type -> instances;
+
+        if (!unit_type->Anonymous() && parents && parents -> Size() && instances)
+        {
+            Symbol *sym1 = instances -> FirstElement();
+            bool flag = false;
+            while (!flag && sym1)
+            {
+                VariableSymbol *vsym = sym1 -> VariableCast();
+                TypeSymbol *real =  vsym -> Type();
+                if (!real -> Primitive() && !real -> IsArray() && vsym->concrete_types)
+                {
+                    Symbol *sym2 = parents -> FirstElement();
+                    while(!flag && sym2)
+                    {
+                        TypeSymbol *type = sym2 ->TypeCast();
+                        if ((real != unit_type)
+                            && !type -> Primitive()
+                            && (strcmp(type->fully_qualified_name->value, "java/lang/Object") != 0)
+                            && type -> file_symbol
+                            //&& type -> file_symbol -> IsJava()
+                            && real -> IsFamily(type)) // use IsFamily
+                        {
+                            SymbolSet real_set(0);
+                            if ((real == type) && type -> subtypes && type -> subtypes -> Size())
+                            {
+                                Symbol *sym3 = type -> subtypes -> FirstElement();
+                                while (sym3)
+                                {
+                                    real = sym3 -> TypeCast();
+                                    if ((unit_type != real)
+                                        && !real ->Anonymous()
+                                        && real->call_dependents
+                                        && real->call_dependents->IsElement(unit_type))
+                                    {
+                                        real->call_dependents->RemoveElement(unit_type);
+                                        if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
+                                            real_set.AddElement(real);
+                                        real->call_dependents->AddElement(unit_type);
+                                    }
+                                    sym3 = type -> subtypes -> NextElement();
+                                }
+                            }
+                            else if (real->call_dependents && real -> call_dependents -> IsElement(unit_type))
+                            {
+                                real->call_dependents->RemoveElement(unit_type);
+                                if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
+                                    real_set.AddElement(real);
+                                real->call_dependents->AddElement(unit_type);
+                            }
+                            if (real_set.Size())
+                            {
+                                flag = true;
+
+                                auto pattern = make_shared<Proxy>();
+                                pattern->proxy = unit_type;
+                                pattern->interface = type;
+                                pattern->file = unit_type->file_symbol;
+
+                                auto real = real_set.FirstElement();
+                                do {
+                                    if(real->TypeCast())
+                                        pattern->reals.push_back(real->TypeCast());
+                                } while ((real = real_set.NextElement()));
+
+                                output.push_back(pattern);
+                            }
+                            else
+                                sym2 = parents -> NextElement();
+
+                        }
+                        else
+                            sym2 = parents -> NextElement();
+                    }
+                    if (!flag)
+                        sym1 = instances -> NextElement();
+                }
+                else
+                    sym1 = instances -> NextElement();
+            }
         }
     }
 

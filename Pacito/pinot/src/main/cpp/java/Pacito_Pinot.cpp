@@ -105,3 +105,10 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findMediator(JNIEnv *env, jobje
 
     return findPatternHelper(env, result);
 }
+
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findProxy(JNIEnv *env, jobject thisObj) {
+    auto pacito = getInstance<Pacito>(env, thisObj);
+    auto result = Pattern::FindProxy(pacito->getControl());
+
+    return findPatternHelper(env, result);
+}

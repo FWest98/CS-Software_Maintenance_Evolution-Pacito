@@ -779,101 +779,6 @@ void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
 	}
 }
 
-void FindProxy(ClassSymbolTable *cs_table, DelegationTable *d_table)
-{
-	unsigned c;
-	for (c = 0; c < cs_table ->size(); c++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-		SymbolSet *parents = unit_type -> supertypes_closure;
-		SymbolSet *instances = unit_type -> instances;
-
-		if (!unit_type->Anonymous() && parents && parents -> Size() && instances)
-		{
-			Symbol *sym1 = instances -> FirstElement();
-			bool flag = false;
-			while (!flag && sym1)
-			{
-				VariableSymbol *vsym = sym1 -> VariableCast();
-				TypeSymbol *real =  vsym -> Type();
-				if (!real -> Primitive() && !real -> IsArray() && vsym->concrete_types)
-				{
-					Symbol *sym2 = parents -> FirstElement();
-					while(!flag && sym2)
-					{
-						TypeSymbol *type = sym2 ->TypeCast();
-						if ((real != unit_type)
-						&& !type -> Primitive()
-						&& (strcmp(type->fully_qualified_name->value, "java/lang/Object") != 0)
-						&& type -> file_symbol
-						//&& type -> file_symbol -> IsJava()
-						&& real -> IsFamily(type)) // use IsFamily
-						{
-							SymbolSet real_set(0);
-							if ((real == type) && type -> subtypes && type -> subtypes -> Size())
-							{
-								Symbol *sym3 = type -> subtypes -> FirstElement();
-								while (sym3)
-								{
-									real = sym3 -> TypeCast();
-									if ((unit_type != real)
-									&& !real ->Anonymous()
-									&& real->call_dependents
-									&& real->call_dependents->IsElement(unit_type))
-									{
-										real->call_dependents->RemoveElement(unit_type);
-										if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
-											real_set.AddElement(real);
-										real->call_dependents->AddElement(unit_type);
-									}
-									sym3 = type -> subtypes -> NextElement();
-								}
-							}
-							else if (real->call_dependents && real -> call_dependents -> IsElement(unit_type))
-							{
-								real->call_dependents->RemoveElement(unit_type);
-								if (!unit_type->call_dependents || !unit_type->call_dependents->Intersects(*real->call_dependents))
-									real_set.AddElement(real);
-								real->call_dependents->AddElement(unit_type);								
-							}
-							if (real_set.Size())
-							{								
-								flag = true;
-								nProxy++;
-								Coutput << "Proxy Pattern." << endl
-									<< unit_type -> Utf8Name() << " is a proxy."<< endl
-									<< type -> Utf8Name() << " is a proxy interface." << endl
-									<< "The real object(s):";
-								Symbol *sym = real_set.FirstElement();
-								while (sym)
-								{
-									TypeSymbol *item = sym -> TypeCast();
-									if (strcmp(item -> Utf8Name(), type -> Utf8Name()) == 0)
-										Coutput << " " << item -> fully_qualified_name -> value;
-									else
-										Coutput << " " << item -> Utf8Name();
-									sym = real_set.NextElement();
-								}
-								Coutput << endl;
-								Coutput << "File Location: " << unit_type -> file_symbol -> FileName() << endl << endl;								
-							}
-							else
-								sym2 = parents -> NextElement();
-							
-						}						
-						else
-							sym2 = parents -> NextElement();
-					}
-					if (!flag)
-						sym1 = instances -> NextElement();
-				}
-				else
-					sym1 = instances -> NextElement();
-			}
-		}
-	}	
-}
-
 void FindAdapter(ClassSymbolTable *cs_table)
 {
 	unsigned c;
@@ -5349,7 +5254,7 @@ int Control::run(char** arguments) {
         //FindVisitor(cs_table, ms_table);
         //FindObserver(cs_table, d_table);
         //FindMediator2(cs_table);
-        FindProxy(cs_table, d_table);
+        //FindProxy(cs_table, d_table);
         FindAdapter(cs_table);
         FindFacade(cs_table);
 

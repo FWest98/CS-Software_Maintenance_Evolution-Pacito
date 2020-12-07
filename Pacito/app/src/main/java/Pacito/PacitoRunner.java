@@ -51,6 +51,7 @@ public class PacitoRunner implements Runnable {
             var visitor = pinot.findVisitor();
             var observer = pinot.findObserver();
             var mediator = pinot.findMediator();
+            var proxy = pinot.findProxy();
             pinot.clean();
         } catch (IOException e) {
             e.printStackTrace();

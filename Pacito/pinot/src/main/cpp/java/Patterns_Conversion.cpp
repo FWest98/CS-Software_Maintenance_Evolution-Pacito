@@ -94,6 +94,16 @@ jobject Observer::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Proxy::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Proxy");
+    setString(env, obj, "Proxy", proxy->Utf8Name());
+    setString(env, obj, "Interface", interface->Utf8Name());
+    setString(env, obj, "File", file->FileName());
+    setStringArray(env, obj, "Reals", symbolVectorToStringVector(reals));
+
+    return obj;
+}
+
 jobject StatePattern::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/State");
     setString(env, obj, "Context", context->Utf8Name());

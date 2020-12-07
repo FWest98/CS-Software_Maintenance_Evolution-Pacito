@@ -103,6 +103,14 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findObserver
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findMediator
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findProxy
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findProxy
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
