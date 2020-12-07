@@ -778,222 +778,7 @@ void FindMediator(ClassSymbolTable *cs_table, DelegationTable *d_table)
 		}
 	}
 }
-bool IsJavaContainer(VariableSymbol *vsym)
-{
-	if (strcmp(vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
-		return true;
-	if (vsym->Type()->supertypes_closure)
-	{
-		Symbol *sym = vsym->Type()->supertypes_closure->FirstElement();
-		while (sym)
-		{
-			TypeSymbol *type = sym->TypeCast();
-			if (strcmp(type->fully_qualified_name->value, "java/util/Iterator") == 0)
-				return true;
-			sym = vsym->Type()->supertypes_closure->NextElement();
-		}
-	}
-	return false;
-}
-VariableSymbol *IteratorVar(AstExpression *expression)
-{
-	/* 
-		1 - java.util.Iterator
-		2 - array index
-		3 - recursion
-	  */
 
-	AstExpression *resolved = Utility::RemoveCasting(expression);
-	if (resolved->kind == Ast::CALL)
-	{
-		AstMethodInvocation *call = resolved->MethodInvocationCast();
-		if (call->base_opt
-		&& call->base_opt->symbol->VariableCast()
-		&& IsJavaContainer(call->base_opt->symbol->VariableCast())
-		&& (strcmp(call->symbol->MethodCast()->Utf8Name(), "next") == 0))
-			return call -> base_opt -> NameCast() -> symbol -> VariableCast();
-	}
-	else if (resolved -> kind == Ast::ARRAY_ACCESS)
-	{
-		if (resolved -> ArrayAccessCast()->base-> kind == Ast::NAME)
-			return resolved -> ArrayAccessCast()->base->symbol->VariableCast();
-	}
-	else if ((resolved->kind == Ast::NAME) && (resolved->NameCast()->symbol->Kind()==Symbol::VARIABLE))
-	{
-		return resolved->NameCast()->symbol ->VariableCast();
-	}
-	return 0;	
-}
-VariableSymbol *ListVar(VariableSymbol *vsym)
-{
-	if (!vsym->declarator->variable_initializer_opt
-	|| !vsym->declarator->variable_initializer_opt->ExpressionCast())
-		return NULL;
-
-	AstExpression *var_initializer = Utility::RemoveCasting(vsym->declarator->variable_initializer_opt->ExpressionCast());
-	
-	// vsym -> IsLocal()
-	// vsym is an iterator that implements java.util.Iterator
-	if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
-	{
-		if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
-		{
-			AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
-			// iterator initialized at declaration
-			if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "iterator") == 0)
-				return (init_call->base_opt->symbol->Kind() == Symbol::VARIABLE)
-					? init_call->base_opt->symbol->VariableCast()
-					: 0;		
-			// iterator initialized later in an assignment statement
-			// 	vsym->owner is a Symbol, but if vsym is local then the owner is a MethodSymbol
-			//	verify assignment statement
-			// if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
-		}
-	}
-	else if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/ListIterator") == 0)
-	{
-		if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
-		{
-			AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
-			// iterator initialized at declaration
-			if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "listIterator") == 0)
-				return init_call -> base_opt -> NameCast() -> symbol -> VariableCast();		
-			// iterator initialized later in an assignment statement
-			// 	vsym->owner is a Symbol, but if vsym is local then the owner is a MethodSymbol
-			//	verify assignment statement
-			// if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
-		}
-	}
-	else if ((vsym->declarator->variable_initializer_opt->kind == Ast::NAME)
-		&& (vsym->declarator->variable_initializer_opt->NameCast()->symbol->Kind()==Symbol::VARIABLE))
-	{
-		return vsym->declarator->variable_initializer_opt->NameCast()->symbol->VariableCast();
-	}
-	else if (var_initializer->kind == Ast::CALL)
-	{
-		AstMethodInvocation *init_call = var_initializer->MethodInvocationCast();
-		if (init_call->base_opt && init_call->base_opt->symbol->VariableCast())
-		{
-			if (((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Vector") == 0)
-				&& (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "elementAt") == 0))
-			|| ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/ArrayList") == 0)
-				&& (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "get") == 0))
-			)
-				return init_call->base_opt->symbol->VariableCast();
-			else if ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
-			&& (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "next") == 0))
-			{
-				VariableSymbol *iterator = init_call->base_opt->symbol->VariableCast();
-				AstMethodInvocation *i_init_call = iterator->declarator->variable_initializer_opt->MethodInvocationCast();
-				// iterator initialized at declaration
-				if (strcmp(i_init_call->symbol->MethodCast()->Utf8Name(), "iterator") == 0)
-					return i_init_call->base_opt->symbol->VariableCast();		
-			}
-		}
-			
-	}
-	return NULL;					
-}
-void FindObserver(ClassSymbolTable *cs_table, DelegationTable *d_table)
-{
-	vector<TypeSymbol*> cache;
-	unsigned c;
-	for (c = 0; c < cs_table ->size(); c++)
-	{
-		TypeSymbol *unit_type = (*cs_table)[c];
-		if (!unit_type -> ACC_INTERFACE())
-		{
-			for (unsigned i = 0; i < unit_type -> declaration-> NumInstanceVariables(); i++)
- 			{
-   				AstFieldDeclaration* field_decl = unit_type -> declaration -> InstanceVariable(i);
- 				for (unsigned vi = 0; vi < field_decl -> NumVariableDeclarators(); vi++)
- 				{
-					AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
-
-					TypeSymbol *generic_type = unit_type -> IsOnetoMany(vd -> symbol, d_table) ;
-					if (generic_type && generic_type -> file_symbol)
-					{
-						for (int j = 0; j < d_table -> size(); j++)
-						{
-							DelegationEntry* entry = d_table -> Entry(j);
-							if ((unit_type == entry -> enclosing -> containing_type) && (generic_type == entry -> to))
-							{
-							/*
-								if ((unit_type == generic_type) && (entry -> vsym == vd -> symbol) && (entry -> enclosing == entry -> method) && (entry -> enclosing -> callers -> Size() > 1))
-								{
-									nObserver++;
-									Coutput << "Observer Pattern." << endl
-										<< unit_type -> Utf8Name() << " is an observer iterator." << endl
-										<< generic_type -> Utf8Name() << " is the generic type for the listeners." << endl
-										<< entry -> enclosing -> Utf8Name() << " is the notify method." << endl
-										<< entry -> method -> Utf8Name() << " is the update method." << endl;
-									Coutput << "Subject class(es):";
-									entry -> enclosing -> callers -> Print();
-									Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl << endl;									
-								}
-							*/
-								if (!entry->enclosing->callers 
-									|| (!entry->enclosing->callers -> IsElement(generic_type) 
-										//&& !entry->enclosing->callers -> IsElement(unit_type)
-									     )
-								     )
-								{
-									VariableSymbol *iterator = 0;
-									ControlAnalysis controlflow(entry -> call);
-									if (entry -> enclosing -> declaration -> MethodDeclarationCast()
-									&& entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt)
-										entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt -> Accept(controlflow);
-
-									if (controlflow.result 
-									&& controlflow.IsRepeated()
-									&& entry -> base_opt
-									&& (iterator = IteratorVar(entry->base_opt))
-									&& ((iterator == vd->symbol) 
-										|| (vd->symbol == unit_type -> Shadows(iterator))
-										|| (vd -> symbol == ListVar(iterator))))
-									{
-										// push-model observer pattern
-										nObserver++;
-										Coutput << "Observer Pattern." << endl
-											<< unit_type -> Utf8Name() << " is an observer iterator." << endl
-											<< generic_type -> Utf8Name() << " is the generic type for the listeners." << endl
-											<< entry -> enclosing -> Utf8Name() << " is the notify method." << endl
-											<< entry -> method -> Utf8Name() << " is the update method." << endl;
-										Coutput << "Subject class(es):";
-										if (entry -> enclosing -> callers)
-											entry -> enclosing -> callers -> Print();
-										else
-											Coutput << endl;
-										Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl << endl;									
-									}
-								}							
-							}
-							else if ((generic_type == entry -> enclosing -> containing_type) && (unit_type == entry -> to))
-							{
-							    unsigned j = 0;
-							    for (; (j < cache.size()) && (cache[j] != unit_type) ; j++);
-							    if (j == cache.size())
-							    {
-							     		cache.push_back(unit_type);
-											nMediator++;
-											Coutput << "Mediator Pattern." << endl;
-											Coutput << unit_type -> Utf8Name() << " is the mediator class." << endl
-															<< vd -> symbol -> Utf8Name() << " controls a list of colleagues of type "
-															<< generic_type -> Utf8Name() << "." << endl;
-											Coutput << entry -> method -> Utf8Name() 
-												<< " invokes the mediator. " << endl;
-											Coutput << "Subtype(s) of colleague(s): ";
-											generic_type -> subtypes -> Print();		
-											Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl << endl;									
-							    }
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
 void FindMediator2(ClassSymbolTable *cs_table)
 {
 	map<TypeSymbol*, SymbolSet*> cache;
@@ -5613,17 +5398,15 @@ int Control::run(char** arguments) {
         system_semantic -> PrintMessages();
         return_code = system_semantic -> return_code;
     }
-    else
-    {
+    else {
         //
         // There might be some warnings we want to print.
         //
-        system_semantic -> PrintMessages();
+        system_semantic->PrintMessages();
         input_java_file_set.SetEmpty();
-        for (int j = 0; j < num_files; j++)
-        {
-            FileSymbol* file_symbol = input_files[j];
-            if (! input_java_file_set.IsElement(file_symbol))
+        for (int j = 0; j < num_files; j++) {
+            FileSymbol *file_symbol = input_files[j];
+            if (!input_java_file_set.IsElement(file_symbol))
                 ProcessFile(file_symbol, ast_pool);
         }
 
@@ -5636,159 +5419,160 @@ int Control::run(char** arguments) {
 //    assoc_table -> dumpTable();
 //	d_table -> DumpTable();
 
-    //FindPrototype(mb_table, gen_table, assoc_table);
+        //FindPrototype(mb_table, gen_table, assoc_table);
 
 // breakpoint 1.
 // getchar();
 // Coutput << "breakpoint 1." << endl;
-	d_table->ConcretizeDelegations();
-	ms_table->ExpandCallDependents();
-	cs_table->ExpandSubtypes();
+        d_table->ConcretizeDelegations();
+        ms_table->ExpandCallDependents();
+        cs_table->ExpandSubtypes();
 // breakpoint 2.
 // getchar();	
 
-    Coutput << endl;
-    Coutput << "--------- Original GoF Patterns ----------" << endl << endl;
+        Coutput << endl;
+        Coutput << "--------- Original GoF Patterns ----------" << endl << endl;
 
-    //FindSingleton(cs_table, ms_table);
-    FindSingleton1(cs_table, ast_pool);
+        //FindSingleton(cs_table, ms_table);
+        FindSingleton1(cs_table, ast_pool);
 
-    //FindFlyweight(mb_table, gen_table, assoc_table);
-    //FindFlyweight1(ms_table);
-    //FindFlyweight2(cs_table, w_table, r_table);
-    FindComposite(cs_table, d_table);
-    //FindMediator(cs_table, d_table);
-    //FindTemplateMethod(d_table);
-    //FindFactory(cs_table, ms_table, ast_pool);
-    //FindVisitor(cs_table, ms_table);
-    FindObserver(cs_table, d_table);
-    FindMediator2(cs_table);
-    FindProxy(cs_table, d_table);
-    FindAdapter(cs_table);
-    FindFacade(cs_table);
-    
-    //    FindThreadSafeInterface(d_table);
+        //FindFlyweight(mb_table, gen_table, assoc_table);
+        //FindFlyweight1(ms_table);
+        //FindFlyweight2(cs_table, w_table, r_table);
+        FindComposite(cs_table, d_table);
+        //FindMediator(cs_table, d_table);
+        //FindTemplateMethod(d_table);
+        //FindFactory(cs_table, ms_table, ast_pool);
+        //FindVisitor(cs_table, ms_table);
+        //FindObserver(cs_table, d_table);
+        FindMediator2(cs_table);
+        FindProxy(cs_table, d_table);
+        FindAdapter(cs_table);
+        FindFacade(cs_table);
+
+        //    FindThreadSafeInterface(d_table);
 
 #ifdef PLUGIN_ENABLED
-    Coutput << endl;
-    Coutput << "--------- User-defined Patterns ----------" << endl<< endl;
-	
+        Coutput << endl;
+        Coutput << "--------- User-defined Patterns ----------" << endl<< endl;
 
-  void *handle = dlopen("/home/madonna/sandbox/pinot/src/plugins.dll", RTLD_LAZY);
-  if (!handle)
-  {
-    printf("Error during dlopen(): %s\n", dlerror());
-    exit(1);
-  }
 
-  void (*pattern)(DelegationTable*);
-  pattern = (void (*)(DelegationTable*))dlsym(handle, "FindTemplateMethod");
-  if (!pattern)
-  {
-    printf("Error locating 'FindTemplateMethod' - %s\n", dlerror());
-    exit(1);
-  }
+      void *handle = dlopen("/home/madonna/sandbox/pinot/src/plugins.dll", RTLD_LAZY);
+      if (!handle)
+      {
+        printf("Error during dlopen(): %s\n", dlerror());
+        exit(1);
+      }
 
-  (*pattern)(d_table);
+      void (*pattern)(DelegationTable*);
+      pattern = (void (*)(DelegationTable*))dlsym(handle, "FindTemplateMethod");
+      if (!pattern)
+      {
+        printf("Error locating 'FindTemplateMethod' - %s\n", dlerror());
+        exit(1);
+      }
+
+      (*pattern)(d_table);
 #endif
 
-    // Print Statics
+        // Print Statics
 
 
-    Coutput << endl << "------------------------------------------" << endl << endl;
-    Coutput << "Pattern Instance Statistics:" << endl << endl;
+        Coutput << endl << "------------------------------------------" << endl << endl;
+        Coutput << "Pattern Instance Statistics:" << endl << endl;
 
-    Coutput << "Creational Patterns" << endl;
-    Coutput << "==============================" << endl;
-    Coutput << "Abstract Factory";
-    Coutput.width(30 - sizeof("Abstract Factory"));
-    Coutput << nAbstractFactory << endl;
+        Coutput << "Creational Patterns" << endl;
+        Coutput << "==============================" << endl;
+        Coutput << "Abstract Factory";
+        Coutput.width(30 - sizeof("Abstract Factory"));
+        Coutput << nAbstractFactory << endl;
 
-    Coutput << "Factory Method";
-    Coutput.width(30 - sizeof("Factory Method"));
-    Coutput << nFactoryMethod<< endl;
+        Coutput << "Factory Method";
+        Coutput.width(30 - sizeof("Factory Method"));
+        Coutput << nFactoryMethod << endl;
 
-    Coutput << "Singleton";
-    Coutput.width(30 - sizeof("Singleton"));
-    Coutput << nSingleton << endl;
+        Coutput << "Singleton";
+        Coutput.width(30 - sizeof("Singleton"));
+        Coutput << nSingleton << endl;
 
-		Coutput << "------------------------------" << endl;
-    Coutput << "Structural Patterns" << endl;
-    Coutput << "==============================" << endl;
+        Coutput << "------------------------------" << endl;
+        Coutput << "Structural Patterns" << endl;
+        Coutput << "==============================" << endl;
 
-    Coutput << "Adapter";
-    Coutput.width(30 - sizeof("Adapter"));
-    Coutput << nAdapter << endl;
-    
-    Coutput << "Bridge";
-    Coutput.width(30 - sizeof("Bridge"));
-    Coutput << nBridge<< endl;
+        Coutput << "Adapter";
+        Coutput.width(30 - sizeof("Adapter"));
+        Coutput << nAdapter << endl;
 
-    Coutput << "Composite";
-    Coutput.width(30 - sizeof("Composite"));
-    Coutput << nComposite << endl;
+        Coutput << "Bridge";
+        Coutput.width(30 - sizeof("Bridge"));
+        Coutput << nBridge << endl;
 
-    Coutput << "Decorator";
-    Coutput.width(30 - sizeof("Decorator"));
-    Coutput << nDecorator << endl;
+        Coutput << "Composite";
+        Coutput.width(30 - sizeof("Composite"));
+        Coutput << nComposite << endl;
 
-    Coutput << "Facade";
-    Coutput.width(30 - sizeof("Facade"));
-    Coutput << nFacade << endl;
+        Coutput << "Decorator";
+        Coutput.width(30 - sizeof("Decorator"));
+        Coutput << nDecorator << endl;
 
-    Coutput << "Flyweight";
-    Coutput.width(30 - sizeof("Flyweight"));
-    Coutput << nFlyweight << endl;
+        Coutput << "Facade";
+        Coutput.width(30 - sizeof("Facade"));
+        Coutput << nFacade << endl;
 
-    Coutput << "Proxy";
-    Coutput.width(30 - sizeof("Proxy"));
-    Coutput << nProxy << endl;
-		Coutput << "------------------------------" << endl;
-    Coutput << "Behavioral Patterns" << endl;
-    Coutput << "==============================" << endl;
-    
-    Coutput << "Chain of Responsibility";
-    Coutput.width(30 - sizeof("Chain of Responsibility"));
-    Coutput << nCoR<< endl;
+        Coutput << "Flyweight";
+        Coutput.width(30 - sizeof("Flyweight"));
+        Coutput << nFlyweight << endl;
 
-    Coutput << "Mediator";
-    Coutput.width(30 - sizeof("Mediator"));
-    Coutput << nMediator << endl;
+        Coutput << "Proxy";
+        Coutput.width(30 - sizeof("Proxy"));
+        Coutput << nProxy << endl;
+        Coutput << "------------------------------" << endl;
+        Coutput << "Behavioral Patterns" << endl;
+        Coutput << "==============================" << endl;
 
-    Coutput << "Observer";
-    Coutput.width(30 - sizeof("Observer"));
-    Coutput << nObserver << endl;
+        Coutput << "Chain of Responsibility";
+        Coutput.width(30 - sizeof("Chain of Responsibility"));
+        Coutput << nCoR << endl;
 
-    Coutput << "State";
-    Coutput.width(30 - sizeof("State"));
-    Coutput << nState << endl;
+        Coutput << "Mediator";
+        Coutput.width(30 - sizeof("Mediator"));
+        Coutput << nMediator << endl;
 
-    Coutput << "Strategy";
-    Coutput.width(30 - sizeof("Strategy"));
-    Coutput << nStrategy<< endl;
+        Coutput << "Observer";
+        Coutput.width(30 - sizeof("Observer"));
+        Coutput << nObserver << endl;
 
-    Coutput << "Template Method";
-    Coutput.width(30 - sizeof("Template Method"));
-    Coutput << nTemplate << endl;
+        Coutput << "State";
+        Coutput.width(30 - sizeof("State"));
+        Coutput << nState << endl;
 
-    Coutput << "Visitor";
-    Coutput.width(30 - sizeof("Visitor"));
-    Coutput << nVisitor << endl;
-		Coutput << "------------------------------" << endl;
-		Coutput << endl;	
+        Coutput << "Strategy";
+        Coutput.width(30 - sizeof("Strategy"));
+        Coutput << nStrategy << endl;
 
-    Coutput << "Number of classes processed: " << gen_table -> getSize() << endl;
-    Coutput << "Number of files processed: " << num_files << endl;
-    Coutput << "Size of DelegationTable: " << d_table -> size() << endl;
-    Coutput << "Size of concrete class nodes: " << cs_table -> ConcreteClasses() << endl;
-    Coutput << "Size of undirected invocation edges: " << d_table -> UniqueDirectedCalls () << endl;
+        Coutput << "Template Method";
+        Coutput.width(30 - sizeof("Template Method"));
+        Coutput << nTemplate << endl;
 
-	Coutput << endl << endl;
-	Coutput << "nMediatorFacadeDual/nMediator = " << nMediatorFacadeDual << "/" << nMediator << endl;
-	Coutput << "nImmutable/nFlyweight = " << nImmutable << "/" << nFlyweight << endl;
-	Coutput << "nFlyweightGoFVersion = " << nFlyweightGoFVersion << endl;
+        Coutput << "Visitor";
+        Coutput.width(30 - sizeof("Visitor"));
+        Coutput << nVisitor << endl;
+        Coutput << "------------------------------" << endl;
+        Coutput << endl;
 
-        //
+        Coutput << "Number of classes processed: " << gen_table->getSize() << endl;
+        Coutput << "Number of files processed: " << num_files << endl;
+        Coutput << "Size of DelegationTable: " << d_table->size() << endl;
+        Coutput << "Size of concrete class nodes: " << cs_table->ConcreteClasses() << endl;
+        Coutput << "Size of undirected invocation edges: " << d_table->UniqueDirectedCalls() << endl;
+
+        Coutput << endl << endl;
+        Coutput << "nMediatorFacadeDual/nMediator = " << nMediatorFacadeDual << "/" << nMediator << endl;
+        Coutput << "nImmutable/nFlyweight = " << nImmutable << "/" << nFlyweight << endl;
+        Coutput << "nFlyweightGoFVersion = " << nFlyweightGoFVersion << endl;
+
+    }
+        /*//
         // Clean up all the files that have just been compiled in this new
         // batch.
         //
@@ -6036,7 +5820,7 @@ int Control::run(char** arguments) {
 
 
     delete main_file_clone; // delete the clone of the main source file...
-    delete [] input_files;
+    delete [] input_files;*/
 
     return return_code;
 }

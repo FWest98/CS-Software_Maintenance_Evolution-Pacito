@@ -10,6 +10,124 @@
 
 extern bool PINOT_DEBUG;
 
+bool IsJavaContainer(VariableSymbol *vsym)
+{
+    if (strcmp(vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
+        return true;
+    if (vsym->Type()->supertypes_closure)
+    {
+        Symbol *sym = vsym->Type()->supertypes_closure->FirstElement();
+        while (sym)
+        {
+            TypeSymbol *type = sym->TypeCast();
+            if (strcmp(type->fully_qualified_name->value, "java/util/Iterator") == 0)
+                return true;
+            sym = vsym->Type()->supertypes_closure->NextElement();
+        }
+    }
+    return false;
+}
+
+VariableSymbol *IteratorVar(AstExpression *expression)
+{
+    /*
+        1 - java.util.Iterator
+        2 - array index
+        3 - recursion
+      */
+
+    AstExpression *resolved = Utility::RemoveCasting(expression);
+    if (resolved->kind == Ast::CALL)
+    {
+        AstMethodInvocation *call = resolved->MethodInvocationCast();
+        if (call->base_opt
+            && call->base_opt->symbol->VariableCast()
+            && IsJavaContainer(call->base_opt->symbol->VariableCast())
+            && (strcmp(call->symbol->MethodCast()->Utf8Name(), "next") == 0))
+            return call -> base_opt -> NameCast() -> symbol -> VariableCast();
+    }
+    else if (resolved -> kind == Ast::ARRAY_ACCESS)
+    {
+        if (resolved -> ArrayAccessCast()->base-> kind == Ast::NAME)
+            return resolved -> ArrayAccessCast()->base->symbol->VariableCast();
+    }
+    else if ((resolved->kind == Ast::NAME) && (resolved->NameCast()->symbol->Kind()==Symbol::VARIABLE))
+    {
+        return resolved->NameCast()->symbol ->VariableCast();
+    }
+    return 0;
+}
+VariableSymbol *ListVar(VariableSymbol *vsym)
+{
+    if (!vsym->declarator->variable_initializer_opt
+        || !vsym->declarator->variable_initializer_opt->ExpressionCast())
+        return NULL;
+
+    AstExpression *var_initializer = Utility::RemoveCasting(vsym->declarator->variable_initializer_opt->ExpressionCast());
+
+    // vsym -> IsLocal()
+    // vsym is an iterator that implements java.util.Iterator
+    if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
+    {
+        if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
+        {
+            AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
+            // iterator initialized at declaration
+            if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "iterator") == 0)
+                return (init_call->base_opt->symbol->Kind() == Symbol::VARIABLE)
+                       ? init_call->base_opt->symbol->VariableCast()
+                       : 0;
+            // iterator initialized later in an assignment statement
+            // 	vsym->owner is a Symbol, but if vsym is local then the owner is a MethodSymbol
+            //	verify assignment statement
+            // if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
+        }
+    }
+    else if (strcmp( vsym->Type()->fully_qualified_name->value, "java/util/ListIterator") == 0)
+    {
+        if (vsym -> declarator -> variable_initializer_opt -> kind == Ast::CALL)
+        {
+            AstMethodInvocation *init_call = vsym -> declarator -> variable_initializer_opt -> MethodInvocationCast();
+            // iterator initialized at declaration
+            if (strcmp(init_call -> symbol -> MethodCast() -> Utf8Name(), "listIterator") == 0)
+                return init_call -> base_opt -> NameCast() -> symbol -> VariableCast();
+            // iterator initialized later in an assignment statement
+            // 	vsym->owner is a Symbol, but if vsym is local then the owner is a MethodSymbol
+            //	verify assignment statement
+            // if vsym is not local (which should be rare), and is initialized somewhere else (e.g. in other methods, also rare)
+        }
+    }
+    else if ((vsym->declarator->variable_initializer_opt->kind == Ast::NAME)
+             && (vsym->declarator->variable_initializer_opt->NameCast()->symbol->Kind()==Symbol::VARIABLE))
+    {
+        return vsym->declarator->variable_initializer_opt->NameCast()->symbol->VariableCast();
+    }
+    else if (var_initializer->kind == Ast::CALL)
+    {
+        AstMethodInvocation *init_call = var_initializer->MethodInvocationCast();
+        if (init_call->base_opt && init_call->base_opt->symbol->VariableCast())
+        {
+            if (((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Vector") == 0)
+                 && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "elementAt") == 0))
+                || ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/ArrayList") == 0)
+                    && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "get") == 0))
+                    )
+                return init_call->base_opt->symbol->VariableCast();
+            else if ((strcmp(init_call->base_opt->symbol->VariableCast()->Type()->fully_qualified_name->value, "java/util/Iterator") == 0)
+                     && (strcmp(init_call->symbol->MethodCast()->Utf8Name(), "next") == 0))
+            {
+                VariableSymbol *iterator = init_call->base_opt->symbol->VariableCast();
+                AstMethodInvocation *i_init_call = iterator->declarator->variable_initializer_opt->MethodInvocationCast();
+                // iterator initialized at declaration
+                if (strcmp(i_init_call->symbol->MethodCast()->Utf8Name(), "iterator") == 0)
+                    return i_init_call->base_opt->symbol->VariableCast();
+            }
+        }
+
+    }
+    return NULL;
+}
+
 vector<Pattern::Ptr> Pattern::FindChainOfResponsibility(Control *control) {
     if (PINOT_DEBUG)
         Coutput << "Identifying Cor and Decorator" << endl;
@@ -527,6 +645,8 @@ vector<Pattern::Ptr> Pattern::FindFactory(Control *control) {
         }
     }
 
+    return output;
+
     //check for family of products, Abstract Factory
     /*Symbol *sym = abstract_factories.FirstElement();
     while(sym)
@@ -645,6 +765,121 @@ vector<Pattern::Ptr> Pattern::FindVisitor(Control *control) {
                     }
                 }
                 i++;
+            }
+        }
+    }
+
+    return output;
+}
+
+vector<Pattern::Ptr> Pattern::FindObserver(Control *control)
+{
+    auto cs_table = control->cs_table;
+    auto d_table = control->d_table;
+    vector<Pattern::Ptr> output;
+
+    vector<TypeSymbol*> cache;
+    unsigned c;
+    for (c = 0; c < cs_table ->size(); c++)
+    {
+        TypeSymbol *unit_type = (*cs_table)[c];
+        if (!unit_type -> ACC_INTERFACE())
+        {
+            for (unsigned i = 0; i < unit_type -> declaration-> NumInstanceVariables(); i++)
+            {
+                AstFieldDeclaration* field_decl = unit_type -> declaration -> InstanceVariable(i);
+                for (unsigned vi = 0; vi < field_decl -> NumVariableDeclarators(); vi++)
+                {
+                    AstVariableDeclarator* vd = field_decl -> VariableDeclarator(vi);
+
+                    TypeSymbol *generic_type = unit_type -> IsOnetoMany(vd -> symbol, d_table) ;
+                    if (generic_type && generic_type -> file_symbol)
+                    {
+                        for (int j = 0; j < d_table -> size(); j++)
+                        {
+                            DelegationEntry* entry = d_table -> Entry(j);
+                            if ((unit_type == entry -> enclosing -> containing_type) && (generic_type == entry -> to))
+                            {
+                                /*
+                                    if ((unit_type == generic_type) && (entry -> vsym == vd -> symbol) && (entry -> enclosing == entry -> method) && (entry -> enclosing -> callers -> Size() > 1))
+                                    {
+                                        nObserver++;
+                                        Coutput << "Observer Pattern." << endl
+                                            << unit_type -> Utf8Name() << " is an observer iterator." << endl
+                                            << generic_type -> Utf8Name() << " is the generic type for the listeners." << endl
+                                            << entry -> enclosing -> Utf8Name() << " is the notify method." << endl
+                                            << entry -> method -> Utf8Name() << " is the update method." << endl;
+                                        Coutput << "Subject class(es):";
+                                        entry -> enclosing -> callers -> Print();
+                                        Coutput << "File Location: " << unit_type->file_symbol->FileName() << endl << endl;
+                                    }
+                                */
+                                if (!entry->enclosing->callers
+                                    || (!entry->enclosing->callers -> IsElement(generic_type)
+                                            //&& !entry->enclosing->callers -> IsElement(unit_type)
+                                    )
+                                        )
+                                {
+                                    VariableSymbol *iterator = 0;
+                                    ControlAnalysis controlflow(entry -> call);
+                                    if (entry -> enclosing -> declaration -> MethodDeclarationCast()
+                                        && entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt)
+                                        entry -> enclosing -> declaration -> MethodDeclarationCast() -> method_body_opt -> Accept(controlflow);
+
+                                    if (controlflow.result
+                                        && controlflow.IsRepeated()
+                                        && entry -> base_opt
+                                        && (iterator = IteratorVar(entry->base_opt))
+                                        && ((iterator == vd->symbol)
+                                            || (vd->symbol == unit_type -> Shadows(iterator))
+                                            || (vd -> symbol == ListVar(iterator))))
+                                    {
+                                        auto pattern = make_shared<Observer>();
+                                        pattern->iterator = unit_type;
+                                        pattern->listenerType = generic_type;
+                                        pattern->notify = entry->enclosing;
+                                        pattern->update = entry->method;
+                                        pattern->file = unit_type->file_symbol;
+
+                                        auto subjects = entry->enclosing->callers;
+                                        if(subjects) {
+                                            auto subject = subjects->FirstElement();
+                                            do {
+                                                if (subject->TypeCast())
+                                                    pattern->subjects.push_back(subject->TypeCast());
+                                            } while ((subject = subjects->NextElement()));
+                                        }
+
+                                        output.push_back(pattern);
+                                    }
+                                }
+                            }
+                            else if ((generic_type == entry -> enclosing -> containing_type) && (unit_type == entry -> to))
+                            {
+                                unsigned j = 0;
+                                for (; (j < cache.size()) && (cache[j] != unit_type) ; j++);
+                                if (j == cache.size())
+                                {
+                                    cache.push_back(unit_type);
+
+                                    auto pattern = make_shared<Mediator>();
+                                    pattern->mediator = unit_type;
+                                    pattern->colleagues.push_back(generic_type);
+                                    pattern->file = unit_type->file_symbol;
+
+                                    auto impl = generic_type->subtypes->FirstElement();
+                                    if(impl)
+                                        do {
+                                            if(impl->TypeCast())
+                                                pattern->colleagues.push_back(impl->TypeCast());
+                                        } while ((impl = generic_type->subtypes->NextElement()));
+
+                                    output.push_back(pattern);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

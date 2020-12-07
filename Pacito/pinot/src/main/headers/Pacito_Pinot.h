@@ -79,6 +79,22 @@ JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findTemplateMethod
 JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findFactory
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findVisitor
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findVisitor
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     Pacito_Pinot
+ * Method:    findObserver
+ * Signature: ()[LPacito/Patterns/Pattern;
+ */
+JNIEXPORT jobjectArray JNICALL Java_Pacito_Pinot_findObserver
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

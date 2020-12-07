@@ -73,6 +73,27 @@ jobject Flyweight::ConvertToJava(JNIEnv *env) {
     return obj;
 }
 
+jobject Mediator::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Mediator");
+    setString(env, obj, "Mediator", mediator->Utf8Name());
+    setStringArray(env, obj, "Colleagues", symbolVectorToStringVector(colleagues));
+    setString(env, obj, "File", file->FileName());
+
+    return obj;
+}
+
+jobject Observer::ConvertToJava(JNIEnv *env) {
+    auto obj = makeObject(env, "Pacito/Patterns/Observer");
+    setString(env, obj, "Iterator", iterator->Utf8Name());
+    setString(env, obj, "ListenerType", listenerType->Utf8Name());
+    setString(env, obj, "Notify", notify->Utf8Name());
+    setString(env, obj, "Update", update->Utf8Name());
+    setStringArray(env, obj, "Subjects", symbolVectorToStringVector(subjects));
+    setString(env, obj, "File", file->FileName());
+
+    return obj;
+}
+
 jobject StatePattern::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/State");
     setString(env, obj, "Context", context->Utf8Name());

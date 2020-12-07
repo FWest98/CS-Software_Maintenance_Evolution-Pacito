@@ -18,6 +18,7 @@ public:
     static vector<Ptr> FindTemplateMethod(Control *);
     static vector<Ptr> FindFactory(Control *);
     static vector<Ptr> FindVisitor(Control *);
+    static vector<Ptr> FindObserver(Control *);
 
     virtual void Print() = 0;
     virtual jobject ConvertToJava(JNIEnv *) = 0;
@@ -131,6 +132,45 @@ public:
             }
         }
 
+        Coutput << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Mediator : public Pattern {
+public:
+    TypeSymbol *mediator;
+    vector<TypeSymbol *> colleagues;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Mediator Pattern" << endl;
+        Coutput << "Mediator: " << mediator->Utf8Name() << endl;
+        Coutput << "Colleagues: ";
+        for(auto colleague : colleagues) Coutput << colleague->Utf8Name() << ", ";
+        Coutput << endl << "File location: " << file->FileName() << endl << endl;
+    }
+};
+
+class Observer : public Pattern {
+public:
+    TypeSymbol *iterator;
+    TypeSymbol *listenerType;
+    MethodSymbol *notify;
+    MethodSymbol *update;
+    vector<TypeSymbol *> subjects;
+    FileSymbol *file;
+
+    jobject ConvertToJava(JNIEnv *) override;
+    void Print() override {
+        Coutput << "Observer Pattern" << endl;
+        Coutput << iterator->Utf8Name() << " is an observer iterator" << endl;
+        Coutput << listenerType->Utf8Name() << " is the generic type for the listeners." << endl;
+        Coutput << notify->Utf8Name() << " is the notify method, and " << update->Utf8Name() << " is the update method." << endl;
+        Coutput << "Subject classes: ";
+        for(auto subject : subjects)
+            Coutput << subject->Utf8Name() << ", ";
+        Coutput << endl;
         Coutput << "File location: " << file->FileName() << endl << endl;
     }
 };
