@@ -2110,165 +2110,175 @@ void EmitExpressionAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_
 				unit_type->associates->AddElement(expression->ClassCreationExpressionCast()->symbol->MethodCast()->containing_type);
 			break;
 		case Ast::CALL:
-			EmitDelegation(unit_type, enclosing_method, (AstMethodInvocation*)expression, d_table, w_table);
+		    if(!expression->MethodInvocationCast()) break;
+			EmitDelegation(unit_type, enclosing_method, expression->MethodInvocationCast(), d_table, w_table);
 			break;
 		case Ast::ASSIGNMENT:
-			EmitWriteAccess(unit_type, enclosing_method, (AstAssignmentExpression*)expression, d_table, w_table);
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstAssignmentExpression*)expression) -> expression, d_table, w_table);			
+		    if(!expression->AssignmentExpressionCast()) break;
+			EmitWriteAccess(unit_type, enclosing_method, expression->AssignmentExpressionCast(), d_table, w_table);
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->AssignmentExpressionCast() -> expression, d_table, w_table);
 			break;
 		case Ast::CONDITIONAL:
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstConditionalExpression*)expression) -> test_expression, d_table, w_table);
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstConditionalExpression*)expression) -> true_expression, d_table, w_table);
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstConditionalExpression*)expression )-> false_expression, d_table, w_table);
+		    if(!expression->ConditionalExpressionCast()) break;
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->ConditionalExpressionCast()-> test_expression, d_table, w_table);
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->ConditionalExpressionCast() -> true_expression, d_table, w_table);
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->ConditionalExpressionCast()-> false_expression, d_table, w_table);
 			break;
 		case Ast::CAST:
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstCastExpression*)expression )-> expression, d_table, w_table);
+		    if(!expression->CastExpressionCast()) break;
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->CastExpressionCast()-> expression, d_table, w_table);
 			break;
 		case Ast::PARENTHESIZED_EXPRESSION:
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstParenthesizedExpression*)expression )-> expression, d_table, w_table);			
+		    if(!expression->ParenthesizedExpressionCast()) break;
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->ParenthesizedExpressionCast()-> expression, d_table, w_table);
 			break;
 		case Ast::BINARY:
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstBinaryExpression*)expression )-> left_expression, d_table, w_table);			
-			EmitExpressionAssociation(unit_type, enclosing_method, ((AstBinaryExpression*)expression )-> right_expression, d_table, w_table);			
+		    if(!expression->BinaryExpressionCast()) break;
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->BinaryExpressionCast()-> left_expression, d_table, w_table);
+			EmitExpressionAssociation(unit_type, enclosing_method, expression->BinaryExpressionCast()-> right_expression, d_table, w_table);
 			break;			
 		default:
 			break;
 	}
 }
 
-void EmitStatementAssociation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, AstStatement * statement, DelegationTable * d_table, WriteAccessTable * w_table, ReadAccessTable *r_table)
-{
-	switch (statement -> kind)
-  {
-	    	case Ast::METHOD_BODY:
-    		case Ast::BLOCK: // JLS 14.2
-       	{
-					EmitBlockAssociation(unit_type, enclosing_method, (AstBlock*) statement, d_table, w_table, r_table);
-				}
-					break;
-    		case Ast::LOCAL_VARIABLE_DECLARATION: // JLS 14.3
-      	{
-    			AstLocalVariableStatement *local = (AstLocalVariableStatement *)statement;
-					for (unsigned i = 0; i < local -> NumVariableDeclarators(); i++)
-			        EmitStatementAssociation(unit_type, enclosing_method, local -> VariableDeclarator(i), d_table, w_table, r_table);
-			  }     
-    			break;
-	    	case Ast::EMPTY_STATEMENT: // JLS 14.5
-       		break;
-	    	case Ast::EXPRESSION_STATEMENT: // JLS 14.7
-				{
-					EmitExpressionAssociation(unit_type, enclosing_method, statement -> ExpressionStatementCast() -> expression, d_table, w_table);
+void EmitStatementAssociation(TypeSymbol *unit_type, MethodSymbol *enclosing_method, AstStatement *statement,
+                              DelegationTable *d_table, WriteAccessTable *w_table, ReadAccessTable *r_table) {
+    switch (statement->kind) {
+        case Ast::METHOD_BODY:
+        case Ast::BLOCK: // JLS 14.2
+        {
+            EmitBlockAssociation(unit_type, enclosing_method, (AstBlock *) statement, d_table, w_table, r_table);
         }
-					break;
-	    	case Ast::IF: // JLS 14.8 
-	    	{
-	       	AstIfStatement* if_statement = (AstIfStatement*) statement;
-					EmitExpressionAssociation(unit_type, enclosing_method, if_statement -> expression, d_table, w_table);
-					EmitBlockAssociation(unit_type, enclosing_method, if_statement -> true_statement, d_table, w_table, r_table);
-					if (if_statement -> false_statement_opt)
-						EmitBlockAssociation(unit_type, enclosing_method, if_statement -> false_statement_opt, d_table, w_table, r_table);
-				}
-					break;
-	    	case Ast::SWITCH: // JLS 14.9
-	   		{
-					AstSwitchStatement *cp = statement -> SwitchStatementCast();
-					EmitExpressionAssociation(unit_type, enclosing_method, cp -> expression, d_table, w_table);
-					EmitBlockAssociation(unit_type, enclosing_method, cp-> switch_block, d_table, w_table, r_table);
-				}
-					break;
-	    	case Ast::SWITCH_BLOCK: // JLS 14.9
-	    	{
-					EmitBlockAssociation(unit_type, enclosing_method, statement -> BlockCast(), d_table, w_table, r_table);
-				}
-					break;
-	    	case Ast::SWITCH_LABEL:
-					break;
-				case Ast::WHILE: // JLS 14.10
-				{
-					AstWhileStatement* wp = statement -> WhileStatementCast();
-					EmitExpressionAssociation(unit_type, enclosing_method, wp -> expression, d_table, w_table);
-	       	EmitBlockAssociation(unit_type, enclosing_method, wp -> statement, d_table, w_table, r_table);
-				}
-					break;
-				case Ast::DO: // JLS 14.11
-				{
-	       	AstDoStatement* sp = statement -> DoStatementCast();
-					EmitExpressionAssociation(unit_type, enclosing_method, sp -> expression, d_table, w_table);					
-					EmitBlockAssociation(unit_type, enclosing_method, sp -> statement, d_table, w_table, r_table);
-				}
-					break;
-	    	case Ast::FOR: // JLS 14.12
-	    	{
-	       	AstForStatement* for_statement = statement -> ForStatementCast();
-					if (for_statement -> end_expression_opt)
-						EmitExpressionAssociation(unit_type, enclosing_method, for_statement -> end_expression_opt, d_table, w_table);
-					unsigned i;
-					for (i = 0; i < for_statement -> NumForInitStatements(); i++)
-						EmitStatementAssociation(unit_type, enclosing_method, for_statement -> ForInitStatement(i), d_table, w_table, r_table);
-					for (i = 0; i < for_statement -> NumForUpdateStatements(); i++)
-						EmitStatementAssociation(unit_type, enclosing_method, for_statement -> ForUpdateStatement(i), d_table, w_table, r_table);
-					EmitBlockAssociation(unit_type, enclosing_method, for_statement -> statement, d_table, w_table, r_table);
-				}
-					break;
-	    	case Ast::FOREACH: // JSR 201
-				case Ast::BREAK: // JLS 14.13
-				case Ast::CONTINUE: // JLS 14.14
-					break;
-				case Ast::RETURN: // JLS 14.15
-				{
-					AstReturnStatement *rp = statement -> ReturnStatementCast();
-					if (rp -> expression_opt)
-					{
-						if (rp -> expression_opt -> kind == Ast::NAME)
-							EmitReadAccess(unit_type, enclosing_method, rp -> expression_opt -> NameCast(), r_table);
-						else
-							EmitExpressionAssociation(unit_type, enclosing_method, rp -> expression_opt, d_table, w_table);			
-					}	
-				}
-					break;
-				case Ast::SUPER_CALL:
-	    	case Ast::THIS_CALL:
-    		case Ast::THROW: // JLS 14.16
-    			break;
-		case Ast::SYNCHRONIZED_STATEMENT: // JLS 14.17
-		{
-			EmitBlockAssociation(unit_type, enclosing_method, statement -> SynchronizedStatementCast() -> block, d_table, w_table, r_table);
-		}
-			break;
-		case Ast::TRY: // JLS 14.18
-		{
-			EmitBlockAssociation(unit_type, enclosing_method, statement -> TryStatementCast() -> block, d_table, w_table, r_table);
-		}
-			break;
-		case Ast::CATCH:   // JLS 14.18
-		case Ast::FINALLY: // JLS 14.18
-		case Ast::ASSERT: // JDK 1.4 (JSR 41)
-		case Ast::LOCAL_CLASS: // Class Declaration
-		        //
-		        // This is factored out by the front end; and so must be
-		        // skipped here (remember, interfaces cannot be declared locally).
-		        //
-			break;
-		case Ast::VARIABLE_DECLARATOR:
-		{
-			AstVariableDeclarator *vd = statement -> VariableDeclaratorCast();
-			if (vd -> variable_initializer_opt && vd -> variable_initializer_opt -> ExpressionCast())
-			{
-				AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
-				if (rhs_expression->symbol->VariableCast())
-				{
-					if (!vd->symbol->aliases)
-						vd->symbol->aliases = new SymbolSet();
-					vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
-				}
+            break;
+        case Ast::LOCAL_VARIABLE_DECLARATION: // JLS 14.3
+        {
+            auto local = statement->LocalVariableStatementCast();
+            for (unsigned i = 0; i < local->NumVariableDeclarators(); i++)
+                EmitStatementAssociation(unit_type, enclosing_method, local->VariableDeclarator(i), d_table, w_table,
+                                         r_table);
+        }
+            break;
+        case Ast::EMPTY_STATEMENT: // JLS 14.5
+            break;
+        case Ast::EXPRESSION_STATEMENT: // JLS 14.7
+        {
+            EmitExpressionAssociation(unit_type, enclosing_method, statement->ExpressionStatementCast()->expression,
+                                      d_table, w_table);
+        }
+            break;
+        case Ast::IF: // JLS 14.8
+        {
+            AstIfStatement *if_statement = statement->IfStatementCast();
+            EmitExpressionAssociation(unit_type, enclosing_method, if_statement->expression, d_table, w_table);
+            EmitBlockAssociation(unit_type, enclosing_method, if_statement->true_statement, d_table, w_table, r_table);
+            if (if_statement->false_statement_opt)
+                EmitBlockAssociation(unit_type, enclosing_method, if_statement->false_statement_opt, d_table, w_table,
+                                     r_table);
+        }
+            break;
+        case Ast::SWITCH: // JLS 14.9
+        {
+            AstSwitchStatement *cp = statement->SwitchStatementCast();
+            EmitExpressionAssociation(unit_type, enclosing_method, cp->expression, d_table, w_table);
+            EmitBlockAssociation(unit_type, enclosing_method, cp->switch_block, d_table, w_table, r_table);
+        }
+            break;
+        case Ast::SWITCH_BLOCK: // JLS 14.9
+        {
+            EmitBlockAssociation(unit_type, enclosing_method, statement->BlockCast(), d_table, w_table, r_table);
+        }
+            break;
+        case Ast::SWITCH_LABEL:
+            break;
+        case Ast::WHILE: // JLS 14.10
+        {
+            AstWhileStatement *wp = statement->WhileStatementCast();
+            EmitExpressionAssociation(unit_type, enclosing_method, wp->expression, d_table, w_table);
+            EmitBlockAssociation(unit_type, enclosing_method, wp->statement, d_table, w_table, r_table);
+        }
+            break;
+        case Ast::DO: // JLS 14.11
+        {
+            AstDoStatement *sp = statement->DoStatementCast();
+            EmitExpressionAssociation(unit_type, enclosing_method, sp->expression, d_table, w_table);
+            EmitBlockAssociation(unit_type, enclosing_method, sp->statement, d_table, w_table, r_table);
+        }
+            break;
+        case Ast::FOR: // JLS 14.12
+        {
+            AstForStatement *for_statement = statement->ForStatementCast();
+            if (for_statement->end_expression_opt)
+                EmitExpressionAssociation(unit_type, enclosing_method, for_statement->end_expression_opt, d_table,
+                                          w_table);
+            unsigned i;
+            for (i = 0; i < for_statement->NumForInitStatements(); i++)
+                EmitStatementAssociation(unit_type, enclosing_method, for_statement->ForInitStatement(i), d_table,
+                                         w_table, r_table);
+            for (i = 0; i < for_statement->NumForUpdateStatements(); i++)
+                EmitStatementAssociation(unit_type, enclosing_method, for_statement->ForUpdateStatement(i), d_table,
+                                         w_table, r_table);
+            EmitBlockAssociation(unit_type, enclosing_method, for_statement->statement, d_table, w_table, r_table);
+        }
+            break;
+        case Ast::FOREACH: // JSR 201
+        case Ast::BREAK: // JLS 14.13
+        case Ast::CONTINUE: // JLS 14.14
+            break;
+        case Ast::RETURN: // JLS 14.15
+        {
+            AstReturnStatement *rp = statement->ReturnStatementCast();
+            if (rp->expression_opt) {
+                if (rp->expression_opt->kind == Ast::NAME)
+                    EmitReadAccess(unit_type, enclosing_method, rp->expression_opt->NameCast(), r_table);
+                else
+                    EmitExpressionAssociation(unit_type, enclosing_method, rp->expression_opt, d_table, w_table);
+            }
+        }
+            break;
+        case Ast::SUPER_CALL:
+        case Ast::THIS_CALL:
+        case Ast::THROW: // JLS 14.16
+            break;
+        case Ast::SYNCHRONIZED_STATEMENT: // JLS 14.17
+        {
+            EmitBlockAssociation(unit_type, enclosing_method, statement->SynchronizedStatementCast()->block, d_table,
+                                 w_table, r_table);
+        }
+            break;
+        case Ast::TRY: // JLS 14.18
+        {
+            EmitBlockAssociation(unit_type, enclosing_method, statement->TryStatementCast()->block, d_table, w_table,
+                                 r_table);
+        }
+            break;
+        case Ast::CATCH:   // JLS 14.18
+        case Ast::FINALLY: // JLS 14.18
+        case Ast::ASSERT: // JDK 1.4 (JSR 41)
+        case Ast::LOCAL_CLASS: // Class Declaration
+            //
+            // This is factored out by the front end; and so must be
+            // skipped here (remember, interfaces cannot be declared locally).
+            //
+            break;
+        case Ast::VARIABLE_DECLARATOR: {
+            AstVariableDeclarator *vd = statement->VariableDeclaratorCast();
+            if (vd->variable_initializer_opt && vd->variable_initializer_opt->ExpressionCast()) {
+                AstExpression *rhs_expression = Utility::RemoveCasting(vd->variable_initializer_opt->ExpressionCast());
+                if (rhs_expression->symbol->VariableCast()) {
+                    if (!vd->symbol->aliases)
+                        vd->symbol->aliases = new SymbolSet();
+                    vd->symbol->aliases->AddElement(rhs_expression->symbol->VariableCast());
+                }
 
-				EmitExpressionAssociation(unit_type, enclosing_method, vd -> variable_initializer_opt -> ExpressionCast(), d_table, w_table);
-			}
-		}
-			break;
-		default:
-			break;
-	}
+                EmitExpressionAssociation(unit_type, enclosing_method, vd->variable_initializer_opt->ExpressionCast(),
+                                          d_table, w_table);
+            }
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 void ExtractStructure(WriteAccessTable *w_table, ReadAccessTable *r_table, DelegationTable *d_table,
@@ -5442,7 +5452,7 @@ void Control::ProcessBodies(TypeSymbol *type, StoragePool *ast_pool) {
         // All types belonging to this compilation unit have been processed.
         CheckForUnusedImports(sem);
         if (!option.nocleanup) {
-            CleanUp(sem->source_file_symbol);
+            //CleanUp(sem->source_file_symbol);
         }
     }
 }

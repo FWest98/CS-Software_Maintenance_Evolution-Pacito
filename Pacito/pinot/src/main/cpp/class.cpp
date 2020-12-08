@@ -645,6 +645,7 @@ CodeAttribute::CodeAttribute(ClassFile& buffer)
     , attr_linenumbers(NULL)
     , attr_locals(NULL)
     , attr_stackmap(NULL)
+    , attr_local_types(NULL)
 {
     unsigned remaining = attribute_length - 12;
     // +2 for max_stack, +2 for max_locals, +4 for code_length,
@@ -1732,7 +1733,7 @@ void Semantic::ProcessClassFile(TypeSymbol* type, const char* buffer,
                        unicode_problem);
         type -> MarkBad();
         delete class_data;
-        delete unicode_problem;
+        delete[] unicode_problem;
         return;
     }
 

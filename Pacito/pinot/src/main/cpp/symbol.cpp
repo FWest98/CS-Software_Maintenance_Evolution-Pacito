@@ -1279,6 +1279,7 @@ void FileSymbol::CleanUp()
     if (compilation_unit)
     {
         delete compilation_unit -> ast_pool;
+        compilation_unit->ast_pool = nullptr;
         compilation_unit = NULL;
     }
 

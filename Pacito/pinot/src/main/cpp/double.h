@@ -627,7 +627,7 @@ public:
     BigInt& operator=(const BigInt&);
     BigInt(const BigInt& op) { data = NULL; *this = op; }
     // destructor
-    ~BigInt() { delete data; }
+    ~BigInt() { delete [] data; }
 
 private:
     // resize data[] to be 1<<k elements

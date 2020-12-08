@@ -78,7 +78,7 @@ public:
     jobject ConvertToJava(JNIEnv *) override;
     void Print() override {
         Coutput << "Composite pattern" << endl;
-        Coutput << componentClass->Utf8Name() << " is the composite class" << endl;
+        Coutput << compositeClass->Utf8Name() << " is the composite class" << endl;
         Coutput << instance->Utf8Name() << " is the composite instance" << endl;
         Coutput << componentClass->Utf8Name() << " is the component class" << endl;
         Coutput << "File location: " << file->FileName() << endl;

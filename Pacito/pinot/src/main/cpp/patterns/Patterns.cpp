@@ -1253,7 +1253,7 @@ vector<Pattern::Ptr> Pattern::FindComposite(Control *control) {
                             && unit_type->IsSubtype(vd->symbol->Type()->base_type)) {
 
                             auto pattern = make_shared<Composite>();
-                            pattern->componentClass = unit_type;
+                            pattern->compositeClass = unit_type;
                             pattern->componentClass = vd->symbol->Type()->base_type;
                             pattern->instance = vd->symbol;
                             pattern->file = unit_type->file_symbol;
@@ -1286,7 +1286,7 @@ vector<Pattern::Ptr> Pattern::FindComposite(Control *control) {
                             break;
 
                         auto pattern = make_shared<Composite>();
-                        pattern->componentClass = unit_type;
+                        pattern->compositeClass = unit_type;
                         pattern->componentClass = set.FirstElement()->TypeCast();
                         pattern->instance = vd->symbol;
                         pattern->file = unit_type->file_symbol;

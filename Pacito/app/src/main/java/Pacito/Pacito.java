@@ -5,6 +5,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -74,10 +75,40 @@ public class Pacito implements Callable<Integer> {
         excludeFilters = Arrays.stream(excludes).map(s -> FileSystems.getDefault().getPathMatcher("glob:"+s)).collect(Collectors.toList());
     }
 
+    @CommandLine.Option(names = {"-v"}, description = "Whether to print verbose output")
+    private boolean verbose = false;
+
+    @CommandLine.Option(names = {"--mvn"}, description = "Custom Maven executable (default searches in PATH)")
+    private Path mavenExecutable = null;
+
+    @CommandLine.Option(names = {"--do-mvn"}, description = "Perform Maven package download or not", negatable = true)
+    private boolean maven = true;
+
     private Git git;
 
     @Override
     public Integer call() throws Exception {
+        // Try and find a Maven executable
+        if(verbose) System.out.println("Finding Maven executable");
+        if(mavenExecutable != null) {
+            if(!Files.isExecutable(mavenExecutable))
+                throw new CommandLine.ParameterException(spec.commandLine(),
+                        "Specified Maven executable is not executable!");
+        } else if(maven) {
+            // Find executable
+            for(var dir : System.getenv("PATH").split(File.pathSeparator)) {
+                var file = Path.of(dir, "mvn");
+                if(Files.isExecutable(file)) mavenExecutable = file;
+            }
+
+            if(mavenExecutable == null)
+                throw new CommandLine.ParameterException(spec.commandLine(),
+                        "No Maven executable found in PATH!");
+        }
+        if(!maven) mavenExecutable = null;
+
+        if(verbose) System.out.println("Finding Git commits");
+
         // First we go and test whether the directory is a git repo
         try {
             git = Git.open(source.toFile());
@@ -89,6 +120,7 @@ public class Pacito implements Callable<Integer> {
         // Set branch to current if necessary
         if(branch.equals("@"))
             branch = git.getRepository().getBranch();
+        if(verbose) System.out.println("Working on branch " + branch);
 
         // Find all commits in reverse order (old to new)
         var commits = new ArrayList<RevCommit>();
@@ -99,17 +131,30 @@ public class Pacito implements Callable<Integer> {
         var startOffset = findCommitOffset(start, 0, commits);
         var endOffset = findCommitOffset(end, commits.size() - 1, commits);
 
+        if(verbose)
+            System.out.println("Working on " + (endOffset - startOffset) + " commits, " +
+                "starting at " + commits.get(startOffset).getName() + ", " +
+                "and ending at " + commits.get(endOffset).getName());
+
+        if(verbose) System.out.println("Populating working directories for " + threads + " thread(s)");
+
         // Make working directory for every thread
         for(var i = 0; i < threads; i++) {
-            var dir = workingDirectory.resolve("pacito" + i);
-            Files.createDirectories(dir);
+            var sourceDir = workingDirectory.resolve("pacito" + i);
+            var mavenDir = workingDirectory.resolve("pacito-maven" + i);
+            Files.createDirectories(sourceDir);
+            Files.createDirectories(mavenDir);
 
             // Copy source (if thread > 0 copy from base thread since we assume this to be quick storage)
-            var src = i == 0 ? source : dir.resolve("../pacito0");
-            copyFolder(src, dir, REPLACE_EXISTING);
+            var src = i == 0 ? source : sourceDir.resolve("../pacito0");
+            copyFolder(src, sourceDir, REPLACE_EXISTING);
         }
 
-        System.out.println("Finished copying");
+        // Add rt.jar to working directory
+        var rt = Pacito.class.getResourceAsStream("/rt.jar");
+        Files.copy(rt, workingDirectory.resolve("rt.jar"), REPLACE_EXISTING);
+
+        if(verbose) System.out.println("Starting up threadpool with " + threads + " thread(s)");
 
         // Start threadpool and workers
         var executor = Executors.newFixedThreadPool(threads, new ThreadFactory() {
@@ -124,12 +169,15 @@ public class Pacito implements Callable<Integer> {
         });
 
         // Make tasks
+        if(verbose) System.out.println("Creating tasks");
         var tasks = new ArrayList<Callable<Pinot>>();
         for(int i = startOffset; i < endOffset + 1; i++) {
             var commit = commits.get(i);
-            var runner = new PacitoRunner(i, workingDirectory, commit, excludeFilters);
+            var runner = new PacitoRunner(i, workingDirectory, commit, excludeFilters, mavenExecutable, verbose && (endOffset - startOffset == 0));
             tasks.add(runner);
         }
+
+        if(verbose) System.out.println("Running " + tasks.size() + " tasks");
         var futureResults = executor.invokeAll(tasks);
 
         // Await all the results
@@ -140,6 +188,8 @@ public class Pacito implements Callable<Integer> {
         } catch (InterruptedException ignored) {
             executor.shutdownNow();
         }
+
+        if(verbose) System.out.println("Finished executing tasks, starting processing");
 
         // Process results
         var results = futureResults.stream().map(s -> {

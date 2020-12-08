@@ -25,11 +25,24 @@ dependencies {
     implementation("com.google.guava:guava:29.0-jre")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r")
     implementation("info.picocli:picocli:4.5.2")
+    implementation("org.apache.maven:maven-model:3.6.3")
+    implementation("org.apache.maven.shared:maven-invoker:3.0.1")
 
     compileOnly("org.projectlombok:lombok:1.18.16")
 
     annotationProcessor("org.projectlombok:lombok:1.18.16")
     annotationProcessor("info.picocli:picocli-codegen:4.5.2")
+}
+
+sourceSets {
+    main {
+        java {
+            setSrcDirs(listOf("src/main/java"))
+        }
+        resources {
+            setSrcDirs(listOf("src/main/resources"))
+        }
+    }
 }
 
 application {
