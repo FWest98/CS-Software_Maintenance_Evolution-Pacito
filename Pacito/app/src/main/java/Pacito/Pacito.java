@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
@@ -61,6 +62,18 @@ public class Pacito implements Callable<Integer> {
     @CommandLine.Option(names = {"--end"}, description = "Ending commit number or name (default last commit, inclusive)")
     private String end = "";
 
+    private List<PathMatcher> excludeFilters = new ArrayList<>();
+    @CommandLine.Option(names = {"--exclude"}, description = "Filter for files to exclude (glob pattern)")
+    private void setExcludeFilters(String[] excludes) {
+        if(excludes == null) {
+            excludeFilters = new ArrayList<>();
+            return;
+        }
+
+        // Make path matcher from exclude filter
+        excludeFilters = Arrays.stream(excludes).map(s -> FileSystems.getDefault().getPathMatcher("glob:"+s)).collect(Collectors.toList());
+    }
+
     private Git git;
 
     @Override
@@ -109,10 +122,12 @@ public class Pacito implements Callable<Integer> {
                 return thread;
             }
         });
+
+        // Make tasks
         var tasks = new ArrayList<Callable<Pinot>>();
         for(int i = startOffset; i < endOffset + 1; i++) {
             var commit = commits.get(i);
-            var runner = new PacitoRunner(i, workingDirectory, commit);
+            var runner = new PacitoRunner(i, workingDirectory, commit, excludeFilters);
             tasks.add(runner);
         }
         var futureResults = executor.invokeAll(tasks);

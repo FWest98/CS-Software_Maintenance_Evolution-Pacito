@@ -15,16 +15,19 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class PacitoRunner implements Callable<Pinot> {
-    private Path directory;
-    private Git git;
     private final RevCommit commit;
-    private Pinot pinot;
     private final int number;
+    private Path directory;
+    private List<PathMatcher> excludes;
 
-    public PacitoRunner(int number, Path directory, RevCommit commit) {
+    private Git git;
+    private Pinot pinot;
+
+    public PacitoRunner(int number, Path directory, RevCommit commit, List<PathMatcher> excludes) {
         this.directory = directory;
         this.number = number;
         this.commit = commit;
+        this.excludes = excludes;
     }
 
     @SneakyThrows(UnsupportedOperationException.class)
@@ -53,7 +56,8 @@ public class PacitoRunner implements Callable<Pinot> {
 
         // Call Pinot
         pinot = new Pinot();
-        pinot.initialize(Collections.singletonList("/d/Documents/Studie/Informatica/Software Maintenance and Evolution/Pinot/lib/rt-1.7.jar"));
+        //pinot.initialize(Collections.singletonList("/d/Documents/Studie/Informatica/Software Maintenance and Evolution/Pinot/lib/rt-1.7.jar"));
+        pinot.initialize(Collections.singletonList("/pinot/lib/rt-1.7.jar"));
 
         var files = findFiles("*.java", directory);
         pinot.run(files);
@@ -73,7 +77,9 @@ public class PacitoRunner implements Callable<Pinot> {
             Files.walkFileTree(directory, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                    if (matcher.matches(file.getFileName())) {
+                    // Return all files fitting the pattern, but not matching an exclude
+                    if (matcher.matches(file.getFileName())
+                            && excludes.stream().noneMatch(s -> s.matches(file))) {
                         paths.add(file);
                     }
 

@@ -1400,6 +1400,7 @@ bool Semantic::UncaughtException(TypeSymbol* exception)
         }
         else
         {
+            if(!ctor) return false;
             assert(ctor);
             int k = 0;
             for (k = ctor -> NumThrows() - 1; k >= 0; k--)

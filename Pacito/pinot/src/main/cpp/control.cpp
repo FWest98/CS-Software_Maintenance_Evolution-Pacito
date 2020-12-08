@@ -1983,7 +1983,9 @@ void EmitDelegation(TypeSymbol * unit_type, MethodSymbol * enclosing_method, Ast
     		? expression -> resolution_opt -> MethodInvocationCast() : expression;	
 	assert(method_call);
 
-	MethodSymbol *msym = (MethodSymbol*) method_call -> symbol;
+	MethodSymbol *msym = method_call->symbol->MethodCast();
+	if(!msym) return; // skip bad tokens
+
 	VariableSymbol *vsym = (method_call -> base_opt 
 							&& method_call -> base_opt -> kind == Ast::NAME 
 							&& (method_call -> base_opt -> symbol -> Kind() == Symbol::VARIABLE)) 

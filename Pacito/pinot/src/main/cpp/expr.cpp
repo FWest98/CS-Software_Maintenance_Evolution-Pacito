@@ -474,7 +474,7 @@ void Semantic::ReportMethodNotFound(AstMethodInvocation* method_call,
                     // A protected instance method in the superclass is
                     // inaccessible if the base expression is the wrong type.
                     //
-                    else if (method -> ACC_PROTECTED() &&
+                    else if (base && method -> ACC_PROTECTED() &&
                              ! method -> ACC_STATIC() &&
                              ThisType() -> HasProtectedAccessTo(method -> containing_type))
                     {
