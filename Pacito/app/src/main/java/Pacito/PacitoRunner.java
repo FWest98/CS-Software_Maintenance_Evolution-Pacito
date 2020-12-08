@@ -15,19 +15,27 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class PacitoRunner implements Callable<Pinot> {
-    private final Path directory;
+    private Path directory;
     private Git git;
     private final RevCommit commit;
     private Pinot pinot;
+    private final int number;
 
-    public PacitoRunner(Path directory, RevCommit commit) {
+    public PacitoRunner(int number, Path directory, RevCommit commit) {
         this.directory = directory;
+        this.number = number;
         this.commit = commit;
     }
 
     @SneakyThrows(UnsupportedOperationException.class)
     @Override
     public Pinot call() {
+        // Find directory for this task based on thread number
+        var threadName = Thread.currentThread().getName();
+        var threadNumber = Integer.parseInt(threadName.substring("pacito-".length()));
+
+        directory = directory.resolve("pacito" + threadNumber);
+
         // Git work
         try {
             // Open repository
@@ -50,6 +58,9 @@ public class PacitoRunner implements Callable<Pinot> {
         var files = findFiles("*.java", directory);
         pinot.run(files);
         pinot.cleanUp();
+
+        // Print output
+        System.out.println(number + ": found " + pinot.getResult().numClasses + " classes in commit " + commit.getName());
 
         return pinot;
     }
