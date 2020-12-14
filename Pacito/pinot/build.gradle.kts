@@ -30,7 +30,7 @@ library {
             os.isWindows -> compileTask.get().includes.from("${Jvm.current().javaHome}/include/win32")
         }
 
-        compileTask.get().compilerArgs.addAll(listOf("-Wl,-rpath,/usr/local/lib", "-L/usr/local/lib"))
+        compileTask.get().compilerArgs.addAll(listOf("-Wl,-rpath,/usr/local/lib", "-Wl,-z,defs", "-L/usr/local/lib"))
         compileTask.get().compilerArgs.addAll(listOf("-std=c++20"))
     }
 }

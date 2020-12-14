@@ -277,33 +277,33 @@ struct huft {
 class Unzip
 {
 public:
-    static unsigned long global_bb;                         /* bit buffer */
-    static unsigned global_bk;                    /* bits in bit buffer */
+    thread_local static unsigned long global_bb;                         /* bit buffer */
+    thread_local static unsigned global_bk;                    /* bits in bit buffer */
 
-    static unsigned global_wp;  /* current position in slide */
-    static unsigned global_hufts; /* huff memory usage */
-    static unsigned char slide_buffer[];
-    static struct huft *global_fixed_tl;    /* inflate static */
-    static struct huft *global_fixed_td;    /* inflate static */
-    static int global_fixed_bl,
+    thread_local static unsigned global_wp;  /* current position in slide */
+    thread_local static unsigned global_hufts; /* huff memory usage */
+    thread_local static unsigned char slide_buffer[];
+    thread_local static struct huft *global_fixed_tl;    /* inflate static */
+    thread_local static struct huft *global_fixed_td;    /* inflate static */
+    thread_local static int global_fixed_bl,
                global_fixed_bd;
 #ifdef UNIX_FILE_SYSTEM
-    static FILE *global_file; /* file pointer for zip file */
+    thread_local static FILE *global_file; /* file pointer for zip file */
 #elif defined(WIN32_FILE_SYSTEM)
-    static char *global_file;
+    thread_local static char *global_file;
 #endif
-    static char *global_bufferp; /* current position in output buffer */
+    thread_local static char *global_bufferp; /* current position in output buffer */
 
     /* Tables for deflate from PKZIP's appnote.txt. */
-    static unsigned border[];
-    static unsigned short cplens[];
-    static unsigned short cplext[]; /* Extra bits for literal codes 257..285 */
-    static unsigned short cpdist[]; /* Copy offsets for distance codes 0..29 */
-    static unsigned short cpdext[]; /* Extra bits for distance codes */
+    thread_local static unsigned border[];
+    thread_local static unsigned short cplens[];
+    thread_local static unsigned short cplext[]; /* Extra bits for literal codes 257..285 */
+    thread_local static unsigned short cpdist[]; /* Copy offsets for distance codes 0..29 */
+    thread_local static unsigned short cpdext[]; /* Extra bits for distance codes */
 
     /* moved to consts.h (included in unzip.c), resp. funzip.c */
     /* And'ing with mask_bits[n] masks the lower n bits */
-    static unsigned short mask_bits[];
+    thread_local static unsigned short mask_bits[];
 
     //
     // Huffman code decoding is performed using a multi-level table lookup.
@@ -337,8 +337,8 @@ public:
     // possibly even between compilers.  Your mileage may vary.
     //
 
-    static int lbits;           /* bits in base literal/length lookup table */
-    static int dbits;           /* bits in base distance lookup table */
+    thread_local static int lbits;           /* bits in base literal/length lookup table */
+    thread_local static int dbits;           /* bits in base distance lookup table */
 
     static int huft_build(unsigned *b, unsigned n, unsigned s,
                           unsigned short *d, unsigned short *e,

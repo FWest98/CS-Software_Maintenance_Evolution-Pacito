@@ -131,7 +131,7 @@ ErrorString& ErrorString::operator<<(int n)
 const wchar_t* ErrorString::Array()
 {
     // Not thread-safe, but jikes isn't threaded.
-    static wchar_t* result = NULL;
+    thread_local static wchar_t* result = NULL;
 
     Next() = U_NULL; // zero terminate string
     delete [] result;
@@ -203,7 +203,7 @@ const wchar_t* ErrorInfo::getErrorMessage()
     return msg;
 }
 
-bool ErrorInfo::emacs_style_report = false;
+thread_local bool ErrorInfo::emacs_style_report = false;
 
 const wchar_t* ErrorInfo::getErrorReport()
 {
@@ -583,7 +583,7 @@ struct MessageGroup
 };
 
 
-static Tuple<MessageGroup*> message_groups;
+thread_local static Tuple<MessageGroup*> message_groups;
 
 
 //

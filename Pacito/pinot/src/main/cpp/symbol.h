@@ -271,10 +271,10 @@ public:
     inline bool IsZip() { return PathSym() -> IsZip(); }
     inline Zip* Zipfile() { return PathSym() -> zipfile; }
 
-    static const char* java_suffix;
-    static unsigned java_suffix_length;
-    static const char* class_suffix;
-    static unsigned class_suffix_length;
+    thread_local static const char* java_suffix;
+    thread_local static unsigned java_suffix_length;
+    thread_local static const char* class_suffix;
+    thread_local static unsigned class_suffix_length;
     static bool IsJavaSuffix(char* ptr);
     static bool IsClassSuffix(char* ptr);
     void SetFileName();
@@ -1511,11 +1511,7 @@ public:
         Symbol::_kind = VARIABLE;
     }
 
-    virtual ~VariableSymbol() {
-        delete [] signature_string;
-        delete file_location;
-        delete aliases;
-    }
+    virtual ~VariableSymbol();
 
     void SetOwner(Symbol* owner_)
     {
@@ -1790,7 +1786,7 @@ private:
     Symbol** base;
     unsigned hash_size;
 
-    static unsigned primes[];
+    thread_local static unsigned primes[];
     int prime_index;
 
     unsigned Size()

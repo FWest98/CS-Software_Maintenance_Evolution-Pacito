@@ -22,10 +22,10 @@
 namespace Jikes { // Open namespace Jikes block
 #endif
 
-const char* FileSymbol::java_suffix = StringConstant::U8S_DO_java;
-unsigned FileSymbol::java_suffix_length = strlen(java_suffix);
-const char* FileSymbol::class_suffix = StringConstant::U8S_DO_class;
-unsigned FileSymbol::class_suffix_length = strlen(class_suffix);
+thread_local const char* FileSymbol::java_suffix = StringConstant::U8S_DO_java;
+thread_local unsigned FileSymbol::java_suffix_length = strlen(java_suffix);
+thread_local const char* FileSymbol::class_suffix = StringConstant::U8S_DO_class;
+thread_local unsigned FileSymbol::class_suffix_length = strlen(class_suffix);
 
 bool MethodSymbol::Overrides(MethodSymbol *msym)
 {
@@ -653,7 +653,7 @@ void TypeSymbol::SetSignature(Control& control)
 }
 
 
-unsigned SymbolTable::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
+thread_local unsigned SymbolTable::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
 
 void SymbolTable::Rehash()
 {
@@ -1279,7 +1279,7 @@ void FileSymbol::CleanUp()
     if (compilation_unit)
     {
         delete compilation_unit -> ast_pool;
-        compilation_unit->ast_pool = nullptr;
+        compilation_unit->ast_pool = NULL;
         compilation_unit = NULL;
     }
 
@@ -1630,6 +1630,12 @@ void VariableSymbol::ProcessVariableSignature(Semantic* sem,
                                         token_location));
         assert(! *signature);
     }
+}
+
+VariableSymbol::~VariableSymbol() {
+    delete [] signature_string;
+    delete file_location;
+    delete aliases;
 }
 
 

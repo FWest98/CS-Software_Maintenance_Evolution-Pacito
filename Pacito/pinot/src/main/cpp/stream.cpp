@@ -99,7 +99,7 @@ const wchar_t* StreamError::getErrorMessage()
     return L"Unknown Error";
 }
 
-bool StreamError::emacs_style_report = false;
+thread_local bool StreamError::emacs_style_report = false;
 
 const wchar_t* StreamError::getErrorReport()
 {

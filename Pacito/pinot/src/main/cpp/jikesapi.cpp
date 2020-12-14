@@ -120,7 +120,7 @@ JikesOption::JikesOption()
 {
 }
 
-JikesAPI* JikesAPI::instance = NULL;
+thread_local JikesAPI* JikesAPI::instance = NULL;
 
 JikesAPI::JikesAPI() : option(NULL),
                        parsedOptions(NULL)

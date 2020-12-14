@@ -17,7 +17,7 @@ namespace Jikes { // Open namespace Jikes block
 #endif
 
 
-bool Ast::debug_unparse = false;
+thread_local bool Ast::debug_unparse = false;
 
 // Special top-level form
 void AstCompilationUnit::Unparse(LexStream* lex_stream,

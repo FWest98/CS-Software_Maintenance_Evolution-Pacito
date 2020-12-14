@@ -433,8 +433,8 @@ bool ULongInt::operator>= (const ULongInt op) const
 #endif // HAVE_64BIT_TYPES
 }
 
-const LongInt *LongInt::max_long_const = NULL;
-const LongInt *LongInt::min_long_const = NULL;
+thread_local const LongInt *LongInt::max_long_const = NULL;
+thread_local const LongInt *LongInt::min_long_const = NULL;
 
 LongInt::LongInt(const IEEEfloat &f)
 {

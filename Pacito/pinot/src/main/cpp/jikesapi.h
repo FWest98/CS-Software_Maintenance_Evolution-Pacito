@@ -206,7 +206,7 @@ private:
     JikesOption* option;
     char** parsedOptions;
 
-    static JikesAPI* instance;
+    thread_local static JikesAPI* instance;
 };
 
 #endif // JIKES_API_H_FLAG_

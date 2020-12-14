@@ -96,8 +96,9 @@ public class PacitoRunner implements Callable<Pinot> {
             for (var pomFile : pomFiles) clearModuleDependencies(pomFile, modules);
 
             if (verbose) System.out.println("Downloading and gathering dependent packages");
-            copyDependencies();
-            classpath.addAll(findFiles("*.jar", sourceDirectory).stream().map(Path::toString).collect(Collectors.toList()));
+            var dependencyFolder = sourceDirectory.resolve("dependencies");
+            copyDependencies(dependencyFolder);
+            classpath.addAll(findFiles("*.jar", dependencyFolder).stream().map(Path::toString).collect(Collectors.toList()));
         }
 
         // Call Pinot
@@ -175,8 +176,7 @@ public class PacitoRunner implements Callable<Pinot> {
         }
     }
 
-    private void copyDependencies() {
-        var output = sourceDirectory.resolve("dependencies");
+    private void copyDependencies(Path output) {
         try {
             Files.createDirectories(output);
 

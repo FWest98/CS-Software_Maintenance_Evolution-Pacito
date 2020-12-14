@@ -25,8 +25,8 @@ namespace Jikes { // Open namespace Jikes block
 //
 class Case
 {
-    static char lower[128];
-    static char upper[128];
+    thread_local static char lower[128];
+    thread_local static char upper[128];
 
 public:
 

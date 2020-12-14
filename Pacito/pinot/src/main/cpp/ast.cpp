@@ -18,7 +18,7 @@ namespace Jikes { // Open namespace Jikes block
 #endif
 
 #ifdef JIKES_DEBUG
-unsigned Ast::count = 0;
+thread_local unsigned Ast::count = 0;
 #endif
 
 //

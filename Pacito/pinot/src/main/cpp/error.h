@@ -107,7 +107,7 @@ private:
     short msg_code;
     JikesErrorSeverity severity;
 
-    static bool emacs_style_report;
+    thread_local static bool emacs_style_report;
     LexStream* lex_stream;
 
     const wchar_t* regularErrorString();

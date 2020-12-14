@@ -329,7 +329,7 @@ protected:
     ShadowSymbol** base;
     unsigned hash_size;
 
-    static unsigned primes[];
+    thread_local static unsigned primes[];
     int prime_index;
 
     void Rehash();
@@ -504,7 +504,7 @@ private:
     Element** base;
     unsigned hash_size;
 
-    static unsigned primes[];
+    thread_local static unsigned primes[];
     int prime_index;
 
     void Rehash();

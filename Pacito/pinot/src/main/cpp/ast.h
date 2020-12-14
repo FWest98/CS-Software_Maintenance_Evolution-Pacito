@@ -30,6 +30,12 @@ class MethodSymbol;
 class TypeSymbol;
 class StoragePool;
 struct CaseElement;
+class CreationAnalysis;
+class FlyweightAnalysis;
+class ChainAnalysis;
+class ControlAnalysis;
+class SingletonAnalysis;
+class Flatten;
 
 class VariableSymbolArray
 {
@@ -416,8 +422,8 @@ public:
 	
 #ifdef JIKES_DEBUG
     const unsigned id;
-    static unsigned count;
-    static bool debug_unparse;
+    thread_local static unsigned count;
+    thread_local static bool debug_unparse;
 #endif // JIKES_DEBUG
 
     //
@@ -851,7 +857,7 @@ public:
     virtual int NumDelegation(wchar_t* var_name, wchar_t* method_name, int argn) { return 0; }
     virtual int NumDelegation() { return 0; }
 
-    virtual void Accept(ControlAnalysis& visitor) { visitor.visit(this); }	
+    virtual void Accept(ControlAnalysis& visitor);
     bool conjoint;
 };
 
@@ -954,10 +960,10 @@ public:
     virtual TokenIndex LeftToken() { return left_brace_token; }
     virtual TokenIndex RightToken() { return right_brace_token; }
 
-    void Accept(CreationAnalysis& visitor) override { visitor.visit(this); }
-    void Accept(ControlAnalysis& visitor) override { visitor.visit(this); }
-    void Accept(FlyweightAnalysis& visitor) override { visitor.visit(this); }
-    virtual void Accept(Flatten& visitor) { visitor.visit(this); }
+    void Accept(CreationAnalysis& visitor) override;
+    void Accept(ControlAnalysis& visitor) override;
+    void Accept(FlyweightAnalysis& visitor) override;
+    virtual void Accept(Flatten& visitor);
 
     virtual TypeSymbol *returnsType();    
     virtual bool returnsVar(wchar_t*);
@@ -2998,7 +3004,7 @@ public:
     virtual State* getState(wchar_t*);
     virtual void PrintAssociation(AssocTable* , wchar_t*, wchar_t*, wchar_t*, LexStream&);
 
-    virtual void Accept(ControlAnalysis& visitor) { visitor.visit(this); }	
+    virtual void Accept(ControlAnalysis& visitor);
 };
 
 
@@ -3588,7 +3594,7 @@ public:
 
     virtual void PrintAssociation(AssocTable*, wchar_t*, wchar_t*, wchar_t*, LexStream&);
 
-    virtual void Accept(ControlAnalysis& visitor) { visitor.visit(this); }
+    virtual void Accept(ControlAnalysis& visitor);
 };
 
 
@@ -4218,7 +4224,7 @@ public:
         return class_body_opt ? class_body_opt -> right_brace_token
             : arguments -> right_parenthesis_token;
     }
-    virtual void Accept(CreationAnalysis& visitor) { visitor.visit(this); }	
+    virtual void Accept(CreationAnalysis& visitor);
 };
 
 

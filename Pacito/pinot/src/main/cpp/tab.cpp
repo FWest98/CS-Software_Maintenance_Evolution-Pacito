@@ -14,7 +14,7 @@
 namespace Jikes { // Open namespace Jikes block
 #endif
 
-int Tab::tab_size = Tab::DEFAULT_TAB_SIZE;
+thread_local int Tab::tab_size = Tab::DEFAULT_TAB_SIZE;
 
 //
 // Compute the length of a wide character string segment after expanding tabs,

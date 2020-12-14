@@ -53,7 +53,7 @@ private:
     int right_line_no;
     int right_column_no;
 
-    static bool emacs_style_report;
+    thread_local static bool emacs_style_report;
     LexStream* lex_stream;
 
     void Initialize(LexStream*);

@@ -624,7 +624,7 @@ void Operators::OpDmp(const ConstantPool& constant_pool, const Tuple<u1>& code)
 //
 // stack_effect gives effect on stack of executing an opcode
 //
-int Operators::stack_effect[] =
+thread_local int Operators::stack_effect[] =
 {
     0, // OP_NOP
     1, // OP_ACONST_NULL

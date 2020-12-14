@@ -14,7 +14,7 @@
 namespace Jikes { // Open namespace Jikes block
 #endif
 
-char Case::lower[128] =
+thread_local char Case::lower[128] =
 {
       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
      10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
@@ -31,7 +31,7 @@ char Case::lower[128] =
     U_x, U_y, U_z, 123, 124, 125, 126, 127
 };
 
-char Case::upper[128] =
+thread_local char Case::upper[128] =
 {
       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
      10,  11,  12,  13,  14,  15,  16,  17,  18,  19,

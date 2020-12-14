@@ -2169,7 +2169,7 @@ const wchar_t* ParseErrorInfo::getErrorMessage()
     return s.Array();
 }
 
-bool ParseErrorInfo::emacs_style_report = false;
+thread_local bool ParseErrorInfo::emacs_style_report = false;
 
 const wchar_t* ParseErrorInfo::getErrorReport()
 {

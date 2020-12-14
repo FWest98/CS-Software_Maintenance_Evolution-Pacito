@@ -76,7 +76,7 @@ private:
     unsigned end_location;
     StreamErrorKind kind;
 
-    static bool emacs_style_report;
+    thread_local static bool emacs_style_report;
     LexStream* lex_stream;
 
     int left_line_no;

@@ -7,6 +7,11 @@
 #include "scanner.h"
 #include "control.h"
 #include "Patterns.h"
+#include "ChainAnalysis.h"
+#include "ControlAnalysis.h"
+#include "FactoryAnalysis.h"
+#include "FlyweightAnalysis.h"
+#include "SingletonAnalysis.h"
 
 extern bool PINOT_DEBUG;
 

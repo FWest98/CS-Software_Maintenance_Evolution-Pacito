@@ -28,7 +28,7 @@ public:
     static int Wcslen(wchar_t *line, int start, int end);
 
 private:
-    static int tab_size;
+    thread_local static int tab_size;
 };
 
 #ifdef HAVE_JIKES_NAMESPACE

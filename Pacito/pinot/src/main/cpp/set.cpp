@@ -14,7 +14,7 @@
 namespace Jikes { // Open namespace Jikes block
 #endif
 
-unsigned SymbolSet::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
+thread_local unsigned SymbolSet::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
 
 void SymbolSet::Rehash()
 {
@@ -188,7 +188,7 @@ void SymbolSet::RemoveElement(const Symbol* element)
 }
 
 
-unsigned SymbolMap::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
+thread_local unsigned SymbolMap::primes[] = {DEFAULT_HASH_SIZE, 101, 401, MAX_HASH_SIZE};
 
 void SymbolMap::Rehash()
 {

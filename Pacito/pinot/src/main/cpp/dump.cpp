@@ -229,7 +229,7 @@ void LexStream::Dump()
 const char* Dump(const wchar_t* wstr)
 {
     Tuple<char>& str = *(new Tuple<char>(500));
-    static char* saved_data = NULL;
+    thread_local static char* saved_data = NULL;
 
     const wchar_t* ptr = wstr;
     while (*ptr)

@@ -245,8 +245,8 @@ public:
 
 
 private:
-    static const LongInt* max_long_const;
-    static const LongInt* min_long_const;
+    thread_local static const LongInt* max_long_const;
+    thread_local static const LongInt* min_long_const;
 
 public:
     LongInt operator/(const LongInt) const; // divide

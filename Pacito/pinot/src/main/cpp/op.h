@@ -232,7 +232,7 @@ public:
     };
 
 protected:
-    static int stack_effect[];
+    thread_local static int stack_effect[];
 
 #ifdef JIKES_DEBUG
 public:
