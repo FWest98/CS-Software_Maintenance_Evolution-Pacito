@@ -103,7 +103,7 @@ public class PacitoRunner implements Callable<Pinot> {
 
         // Call Pinot
         if(verbose) System.out.println("Initializing Pinot");
-        pinot = new Pinot();
+        pinot = new Pinot(commit, number);
         pinot.initialize(classpath);
 
         if(verbose) System.out.println("Running Pinot");
@@ -112,6 +112,7 @@ public class PacitoRunner implements Callable<Pinot> {
 
         if(verbose) System.out.println("Finding Patterns");
         pinot.findPatterns();
+        pinot.cleanPaths(sourceDirectory);
         pinot.cleanUp();
 
         // Print output

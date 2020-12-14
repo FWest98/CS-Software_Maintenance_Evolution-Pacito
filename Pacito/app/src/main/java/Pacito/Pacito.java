@@ -1,11 +1,15 @@
 package Pacito;
 
+import Pacito.Patterns.PatternResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.json.JSONArray;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -48,6 +52,11 @@ public class Pacito implements Callable<Integer> {
         this.workingDirectory = directory;
     }
 
+    @CommandLine.Option(names = {"-o", "--output"}, description = "Result output file (default to SD/pacito.out, relative to SD)", defaultValue = "pacito.out")
+    private String outputFileName;
+    private BufferedWriter output;
+    private Path outputFile;
+
     @CommandLine.Option(names = {"-b", "--branch"}, description = "Branch to analyse (@ = current)")
     private String branch = "@";
 
@@ -88,6 +97,19 @@ public class Pacito implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        // Test output file location is valid
+        if(outputFileName.startsWith("/")) // absolute name
+            outputFile = Path.of(outputFileName);
+        else
+            outputFile = source.resolve(outputFileName);
+
+        try {
+            output = new BufferedWriter(new FileWriter(outputFile.toString(), false));
+        } catch(IOException ignored) {
+            throw new CommandLine.ParameterException(spec.commandLine(),
+                    "Specified output file is not writable!");
+        }
+
         // Try and find a Maven executable
         if(verbose) System.out.println("Finding Maven executable");
         if(mavenExecutable != null) {
@@ -132,7 +154,7 @@ public class Pacito implements Callable<Integer> {
         var endOffset = findCommitOffset(end, commits.size() - 1, commits);
 
         if(verbose)
-            System.out.println("Working on " + (endOffset - startOffset) + " commits, " +
+            System.out.println("Working on " + (endOffset - startOffset + 1) + " commits, " +
                 "starting at " + commits.get(startOffset).getName() + ", " +
                 "and ending at " + commits.get(endOffset).getName());
 
@@ -154,9 +176,9 @@ public class Pacito implements Callable<Integer> {
         var rt = Pacito.class.getResourceAsStream("/rt.jar");
         Files.copy(rt, workingDirectory.resolve("rt.jar"), REPLACE_EXISTING);
 
-        if(verbose) System.out.println("Starting up threadpool with " + threads + " thread(s)");
-
         // Start threadpool and workers
+        threads = Math.min(threads, (endOffset - startOffset + 1)); // set to commit count is too many threads
+        if(verbose) System.out.println("Starting up threadpool with " + threads + " thread(s)");
         var executor = Executors.newFixedThreadPool(threads, new ThreadFactory() {
             private int currentThread = 0;
 
@@ -200,6 +222,31 @@ public class Pacito implements Callable<Integer> {
                 return null;
             }
         }).collect(Collectors.toList());
+
+        // Cross-match patterns between commits
+        var patternPool = new ArrayList<PatternResult>();
+        for(var result : results) {
+            // Per pattern check if pattern already exists
+            for(var pattern : result.getPatterns()) {
+                var existingResult = patternPool.stream().filter(s -> s.pattern.equals(pattern)).findFirst();
+                if(existingResult.isPresent()) {
+                    // Update existing pattern
+                    existingResult.get().updateOutroCommit(result.getNumber(), result.getCommit());
+                } else {
+                    // New pattern
+                    patternPool.add(new PatternResult(pattern, result.getNumber(), result.getCommit()));
+                }
+            }
+        }
+
+        // Produce output file
+        if(verbose) System.out.println("Finished processing, writing result file");
+
+        var json = new JSONArray(patternPool);
+        json.write(output, 4, 0);
+
+        if(verbose) System.out.println("Analysis completed");
+        output.close();
 
         return 0;
     }

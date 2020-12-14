@@ -27,6 +27,7 @@ dependencies {
     implementation("info.picocli:picocli:4.5.2")
     implementation("org.apache.maven:maven-model:3.6.3")
     implementation("org.apache.maven.shared:maven-invoker:3.0.1")
+    implementation("org.json:json:20201115")
 
     compileOnly("org.projectlombok:lombok:1.18.16")
 

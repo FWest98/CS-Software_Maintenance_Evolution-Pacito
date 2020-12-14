@@ -177,7 +177,7 @@ jobject Strategy::ConvertToJava(JNIEnv *env) {
 
 jobject Template::ConvertToJava(JNIEnv *env) {
     auto obj = makeObject(env, "Pacito/Patterns/Template");
-    setString(env, obj, "Class", templateClass->Utf8Name());
+    setString(env, obj, "Cls", templateClass->Utf8Name());
     setString(env, obj, "Method", templateMethod->Utf8Name());
     setString(env, obj, "Source", templateSource->Utf8Name());
     setString(env, obj, "File", file->FileName());

@@ -2,6 +2,7 @@ package Pacito;
 
 import Pacito.Patterns.Pattern;
 import lombok.Getter;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -55,7 +56,15 @@ public class Pinot extends JniObject {
     private native Pattern[] findTemplateMethod();
     private native Pattern[] findVisitor();
 
+    @Getter private RevCommit commit;
+    @Getter private int number;
+
     // Public methods
+    public Pinot(RevCommit commit, int number) {
+        this.commit = commit;
+        this.number = number;
+    }
+
     public void initialize(List<String> classPath) throws UnsupportedOperationException {
         ensureClean();
 
@@ -101,6 +110,12 @@ public class Pinot extends JniObject {
         patterns.addAll(Arrays.asList(findVisitor()));
 
         return patterns;
+    }
+
+    public void cleanPaths(Path baseDirectory) {
+        ensureHasRun();
+
+        patterns.forEach(s -> s.cleanPaths(baseDirectory.toString()));
     }
 
     public static class RunStats {
