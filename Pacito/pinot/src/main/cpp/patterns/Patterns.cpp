@@ -690,6 +690,8 @@ vector<Pattern::Ptr> Pattern::FindVisitor(Control *control) {
                                     if (call
                                         && call->base_opt
                                         && (call->base_opt->kind == Ast::NAME)
+                                        && call->base_opt->NameCast()
+                                        && call->base_opt->NameCast()->symbol
                                         && (call->base_opt->NameCast()->symbol->VariableCast() == vsym)) {
                                         bool flag3 = false;
                                         unsigned k = 0;
@@ -1206,7 +1208,6 @@ vector<Pattern::Ptr> Pattern::FindSingleton(Control *control) {
             // Do the behavioral analysis
 
             SingletonAnalysis singleton(instance, GetInstance, ast_pool);
-            //Coutput << unit_type->file_symbol->FileName() << endl;
             if (singleton.ReturnsSingleton()) {
                 auto pattern = make_shared<Singleton>();
                 pattern->singleton = unit_type;
@@ -1215,15 +1216,7 @@ vector<Pattern::Ptr> Pattern::FindSingleton(Control *control) {
                 pattern->file = unit_type->file_symbol;
                 pattern->isMultithreaded = GetInstance->ACC_SYNCHRONIZED();
 
-                pattern->Print();
                 output.push_back(pattern);
-
-                /*Coutput << ((GetInstance->ACC_SYNCHRONIZED()) ? "Multithreaded " : "") << "Singleton Pattern" << endl
-                        << unit_type->Utf8Name() << " is a Singleton class" << endl
-                        << instance->Utf8Name() << " is the Singleton instance" << endl
-                        << GetInstance->Utf8Name() << " creates and returns " << instance->Utf8Name() << endl
-                        << "File location: " << unit_type->file_symbol->FileName() << endl
-                        << ((GetInstance->ACC_SYNCHRONIZED()) ? "Double-checked Locking not used.\n" : "\n") << endl;*/
             }
             singleton.CleanUp();
         }

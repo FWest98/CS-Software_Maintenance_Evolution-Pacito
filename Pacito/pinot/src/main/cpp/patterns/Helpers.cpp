@@ -256,7 +256,9 @@ void Flatten::visit(AstMethodInvocation* call)
     // might want to check all participants in this method invocation
     // e.g., base_opt, 	call->symbol->MethodCast()>Type(), call->arguments->Argument(i), etc
 
-    if ((strcmp(call->symbol->MethodCast()->containing_type->fully_qualified_name->value, "java/security/AccessController") == 0)
+    if (call->symbol
+        && call->symbol->MethodCast()
+        && (strcmp(call->symbol->MethodCast()->containing_type->fully_qualified_name->value, "java/security/AccessController") == 0)
         && (strcmp(call->symbol->MethodCast()->SignatureString(), "(Ljava/security/PrivilegedAction;)Ljava/lang/Object;") == 0))
     {
         AstClassCreationExpression *class_creation = Utility::RemoveCasting(call->arguments->Argument(0))->ClassCreationExpressionCast();

@@ -1428,23 +1428,23 @@ Ast* AstBinaryExpression::Clone(StoragePool* ast_pool)
 {
     AstBinaryExpression* clone =
         ast_pool -> GenBinaryExpression((BinaryExpressionTag) other_tag);
-    clone -> left_expression =
-        (AstExpression*) left_expression -> Clone(ast_pool);
+    if(left_expression)
+        clone -> left_expression = left_expression -> Clone(ast_pool) -> ExpressionCast();
     clone -> binary_operator_token = binary_operator_token;
 
     clone -> binary_operator_token_string = binary_operator_token_string;
     clone->symbol = symbol;
     clone->conjoint = conjoint;
-	
-    clone -> right_expression =
-        (AstExpression*) right_expression -> Clone(ast_pool);
+
+    if(right_expression)
+        clone -> right_expression = right_expression -> Clone(ast_pool) -> ExpressionCast();
     return clone;
 }
 
 Ast* AstInstanceofExpression::Clone(StoragePool* ast_pool)
 {
     AstInstanceofExpression* clone = ast_pool -> GenInstanceofExpression();
-    clone -> expression = (AstExpression*) expression -> Clone(ast_pool);
+    clone -> expression = expression -> Clone(ast_pool) -> ExpressionCast();
     clone -> instanceof_token = instanceof_token;
 
     clone -> instanceof_token_string = instanceof_token_string;

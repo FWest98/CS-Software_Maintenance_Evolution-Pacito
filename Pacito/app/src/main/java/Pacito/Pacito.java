@@ -82,7 +82,7 @@ public class Pacito implements Callable<Integer> {
     private Path mavenExecutable = null;
 
     @CommandLine.Option(names = {"--do-mvn"}, description = "Perform Maven package download or not", negatable = true)
-    private boolean maven = true;
+    private boolean maven = false;
 
     private Git git;
 

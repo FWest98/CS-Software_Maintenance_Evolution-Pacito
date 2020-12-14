@@ -6,14 +6,16 @@ bool FactoryAnalysis::IsFactoryMethod() {
     visited.AddElement(method);
 
     auto x = method->declaration->MethodDeclarationCast()->method_body_opt;
-    if (x) {
+    /*if (x) {
         typedef void (AstMethodBody::*fac)(Flatten &);
         fac y = &AstMethodBody::Accept;
 
         auto z = *x;
         (z.*y)(flatten);
         //z.Accept(flatten);
-    }
+    }*/
+    if(x)
+        x->Accept(flatten);
 
     //flatten.DumpSummary();
 
@@ -29,8 +31,12 @@ bool FactoryAnalysis::IsFactoryMethod() {
                     if (return_stmt->expression_opt) {
                         AstExpression *expression = Utility::RemoveCasting(return_stmt->expression_opt);
 
-                        if (expression->symbol->VariableCast())
+                        if(!expression->symbol) {
+                            // no op
+                        }
+                        else if (expression->symbol->VariableCast()) {
                             returned_var = expression->symbol->VariableCast();
+                        }
                         else if (expression->symbol->MethodCast()) {
                             if (expression->kind == Ast::CLASS_CREATION) {
                                 types.AddElement(expression->symbol->MethodCast()->Type());
@@ -56,7 +62,8 @@ bool FactoryAnalysis::IsFactoryMethod() {
                     }
                 } else if (stmt->kind == Ast::ASSIGNMENT) {
                     AstAssignmentExpression *assignment = stmt->AssignmentExpressionCast();
-                    if (assignment->left_hand_side->symbol->VariableCast()
+                    if (assignment->left_hand_side->symbol
+                        &&  assignment->left_hand_side->symbol->VariableCast()
                         && (assignment->left_hand_side->symbol == returned_var)) {
                         AstExpression *expression = Utility::RemoveCasting(assignment->expression);
                         if (expression->kind == Ast::CLASS_CREATION) {
@@ -98,6 +105,7 @@ bool FactoryAnalysis::IsFactoryMethod() {
                             else if (expression->kind == Ast::CALL) {
                                 // inter-procedural
                                 if (!visited.IsElement(expression->symbol)
+                                    && expression->symbol->MethodCast()
                                     && expression->symbol->MethodCast()->declaration
                                     && expression->symbol->MethodCast()->declaration->MethodDeclarationCast()
                                     &&
