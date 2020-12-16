@@ -106,14 +106,17 @@ public class PacitoRunner implements Callable<Pinot> {
         pinot = new Pinot(commit, number);
         pinot.initialize(classpath);
 
-        if(verbose) System.out.println("Running Pinot");
-        var files = findFiles("*.java", sourceDirectory);
-        pinot.run(files);
+        try {
+            if (verbose) System.out.println("Running Pinot");
+            var files = findFiles("*.java", sourceDirectory);
+            pinot.run(files);
 
-        if(verbose) System.out.println("Finding Patterns");
-        pinot.findPatterns();
-        pinot.cleanPaths(sourceDirectory);
-        pinot.cleanUp();
+            if (verbose) System.out.println("Finding Patterns");
+            pinot.findPatterns();
+            pinot.cleanPaths(sourceDirectory);
+        } finally { // We allow Pinot to crash, but then we do still want to clean up memory, otherwise we get major leaks
+            pinot.cleanUp();
+        }
 
         // Print output
         System.out.println(number + ": found " + pinot.getResult().numClasses + " classes in commit " + commit.getName());
