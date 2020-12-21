@@ -1,4 +1,5 @@
 import org.gradle.internal.jvm.Jvm
+import org.gradle.language.cpp.internal.DefaultCppSharedLibrary
 
 plugins {
     `cpp-library`
@@ -35,19 +36,17 @@ library {
     }
 }
 
+artifacts {
+
+}
+
 tasks.withType<CppCompile> {
     dependsOn(":app:copyHeaders")
 }
 
 // Copy output binary
-tasks {
-    task("copyBinary", Copy::class) {
-        dependsOn("build")
-        from("build/lib")
-        include("**/*")
-        eachFile {
-            path = name
-        }
-        into("build/libs")
-    }
+tasks.register("copyBinary", Copy::class) {
+    dependsOn(tasks.build)
+    from(library.binaries.get().filterIsInstance<DefaultCppSharedLibrary>().map { it.outputs.files })
+    into("${project(":app").projectDir}/src/main/resources")
 }

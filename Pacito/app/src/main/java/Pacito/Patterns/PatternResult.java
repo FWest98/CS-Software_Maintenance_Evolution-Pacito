@@ -16,7 +16,7 @@ public class PatternResult {
     public int outroCommitNumber;
     public String outroCommitMessage;
 
-    public int livespan;
+    public int lifespan;
 
     public PatternResult(Pattern pattern, int introNum, RevCommit intro) {
         this.pattern = pattern;
@@ -36,6 +36,6 @@ public class PatternResult {
         this.outroCommitNumber = outroNum;
         this.outroCommitMessage = outro.getFullMessage();
 
-        this.livespan = outroNum - this.introCommitNumber + 1;
+        this.lifespan = outroNum - this.introCommitNumber + 1;
     }
 }

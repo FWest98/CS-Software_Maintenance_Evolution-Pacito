@@ -228,7 +228,10 @@ public class Pacito implements Callable<Integer> {
         for(var result : results) {
             // Per pattern check if pattern already exists
             for(var pattern : result.getPatterns()) {
-                var existingResult = patternPool.stream().filter(s -> s.pattern.equals(pattern)).findFirst();
+                var existingResult = patternPool.stream().filter(s ->
+                        s.pattern.equals(pattern)
+                        && s.outroCommitNumber == result.getNumber() - 1
+                ).findFirst();
                 if(existingResult.isPresent()) {
                     // Update existing pattern
                     existingResult.get().updateOutroCommit(result.getNumber(), result.getCommit());

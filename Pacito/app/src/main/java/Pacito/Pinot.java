@@ -4,6 +4,7 @@ import Pacito.Patterns.Pattern;
 import lombok.Getter;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,11 @@ import java.util.List;
 // Class representing interaction with Pinot
 public class Pinot extends JniObject {
     static {
-        System.loadLibrary("pinot");
+        try {
+            NativeUtils.loadLibraryFromJar("/libpinot.so");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Lifecycle methods

@@ -51,7 +51,7 @@ application {
     mainClass.set("Pacito.Pacito")
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
     // Add picocli processing
     options.compilerArgs.addAll(listOf("-Aproject=${project.group}/${project.name}"))
 
@@ -60,15 +60,29 @@ tasks.withType<JavaCompile> {
 }
 
 // Copy headers
-tasks {
-    task("copyHeaders", Copy::class) {
-        dependsOn("compileJava")
-        from("${buildDir}/headers")
-        into("${project(":pinot").projectDir}/src/main/headers")
+tasks.register("copyHeaders", Copy::class) {
+    dependsOn(tasks.compileJava)
+    from("${buildDir}/headers")
+    into("${project(":pinot").projectDir}/src/main/headers")
+}
+
+tasks.register("fatJar", Jar::class) {
+    //dependsOn(":pinot:copyBinary")
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    manifest {
+        attributes("Main-Class" to application.mainClass)
     }
+    with(tasks.jar.get() as CopySpec)
+}
+
+tasks.processResources.configure {
+    dependsOn(":pinot:copyBinary")
+}
+
+tasks.withType<Jar> {
+    //dependsOn(":pinot:copyBinary")
 }
 
 tasks.withType<JavaExec> {
-    dependsOn(":pinot:copyBinary")
-    jvmArgs("-Djava.library.path=${project(":pinot").buildDir}/libs")
+    //jvmArgs("-Djava.library.path=${project(":pinot").buildDir}/libs")
 }
