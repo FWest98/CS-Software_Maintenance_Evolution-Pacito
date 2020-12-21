@@ -13,10 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -98,9 +95,13 @@ public class Pacito implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         // Test output file location is valid
-        if(outputFileName.startsWith("/")) // absolute name
+        if(outputFileName.startsWith("/")) {
+            // Absolute name
             outputFile = Path.of(outputFileName);
-        else
+            if(isDocker()) // If in Docker add a warning
+                System.out.println("WARNING: Specified output file is an absolute path while running in Docker. " +
+                        "This might result in data loss.");
+        } else
             outputFile = source.resolve(outputFileName);
 
         try {
@@ -255,8 +256,54 @@ public class Pacito implements Callable<Integer> {
     }
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Pacito()).execute(args);
+        // We want to change some picocli options when running in Docker
+        var cmd = new CommandLine(new Pacito());
+
+        if(isDocker()) {
+            var spec = cmd.getCommandSpec();
+
+            // Hide some options
+            for(var name : List.of("--source", "--working-dir")) {
+                var oldOption = spec.findOption(name);
+                var newOption = CommandLine.Model.OptionSpec.builder(oldOption).hidden(true).build();
+                spec.remove(oldOption);
+                spec.add(newOption);
+            }
+
+            // Change branch option to positional and required
+            var oldOption = spec.findOption("--branch");
+            var newParam = CommandLine.Model.PositionalParamSpec.builder()
+                    .index("0")
+                    .required(true)
+                    .paramLabel("<branch>")
+                    .description(oldOption.description())
+                    .getter(oldOption.getter())
+                    .setter(oldOption.setter())
+                    .build();
+
+            spec.remove(oldOption);
+            spec.add(newParam);
+
+            // Change output file description
+            oldOption = spec.findOption("--output");
+            var newOption = CommandLine.Model.OptionSpec.builder(oldOption)
+                    .description("Result output file, relative to mounted source directory")
+                    .build();
+            spec.remove(oldOption);
+            spec.add(newOption);
+        }
+
+        int exitCode = cmd.execute(args);
         System.exit(exitCode);
+    }
+
+    private static boolean isDocker() {
+        try {
+            var stream = Files.lines(Paths.get("/proc/1/cgroup"));
+            return stream.anyMatch(line -> line.contains("/docker"));
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private void copyFolder(Path source, Path dest, CopyOption... options) throws IOException {

@@ -1,4 +1,4 @@
-#include "../../headers/Pacito_Pinot.h"
+#include <Pacito_Pinot.h>
 #include "../Pacito.h"
 #include "helpers.h"
 #include "../patterns/Patterns.h"
