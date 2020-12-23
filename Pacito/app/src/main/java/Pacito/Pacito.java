@@ -112,8 +112,8 @@ public class Pacito implements Callable<Integer> {
         }
 
         // Try and find a Maven executable
-        if(verbose) System.out.println("Finding Maven executable");
-        if(mavenExecutable != null) {
+        if(maven && verbose) System.out.println("Finding Maven executable");
+        if(maven && mavenExecutable != null) {
             if(!Files.isExecutable(mavenExecutable))
                 throw new CommandLine.ParameterException(spec.commandLine(),
                         "Specified Maven executable is not executable!");
@@ -263,7 +263,7 @@ public class Pacito implements Callable<Integer> {
             var spec = cmd.getCommandSpec();
 
             // Hide some options
-            for(var name : List.of("--source", "--working-dir")) {
+            for(var name : List.of("--source", "--working-dir", "--mvn")) {
                 var oldOption = spec.findOption(name);
                 var newOption = CommandLine.Model.OptionSpec.builder(oldOption).hidden(true).build();
                 spec.remove(oldOption);

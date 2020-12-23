@@ -20,7 +20,7 @@ COPY --chown=gradle:gradle app /src/app
 RUN gradle fatJar
 
 # Then copy over the binaries to a slim runtime image
-FROM openjdk:11-jre
+FROM maven:3.6-jdk-11
 
 RUN mkdir /pacito
 COPY --from=build /src/app/build/libs/app.jar /pacito/app.jar
